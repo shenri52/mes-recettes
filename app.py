@@ -5,9 +5,9 @@ from pages import Importer
 from pages import Saisir
 from pages import Recettes
 from pages import Parametres
-from pages import Sauver_Importer
+from pages import Sauvegarder
 from pages import Partager
-from pages import A_propos
+from pages import Propos
 
 # Configuration de la page
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
