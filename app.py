@@ -48,7 +48,7 @@ with col1:
         st.switch_page("pages/6_Partager.py")
 
 with col2:
-    if st.button("💾 Sauv. / Importer", use_container_width=True):
+    if st.button("💾 Sauvegarder / Importer", use_container_width=True):
         st.switch_page("pages/5_Sauvegarde.py")
     if st.button("ℹ️ À propos", use_container_width=True):
         # Ici on peut soit changer de page, soit afficher un message direct
