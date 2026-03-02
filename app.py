@@ -1,82 +1,71 @@
 import streamlit as st
 
-# Configuration optimisée pour mobile
+# Configuration de la page
 st.set_page_config(page_title="Mes Recettes", layout="centered")
 
-# --- DESIGN "MOBILE FIRST" ---
+# --- CSS RADICAL ET PROPRE ---
 st.markdown("""
     <style>
-    /* Fond de l'écran plus doux */
+    /* Fond de page gris clair pour faire ressortir les boutons blancs */
     .stApp {
-        background-color: #F8F9FA;
+        background-color: #F0F2F5;
     }
 
-    /* Suppression des éléments parasites de Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Titre Noir, Gras, Centré */
+    .titre-app {
+        color: #000000;
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
 
-    /* Style des boutons : Fond Blanc, Texte Noir, Ombre légère */
+    /* BOUTONS : Fond Blanc, Texte Noir, Centrés, Arrondis */
     div.stButton > button {
         background-color: #FFFFFF !important;
         color: #000000 !important;
-        border-radius: 20px !important;
         border: none !important;
-        height: 110px !important;
+        border-radius: 15px !important;
         width: 100% !important;
-        margin-bottom: 10px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-        font-size: 16px !important;
-        font-weight: 500 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
+        height: 100px !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
-    /* Effet tactile au clic */
-    div.stButton > button:active {
-        background-color: #F0F0F0 !important;
-        transform: scale(0.98);
-    }
-
-    /* Centrage du titre */
-    .title-container {
-        text-align: center;
-        padding: 20px 0;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* Ajustement de l'espacement des colonnes pour mobile */
+    [data-testid="column"] {
+        padding: 5px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- TITRE ---
-st.markdown('<div class="title-container"><h1>🍳 Mes Recettes</h1></div>', unsafe_allow_html=True)
+# --- CORPS DE L'APPLICATION ---
 
-# --- GRILLE DE BOUTONS ---
-# On utilise 2 colonnes pour l'aspect "App"
+st.markdown('<h1 class="titre-app">Mes Recettes</h1>', unsafe_allow_html=True)
+
+# Grille de boutons 2x2
 col1, col2 = st.columns(2)
 
 with col1:
     if st.button("📥\nImporter"):
-        st.write("Action : Importer")
-    
+        st.write("Import")
     if st.button("📚\nMes recettes"):
-        st.write("Action : Mes recettes")
-
-    if st.button("💾\nSauvegarder"):
-        st.write("Action : Sauvegarder")
+        st.write("Liste")
+    if st.button("💾\nSauvegarde"):
+        st.write("Save")
 
 with col2:
     if st.button("✍️\nSaisir"):
-        st.write("Action : Saisir")
-
+        st.write("Saisie")
     if st.button("⚙️\nParamètres"):
-        st.write("Action : Paramètres")
-
+        st.write("Réglages")
     if st.button("🔗\nPartager"):
-        st.write("Action : Partager")
+        st.write("Partage")
 
-# Bouton "A propos" centré en bas (plus large)
+# Bouton large en bas
 st.write("---")
 if st.button("ℹ️ A propos"):
-    st.info("Mes Recettes v1.0 - Votre carnet de cuisine digital.")
+    st.info("Version 1.0 - Épurée")
