@@ -1,15 +1,20 @@
 import streamlit as st
 
 def afficher():
-    st.divider()
-    st.subheader("Crédits & Collaboration")
+    st.markdown("---")
+    st.subheader("Crédits du Projet")
     
-    # Mise en page propre avec des colonnes ou du Markdown
-    st.markdown(
-        """
-        * **Idée originale :** Stéphanie HENRI
-        * **Prompteur :** Samuel HENRI
-        * **Code :** Gemini
-        """
-    )
+    # Utilisation de colonnes pour une présentation plus pro
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.write("💡 **Idée originale :**")
+        st.write("✍️ **Prompteur :**")
+        st.write("🤖 **Code :**")
+        
+    with col2:
+        st.write("Stéphanie HENRI")
+        st.write("Samuel HENRI")
+        st.write("Gemini")
+    
     st.info("Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.")
