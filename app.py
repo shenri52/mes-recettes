@@ -2,7 +2,7 @@ import streamlit as st
 
 # Importation depuis le dossier "pages"
 from pages import Importer
-from pages import Saisie
+from pages import Saisir
 from pages import Mes_recettes
 from pages import Parametres
 from pages import Sauver_importer
