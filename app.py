@@ -85,6 +85,4 @@ elif st.session_state.page == "Partager":
 elif st.session_state.page == "Propos":
     Propos.afficher()
     if st.button("⬅️ Retour"): changer_page('accueil')
-                    # Forcer le rafraîchissement pour n'avoir qu'un clic
-            st.rerun()
 
