@@ -11,7 +11,6 @@ if 'page' not in st.session_state:
 
 def changer_page(nom_page):
     st.session_state.page = nom_page
-    st.rerun()
 
 # --- 2. Menu d'accueil ---
 if st.session_state.page == 'accueil':
@@ -41,6 +40,7 @@ if st.session_state.page == 'accueil':
             changer_page("Partager")
         if st.button("ℹ️ A propos", use_container_width=True):
             changer_page("Propos")
+            st.rerun()
 
 # --- 3. Routage (Correction des noms ici) ---
 
