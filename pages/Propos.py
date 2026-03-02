@@ -1,22 +1,15 @@
 import streamlit as st
 
-def main():
-    st.title("À propos de ce projet")
+def afficher():
+    st.divider()
+    st.subheader("Crédits & Collaboration")
     
-    st.divider() # Ajoute une ligne de séparation horizontale
-
-    # Utilisation de colonnes ou d'une liste stylisée
-    st.subheader("L'équipe derrière l'application")
-
+    # Mise en page propre avec des colonnes ou du Markdown
     st.markdown(
         """
         * **Idée originale :** Stéphanie HENRI
         * **Prompteur :** Samuel HENRI
-        * **Développement & Code :** Gemini (Google)
+        * **Code :** Gemini
         """
     )
-
-    st.info("Ce projet a été conçu pour allier créativité humaine et puissance de l'IA.")
-
-if __name__ == "__main__":
-    main()
+    st.info("Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.")
