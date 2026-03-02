@@ -1,94 +1,84 @@
 import streamlit as st
 
-# Configuration de la page pour mobile
-st.set_page_config(page_title="Mes Recettes", page_icon="🍳", layout="centered")
+# Configuration de la page
+st.set_page_config(page_title="Mes Recettes", layout="centered")
 
-# --- STYLE CSS (Le secret du look App) ---
+# --- STYLE CSS PERSONNALISÉ ---
 st.markdown("""
     <style>
-    /* Fond de l'application */
+    /* Fond de l'application (gris très léger pour faire ressortir le blanc) */
     .stApp {
-        background-color: #F2F2F7;
+        background-color: #F7F7F7;
     }
 
-    /* Conteneur de la grille */
-    .main-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        padding: 10px;
-    }
-
-    /* Style des boutons personnalisés */
-    .app-button {
-        background-color: white;
-        border-radius: 20px;
-        padding: 25px 10px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        transition: transform 0.2s;
-        cursor: pointer;
-        border: none;
+    /* Suppression des marges par défaut des colonnes */
+    [data-testid="column"] {
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        text-decoration: none;
-        color: #1C1C1E !important;
     }
 
-    .app-button:active {
-        transform: scale(0.95);
-        background-color: #E5E5EA;
+    /* Style des boutons Streamlit */
+    div.stButton > button {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border: 1px solid #E0E0E0 !important;
+        border-radius: 15px !important;
+        height: 120px !important;
+        width: 150px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.05) !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+        white-space: normal !important; /* Permet au texte de passer à la ligne */
+        line-height: 1.2 !important;
     }
 
-    .icon {
-        font-size: 28px;
-        margin-bottom: 8px;
+    /* Effet au survol / clic */
+    div.stButton > button:hover {
+        border-color: #CCCCCC !important;
+        background-color: #FAFAFA !important;
+        transform: translateY(-2px);
     }
 
-    .label {
-        font-family: 'Segoe UI', Roboto, Helvetica;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    /* Titre personnalisé */
-    .app-title {
+    /* Titre centré */
+    .main-title {
         text-align: center;
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: 800;
         color: #000000;
-        margin-top: 20px;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-weight: 800;
         margin-bottom: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- HEADER ---
-st.markdown('<h1 class="app-title">🍳 Mes Recettes</h1>', unsafe_allow_html=True)
+# --- CONTENU ---
 
-# --- CORPS DE L'INTERFACE (Grille de boutons) ---
-# Note : Comme Streamlit ne gère pas nativement les clics sur du HTML personnalisé facilement, 
-# on utilise des colonnes Streamlit classiques mais stylisées via le CSS injecté plus haut.
+st.markdown('<h1 class="main-title">Mes Recettes</h1>', unsafe_allow_html=True)
 
-def draw_button(icon, label):
-    # On utilise un bouton Streamlit classique qu'on va "hacker" visuellement
-    if st.button(f"{icon}\n\n{label}", key=label):
-        st.toast(f"Ouverture de : {label}")
-
+# Création d'une grille centrée (2 colonnes)
 col1, col2 = st.columns(2)
 
 with col1:
-    draw_button("📥", "Importer une recette")
-    draw_button("📚", "Mes recettes")
-    draw_button("💾", "Sauvegarder / Importer")
-    draw_button("ℹ️", "A propos")
+    if st.button("📥\nImporter une recette"):
+        pass
+    if st.button("📚\nMes recettes"):
+        pass
+    if st.button("💾\nSauvegarder / Importer"):
+        pass
+    if st.button("ℹ️\nA propos"):
+        pass
 
 with col2:
-    draw_button("✍️", "Saisir une recette")
-    draw_button("⚙️", "Paramètres")
-    draw_button("🔗", "Partager")
+    if st.button("✍️\nSaisir une recette"):
+        pass
+    if st.button("⚙️\nParamètres"):
+        pass
+    if st.button("🔗\nPartager"):
+        pass
 
-# --- PIED DE PAGE ---
-st.markdown("<br><p style='text-align: center; color: #8E8E93; font-size: 12px;'>Version 1.2.0</p>", unsafe_allow_html=True)
+# Pied de page discret
+st.markdown("<br><p style='text-align: center; color: #AAAAAA; font-size: 12px;'>v 1.0</p>", unsafe_allow_html=True)
