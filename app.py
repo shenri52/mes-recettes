@@ -1,7 +1,7 @@
 import streamlit as st
 
 # --- 1. Tes Imports (Les noms des fichiers .py ) ---
-from pages import Propos
+import Propos
 
 # Configuration de la page
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
