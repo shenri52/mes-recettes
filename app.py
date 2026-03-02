@@ -11,6 +11,7 @@ if 'page' not in st.session_state:
 
 def changer_page(nom_page):
     st.session_state.page = nom_page
+    st.rerun()
 
 # --- 2. Menu d'accueil ---
 if st.session_state.page == 'accueil':
