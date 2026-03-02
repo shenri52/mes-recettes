@@ -1,12 +1,6 @@
 import streamlit as st
 
-# --- 1. Tes Imports (Les noms des fichiers .py dans /pages) ---
-from pages import Importer
-from pages import Saisir
-from pages import Recettes
-from pages import Parametres
-from pages import Sauvegarder
-from pages import Partager
+# --- 1. Tes Imports (Les noms des fichiers .py ) ---
 from pages import Propos
 
 # Configuration de la page
