@@ -28,13 +28,13 @@ st.title("🍳 Mes Recettes")
 
 # --- Lignes de boutons ---
 if st.button("📥 Importer une recette", use_container_width=True):
-    st.switch_page("pages/1_Importer.py")
+    st.switch_page("pages/Importer.py")
 
 if st.button("✍️ Saisir une recette", use_container_width=True):
-    st.switch_page("pages/2_Saisir.py")
+    st.switch_page("pages/Saisir.py")
 
 if st.button("📖 Mes recettes", use_container_width=True):
-    st.switch_page("pages/3_Mes_Recettes.py")
+    st.switch_page("pages/Mes_Recettes.py")
 
 st.divider()
 
@@ -43,13 +43,13 @@ col1, col2 = st.columns(2)
 
 with col1:
     if st.button("⚙️ Paramètres", use_container_width=True):
-        st.switch_page("pages/4_Parametres.py")
+        st.switch_page("pages/Parametres.py")
     if st.button("🔗 Partager", use_container_width=True):
-        st.switch_page("pages/6_Partager.py")
+        st.switch_page("pages/Partager.py")
 
 with col2:
     if st.button("💾 Sauvegarder / Importer", use_container_width=True):
-        st.switch_page("pages/5_Sauvegarde.py")
+        st.switch_page("pages/Sauver_Importer.py")
     if st.button("ℹ️ À propos", use_container_width=True):
         # Ici on peut soit changer de page, soit afficher un message direct
         st.toast("Version 1.0")
