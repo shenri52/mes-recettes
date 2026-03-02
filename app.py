@@ -1,58 +1,94 @@
 import streamlit as st
 
-# Configuration de la page
+# Configuration de la page pour mobile
 st.set_page_config(page_title="Mes Recettes", page_icon="🍳", layout="centered")
 
-# CSS personnalisé pour un look "App Mobile"
+# --- STYLE CSS (Le secret du look App) ---
 st.markdown("""
     <style>
-    .stButton>button {
-        width: 100%;
-        height: 100px;
-        border-radius: 15px;
-        border: 1px solid #eee;
-        background-color: #ffffff;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
-        font-size: 18px;
-        font-weight: bold;
+    /* Fond de l'application */
+    .stApp {
+        background-color: #F2F2F7;
     }
-    .main {
-        background-color: #f8f9fa;
+
+    /* Conteneur de la grille */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    /* Style des boutons personnalisés */
+    .app-button {
+        background-color: white;
+        border-radius: 20px;
+        padding: 25px 10px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        cursor: pointer;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #1C1C1E !important;
+    }
+
+    .app-button:active {
+        transform: scale(0.95);
+        background-color: #E5E5EA;
+    }
+
+    .icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .label {
+        font-family: 'Segoe UI', Roboto, Helvetica;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* Titre personnalisé */
+    .app-title {
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 800;
+        color: #000000;
+        margin-top: 20px;
+        margin-bottom: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Titre principal
-st.markdown("<h1 style='text-align: center; color: #E63946;'>🍳 Mes Recettes</h1>", unsafe_allow_html=True)
-st.write("---")
+# --- HEADER ---
+st.markdown('<h1 class="app-title">🍳 Mes Recettes</h1>', unsafe_allow_html=True)
 
-# Grille de boutons (2 colonnes pour l'aspect mobile)
+# --- CORPS DE L'INTERFACE (Grille de boutons) ---
+# Note : Comme Streamlit ne gère pas nativement les clics sur du HTML personnalisé facilement, 
+# on utilise des colonnes Streamlit classiques mais stylisées via le CSS injecté plus haut.
+
+def draw_button(icon, label):
+    # On utilise un bouton Streamlit classique qu'on va "hacker" visuellement
+    if st.button(f"{icon}\n\n{label}", key=label):
+        st.toast(f"Ouverture de : {label}")
+
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("📥\n\nImporter"):
-        st.info("Fonction d'importation")
-        
-    if st.button("📚\n\nMes recettes"):
-        st.info("Ouverture du carnet")
-
-    if st.button("💾\n\nSauvegarder"):
-        st.info("Exportation des données")
+    draw_button("📥", "Importer une recette")
+    draw_button("📚", "Mes recettes")
+    draw_button("💾", "Sauvegarder / Importer")
+    draw_button("ℹ️", "A propos")
 
 with col2:
-    if st.button("✍️\n\nSaisir"):
-        st.info("Nouvelle recette")
+    draw_button("✍️", "Saisir une recette")
+    draw_button("⚙️", "Paramètres")
+    draw_button("🔗", "Partager")
 
-    if st.button("⚙️\n\nParamètres"):
-        st.info("Réglages")
-
-    if st.button("🔗\n\nPartager"):
-        st.info("Partage en cours...")
-
-# Bouton large pour le "À propos" en bas
-st.write("")
-if st.button("ℹ️ À propos"):
-    st.write("Version 1.0 - Créé pour les passionnés de cuisine.")
-
-# Barre de navigation simulée ou pied de page
-st.markdown("<br><p style='text-align: center; color: gray; font-size: 0.8em;'>Fait avec ❤️ pour ta cuisine</p>", unsafe_allow_html=True)
+# --- PIED DE PAGE ---
+st.markdown("<br><p style='text-align: center; color: #8E8E93; font-size: 12px;'>Version 1.2.0</p>", unsafe_allow_html=True)
