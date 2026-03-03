@@ -1,5 +1,8 @@
 import streamlit as st
 
+# --- 1. Imports ---
+from pages import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, A_ropos
+
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
