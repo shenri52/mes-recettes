@@ -40,34 +40,35 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    # --- LOGIQUE DE FORÇAGE ---
-    if 'force_refresh' not in st.session_state:
-        st.session_state.force_refresh = False
+    # --- MESSAGE D'INFORMATION ---
+    st.info("💡 Les modifications (ajout, édition, suppression) ne sont pas instantanées. "
+            "Un délai de quelques secondes à une minute peut être nécessaire pour que GitHub mette à jour les données.")
 
     conf = config_github()
     
-    # On déclenche le chargement si la liste est vide OU si on a cliqué sur actualiser
-    if 'toutes_recettes' not in st.session_state or st.session_state.force_refresh:
-        with st.spinner("⚡ Synchronisation forcée..."):
-            url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
-            res_dossier = requests.get(url_dossier, headers=conf['headers'])
-            
-            if res_dossier.status_code == 200:
-                fichiers_github = res_dossier.json()
+    # --- CHARGEMENT DYNAMIQUE ---
+    # On vérifie si on doit charger ou si le nombre de fichiers a changé
+    url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
+    res_dossier = requests.get(url_dossier, headers=conf['headers'])
+    
+    if res_dossier.status_code == 200:
+        fichiers_github = res_dossier.json()
+        jsons_uniques = [f for f in fichiers_github if f['name'].endswith('.json')]
+        
+        if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != len(jsons_uniques):
+            with st.spinner("Synchronisation des recettes..."):
                 data_recettes = []
-                for f in fichiers_github:
-                    if f['name'].endswith('.json'):
-                        # Utilisation du RAW + SHA pour bypasser tout cache possible
-                        raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
-                        res = requests.get(raw_url)
-                        if res.status_code == 200:
-                            try:
-                                d = res.json()
-                                d['chemin_json'] = f['path']
-                                data_recettes.append(d)
-                            except: continue
+                for f in jsons_uniques:
+                    # Utilisation du RAW + SHA pour limiter le cache
+                    raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
+                    res = requests.get(raw_url)
+                    if res.status_code == 200:
+                        try:
+                            d = res.json()
+                            d['chemin_json'] = f['path']
+                            data_recettes.append(d)
+                        except: continue
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
-                st.session_state.force_refresh = False # Reset du flag après succès
 
     # --- FILTRES ---
     if 'toutes_recettes' in st.session_state:
@@ -82,14 +83,6 @@ def afficher():
                 if i.get('Ingrédient'): tous_ingredients.append(i.get('Ingrédient'))
         ings = ["Tous"] + sorted(list(set(tous_ingredients)))
         filtre_ing = col_ing.selectbox("Ingrédient", ings)
-
-        # LE BOUTON ACTUALISER (VERSION RÉPARÉE)
-        if st.button("🔄 Actualiser la liste des recettes", use_container_width=True):
-            st.session_state.force_refresh = True
-            # On vide aussi les autres caches pour être sûr
-            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
-            if 'liste_choix' in st.session_state: del st.session_state.liste_choix
-            st.rerun()
 
         st.divider()
 
@@ -130,7 +123,8 @@ def afficher():
                             
                             if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
                                 st.session_state[m_edit] = False
-                                st.session_state.force_refresh = True # On force le prochain chargement
+                                # On vide le cache local pour forcer le rechargement lors du prochain passage
+                                if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
                         
                         if cc.form_submit_button("❌ Annuler"):
@@ -150,7 +144,7 @@ def afficher():
                         if b1.button(f"🗑️ Supprimer", key=f"d_{idx}"):
                             if supprimer_fichier_github(rec['chemin_json']):
                                 for m in rec.get('images', []): supprimer_fichier_github(m)
-                                st.session_state.force_refresh = True
+                                if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
                         if b2.button(f"✍️ Modifier", key=f"e_{idx}"):
                             st.session_state[m_edit] = True
