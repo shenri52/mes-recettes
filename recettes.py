@@ -129,7 +129,6 @@ def afficher():
                             st.session_state[m_edit] = False
                             st.rerun()
                 else:
-                    # MODE LECTURE
                     t_prep = rec.get('temps_preparation', '')
                     t_cuis = rec.get('temps_cuisson', '')
                     if t_prep or t_cuis:
@@ -148,12 +147,12 @@ def afficher():
                         st.write(f"**Étapes :**\n{rec.get('etapes', '')}")
                         st.divider()
                         b1, b2 = st.columns(2)
-                        if b1.button(f"🗑️ Supprimer", key=f"d_{idx}"):
+                        if b1.button(f"🗑️ Supprimer", key=f"del_btn_{idx}"):
                             if supprimer_fichier_github(rec['chemin_json']):
                                 for m in rec.get('images', []): supprimer_fichier_github(m)
                                 if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
-                        if b2.button(f"✍️ Modifier", key=f"e_{idx}"):
+                        if b2.button(f"✍️ Modifier", key=f"edit_btn_{idx}"):
                             st.session_state[m_edit] = True
                             st.rerun()
                     
@@ -161,7 +160,8 @@ def afficher():
                         st.subheader("🖼️ Galerie")
                         medias = rec.get('images', [])
                         if medias:
-                            kn = f"n_{idx}"
+                            # kn est l'index de l'image
+                            kn = f"img_idx_{idx}"
                             if kn not in st.session_state: st.session_state[kn] = 0
                             cur = st.session_state[kn] % len(medias)
                             
@@ -173,10 +173,15 @@ def afficher():
                                 cols_v = st.columns(len(medias))
                                 for i in range(len(medias)):
                                     btn_label = f"📍" if i == cur else f"{i+1}"
-                                    if cols_v[i].button(btn_label, key=f"v_{idx}_{i}"):
+                                    if cols_v[i].button(btn_label, key=f"vignette_{idx}_{i}"):
                                         st.session_state[kn] = i
                                         st.rerun()
                                 cp, cn = st.columns(2)
-                                if cp.button("⬅️", key=f"p_{idx}"): st.session_state[kn] -= 1; st.rerun()
-                                if cn.button("➡️", key=f"n_{idx}"): st.session_state[kn] += 1; st.rerun()
+                                # J'ai renommé les clés 'p_' et 'n_' pour éviter le conflit
+                                if cp.button("⬅️", key=f"prev_img_btn_{idx}"): 
+                                    st.session_state[kn] -= 1
+                                    st.rerun()
+                                if cn.button("➡️", key=f"next_img_btn_{idx}"): 
+                                    st.session_state[kn] += 1
+                                    st.rerun()
                         else: st.info("Pas d'image.")
