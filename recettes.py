@@ -106,16 +106,15 @@ def afficher():
                         cs, cc = st.columns(2)
                         if cs.form_submit_button("✅ Enregistrer"):
                             new_ings = []
-                            # --- LOGIQUE CORRIGÉE ---
                             for l in e_ings.strip().split('\n'):
-                                if not l.strip(): continue # Ignore les lignes vides
+                                if not l.strip(): continue 
                                 if "|" in l:
-                                    parties = l.split("|", 1) # Split une seule fois
+                                    parties = l.split("|", 1)
                                     q = parties[0].strip()
                                     n = parties[1].strip()
+                                    # Correction de l'assignation pour éviter l'inversion
                                     new_ings.append({"Ingrédient": n, "Quantité": q})
                                 else:
-                                    # Si l'utilisateur oublie le "|", on traite tout comme le nom
                                     new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                             
                             data_mod = {"nom": e_nom, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])}
