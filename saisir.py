@@ -23,7 +23,7 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
         return False
 
 def afficher():
-    st.header("Ajouter une recette")
+    st.header("✍️ Ajouter une recette")
 
     # Initialisation pour la remise à zéro automatique
     if 'form_count' not in st.session_state:
