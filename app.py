@@ -1,7 +1,7 @@
 import streamlit as st
 
 # --- 1. Imports ---
-import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, Propos
+import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, propos
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -47,7 +47,7 @@ if st.session_state.page == 'accueil':
         if st.button("🔗 Partager", use_container_width=True):
             changer_page("Partager")
         if st.button("ℹ️ A propos", use_container_width=True):
-            changer_page("Propos")
+            changer_page("propos")
 
 # --- 3. Routage ---
 # Ici, plus besoin de boutons retour, ils sont gérés au-dessus !
@@ -70,5 +70,5 @@ elif st.session_state.page == "Sauvegarder":
 elif st.session_state.page == "Partager":
     Partager.afficher()
 
-elif st.session_state.page == "Propos":
-    Propos.afficher()
+elif st.session_state.page == "propos":
+    propos.afficher()
