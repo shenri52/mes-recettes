@@ -1,11 +1,7 @@
 import streamlit as st
 
 # --- 1. Imports ---
-# Assure-toi que les fichiers existent bien
-try:
-    from pages import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, Propos
-except:
-    pass 
+from pages import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, Propos
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
