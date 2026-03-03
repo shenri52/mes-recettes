@@ -6,13 +6,6 @@ import Propos
 # Configuration de la page
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
-if 'page' not in st.session_state:
-    st.session_state.page = 'accueil'
-
-# Fonction pour changer de page
-def changer_page(nom_page):
-    st.session_state.page = nom_page
-
 # --- 2. Menu d'accueil ---
 if st.session_state.page == 'accueil':
     st.title("🍳 Mes recettes")
@@ -52,7 +45,7 @@ if st.session_state.page == 'accueil':
             # Forcer le rafraîchissement pour n'avoir qu'un clic
             st.rerun()
         if st.button("ℹ️ A propos", use_container_width=True):
-            changer_page("Propos")
+            st.session_state.page = 'Propos'
             # Forcer le rafraîchissement pour n'avoir qu'un clic
             st.rerun()
 
