@@ -21,7 +21,9 @@ def config_github():
 # 2. RÉCUPÉRATION DES INGRÉDIENTS (ANTI-CACHE)
 def recuperer_ingredients_existants():
     conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
+    # On ajoute un timestamp à l'URL du dossier pour forcer GitHub à l'actualiser
+    import time
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res = requests.get(url, headers=conf['headers'])
     ingredients_trouves = [""]
     
@@ -29,7 +31,7 @@ def recuperer_ingredients_existants():
         fichiers = res.json()
         for f in fichiers:
             if f['name'].endswith('.json'):
-                # Force la lecture avec le SHA pour éviter le cache
+                # On utilise le SHA pour lire le contenu réel sans cache
                 r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
                 if r_res.status_code == 200:
                     data = r_res.json()
@@ -57,18 +59,22 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
 
 # 4. AFFICHAGE DE LA PAGE
 def afficher():
-    st.header("✍️ Ajouter une recette")
+    st.header("...") # Votre titre actuel
 
-    # Initialisation des compteurs
-    if 'form_count' not in st.session_state:
-        st.session_state.form_count = 0
-    if 'ingredients_recette' not in st.session_state:
-        st.session_state.ingredients_recette = []
-    
-    # CHARGEMENT AUTOMATIQUE DES INGRÉDIENTS
-    if 'liste_choix' not in st.session_state or len(st.session_state.liste_choix) <= 1:
-        with st.spinner("Synchronisation des ingrédients..."):
+    # Initialisation des ingrédients si absent
+    if 'liste_choix' not in st.session_state:
+        st.session_state.liste_choix = [""]
+
+    # AJOUT D'UN BOUTON DE SYNCHRO (Optionnel mais recommandé)
+    # Ou forcez le chargement au premier affichage de la page
+    if st.sidebar.button("🔄 Actualiser les ingrédients"):
+        with st.spinner("Synchronisation..."):
             st.session_state.liste_choix = recuperer_ingredients_existants()
+            st.rerun()
+
+    # Si la liste est encore vide (premier lancement), on la charge
+    if len(st.session_state.liste_choix) <= 1:
+        st.session_state.liste_choix = recuperer_ingredients_existants()
 
     # --- FORMULAIRE ---
     with st.container():
