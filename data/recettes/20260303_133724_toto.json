@@ -1,0 +1,12 @@
+{
+    "nom": "toto",
+    "appareil": "Aucun",
+    "ingredients": [
+        {
+            "Ingrédient": "viande",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image/PDF joint",
+    "images": []
+}
