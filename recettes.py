@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import json
 import base64
+import time
 
 def config_github():
     return {
@@ -14,11 +15,19 @@ def config_github():
         }
     }
 
-def charger_fichiers(dossier):
+def envoyer_vers_github(chemin, contenu, message):
     conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{dossier}"
-    res = requests.get(url, headers=conf['headers'])
-    return res.json() if res.status_code == 200 else []
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    # Récupérer le SHA actuel pour écraser le fichier
+    res_get = requests.get(url, headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    
+    contenu_b64 = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
+    data = {"message": message, "content": contenu_b64, "branch": "main"}
+    if sha: data["sha"] = sha
+    
+    res = requests.put(url, headers=conf['headers'], json=data)
+    return res.status_code in [200, 201]
 
 def supprimer_fichier_github(chemin):
     if not chemin: return
@@ -34,8 +43,7 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    # --- CHARGEMENT DYNAMIQUE (FORCE LA MISE À JOUR) ---
-    # On récupère la liste des fichiers sur GitHub pour comparer
+    # --- CHARGEMENT DYNAMIQUE ---
     conf = config_github()
     url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
     res_dossier = requests.get(url_dossier, headers=conf['headers'])
@@ -44,34 +52,28 @@ def afficher():
         fichiers_github = res_dossier.json()
         nb_fichiers_distants = len([f for f in fichiers_github if f['name'].endswith('.json')])
         
-        # On ne recharge que si le nombre de fichiers a changé ou si la liste est vide
         if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != nb_fichiers_distants:
             with st.spinner("Mise à jour de la liste..."):
                 data_recettes = []
                 for f in fichiers_github:
                     if f['name'].endswith('.json'):
-                        # L'astuce du SHA force GitHub à donner le fichier tout juste créé
                         res = requests.get(f"{f['download_url']}?v={f['sha']}")
                         if res.status_code == 200:
                             d = res.json()
                             d['chemin_json'] = f['path']
                             data_recettes.append(d)
-                # On trie par nom pour plus de clarté
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
     # --- BARRE DE RECHERCHE ET FILTRES ---
     col_search, col_app, col_ing = st.columns([2, 1, 1])
-    
     recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
-    
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in st.session_state.toutes_recettes)))
     filtre_app = col_app.selectbox("Appareil", apps)
     
     tous_ingredients = []
     for r in st.session_state.toutes_recettes:
         for i in r.get('ingredients', []):
-            if i.get('Ingrédient'):
-                tous_ingredients.append(i.get('Ingrédient'))
+            if i.get('Ingrédient'): tous_ingredients.append(i.get('Ingrédient'))
     ings = ["Tous"] + sorted(list(set(tous_ingredients)))
     filtre_ing = col_ing.selectbox("Ingrédient", ings)
 
@@ -86,67 +88,95 @@ def afficher():
     # --- AFFICHAGE ---
     for idx, rec in enumerate(recettes_f):
         with st.expander(f"📖 {rec.get('nom', 'Sans nom').upper()}"):
-            col_txt, col_img = st.columns([1, 1])
-            
-            with col_txt:
-                st.subheader("🍴 Préparation") # Vous pouvez changer ce titre ici
-                st.write(f"**Appareil :** {rec.get('appareil', 'Non précisé')}")
-                st.write("**Ingrédients :**")
-                for i in rec.get('ingredients', []):
-                    st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                
-                st.write("**Préparation :**")
-                st.write(rec.get('etapes', 'Aucune étape rédigée.'))
-                
-                st.divider()
-                
-                if st.button(f"🗑️ Supprimer cette recette", key=f"del_{idx}"):
-                    with st.spinner("Suppression..."):
-                        supprimer_fichier_github(rec['chemin_json'])
-                        m_list = rec.get('images', [])
-                        if not m_list and rec.get('image'): m_list = [rec.get('image')]
-                        for m in m_list:
-                            supprimer_fichier_github(m)
+            # Mode Édition
+            if st.checkbox("✍️ Modifier la recette", key=f"edit_check_{idx}"):
+                with st.form(key=f"form_edit_{idx}"):
+                    edit_nom = st.text_input("Nom de la recette", value=rec.get('nom', ''))
+                    edit_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                                          index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(rec.get('appareil', 'Aucun')))
+                    
+                    # Transformation des ingrédients en texte pour édition facile
+                    ing_text = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in rec.get('ingredients', [])])
+                    edit_ings_raw = st.text_area("Ingrédients (Quantité | Nom)", value=ing_text, help="Un par ligne : 200g | Farine")
+                    
+                    edit_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=200)
+                    
+                    if st.form_submit_button("💾 Enregistrer les modifications"):
+                        # Re-transformation du texte en liste d'objets
+                        nouveaux_ings = []
+                        for ligne in edit_ings_raw.strip().split('\n'):
+                            if "|" in ligne:
+                                q, n = ligne.split("|")
+                                nouveaux_ings.append({"Ingrédient": n.strip(), "Quantité": q.strip()})
+                            elif ligne.strip():
+                                nouveaux_ings.append({"Ingrédient": ligne.strip(), "Quantité": ""})
                         
-                        st.session_state.clear() 
-                        st.rerun()
+                        rec_modifiee = {
+                            "nom": edit_nom,
+                            "appareil": edit_app,
+                            "ingredients": nouveaux_ings,
+                            "etapes": edit_etapes,
+                            "images": rec.get('images', [])
+                        }
+                        
+                        if envoyer_vers_github(rec['chemin_json'], json.dumps(rec_modifiee, indent=4, ensure_ascii=False), f"Update {edit_nom}"):
+                            st.success("Modifié ! Mise à jour...")
+                            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+                            time.sleep(1)
+                            st.rerun()
+            
+            # Affichage Normal
+            else:
+                col_txt, col_img = st.columns([1, 1])
+                with col_txt:
+                    st.subheader("🍴 Préparation")
+                    st.write(f"**Appareil :** {rec.get('appareil', 'Non précisé')}")
+                    st.write("**Ingrédients :**")
+                    for i in rec.get('ingredients', []):
+                        st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                    
+                    st.write("**Préparation :**")
+                    st.write(rec.get('etapes', 'Aucune étape rédigée.'))
+                    
+                    st.divider()
+                    
+                    c1, c2 = st.columns(2)
+                    if c1.button(f"🗑️ Supprimer", key=f"del_{idx}"):
+                        with st.spinner("Suppression..."):
+                            supprimer_fichier_github(rec['chemin_json'])
+                            for m in rec.get('images', []): supprimer_fichier_github(m)
+                            st.session_state.clear() 
+                            st.rerun()
 
-            with col_img:
-                st.subheader("🖼️ Galerie") # Vous pouvez changer ce titre ici
-                
-                medias = rec.get('images', [])
-                if not medias and rec.get('image'):
-                    medias = [rec.get('image')]
-                
-                if medias and isinstance(medias, list):
-                    k_nav = f"nav_{idx}"
-                    if k_nav not in st.session_state: st.session_state[k_nav] = 0
-                    curr = st.session_state[k_nav] % len(medias)
-                    
-                    if len(medias) > 1:
-                        c_p, c_c, c_n = st.columns([1, 2, 1])
-                        if c_p.button("⬅️", key=f"p_{idx}"): 
-                            st.session_state[k_nav] -= 1
-                            st.rerun()
-                        c_c.write(f"{curr + 1}/{len(medias)}")
-                        if c_n.button("➡️", key=f"n_{idx}"): 
-                            st.session_state[k_nav] += 1
-                            st.rerun()
-                    
-                    path = medias[curr].strip("/")
-                    if not path.startswith("data/"): path = f"data/{path}"
-                    
-                    conf = config_github()
-                    api_url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path}"
-                    r_api = requests.get(api_url, headers=conf['headers'])
-                    
-                    if r_api.status_code == 200:
-                        img_b64 = r_api.json().get('content')
-                        if img_b64:
-                            img_bytes = base64.b64decode(img_b64)
-                            if path.lower().endswith('.pdf'):
-                                st.download_button("📂 Voir le PDF", img_bytes, file_name=f"{rec.get('nom')}.pdf", key=f"pdf_{idx}")
-                            else:
-                                st.image(img_bytes, use_container_width=True)
-                else:
-                    st.info("Aucun média disponible.")
+                with col_img:
+                    st.subheader("🖼️ Galerie")
+                    medias = rec.get('images', [])
+                    if medias and isinstance(medias, list):
+                        k_nav = f"nav_{idx}"
+                        if k_nav not in st.session_state: st.session_state[k_nav] = 0
+                        curr = st.session_state[k_nav] % len(medias)
+                        
+                        if len(medias) > 1:
+                            c_p, c_c, c_n = st.columns([1, 2, 1])
+                            if c_p.button("⬅️", key=f"p_{idx}"): 
+                                st.session_state[k_nav] -= 1
+                                st.rerun()
+                            c_c.write(f"{curr + 1}/{len(medias)}")
+                            if c_n.button("➡️", key=f"n_{idx}"): 
+                                st.session_state[k_nav] += 1
+                                st.rerun()
+                        
+                        path = medias[curr].strip("/")
+                        if not path.startswith("data/"): path = f"data/{path}"
+                        
+                        r_api = requests.get(f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path}", headers=conf['headers'])
+                        if r_api.status_code == 200:
+                            img_b64 = r_api.json().get('content')
+                            if img_b64:
+                                img_bytes = base64.b64decode(img_b64)
+                                if path.lower().endswith('.pdf'):
+                                    st.download_button("📂 PDF", img_bytes, file_name=f"{rec.get('nom')}.pdf", key=f"pdf_{idx}")
+                                else:
+                                    st.image(img_bytes, use_container_width=True)
+                    else:
+                        st.info("Aucun média.")
