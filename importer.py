@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 import io
 from PIL import Image
+import time
 
 # 1. LA CONFIGURATION (DOIT ÊTRE EN HAUT)
 def config_github():
@@ -22,24 +23,26 @@ def config_github():
 def recuperer_ingredients_existants():
     conf = config_github()
     # On ajoute un timestamp à l'URL du dossier pour forcer GitHub à l'actualiser
-    import time
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
-    res = requests.get(url, headers=conf['headers'])
-    ingredients_trouves = [""]
-    
-    if res.status_code == 200:
-        fichiers = res.json()
-        for f in fichiers:
-            if f['name'].endswith('.json'):
-                # On utilise le SHA pour lire le contenu réel sans cache
-                r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
-                if r_res.status_code == 200:
-                    data = r_res.json()
-                    for ing in data.get('ingredients', []):
-                        nom = ing.get('Ingrédient')
-                        if nom and nom not in ingredients_trouves:
-                            ingredients_trouves.append(nom)
-    return sorted(list(set(ingredients_trouves)))
+    try:
+        res = requests.get(url, headers=conf['headers'])
+        ingredients_trouves = [""]
+        
+        if res.status_code == 200:
+            fichiers = res.json()
+            for f in fichiers:
+                if f['name'].endswith('.json'):
+                    # On utilise le SHA pour lire le contenu réel sans cache
+                    r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
+                    if r_res.status_code == 200:
+                        data = r_res.json()
+                        for ing in data.get('ingredients', []):
+                            nom = ing.get('Ingrédient')
+                            if nom and nom not in ingredients_trouves:
+                                ingredients_trouves.append(nom)
+        return sorted(list(set(ingredients_trouves)))
+    except:
+        return [""]
 
 # 3. L'ENVOI VERS GITHUB
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
@@ -59,22 +62,20 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
 
 # 4. L'AFFICHAGE DE LA PAGE
 def afficher():
-    st.header("...") # Votre titre actuel
+    st.header("📸 Importer photo")
 
-    # Initialisation des ingrédients si absent
-    if 'liste_choix' not in st.session_state:
-        st.session_state.liste_choix = [""]
+    # --- INITIALISATION DES VARIABLES (SÉCURITÉ) ---
+    if 'form_count_img' not in st.session_state:
+        st.session_state.form_count_img = 0
+    if 'ingredients_img' not in st.session_state:
+        st.session_state.ingredients_img = []
+    if 'liste_choix_img' not in st.session_state:
+        st.session_state.liste_choix_img = [""]
 
-    # AJOUT D'UN BOUTON DE SYNCHRO (Optionnel mais recommandé)
-    # Ou forcez le chargement au premier affichage de la page
-    if st.sidebar.button("🔄 Actualiser les ingrédients"):
-        with st.spinner("Synchronisation..."):
-            st.session_state.liste_choix = recuperer_ingredients_existants()
-            st.rerun()
-
-    # Si la liste est encore vide (premier lancement), on la charge
-    if len(st.session_state.liste_choix) <= 1:
-        st.session_state.liste_choix = recuperer_ingredients_existants()
+    # --- SYNCHRONISATION INITIALE ---
+    if len(st.session_state.liste_choix_img) <= 1:
+        with st.spinner("📦 Synchronisation des ingrédients..."):
+            st.session_state.liste_choix_img = recuperer_ingredients_existants()
 
     # --- FORMULAIRE ---
     with st.container():
@@ -95,11 +96,18 @@ def afficher():
         with col3:
             st.write(" ")
             st.write(" ")
-            if st.button("Ajouter", key=f"btn_add_img_{st.session_state.form_count_img}"):
-                if ing_final:
-                    st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
-                    if ing_final not in st.session_state.liste_choix_img:
-                        st.session_state.liste_choix_img.append(ing_final)
+            # Sous-colonnes pour aligner les deux boutons sur la même ligne
+            btn_col_add, btn_col_ref = st.columns([1, 1])
+            with btn_col_add:
+                if st.button("Ajouter", key=f"btn_add_img_{st.session_state.form_count_img}"):
+                    if ing_final:
+                        st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
+                        if ing_final not in st.session_state.liste_choix_img:
+                            st.session_state.liste_choix_img.append(ing_final)
+                        st.rerun()
+            with btn_col_ref:
+                if st.button("🔄", key=f"btn_ref_img_{st.session_state.form_count_img}", help="Actualiser"):
+                    st.session_state.liste_choix_img = recuperer_ingredients_existants()
                     st.rerun()
 
         for i in st.session_state.ingredients_img:
@@ -150,6 +158,7 @@ def afficher():
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data Photo"):
                         st.success("Enregistré sur GitHub !")
                         st.session_state.ingredients_img = []
+                        st.session_state.liste_choix_img = [""] # Force le refresh au prochain chargement
                         st.session_state.form_count_img += 1 
                         st.rerun()
         else:
