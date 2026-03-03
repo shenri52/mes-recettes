@@ -45,7 +45,7 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
     return res.status_code in [200, 201]
 
 def afficher():
-    st.header("📥 Importer une recette")
+    st.header("📸 Importer photo")
 
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
@@ -56,9 +56,15 @@ def afficher():
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"ni_{st.session_state.form_count_img}")
-        type_appareil = st.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"ai_{st.session_state.form_count_img}")
+        
+        c_app, c_prep, c_cuis = st.columns(3)
+        with c_app:
+            type_appareil = st.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"ai_{st.session_state.form_count_img}")
+        with c_prep:
+            tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
+        with c_cuis:
+            tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
-        # --- ALIGNEMENT DES BOUTONS SUR UNE LIGNE ---
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
@@ -99,10 +105,17 @@ def afficher():
                         if envoyer_vers_github(ch, f.getvalue(), "Media", True):
                             liste_medias.append(ch)
 
-                data = {"nom": nom_plat, "appareil": type_appareil, "ingredients": st.session_state.ingredients_img, "etapes": "Voir image jointe", "images": liste_medias}
+                data = {
+                    "nom": nom_plat, 
+                    "appareil": type_appareil, 
+                    "temps_preparation": tps_prep,
+                    "temps_cuisson": tps_cuis,
+                    "ingredients": st.session_state.ingredients_img, 
+                    "etapes": "Voir image jointe", 
+                    "images": liste_medias
+                }
                 if envoyer_vers_github(f"data/recettes/{timestamp}_{nom_fic}.json", json.dumps(data, indent=4, ensure_ascii=False), "Import"):
                     st.success("Importé !")
-                    # RESET & CLEAN CACHE
                     st.session_state.ingredients_img = []
                     if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                     st.session_state.form_count_img += 1
