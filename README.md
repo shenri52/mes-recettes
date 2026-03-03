@@ -11,6 +11,13 @@ Application interactive développée avec **Streamlit** pour gérer vos recettes
     * Galerie photo avec navigation fluide (Précédent/Suivant).
     * Mode modification pour corriger vos fiches à la volée.
 
+## 🛠️ Technologies utilisées
+
+* **Python** : Langage principal du projet.
+* **Streamlit** : Framework utilisé pour créer l'interface utilisateur web.
+* **GitHub API** : Utilisée pour le stockage dynamique des données (fichiers JSON et images) sans nécessité de base de données externe.
+* **PIL (Pillow)** : Bibliothèque dédiée au traitement, à l'optimisation et à la manipulation des images.
+* 
 ---
 
 ## ⚙️ Configuration GitHub (Indispensable)
