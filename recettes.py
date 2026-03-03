@@ -40,9 +40,6 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    # --- MESSAGE D'INFORMATION ---
-    st.info("💡 Les modifications ne sont pas instantanées. Un délai est nécessaire pour que GitHub mette à jour les données.")
-
     conf = config_github()
     
     # --- CHARGEMENT DYNAMIQUE ---
