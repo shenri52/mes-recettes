@@ -40,10 +40,12 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
+    # --- MESSAGE D'INFORMATION ---
+    st.info("💡 Les modifications ne sont pas instantanées. Un délai est nécessaire pour que GitHub mette à jour les données.")
+
     conf = config_github()
     
     # --- CHARGEMENT DYNAMIQUE ---
-    # On vérifie si on doit charger ou si le nombre de fichiers a changé
     url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res_dossier = requests.get(url_dossier, headers=conf['headers'])
     
@@ -55,7 +57,6 @@ def afficher():
             with st.spinner("Synchronisation des recettes..."):
                 data_recettes = []
                 for f in jsons_uniques:
-                    # Utilisation du RAW + SHA pour limiter le cache
                     raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
                     res = requests.get(raw_url)
                     if res.status_code == 200:
@@ -108,18 +109,22 @@ def afficher():
                         cs, cc = st.columns(2)
                         if cs.form_submit_button("✅ Enregistrer"):
                             new_ings = []
+                            # --- LOGIQUE CORRIGÉE ---
                             for l in e_ings.strip().split('\n'):
+                                if not l.strip(): continue # Ignore les lignes vides
                                 if "|" in l:
-                                    q, n = l.split("|")
-                                    new_ings.append({"Ingrédient": n.strip(), "Quantité": q.strip()})
-                                elif l.strip():
+                                    parties = l.split("|", 1) # Split une seule fois
+                                    q = parties[0].strip()
+                                    n = parties[1].strip()
+                                    new_ings.append({"Ingrédient": n, "Quantité": q})
+                                else:
+                                    # Si l'utilisateur oublie le "|", on traite tout comme le nom
                                     new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                             
                             data_mod = {"nom": e_nom, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])}
                             
                             if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
                                 st.session_state[m_edit] = False
-                                # On vide le cache local pour forcer le rechargement lors du prochain passage
                                 if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
                         
