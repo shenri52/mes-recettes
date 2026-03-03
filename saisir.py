@@ -34,11 +34,19 @@ def afficher():
         st.session_state.ingredients_recette = []
     
     if 'liste_choix' not in st.session_state:
-        st.session_state.liste_choix = ["", "Farine", "Sucre", "Œuf", "Lait", "Beurre", "Chocolat"]
+        # Initialisation vide pour accueillir le contenu de la colonne Ingrédients
+        st.session_state.liste_choix = [""]
 
     # On utilise un conteneur avec une clé unique pour tout vider d'un coup
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{st.session_state.form_count}")
+        
+        # --- CHOIX DE L'APPAREIL SOUS LE NOM ---
+        type_appareil = st.selectbox(
+            "Appareil utilisé", 
+            options=["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+            key=f"appareil_{st.session_state.form_count}"
+        )
 
         # --- LIGNE D'AJOUT D'INGRÉDIENTS ---
         col1, col2, col3 = st.columns([2, 1, 1])
@@ -74,7 +82,7 @@ def afficher():
         etapes = st.text_area("Étapes de préparation", height=150, key=f"etapes_{st.session_state.form_count}")
         photo_fb = st.file_uploader("Capture Facebook", type=["jpg", "png", "jpeg"], key=f"photo_{st.session_state.form_count}")
 
-    # --- BOUTON DE SAUVEGARDE AVEC EMOJI ---
+    # --- BOUTON DE SAUVEGARDE ---
     if st.button("💾 Enregistrer la recette", use_container_width=True):
         if nom_plat:
             with st.spinner("Enregistrement..."):
@@ -90,6 +98,7 @@ def afficher():
                 if img_ok:
                     data = {
                         "nom": nom_plat, 
+                        "appareil": type_appareil,
                         "ingredients": st.session_state.ingredients_recette, 
                         "etapes": etapes, 
                         "image": chemin_img
@@ -98,9 +107,9 @@ def afficher():
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
                         st.success("Enregistré sur GitHub !")
                         
-                        # --- LA MAGIE DE LA RÉACTUALISATION ---
+                        # --- RÉINITIALISATION ---
                         st.session_state.ingredients_recette = []
-                        st.session_state.form_count += 1 # On change l'identifiant des champs pour les vider
+                        st.session_state.form_count += 1 
                         st.rerun()
         else:
             st.warning("Complète au moins le nom de la recette.")
