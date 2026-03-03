@@ -56,33 +56,3 @@ if st.session_state.page == 'accueil':
             # Forcer le rafraîchissement pour n'avoir qu'un clic
             st.rerun()
 
-# --- 3. Routage (Correction des noms ici) ---
-
-elif st.session_state.page == "Importer":
-    Importer.afficher()    # Utilise 'Importer' (nom du fichier importé)
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Ajouter":
-    Saisir.afficher()      # Utilise 'Saisir' (nom du fichier importé)
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Recettes":
-    Recettes.afficher()    # Utilise 'Recettes' (nom du fichier importé)
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Parametres":
-    Parametres.afficher()
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Sauvegarder":
-    Sauvegarder.afficher()
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Partager":
-    Partager.afficher()
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
-elif st.session_state.page == "Propos":
-    Propos.afficher()
-    if st.button("⬅️ Retour"): changer_page('accueil')
-
