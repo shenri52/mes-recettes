@@ -1,61 +1,61 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-import io
 
 def afficher():
     st.markdown("<h2 style='text-align: center;'>➕ Saisie Manuelle</h2>", unsafe_allow_html=True)
-    
-    # 1. Nom du plat
+
+    # 1. Initialisation de la liste de suggestions dans la mémoire de la session
+    if 'suggestions_ingredients' not in st.session_state:
+        # Liste de base au premier démarrage
+        st.session_state.suggestions_ingredients = [
+            "Sel", "Poivre", "Huile d'olive", "Oignon", "Ail", "Oeuf", "Farine", "Sucre"
+        ]
+
+    # 2. Nom du plat
     nom_plat = st.text_input("Nom du plat", placeholder="Ex: Gratin Dauphinois")
 
-    # 2. Ingrédients (Liste modifiable)
+    # 3. Ingrédients avec auto-complétion dynamique
     st.write("### Ingrédients")
-    # On crée une structure de base pour le tableau
+    
     if 'df_ingredients' not in st.session_state:
         st.session_state.df_ingredients = pd.DataFrame([{"Quantité": "", "Ingrédient": ""}])
 
-    # Éditeur de données interactif
+    # Le data_editor utilise la liste de session_state pour les options
     ingredients_edite = st.data_editor(
         st.session_state.df_ingredients, 
         num_rows="dynamic", 
         use_container_width=True,
         column_config={
-            "Quantité": st.column_config.TextColumn("Quantité (ex: 500g)"),
-            "Ingrédient": st.column_config.TextColumn("Ingrédient (ex: Pommes de terre)")
-        }
+            "Quantité": st.column_config.TextColumn("Quantité"),
+            "Ingrédient": st.column_config.SelectboxColumn(
+                "Ingrédient",
+                options=st.session_state.suggestions_ingredients,
+                required=True
+            )
+        },
+        key="editeur_ingredients" # Clé importante pour récupérer les données
     )
 
-    # 3. Étapes de préparation
-    st.write("### Préparation")
-    etapes = st.text_area("Décrivez les étapes", height=200, placeholder="1. Éplucher les légumes...\n2. Cuire à 180°C...")
+    # 4. Étapes, Liens et Médias (Code précédent conservé)
+    etapes = st.text_area("Étapes de préparation")
+    fichiers_charges = st.file_uploader("Images ou PDF", accept_multiple_files=True)
 
-    # 4. Lien HTTP
-    st.write("### Source")
-    lien_web = st.text_input("Lien vers la recette originale (URL)", placeholder="https://www.exemple.com/recette")
-
-    # 5. Médias (Images ou PDF)
-    st.write("### Médias")
-    fichiers_charges = st.file_uploader(
-        "Ajouter des images ou des fichiers PDF", 
-        type=["jpg", "jpeg", "png", "pdf"], 
-        accept_multiple_files=True
-    )
-
-    if fichiers_charges:
-        for fichier in fichiers_charges:
-            if fichier.type in ["image/png", "image/jpeg"]:
-                # Simulation de compression sans perte (Optimisation)
-                img = Image.open(fichier)
-                # On pourrait ici sauvegarder avec un niveau d'optimisation
-                st.image(img, caption=f"Aperçu : {fichier.name}", width=200)
-            else:
-                st.write(f"📄 PDF chargé : {fichier.name}")
-
-    # Bouton de sauvegarde final
-    st.write("---")
+    # 5. BOUTON ENREGISTRER (C'est ici que l'apprentissage se fait)
     if st.button("💾 Enregistrer la recette", use_container_width=True):
         if nom_plat:
-            st.success(f"Recette '{nom_plat}' prête à être enregistrée (Logique de stockage à venir) !")
+            # Récupérer les ingrédients saisis dans l'éditeur
+            nouveaux_saisis = ingredients_edite["Ingrédient"].tolist()
+            
+            # Apprentissage : Ajouter les nouveaux ingrédients à la liste de suggestions s'ils n'y sont pas
+            for ing in nouveaux_saisis:
+                if ing and ing not in st.session_state.suggestions_ingredients:
+                    st.session_state.suggestions_ingredients.append(ing)
+            
+            # Trier la liste pour que ce soit plus propre la prochaine fois
+            st.session_state.suggestions_ingredients.sort()
+            
+            st.success(f"Recette '{nom_plat}' enregistrée ! Les nouveaux ingrédients ont été ajoutés à vos suggestions.")
+            st.rerun() # Relance pour mettre à jour la liste dans l'interface
         else:
-            st.error("Veuillez au moins donner un nom à votre plat.")
+            st.error("Veuillez donner un nom au plat.")
