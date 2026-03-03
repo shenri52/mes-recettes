@@ -3,6 +3,8 @@ import json
 import base64
 import requests
 from datetime import datetime
+import io
+from PIL import Image
 
 # --- FONCTION D'ENVOI GITHUB (INVISIBILE) ---
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
@@ -80,7 +82,7 @@ def afficher():
 
         st.markdown("---")
         etapes = st.text_area("Étapes de préparation", height=150, key=f"etapes_{st.session_state.form_count}")
-        photo_fb = st.file_uploader("Capture Facebook", type=["jpg", "png", "jpeg"], key=f"photo_{st.session_state.form_count}")
+        photo_fb = st.file_uploader("Image ou PDF", type=["jpg", "png", "jpeg", "pdf"], key=f"photo_{st.session_state.form_count}")
 
     # --- BOUTON DE SAUVEGARDE ---
     if st.button("💾 Enregistrer la recette", use_container_width=True):
@@ -90,10 +92,28 @@ def afficher():
                 nom_fic = nom_plat.replace(" ", "_").lower()
                 chemin_img = ""
 
-                img_ok = True
+img_ok = True
                 if photo_fb:
-                    chemin_img = f"data/images/{timestamp}_{nom_fic}.png"
-                    img_ok = envoyer_vers_github(chemin_img, photo_fb.getvalue(), "Photo", est_binaire=True)
+                    nom_fichier_origine = photo_fb.name.lower()
+                    extension = nom_fichier_origine.split('.')[-1]
+                    chemin_img = f"data/images/{timestamp}_{nom_fic}.{extension}"
+                    
+                    if extension in ["jpg", "jpeg", "png"]:
+                        # --- COMPRESSION IMAGE SANS PERTE VISIBLE ---
+                        image = Image.open(photo_fb)
+                        buffer = io.BytesIO()
+                        # On utilise 'optimize=True' pour réduire le poids sans changer les pixels
+                        if extension == "png":
+                            image.save(buffer, format="PNG", optimize=True)
+                        else:
+                            image.save(buffer, format="JPEG", quality=85, optimize=True)
+                        
+                        contenu_a_envoyer = buffer.getvalue()
+                    else:
+                        # --- PDF : ON GARDE LE FICHIER TEL QUEL ---
+                        contenu_a_envoyer = photo_fb.getvalue()
+                    
+                    img_ok = envoyer_vers_github(chemin_img, contenu_a_envoyer, "Document recette", est_binaire=True)
 
                 if img_ok:
                     data = {
