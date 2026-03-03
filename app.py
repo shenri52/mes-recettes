@@ -21,7 +21,7 @@ if st.session_state.page == 'accueil':
 
     if st.button("📥 Importer une recette", use_container_width=True):
         changer_page("importer")
-    if st.button("➕ Ajouter une recette", use_container_width=True):
+    if st.button("✍️ Ajouter une recette", use_container_width=True):
         changer_page("ajouter")
     if st.button("📚 Mes recettes", use_container_width=True):
         changer_page("recettes")
