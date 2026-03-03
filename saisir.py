@@ -32,6 +32,11 @@ def save_to_github(file_path, file_content, message, is_binary=False):
 
     # On tente d'envoyer le fichier
     res = requests.put(url, headers=headers, json=data)
+
+    if res.status_code not in [200, 201]:
+        st.error(f"Erreur GitHub {res.status_code}")
+        st.json(res.json()) # Cela va afficher l'erreur précise envoyée par GitHub
+        
     return res.status_code
 
 def afficher():
