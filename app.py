@@ -1,7 +1,7 @@
 import streamlit as st
 
 # --- 1. Imports ---
-import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, propos
+import importer, saisir, recettes, parametres, sauvegarder, propos
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -26,49 +26,40 @@ if st.session_state.page == 'accueil':
     st.write("---")
 
     if st.button("📥 Importer une recette", use_container_width=True):
-        changer_page("Importer")
+        changer_page("importer")
 
     if st.button("➕ Ajouter une recette", use_container_width=True):
-        changer_page("Ajouter")
+        changer_page("ajouter")
         
     if st.button("📚 Mes recettes", use_container_width=True):
-        changer_page("Recettes")
+        changer_page("recettes")
 
-    st.write("---")
-    col1, col2 = st.columns(2)
+    if st.button("💾 Sauvegarder / Importer", use_container_width=True):
+        changer_page("sauvegarder")
 
-    with col1:        
-        if st.button("⚙️ Paramètres", use_container_width=True):
-            changer_page("Parametres")
-        if st.button("💾 Sauvegarder / Importer", use_container_width=True):
-            changer_page("Sauvegarder")
-            
-    with col2:            
-        if st.button("🔗 Partager", use_container_width=True):
-            changer_page("Partager")
-        if st.button("ℹ️ A propos", use_container_width=True):
-            changer_page("propos")
+    if st.button("⚙️ Paramètres", use_container_width=True):
+        changer_page("parametres")
+
+    if st.button("ℹ️ A propos", use_container_width=True):
+        changer_page("propos")
 
 # --- 3. Routage ---
 # Ici, plus besoin de boutons retour, ils sont gérés au-dessus !
 
 elif st.session_state.page == "Importer":
-    Importer.afficher()
+    importer.afficher()
 
 elif st.session_state.page == "Ajouter":
-    Saisir.afficher()
+    saisir.afficher()
 
 elif st.session_state.page == "Recettes":
-    Recettes.afficher()
+    recettes.afficher()
 
 elif st.session_state.page == "Parametres":
-    Parametres.afficher()
+    parametres.afficher()
 
 elif st.session_state.page == "Sauvegarder":
-    Sauvegarder.afficher()
-
-elif st.session_state.page == "Partager":
-    Partager.afficher()
+    sauvegarder.afficher()
 
 elif st.session_state.page == "propos":
     propos.afficher()
