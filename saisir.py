@@ -24,6 +24,26 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     except:
         return False
 
+def recuperer_ingredients_existants():
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
+    res = requests.get(url, headers=conf['headers'])
+    ingredients_trouves = [""]
+    
+    if res.status_code == 200:
+        fichiers = res.json()
+        for f in fichiers:
+            if f['name'].endswith('.json'):
+                # On lit chaque recette pour extraire les noms d'ingrédients
+                r_res = requests.get(f['download_url'])
+                if r_res.status_code == 200:
+                    data = r_res.json()
+                    for ing in data.get('ingredients', []):
+                        nom = ing.get('Ingrédient')
+                        if nom and nom not in ingredients_trouves:
+                            ingredients_trouves.append(nom)
+    return sorted(ingredients_trouves)
+
 def afficher():
     st.header("✍️ Ajouter une recette")
 
