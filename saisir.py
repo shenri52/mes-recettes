@@ -4,7 +4,7 @@ import base64
 import requests
 from datetime import datetime
 
-# --- FONCTION D'ENVOI GITHUB (CACHÉE) ---
+# --- FONCTION D'ENVOI GITHUB ---
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     try:
         token = st.secrets["GITHUB_TOKEN"]
@@ -25,61 +25,65 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
 def afficher():
     st.header("Saisir une nouvelle recette")
 
-    # 1. Nom du plat
-    nom_plat = st.text_input("Nom de la recette")
-
-    # --- SYSTÈME DE LISTE DÉROULANTE POUR INGRÉDIENTS ---
+    # 1. Initialisation des listes en mémoire
     if 'ingredients_recette' not in st.session_state:
         st.session_state.ingredients_recette = []
     
-    # Ta liste de base (tu peux l'enrichir)
-    liste_choix = ["", "Farine", "Sucre", "Œuf", "Lait", "Beurre", "Chocolat", "Sel", "Poivre", "+ Ajouter un nouvel ingrédient"]
-    
+    # C'est ici qu'on gère la liste déroulante pour qu'elle mémorise les ajouts
+    if 'liste_choix' not in st.session_state:
+        st.session_state.liste_choix = ["", "Farine", "Sucre", "Œuf", "Lait", "Beurre", "Chocolat"]
+
+    nom_plat = st.text_input("Nom de la recette")
+
+    # --- LIGNE D'AJOUT D'INGRÉDIENTS ---
     col1, col2, col3 = st.columns([2, 1, 1])
     
     with col1:
-        choix = st.selectbox("Choisir l'ingrédient", options=liste_choix)
-        # Si on choisit l'option "+ Ajouter...", un champ texte apparaît en dessous
+        # On ajoute l'option d'ajout à la fin de la liste mémorisée
+        options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
+        choix = st.selectbox("Choisir l'ingrédient", options=options)
+        
         ing_final = ""
-        if choix == "+ Ajouter un nouvel ingrédient":
+        if choix == "➕ Ajouter un nouveau...":
             ing_final = st.text_input("Nom du nouvel ingrédient")
         else:
             ing_final = choix
 
     with col2:
-        qte = st.text_input("Quantité (ex: 200g)")
+        qte = st.text_input("Quantité")
 
     with col3:
-        st.write(" ") # Pour l'alignement
         st.write(" ") 
-        if st.button("➕ Ajouter"):
-            if ing_final and ing_final != "+ Ajouter un nouvel ingrédient":
+        st.write(" ") 
+        if st.button("Ajouter"):
+            if ing_final:
+                # 1. On ajoute à la recette en cours
                 st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                
+                # 2. SI c'est un nouvel ingrédient, on l'ajoute à la liste déroulante pour après
+                if ing_final not in st.session_state.liste_choix:
+                    st.session_state.liste_choix.append(ing_final)
+                
                 st.rerun()
 
-    # Affichage de ce qu'on a ajouté
+    # Affichage de la liste actuelle
     if st.session_state.ingredients_recette:
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
     st.markdown("---")
-    
-    # 3. Étapes et 4. Photo
     etapes = st.text_area("Étapes de préparation", height=150)
     photo_fb = st.file_uploader("Capture Facebook", type=["jpg", "png", "jpeg"])
 
-    # 5. Bouton Enregistrer
     if st.button("Enregistrer la recette", use_container_width=True):
         if nom_plat and photo_fb:
-            with st.spinner("Enregistrement en cours..."):
+            with st.spinner("Enregistrement..."):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic = nom_plat.replace(" ", "_").lower()
 
-                # Envoi Image
                 chemin_img = f"data/images/{timestamp}_{nom_fic}.png"
                 img_ok = envoyer_vers_github(chemin_img, photo_fb.getvalue(), "Photo", est_binaire=True)
 
-                # Envoi JSON
                 if img_ok:
                     data = {
                         "nom": nom_plat, 
@@ -89,7 +93,7 @@ def afficher():
                     }
                     chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
-                        st.success("C'est enregistré sur ton Cloud !")
+                        st.success("Enregistré sur GitHub !")
                         st.session_state.ingredients_recette = []
         else:
-            st.warning("Il manque le nom ou la photo !")
+            st.warning("Complète le nom et la photo.")
