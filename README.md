@@ -32,6 +32,7 @@ Dans votre interface Streamlit Cloud, allez dans **Settings** > **Secrets** et c
 GITHUB_TOKEN = "votre_token_ici"
 REPO_OWNER = "votre_nom_utilisateur"
 REPO_NAME = "nom_de_votre_depot"
+```
 
 ### 3. Arborescence du projet
 ├── app.py                # Fichier principal (Gestion du menu)
