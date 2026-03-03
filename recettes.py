@@ -18,7 +18,6 @@ def config_github():
 def envoyer_vers_github(chemin, contenu, message):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    # Récupérer le SHA actuel pour écraser le fichier
     res_get = requests.get(url, headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
     
@@ -64,7 +63,7 @@ def afficher():
                             data_recettes.append(d)
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
-    # --- BARRE DE RECHERCHE ET FILTRES ---
+    # --- RECHERCHE ET FILTRES ---
     col_search, col_app, col_ing = st.columns([2, 1, 1])
     recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in st.session_state.toutes_recettes)))
@@ -77,7 +76,6 @@ def afficher():
     ings = ["Tous"] + sorted(list(set(tous_ingredients)))
     filtre_ing = col_ing.selectbox("Ingrédient", ings)
 
-    # --- LOGIQUE DE FILTRAGE ---
     recettes_f = [
         r for r in st.session_state.toutes_recettes 
         if recherche in r.get('nom', '').lower() 
@@ -87,22 +85,26 @@ def afficher():
 
     # --- AFFICHAGE ---
     for idx, rec in enumerate(recettes_f):
+        # État du mode édition
+        mode_edit_key = f"mode_edit_{idx}"
+        if mode_edit_key not in st.session_state:
+            st.session_state[mode_edit_key] = False
+
         with st.expander(f"📖 {rec.get('nom', 'Sans nom').upper()}"):
-            # Mode Édition
-            if st.checkbox("✍️ Modifier la recette", key=f"edit_check_{idx}"):
+            
+            if st.session_state[mode_edit_key]:
+                # --- INTERFACE MODIFICATION ---
                 with st.form(key=f"form_edit_{idx}"):
-                    edit_nom = st.text_input("Nom de la recette", value=rec.get('nom', ''))
+                    edit_nom = st.text_input("Nom", value=rec.get('nom', ''))
                     edit_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
                                           index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(rec.get('appareil', 'Aucun')))
                     
-                    # Transformation des ingrédients en texte pour édition facile
                     ing_text = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in rec.get('ingredients', [])])
-                    edit_ings_raw = st.text_area("Ingrédients (Quantité | Nom)", value=ing_text, help="Un par ligne : 200g | Farine")
+                    edit_ings_raw = st.text_area("Ingrédients (Qté | Nom)", value=ing_text)
+                    edit_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=150)
                     
-                    edit_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=200)
-                    
-                    if st.form_submit_button("💾 Enregistrer les modifications"):
-                        # Re-transformation du texte en liste d'objets
+                    c_save, c_cancel = st.columns(2)
+                    if c_save.form_submit_button("✅ Enregistrer"):
                         nouveaux_ings = []
                         for ligne in edit_ings_raw.strip().split('\n'):
                             if "|" in ligne:
@@ -112,21 +114,21 @@ def afficher():
                                 nouveaux_ings.append({"Ingrédient": ligne.strip(), "Quantité": ""})
                         
                         rec_modifiee = {
-                            "nom": edit_nom,
-                            "appareil": edit_app,
-                            "ingredients": nouveaux_ings,
-                            "etapes": edit_etapes,
-                            "images": rec.get('images', [])
+                            "nom": edit_nom, "appareil": edit_app, "ingredients": nouveaux_ings,
+                            "etapes": edit_etapes, "images": rec.get('images', [])
                         }
                         
                         if envoyer_vers_github(rec['chemin_json'], json.dumps(rec_modifiee, indent=4, ensure_ascii=False), f"Update {edit_nom}"):
-                            st.success("Modifié ! Mise à jour...")
+                            st.session_state[mode_edit_key] = False # Retour au mode consultation
                             if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
-                            time.sleep(1)
+                            if 'liste_choix' in st.session_state: del st.session_state.liste_choix
                             st.rerun()
-            
-            # Affichage Normal
+                    
+                    if c_cancel.form_submit_button("❌ Annuler"):
+                        st.session_state[mode_edit_key] = False
+                        st.rerun()
             else:
+                # --- INTERFACE CONSULTATION ---
                 col_txt, col_img = st.columns([1, 1])
                 with col_txt:
                     st.subheader("🍴 Préparation")
@@ -134,49 +136,41 @@ def afficher():
                     st.write("**Ingrédients :**")
                     for i in rec.get('ingredients', []):
                         st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                    
                     st.write("**Préparation :**")
                     st.write(rec.get('etapes', 'Aucune étape rédigée.'))
                     
                     st.divider()
-                    
                     c1, c2 = st.columns(2)
                     if c1.button(f"🗑️ Supprimer", key=f"del_{idx}"):
                         with st.spinner("Suppression..."):
                             supprimer_fichier_github(rec['chemin_json'])
                             for m in rec.get('images', []): supprimer_fichier_github(m)
-                            st.session_state.clear() 
+                            st.session_state.clear()
                             st.rerun()
+                    if c2.button(f"✍️ Modifier", key=f"edit_btn_{idx}"):
+                        st.session_state[mode_edit_key] = True
+                        st.rerun()
 
                 with col_img:
                     st.subheader("🖼️ Galerie")
                     medias = rec.get('images', [])
-                    if medias and isinstance(medias, list):
+                    if medias:
                         k_nav = f"nav_{idx}"
                         if k_nav not in st.session_state: st.session_state[k_nav] = 0
                         curr = st.session_state[k_nav] % len(medias)
-                        
                         if len(medias) > 1:
-                            c_p, c_c, c_n = st.columns([1, 2, 1])
-                            if c_p.button("⬅️", key=f"p_{idx}"): 
-                                st.session_state[k_nav] -= 1
-                                st.rerun()
-                            c_c.write(f"{curr + 1}/{len(medias)}")
-                            if c_n.button("➡️", key=f"n_{idx}"): 
-                                st.session_state[k_nav] += 1
-                                st.rerun()
+                            cp, cc, cn = st.columns([1, 2, 1])
+                            if cp.button("⬅️", key=f"p_{idx}"): st.session_state[k_nav] -= 1; st.rerun()
+                            cc.write(f"{curr + 1}/{len(medias)}")
+                            if cn.button("➡️", key=f"n_{idx}"): st.session_state[k_nav] += 1; st.rerun()
                         
                         path = medias[curr].strip("/")
-                        if not path.startswith("data/"): path = f"data/{path}"
-                        
-                        r_api = requests.get(f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path}", headers=conf['headers'])
+                        r_api = requests.get(f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path if path.startswith('data/') else 'data/'+path}", headers=conf['headers'])
                         if r_api.status_code == 200:
                             img_b64 = r_api.json().get('content')
                             if img_b64:
                                 img_bytes = base64.b64decode(img_b64)
-                                if path.lower().endswith('.pdf'):
-                                    st.download_button("📂 PDF", img_bytes, file_name=f"{rec.get('nom')}.pdf", key=f"pdf_{idx}")
-                                else:
-                                    st.image(img_bytes, use_container_width=True)
+                                if path.lower().endswith('.pdf'): st.download_button("📂 PDF", img_bytes, file_name=f"recette.pdf", key=f"pdf_{idx}")
+                                else: st.image(img_bytes, use_container_width=True)
                     else:
                         st.info("Aucun média.")
