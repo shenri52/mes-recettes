@@ -32,12 +32,12 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    if st.button("🔄 Actualiser la liste"):
+    if st.button("🔄 Actualiser la bibliothèque"):
         if 'toutes_recettes' in st.session_state:
             del st.session_state.toutes_recettes
         st.rerun()
 
-    # --- CHARGEMENT DES DONNÉES ---
+    # --- CHARGEMENT ---
     if 'toutes_recettes' not in st.session_state:
         with st.spinner("Lecture de GitHub..."):
             fichiers = charger_fichiers("data/recettes")
@@ -53,7 +53,7 @@ def afficher():
 
     # --- FILTRES ---
     col_s, col_a, col_i = st.columns([2, 1, 1])
-    recherche = col_s.text_input("🔍 Rechercher", "").lower()
+    recherche = col_s.text_input("🔍 Rechercher un plat", "").lower()
     apps = ["Tous"] + list(set(r.get('appareil', 'Aucun') for r in st.session_state.toutes_recettes))
     filtre_app = col_a.selectbox("Appareil", apps)
     tous_ings = sorted(list(set(i.get('Ingrédient') for r in st.session_state.toutes_recettes for i in r.get('ingredients', []))))
@@ -66,64 +66,81 @@ def afficher():
 
     # --- AFFICHAGE ---
     for idx, rec in enumerate(recettes_f):
-        with st.expander(f"🍴 {rec.get('appareil', 'Cookeo')} - {rec.get('nom', 'Sans nom').upper()}"):
+        # Utilisation de l'icône appareil dans le titre
+        icone = "🍳"
+        if rec.get('appareil') == "Cookeo": icone = "🥘"
+        elif rec.get('appareil') == "Thermomix": icone = "🥣"
+        elif rec.get('appareil') == "Ninja": icone = "🌪️"
+
+        with st.expander(f"{icone} {rec.get('nom', 'Sans nom').upper()}"):
             c1, c2 = st.columns([1, 1])
             
             with c1:
-                st.subheader("Détails")
+                st.subheader("📝 Détails")
                 for i in rec.get('ingredients', []):
                     st.write(f"• {i['Quantité']} {i['Ingrédient']}")
-                st.write("**Préparation :**")
-                st.write(rec.get('etapes', ""))
+                st.markdown(f"**Préparation :**\n{rec.get('etapes', '...')}")
                 
-                if st.button(f"🗑️ Supprimer", key=f"del_{idx}"):
+                if st.button(f"🗑️ Supprimer la recette", key=f"del_{idx}"):
                     supprimer_fichier_github(rec['chemin_json'])
-                    for m in rec.get('images', []): supprimer_fichier_github(m)
+                    # On nettoie tous les médias liés
+                    m_list = rec.get('images', [])
+                    if not m_list and rec.get('image'): m_list = [rec.get('image')]
+                    for m in m_list: supprimer_fichier_github(m)
+                    
                     if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+                    st.success("Recette supprimée !")
                     st.rerun()
 
             with c2:
-                st.subheader("Médias")
-                medias = rec.get('images', [])
-                if not medias and rec.get('image'): medias = [rec.get('image')]
+                st.subheader("🖼️ Médias")
+                # FORCE LA DÉTECTION DES MÉDIAS (Ancien vs Nouveau format)
+                m_bruts = rec.get('images', [])
+                if not m_bruts and rec.get('image'):
+                    m_bruts = [rec.get('image')]
                 
-                if medias:
-                    # Gestion de l'index de navigation pour chaque recette
-                    key_index = f"idx_img_{idx}"
-                    if key_index not in st.session_state:
-                        st.session_state[key_index] = 0
+                # Filtrer les valeurs vides ou None
+                m_valides = [m for m in m_bruts if m]
+                
+                if m_valides:
+                    nb_m = len(m_valides)
+                    # Navigation par index
+                    k_idx = f"nav_{idx}"
+                    if k_idx not in st.session_state: st.session_state[k_idx] = 0
                     
-                    nb_photos = len(medias)
-                    current_idx = st.session_state[key_index]
+                    curr = st.session_state[k_idx]
                     
-                    # Sélecteurs de déplacement si plusieurs photos
-                    if nb_photos > 1:
-                        col_prev, col_count, col_next = st.columns([1, 2, 1])
-                        if col_prev.button("⬅️", key=f"prev_{idx}"):
-                            st.session_state[key_index] = (current_idx - 1) % nb_photos
+                    if nb_m > 1:
+                        col_p, col_c, col_n = st.columns([1, 2, 1])
+                        if col_p.button("⬅️", key=f"p_{idx}"):
+                            st.session_state[k_idx] = (curr - 1) % nb_m
                             st.rerun()
-                        col_count.write(f"Photo {current_idx + 1} / {nb_photos}")
-                        if col_next.button("➡️", key=f"next_{idx}"):
-                            st.session_state[key_index] = (current_idx + 1) % nb_photos
+                        col_c.write(f"Fichier {curr + 1}/{nb_m}")
+                        if col_n.button("➡️", key=f"n_{idx}"):
+                            st.session_state[k_idx] = (curr + 1) % nb_m
                             st.rerun()
                     
-                    # Affichage du média actuel
-                    m_path = medias[current_idx]
+                    # AFFICHAGE DU FICHIER
+                    path_to_load = m_valides[curr].strip("/")
+                    # Sécurité si "data/" est oublié
+                    if not path_to_load.startswith("data"): path_to_load = f"data/{path_to_load}"
+                    
                     conf = config_github()
-                    api_url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{m_path.strip('/')}"
-                    res_img = requests.get(api_url, headers=conf['headers'])
+                    url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path_to_load}"
+                    r_img = requests.get(url_api, headers=conf['headers'])
                     
-                    if res_img.status_code == 200:
-                        img_b64 = res_img.json().get('content')
-                        if img_b64:
-                            data = base64.b64decode(img_b64)
-                            if m_path.lower().endswith('.pdf'):
-                                st.download_button("📂 Ouvrir le PDF", data, file_name=f"doc_{idx}.pdf", key=f"pdf_btn_{idx}")
+                    if r_img.status_code == 200:
+                        b64 = r_img.json().get('content')
+                        if b64:
+                            raw_data = base64.b64decode(b64)
+                            if path_to_load.lower().endswith('.pdf'):
+                                st.download_button("📂 Ouvrir le PDF", raw_data, file_name=f"recette_{idx}.pdf", key=f"btn_pdf_{idx}_{curr}")
+                                st.info("Cliquer sur le bouton ci-dessus pour voir le PDF.")
                             else:
-                                st.image(data, use_container_width=True)
-                        else:
-                            st.error("Fichier vide")
+                                st.image(raw_data, use_container_width=True)
+                        else: st.error("Fichier vide")
                     else:
-                        st.error(f"Erreur GitHub {res_img.status_code}")
+                        st.error(f"Erreur GitHub {r_img.status_code}")
+                        st.caption(f"Chemin testé : {path_to_load}")
                 else:
-                    st.info("Aucun média.")
+                    st.info("Aucun média trouvé dans cette recette.")
