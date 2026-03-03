@@ -49,7 +49,7 @@ def afficher():
         jsons_uniques = [f for f in fichiers_github if f['name'].endswith('.json')]
         
         if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != len(jsons_uniques):
-            with st.spinner("Synchronisation des recettes..."):
+            with st.spinner("Synchronisation..."):
                 data_recettes = []
                 for f in jsons_uniques:
                     raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
@@ -90,6 +90,7 @@ def afficher():
 
             with st.expander(f"📖 {rec.get('nom', 'Sans nom').upper()}"):
                 if st.session_state[m_edit]:
+                    # --- MODE MODIFICATION ---
                     with st.form(key=f"f_edit_{idx}"):
                         e_nom = st.text_input("Nom", value=rec.get('nom', ''))
                         c1, c2, c3 = st.columns(3)
@@ -106,7 +107,7 @@ def afficher():
                         e_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=150)
                         
                         cs, cc = st.columns(2)
-                        if cs.form_submit_button("✅ Enregistrer"):
+                        if cs.form_submit_button("✅ Enregistrer", use_container_width=True):
                             new_ings = []
                             for l in e_ings.strip().split('\n'):
                                 if not l.strip(): continue 
@@ -125,10 +126,11 @@ def afficher():
                                 st.session_state[m_edit] = False
                                 if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
-                        if cc.form_submit_button("❌ Annuler"):
+                        if cc.form_submit_button("❌ Annuler", use_container_width=True):
                             st.session_state[m_edit] = False
                             st.rerun()
                 else:
+                    # --- MODE LECTURE ---
                     t_prep = rec.get('temps_preparation', '')
                     t_cuis = rec.get('temps_cuisson', '')
                     if t_prep or t_cuis:
@@ -145,16 +147,6 @@ def afficher():
                         for i in rec.get('ingredients', []):
                             st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
                         st.write(f"**Étapes :**\n{rec.get('etapes', '')}")
-                        st.divider()
-                        b1, b2 = st.columns(2)
-                        if b1.button(f"🗑️ Supprimer", key=f"del_btn_{idx}"):
-                            if supprimer_fichier_github(rec['chemin_json']):
-                                for m in rec.get('images', []): supprimer_fichier_github(m)
-                                if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
-                                st.rerun()
-                        if b2.button(f"✍️ Modifier", key=f"edit_btn_{idx}"):
-                            st.session_state[m_edit] = True
-                            st.rerun()
                     
                     with c_img:
                         st.subheader("🖼️ Galerie")
@@ -164,7 +156,6 @@ def afficher():
                             if kn not in st.session_state: st.session_state[kn] = 0
                             cur = st.session_state[kn] % len(medias)
                             
-                            # Navigation classique (Précédent / Compteur / Suivant)
                             if len(medias) > 1:
                                 cp, cc, cn = st.columns([1, 1, 1])
                                 if cp.button("⬅️", key=f"prev_btn_{idx}"): 
@@ -179,3 +170,15 @@ def afficher():
                             full_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}"
                             st.image(full_url, use_container_width=True)
                         else: st.info("Pas d'image.")
+
+                    # --- BOUTONS D'ACTION (EN DESSOUS DES DEUX COLONNES) ---
+                    st.divider()
+                    b1, b2 = st.columns(2)
+                    if b1.button(f"🗑️ Supprimer la recette", key=f"del_btn_{idx}", use_container_width=True):
+                        if supprimer_fichier_github(rec['chemin_json']):
+                            for m in rec.get('images', []): supprimer_fichier_github(m)
+                            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+                            st.rerun()
+                    if b2.button(f"✍️ Modifier la recette", key=f"edit_btn_{idx}", use_container_width=True):
+                        st.session_state[m_edit] = True
+                        st.rerun()
