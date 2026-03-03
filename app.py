@@ -23,7 +23,6 @@ def changer_page(nom):
 if st.session_state.page != 'accueil':
     if st.button("⬅️ Retour à l'accueil"):
         changer_page('accueil')
-    st.write("---")
 
 # --- 2. Menu d'accueil ---
 if st.session_state.page == 'accueil':
