@@ -35,6 +35,7 @@ REPO_NAME = "nom_de_votre_depot"
 ```
 
 ### 3. Arborescence du projet
+```
 ├── app.py                # Fichier principal (Gestion du menu)
 ├── saisir.py             # Module d'ajout manuel
 ├── importer.py           # Module d'import par photo
@@ -43,3 +44,4 @@ REPO_NAME = "nom_de_votre_depot"
 └── data/
     ├── recettes/         # Dossier contenant les fichiers .json (vos recettes)
     └── images/           # Dossier contenant les photos et PDF
+```
