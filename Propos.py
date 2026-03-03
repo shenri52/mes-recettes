@@ -1,12 +1,6 @@
 import streamlit as st
 
-# --- 1. Import page principal ---
-import app
-
-# Fonction pour changer de page
-def changer_page(nom_page):
-    st.session_state.page = nom_page
-    
+   
 def afficher():
     st.write("---")
     st.subheader("Crédits du Projet")
