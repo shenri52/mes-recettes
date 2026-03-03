@@ -160,28 +160,22 @@ def afficher():
                         st.subheader("🖼️ Galerie")
                         medias = rec.get('images', [])
                         if medias:
-                            # kn est l'index de l'image
                             kn = f"img_idx_{idx}"
                             if kn not in st.session_state: st.session_state[kn] = 0
                             cur = st.session_state[kn] % len(medias)
                             
+                            # Navigation classique (Précédent / Compteur / Suivant)
+                            if len(medias) > 1:
+                                cp, cc, cn = st.columns([1, 1, 1])
+                                if cp.button("⬅️", key=f"prev_btn_{idx}"): 
+                                    st.session_state[kn] -= 1
+                                    st.rerun()
+                                cc.write(f"{cur+1}/{len(medias)}")
+                                if cn.button("➡️", key=f"next_btn_{idx}"): 
+                                    st.session_state[kn] += 1
+                                    st.rerun()
+                            
                             img_path = medias[cur].strip("/")
                             full_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}"
                             st.image(full_url, use_container_width=True)
-
-                            if len(medias) > 1:
-                                cols_v = st.columns(len(medias))
-                                for i in range(len(medias)):
-                                    btn_label = f"📍" if i == cur else f"{i+1}"
-                                    if cols_v[i].button(btn_label, key=f"vignette_{idx}_{i}"):
-                                        st.session_state[kn] = i
-                                        st.rerun()
-                                cp, cn = st.columns(2)
-                                # J'ai renommé les clés 'p_' et 'n_' pour éviter le conflit
-                                if cp.button("⬅️", key=f"prev_img_btn_{idx}"): 
-                                    st.session_state[kn] -= 1
-                                    st.rerun()
-                                if cn.button("➡️", key=f"next_img_btn_{idx}"): 
-                                    st.session_state[kn] += 1
-                                    st.rerun()
                         else: st.info("Pas d'image.")
