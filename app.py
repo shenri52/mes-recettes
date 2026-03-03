@@ -45,19 +45,19 @@ if st.button("ℹ️ A propos", use_container_width=True):
 # --- 3. Routage ---
 # Ici, plus besoin de boutons retour, ils sont gérés au-dessus !
 
-elif st.session_state.page == "Importer":
+elif st.session_state.page == "importer":
     importer.afficher()
 
-elif st.session_state.page == "Ajouter":
+elif st.session_state.page == "ajouter":
     saisir.afficher()
 
-elif st.session_state.page == "Recettes":
+elif st.session_state.page == "recettes":
     recettes.afficher()
 
-elif st.session_state.page == "Parametres":
+elif st.session_state.page == "parametres":
     parametres.afficher()
 
-elif st.session_state.page == "Sauvegarder":
+elif st.session_state.page == "sauvegarder":
     sauvegarder.afficher()
 
 elif st.session_state.page == "propos":
