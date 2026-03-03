@@ -1,4 +1,5 @@
 import streamlit as st
+import importlib
 
 # --- 1. Imports ---
 from pages import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, Propos
