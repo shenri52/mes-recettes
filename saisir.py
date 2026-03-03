@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 import io
 from PIL import Image
+import time
 
 # 1. CONFIGURATION GITHUB
 def config_github():
@@ -21,8 +22,7 @@ def config_github():
 # 2. RÉCUPÉRATION DES INGRÉDIENTS (ANTI-CACHE)
 def recuperer_ingredients_existants():
     conf = config_github()
-    # On ajoute un timestamp à l'URL du dossier pour forcer GitHub à l'actualiser
-    import time
+    # On ajoute un timestamp pour forcer GitHub à rafraîchir la liste des fichiers
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res = requests.get(url, headers=conf['headers'])
     ingredients_trouves = [""]
@@ -59,22 +59,26 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
 
 # 4. AFFICHAGE DE LA PAGE
 def afficher():
-    st.header("...") # Votre titre actuel
+    st.header("✍️ Ajouter une recette")
 
-    # Initialisation des ingrédients si absent
+    # --- INITIALISATION DES VARIABLES (SÉCURITÉ) ---
+    if 'form_count' not in st.session_state:
+        st.session_state.form_count = 0
+    if 'ingredients_recette' not in st.session_state:
+        st.session_state.ingredients_recette = []
     if 'liste_choix' not in st.session_state:
         st.session_state.liste_choix = [""]
 
-    # AJOUT D'UN BOUTON DE SYNCHRO (Optionnel mais recommandé)
-    # Ou forcez le chargement au premier affichage de la page
-    if st.sidebar.button("🔄 Actualiser les ingrédients"):
-        with st.spinner("Synchronisation..."):
-            st.session_state.liste_choix = recuperer_ingredients_existants()
-            st.rerun()
-
-    # Si la liste est encore vide (premier lancement), on la charge
+    # --- SYNCHRONISATION DES INGRÉDIENTS ---
+    # Si la liste est vide (initialisation), on charge depuis GitHub
     if len(st.session_state.liste_choix) <= 1:
+        with st.spinner("📦 Synchronisation des ingrédients..."):
+            st.session_state.liste_choix = recuperer_ingredients_existants()
+
+    # Bouton de rafraîchissement manuel en sidebar
+    if st.sidebar.button("🔄 Actualiser les ingrédients"):
         st.session_state.liste_choix = recuperer_ingredients_existants()
+        st.rerun()
 
     # --- FORMULAIRE ---
     with st.container():
@@ -153,7 +157,9 @@ def afficher():
                     chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
                         st.success("Enregistré sur GitHub !")
+                        # RESET COMPLET POUR LE PROCHAIN
                         st.session_state.ingredients_recette = []
+                        st.session_state.liste_choix = [""] # Force le rafraîchissement au prochain chargement
                         st.session_state.form_count += 1 
                         st.rerun()
         else:
