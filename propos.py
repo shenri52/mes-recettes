@@ -2,9 +2,7 @@ import streamlit as st
 
 def afficher():
     st.subheader("A propos du projet")
-
-    st.divider()
-    
+   
     col1, col2 = st.columns(2)
     
     with col1:
@@ -28,3 +26,5 @@ def afficher():
     
     Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.*
     """)
+
+    st.divider()
