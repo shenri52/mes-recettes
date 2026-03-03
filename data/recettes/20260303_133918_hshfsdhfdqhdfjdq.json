@@ -3,7 +3,11 @@
     "appareil": "Thermomix",
     "ingredients": [
         {
-            "Ingrédient": "Miel | Poulet",
+            "Ingrédient": "Miel",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poulet",
             "Quantité": ""
         }
     ],
