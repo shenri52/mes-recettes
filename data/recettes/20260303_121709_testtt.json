@@ -1,0 +1,15 @@
+{
+    "nom": "testtt",
+    "ingredients": [
+        {
+            "Ingrédient": "Farine",
+            "Quantité": "200"
+        },
+        {
+            "Ingrédient": "Lait",
+            "Quantité": "100cl"
+        }
+    ],
+    "etapes": "ttttt",
+    "image": ""
+}
