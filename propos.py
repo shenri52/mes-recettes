@@ -15,7 +15,6 @@ def afficher():
         st.write("Samuel HENRI")
         st.write("Gemini")
 
-    st.divider()
 
     st.markdown("""
     ### Pourquoi cette application ?
