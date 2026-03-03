@@ -41,7 +41,6 @@ def afficher():
     st.header("📚 Mes recettes")
     conf = config_github()
     
-    # --- CHARGEMENT DYNAMIQUE ---
     url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res_dossier = requests.get(url_dossier, headers=conf['headers'])
     
@@ -63,7 +62,6 @@ def afficher():
                         except: continue
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
-    # --- FILTRES ---
     if 'toutes_recettes' in st.session_state:
         col_search, col_app, col_ing = st.columns([2, 1, 1])
         recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
@@ -86,17 +84,14 @@ def afficher():
             and (filtre_ing == "Tous" or any(i.get('Ingrédient') == filtre_ing for i in r.get('ingredients', [])))
         ]
 
-        # --- AFFICHAGE ---
         for idx, rec in enumerate(recettes_f):
             m_edit = f"edit_{idx}"
             if m_edit not in st.session_state: st.session_state[m_edit] = False
 
             with st.expander(f"📖 {rec.get('nom', 'Sans nom').upper()}"):
                 if st.session_state[m_edit]:
-                    # --- MODE FORMULAIRE (MODIFICATION) ---
                     with st.form(key=f"f_edit_{idx}"):
                         e_nom = st.text_input("Nom", value=rec.get('nom', ''))
-                        
                         c1, c2, c3 = st.columns(3)
                         with c1:
                             e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
@@ -122,26 +117,19 @@ def afficher():
                                     new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                             
                             data_mod = {
-                                "nom": e_nom, 
-                                "appareil": e_app, 
-                                "temps_preparation": e_prep,
-                                "temps_cuisson": e_cuis,
-                                "ingredients": new_ings, 
-                                "etapes": e_etapes, 
-                                "images": rec.get('images', [])
+                                "nom": e_nom, "appareil": e_app, 
+                                "temps_preparation": e_prep, "temps_cuisson": e_cuis,
+                                "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])
                             }
-                            
                             if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
                                 st.session_state[m_edit] = False
                                 if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 st.rerun()
-                        
                         if cc.form_submit_button("❌ Annuler"):
                             st.session_state[m_edit] = False
                             st.rerun()
                 else:
-                    # --- MODE LECTURE ---
-                    # Affichage des temps s'ils existent
+                    # MODE LECTURE
                     t_prep = rec.get('temps_preparation', '')
                     t_cuis = rec.get('temps_cuisson', '')
                     if t_prep or t_cuis:
@@ -176,12 +164,19 @@ def afficher():
                             kn = f"n_{idx}"
                             if kn not in st.session_state: st.session_state[kn] = 0
                             cur = st.session_state[kn] % len(medias)
-                            if len(medias) > 1:
-                                cp, cc, cn = st.columns([1, 1, 1])
-                                if cp.button("⬅️", key=f"prev_{idx}"): st.session_state[kn] -= 1; st.rerun()
-                                cc.write(f"{cur+1}/{len(medias)}")
-                                if cn.button("➡️", key=f"next_{idx}"): st.session_state[kn] += 1; st.rerun()
                             
                             img_path = medias[cur].strip("/")
-                            st.image(f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}", use_container_width=True)
+                            full_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}"
+                            st.image(full_url, use_container_width=True)
+
+                            if len(medias) > 1:
+                                cols_v = st.columns(len(medias))
+                                for i in range(len(medias)):
+                                    btn_label = f"📍" if i == cur else f"{i+1}"
+                                    if cols_v[i].button(btn_label, key=f"v_{idx}_{i}"):
+                                        st.session_state[kn] = i
+                                        st.rerun()
+                                cp, cn = st.columns(2)
+                                if cp.button("⬅️", key=f"p_{idx}"): st.session_state[kn] -= 1; st.rerun()
+                                if cn.button("➡️", key=f"n_{idx}"): st.session_state[kn] += 1; st.rerun()
                         else: st.info("Pas d'image.")
