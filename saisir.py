@@ -73,7 +73,6 @@ def afficher():
                     st.info("📄 PDF")
 
     # --- 5. ENREGISTREMENT FINAL ---
-    st.write("---")
     if st.button("💾 Enregistrer la recette complète", use_container_width=True):
         if nom_plat and st.session_state.ingredients_recette:
             st.success(f"Recette '{nom_plat}' enregistrée !")
