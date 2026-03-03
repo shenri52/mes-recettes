@@ -1,5 +1,12 @@
 import streamlit as st
 
+# --- 1. Import page principal ---
+import app
+
+# Fonction pour changer de page
+def changer_page(nom_page):
+    st.session_state.page = nom_page
+    
 def afficher():
     st.markdown("---")
     st.subheader("Crédits du Projet")
@@ -18,3 +25,8 @@ def afficher():
         st.write("Gemini")
     
     st.info("Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.")
+
+if st.button("⬅️ Retour", use_container_width=True):
+    changer_page("app")
+    # Forcer le rafraîchissement pour n'avoir qu'un clic
+    st.rerun()
