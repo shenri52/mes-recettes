@@ -27,13 +27,7 @@ def afficher():
     Cette application a été développée spécifiquement pour **répondre à un besoin non satisfait par les solutions existantes** : offrir un outil épuré, rapide et entièrement personnalisé pour centraliser vos recettes sans contraintes.
     
     ---
-    
-    ### Les engagements de l'appli :
-    * **Simplicité** : Pas de fonctions inutiles.
-    * **Liberté** : Vos données vous appartiennent.
-    * **Efficacité** : Pensée pour la cuisine.
+    Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.
     """)
     
     st.write("---")
-    
-    st.info("Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.")
