@@ -24,22 +24,23 @@ def recuperer_ingredients_existants():
     conf = config_github()
     # On ajoute un timestamp pour forcer GitHub à rafraîchir la liste des fichiers
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
-    res = requests.get(url, headers=conf['headers'])
-    ingredients_trouves = [""]
-    
-    if res.status_code == 200:
-        fichiers = res.json()
-        for f in fichiers:
-            if f['name'].endswith('.json'):
-                # On utilise le SHA pour lire le contenu réel sans cache
-                r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
-                if r_res.status_code == 200:
-                    data = r_res.json()
-                    for ing in data.get('ingredients', []):
-                        nom = ing.get('Ingrédient')
-                        if nom and nom not in ingredients_trouves:
-                            ingredients_trouves.append(nom)
-    return sorted(list(set(ingredients_trouves)))
+    try:
+        res = requests.get(url, headers=conf['headers'])
+        ingredients_trouves = [""]
+        if res.status_code == 200:
+            fichiers = res.json()
+            for f in fichiers:
+                if f['name'].endswith('.json'):
+                    r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
+                    if r_res.status_code == 200:
+                        data = r_res.json()
+                        for ing in data.get('ingredients', []):
+                            nom = ing.get('Ingrédient')
+                            if nom and nom not in ingredients_trouves:
+                                ingredients_trouves.append(nom)
+        return sorted(list(set(ingredients_trouves)))
+    except:
+        return [""]
 
 # 3. ENVOI VERS GITHUB
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
@@ -69,16 +70,10 @@ def afficher():
     if 'liste_choix' not in st.session_state:
         st.session_state.liste_choix = [""]
 
-    # --- SYNCHRONISATION DES INGRÉDIENTS ---
-    # Si la liste est vide (initialisation), on charge depuis GitHub
+    # --- SYNCHRONISATION INITIALE ---
     if len(st.session_state.liste_choix) <= 1:
         with st.spinner("📦 Synchronisation des ingrédients..."):
             st.session_state.liste_choix = recuperer_ingredients_existants()
-
-    # Bouton de rafraîchissement manuel en sidebar
-    if st.sidebar.button("🔄 Actualiser les ingrédients"):
-        st.session_state.liste_choix = recuperer_ingredients_existants()
-        st.rerun()
 
     # --- FORMULAIRE ---
     with st.container():
@@ -90,7 +85,9 @@ def afficher():
             key=f"appareil_{st.session_state.form_count}"
         )
 
-col1, col2, col3 = st.columns([2, 1, 1])
+        # Ligne ingrédients
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
         with col1:
             options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Choisir l'ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
@@ -102,17 +99,17 @@ col1, col2, col3 = st.columns([2, 1, 1])
         with col3:
             st.write(" ")
             st.write(" ")
-            # On crée deux sous-colonnes pour les boutons Ajouter et Actualiser
-            btn_col1, btn_col2 = st.columns([1, 1])
-            with btn_col1:
-                if st.button("Ajouter", key=f"add_{st.session_state.form_count}"):
+            # Sous-colonnes pour aligner les deux boutons sur la même ligne
+            btn_col_add, btn_col_ref = st.columns([1, 1])
+            with btn_col_add:
+                if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
                     if ing_final:
                         st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
                         if ing_final not in st.session_state.liste_choix:
                             st.session_state.liste_choix.append(ing_final)
                         st.rerun()
-            with btn_col2:
-                if st.button("🔄", key=f"ref_{st.session_state.form_count}", help="Actualiser la liste"):
+            with btn_col_ref:
+                if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}", help="Actualiser la liste depuis GitHub"):
                     st.session_state.liste_choix = recuperer_ingredients_existants()
                     st.rerun()
 
@@ -164,9 +161,9 @@ col1, col2, col3 = st.columns([2, 1, 1])
                     chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
                         st.success("Enregistré sur GitHub !")
-                        # RESET COMPLET POUR LE PROCHAIN
+                        # Reset des champs pour la prochaine saisie
                         st.session_state.ingredients_recette = []
-                        st.session_state.liste_choix = [""] # Force le rafraîchissement au prochain chargement
+                        st.session_state.liste_choix = [""] # Force le refresh au prochain chargement
                         st.session_state.form_count += 1 
                         st.rerun()
         else:
