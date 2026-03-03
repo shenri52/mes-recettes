@@ -66,9 +66,15 @@ def afficher():
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{st.session_state.form_count}")
-        type_appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{st.session_state.form_count}")
+        
+        c_app, c_prep, c_cuis = st.columns(3)
+        with c_app:
+            type_appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{st.session_state.form_count}")
+        with c_prep:
+            tps_prep = st.text_input("Temps préparation", key=f"prep_{st.session_state.form_count}", placeholder="ex: 15 min")
+        with c_cuis:
+            tps_cuis = st.text_input("Temps cuisson", key=f"cuis_{st.session_state.form_count}", placeholder="ex: 20 min")
 
-        # --- ALIGNEMENT DES BOUTONS SUR UNE LIGNE ---
         col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
         with col_ing:
@@ -80,7 +86,7 @@ def afficher():
             qte = st.text_input("Quantité", key=f"qte_{st.session_state.form_count}")
 
         with col_btn_add:
-            st.write(" ") # Alignement vertical
+            st.write(" ")
             st.write(" ")
             if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
                 if ing_final:
@@ -89,7 +95,7 @@ def afficher():
                     st.rerun()
 
         with col_btn_ref:
-            st.write(" ") # Alignement vertical
+            st.write(" ")
             st.write(" ")
             if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}"):
                 st.session_state.liste_choix = recuperer_ingredients_existants()
@@ -127,10 +133,17 @@ def afficher():
                         else: img_ok = False
 
                 if img_ok:
-                    data = {"nom": nom_plat, "appareil": type_appareil, "ingredients": st.session_state.ingredients_recette, "etapes": etapes, "images": liste_medias}
+                    data = {
+                        "nom": nom_plat, 
+                        "appareil": type_appareil, 
+                        "temps_preparation": tps_prep,
+                        "temps_cuisson": tps_cuis,
+                        "ingredients": st.session_state.ingredients_recette, 
+                        "etapes": etapes, 
+                        "images": liste_medias
+                    }
                     if envoyer_vers_github(f"data/recettes/{timestamp}_{nom_fic}.json", json.dumps(data, indent=4, ensure_ascii=False), "Nouveau"):
                         st.success("Enregistré !")
-                        # RESET & CLEAN CACHE
                         st.session_state.ingredients_recette = []
                         if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                         st.session_state.form_count += 1
