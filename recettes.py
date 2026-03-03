@@ -18,7 +18,6 @@ def config_github():
 def envoyer_vers_github(chemin, contenu, message):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    # Forçage anti-cache pour récupérer le SHA exact avant écrasement
     res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
     
@@ -43,9 +42,8 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    # --- CHARGEMENT DYNAMIQUE AVEC FORCAGE TOTAL ---
+    # --- CHARGEMENT DYNAMIQUE ---
     conf = config_github()
-    # 1. On force GitHub à rafraîchir la liste des fichiers (Timestamp)
     url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res_dossier = requests.get(url_dossier, headers=conf['headers'])
     
@@ -53,13 +51,11 @@ def afficher():
         fichiers_github = res_dossier.json()
         nb_fichiers_distants = len([f for f in fichiers_github if f['name'].endswith('.json')])
         
-        # 2. On recharge si le cache local est vide ou si le nombre de fichiers a changé
         if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != nb_fichiers_distants:
-            with st.spinner("🔄 Synchronisation forcée avec GitHub..."):
+            with st.spinner("🔄 Synchronisation avec GitHub..."):
                 data_recettes = []
                 for f in fichiers_github:
                     if f['name'].endswith('.json'):
-                        # 3. Forçage par SHA pour télécharger le contenu RÉEL (Anti-cache)
                         res = requests.get(f"{f['download_url']}?v={f['sha']}")
                         if res.status_code == 200:
                             d = res.json()
@@ -80,6 +76,14 @@ def afficher():
                 if i.get('Ingrédient'): tous_ingredients.append(i.get('Ingrédient'))
         ings = ["Tous"] + sorted(list(set(tous_ingredients)))
         filtre_ing = col_ing.selectbox("Ingrédient", ings)
+
+        # --- BOUTON ACTUALISER (COMME DANS SAISIR) ---
+        if st.button("🔄 Actualiser la liste des recettes", use_container_width=True):
+            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+            if 'liste_choix' in st.session_state: del st.session_state.liste_choix
+            st.rerun()
+
+        st.divider()
 
         recettes_f = [
             r for r in st.session_state.toutes_recettes 
@@ -108,7 +112,6 @@ def afficher():
                         
                         c_save, c_cancel = st.columns(2)
                         if c_save.form_submit_button("✅ Enregistrer"):
-                            # On reconstruit la liste
                             nouveaux_ings = []
                             for ligne in edit_ings_raw.strip().split('\n'):
                                 if "|" in ligne:
@@ -123,11 +126,9 @@ def afficher():
                             }
                             
                             if envoyer_vers_github(rec['chemin_json'], json.dumps(rec_modifiee, indent=4, ensure_ascii=False), f"Update {edit_nom}"):
-                                # FORCAGE APRES ENREGISTREMENT
                                 st.session_state[mode_edit_key] = False
                                 if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                                 if 'liste_choix' in st.session_state: del st.session_state.liste_choix
-                                st.success("Données actualisées !")
                                 time.sleep(1)
                                 st.rerun()
                         
@@ -172,7 +173,6 @@ def afficher():
                                 if cn.button("➡️", key=f"n_{idx}"): st.session_state[k_nav] += 1; st.rerun()
                             
                             path = medias[curr].strip("/")
-                            # Forçage aussi sur l'affichage de l'image
                             url_img = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{path if path.startswith('data/') else 'data/'+path}?t={int(time.time())}"
                             r_api = requests.get(url_img, headers=conf['headers'])
                             if r_api.status_code == 200:
