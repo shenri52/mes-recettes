@@ -14,8 +14,6 @@ def afficher():
         st.write("Stéphanie HENRI")
         st.write("Samuel HENRI")
         st.write("Gemini")
-
-    st.divider() # Utilise divider() au lieu de "---" pour tester
     
     st.markdown("""
     ### Pourquoi cette application ?
