@@ -1,13 +1,9 @@
 import streamlit as st
-import importlib
 
 # --- 1. Imports ---
 from pages import Importer, Saisir, Recettes, Parametres, Sauvegarder, Partager, Propos
 
-# On force le rechargement des modules pour que tes changements de texte apparaissent
-importlib.reload(Propos)
-importlib.reload(Saisir)
-importlib.reload(Recettes)
+st.cache_resource.clear()
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
