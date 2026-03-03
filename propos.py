@@ -22,5 +22,5 @@ def afficher():
     
     Cette application a été développée spécifiquement pour **répondre à un besoin non satisfait par les solutions existantes** : offrir un outil épuré, rapide et entièrement personnalisé pour centraliser vos recettes sans contraintes.
     
-    *Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.*
+    Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.*
     """)
