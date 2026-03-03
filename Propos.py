@@ -1,10 +1,9 @@
 import streamlit as st
 
 def afficher():
-    # On commence directement par le titre (le bouton retour est déjà au-dessus dans app.py)
+    st.title("ℹ️ À propos") # Titre ajouté pour tester la mise à jour
     st.subheader("Crédits du Projet")
     
-    # Utilisation de colonnes pour une présentation plus pro
     col1, col2 = st.columns(2)
     
     with col1:
@@ -17,9 +16,9 @@ def afficher():
         st.write("Samuel HENRI")
         st.write("Gemini")
 
-    st.write("---")
+    st.divider() # Utilise divider() au lieu de "---" pour tester
     
-    st.write("""
+    st.markdown("""
     ### Pourquoi cette application ?
     
     **Mesrecettes** est née d'un constat simple : la plupart des applications de cuisine actuelles sont soit trop complexes, soit saturées de publicités.
@@ -27,7 +26,7 @@ def afficher():
     Cette application a été développée spécifiquement pour **répondre à un besoin non satisfait par les solutions existantes** : offrir un outil épuré, rapide et entièrement personnalisé pour centraliser vos recettes sans contraintes.
     
     ---
-    Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.
+    *Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.*
     """)
     
-    st.write("---")
+    st.divider()
