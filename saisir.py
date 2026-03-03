@@ -6,7 +6,7 @@ from datetime import datetime
 import io
 from PIL import Image
 
-# --- FONCTION D'ENVOI GITHUB (INVISIBILE) ---
+# --- FONCTION D'ENVOI GITHUB (INVISIBLE) ---
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     try:
         token = st.secrets["GITHUB_TOKEN"]
@@ -36,7 +36,6 @@ def afficher():
         st.session_state.ingredients_recette = []
     
     if 'liste_choix' not in st.session_state:
-        # Initialisation vide pour accueillir le contenu de la colonne Ingrédients
         st.session_state.liste_choix = [""]
 
     # On utilise un conteneur avec une clé unique pour tout vider d'un coup
@@ -91,8 +90,8 @@ def afficher():
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic = nom_plat.replace(" ", "_").lower()
                 chemin_img = ""
+                img_ok = True  # Correction de l'indentation ici
 
-img_ok = True
                 if photo_fb:
                     nom_fichier_origine = photo_fb.name.lower()
                     extension = nom_fichier_origine.split('.')[-1]
@@ -101,8 +100,11 @@ img_ok = True
                     if extension in ["jpg", "jpeg", "png"]:
                         # --- COMPRESSION IMAGE SANS PERTE VISIBLE ---
                         image = Image.open(photo_fb)
+                        # Conversion en RGB si nécessaire (pour éviter les erreurs avec les JPEG)
+                        if image.mode in ("RGBA", "P"):
+                            image = image.convert("RGB")
+                        
                         buffer = io.BytesIO()
-                        # On utilise 'optimize=True' pour réduire le poids sans changer les pixels
                         if extension == "png":
                             image.save(buffer, format="PNG", optimize=True)
                         else:
