@@ -34,19 +34,30 @@ def supprimer_fichier_github(chemin):
 def afficher():
     st.header("📚 Mes recettes")
 
-    # --- CHARGEMENT ---
-    if 'toutes_recettes' not in st.session_state:
-        with st.spinner("Chargement des données..."):
-            fichiers = charger_fichiers("data/recettes")
-            data_recettes = []
-            for f in fichiers:
-                if f['name'].endswith('.json'):
-                    res = requests.get(f"{f['download_url']}?nocache={f['sha']}")
-                    if res.status_code == 200:
-                        d = res.json()
-                        d['chemin_json'] = f['path']
-                        data_recettes.append(d)
-            st.session_state.toutes_recettes = data_recettes
+    # --- CHARGEMENT DYNAMIQUE (FORCE LA MISE À JOUR) ---
+    # On récupère la liste des fichiers sur GitHub pour comparer
+    conf = config_github()
+    url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
+    res_dossier = requests.get(url_dossier, headers=conf['headers'])
+    
+    if res_dossier.status_code == 200:
+        fichiers_github = res_dossier.json()
+        nb_fichiers_distants = len([f for f in fichiers_github if f['name'].endswith('.json')])
+        
+        # On ne recharge que si le nombre de fichiers a changé ou si la liste est vide
+        if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != nb_fichiers_distants:
+            with st.spinner("Mise à jour de la liste..."):
+                data_recettes = []
+                for f in fichiers_github:
+                    if f['name'].endswith('.json'):
+                        # L'astuce du SHA force GitHub à donner le fichier tout juste créé
+                        res = requests.get(f"{f['download_url']}?v={f['sha']}")
+                        if res.status_code == 200:
+                            d = res.json()
+                            d['chemin_json'] = f['path']
+                            data_recettes.append(d)
+                # On trie par nom pour plus de clarté
+                st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
     # --- BARRE DE RECHERCHE ET FILTRES ---
     col_search, col_app, col_ing = st.columns([2, 1, 1])
