@@ -38,8 +38,3 @@ def afficher():
     st.write("---")
     
     st.info("Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.")
-
-if st.button("⬅️ Retour", use_container_width=True):
-    st.session_state.page = 'app'
-    # Forcer le rafraîchissement pour n'avoir qu'un clic
-    st.rerun()
