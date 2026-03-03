@@ -1,7 +1,7 @@
 import streamlit as st
 
 def afficher():
-    st.subheader("Crédits du Projet")
+    st.subheader("A propos du projet")
     
     col1, col2 = st.columns(2)
     
