@@ -49,6 +49,5 @@ else:
         propos.afficher()
 
     # --- 4. BOUTON RETOUR (Toujours en bas des pages secondaires) ---
-    st.write("---")
     if st.button("⬅️ Retour à l'accueil", use_container_width=True):
         changer_page('accueil')
