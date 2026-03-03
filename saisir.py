@@ -6,24 +6,19 @@ from datetime import datetime
 import io
 from PIL import Image
 
-# --- FONCTION D'ENVOI GITHUB (INVISIBILE) ---
-def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
-    try:
-        token = st.secrets["GITHUB_TOKEN"]
-        owner = st.secrets["REPO_OWNER"]
-        repo = st.secrets["REPO_NAME"]
-        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{chemin_fichier}"
-        headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
-        if est_binaire:
-            contenu_final = base64.b64encode(contenu).decode('utf-8')
-        else:
-            contenu_final = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
-        data = {"message": message, "content": contenu_final, "branch": "main"}
-        res = requests.put(url, headers=headers, json=data)
-        return res.status_code in [200, 201]
-    except:
-        return False
+# 1. CONFIGURATION GITHUB
+def config_github():
+    return {
+        "token": st.secrets["GITHUB_TOKEN"],
+        "owner": st.secrets["REPO_OWNER"],
+        "repo": st.secrets["REPO_NAME"],
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+    }
 
+# 2. RÉCUPÉRATION DES INGRÉDIENTS (ANTI-CACHE)
 def recuperer_ingredients_existants():
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
@@ -34,28 +29,46 @@ def recuperer_ingredients_existants():
         fichiers = res.json()
         for f in fichiers:
             if f['name'].endswith('.json'):
-                # On lit chaque recette pour extraire les noms d'ingrédients
-                r_res = requests.get(f['download_url'])
+                # Force la lecture avec le SHA pour éviter le cache
+                r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
                 if r_res.status_code == 200:
                     data = r_res.json()
                     for ing in data.get('ingredients', []):
                         nom = ing.get('Ingrédient')
                         if nom and nom not in ingredients_trouves:
                             ingredients_trouves.append(nom)
-    return sorted(ingredients_trouves)
+    return sorted(list(set(ingredients_trouves)))
 
+# 3. ENVOI VERS GITHUB
+def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
+    try:
+        conf = config_github()
+        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin_fichier}"
+        if est_binaire:
+            contenu_final = base64.b64encode(contenu).decode('utf-8')
+        else:
+            contenu_final = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
+        
+        data = {"message": message, "content": contenu_final, "branch": "main"}
+        res = requests.put(url, headers=conf['headers'], json=data)
+        return res.status_code in [200, 201]
+    except:
+        return False
+
+# 4. AFFICHAGE DE LA PAGE
 def afficher():
     st.header("✍️ Ajouter une recette")
 
-    # Initialisation pour la remise à zéro automatique
+    # Initialisation des compteurs
     if 'form_count' not in st.session_state:
         st.session_state.form_count = 0
-
     if 'ingredients_recette' not in st.session_state:
         st.session_state.ingredients_recette = []
     
-    if 'liste_choix' not in st.session_state:
-        st.session_state.liste_choix = [""]
+    # CHARGEMENT AUTOMATIQUE DES INGRÉDIENTS
+    if 'liste_choix' not in st.session_state or len(st.session_state.liste_choix) <= 1:
+        with st.spinner("Synchronisation des ingrédients..."):
+            st.session_state.liste_choix = recuperer_ingredients_existants()
 
     # --- FORMULAIRE ---
     with st.container():
@@ -67,7 +80,6 @@ def afficher():
             key=f"appareil_{st.session_state.form_count}"
         )
 
-        # Ajout d'ingrédients
         col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
             options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
@@ -80,7 +92,7 @@ def afficher():
         with col3:
             st.write(" ")
             st.write(" ")
-            if st.button("Ajouter"):
+            if st.button("Ajouter", key=f"add_{st.session_state.form_count}"):
                 if ing_final:
                     st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
                     if ing_final not in st.session_state.liste_choix:
@@ -92,8 +104,6 @@ def afficher():
 
         st.markdown("---")
         etapes = st.text_area("Étapes de préparation", height=150, key=f"etapes_{st.session_state.form_count}")
-        
-        # MULTI-FICHIERS ICI
         photos_fb = st.file_uploader("Images ou PDF", type=["jpg", "png", "jpeg", "pdf"], key=f"photo_{st.session_state.form_count}", accept_multiple_files=True)
 
     # --- SAUVEGARDE ---
@@ -106,7 +116,6 @@ def afficher():
                 liste_medias = []
                 img_ok = True
 
-                # On traite la liste des fichiers
                 if photos_fb:
                     for idx, fichier in enumerate(photos_fb):
                         ext = fichier.name.lower().split('.')[-1]
@@ -114,13 +123,10 @@ def afficher():
                         
                         if ext in ["jpg", "jpeg", "png"]:
                             image = Image.open(fichier)
-                            if image.mode in ("RGBA", "P"):
-                                image = image.convert("RGB")
+                            if image.mode in ("RGBA", "P"): image = image.convert("RGB")
                             buffer = io.BytesIO()
-                            if ext == "png":
-                                image.save(buffer, format="PNG", optimize=True)
-                            else:
-                                image.save(buffer, format="JPEG", quality=85, optimize=True)
+                            if ext == "png": image.save(buffer, format="PNG", optimize=True)
+                            else: image.save(buffer, format="JPEG", quality=85, optimize=True)
                             contenu = buffer.getvalue()
                         else:
                             contenu = fichier.getvalue()
