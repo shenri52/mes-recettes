@@ -27,6 +27,7 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
 
 def recuperer_ingredients_existants():
     conf = config_github()
+    # On liste le dossier
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
     res = requests.get(url, headers=conf['headers'])
     ingredients_trouves = [""]
@@ -35,28 +36,35 @@ def recuperer_ingredients_existants():
         fichiers = res.json()
         for f in fichiers:
             if f['name'].endswith('.json'):
-                # On lit chaque recette pour extraire les noms d'ingrédients
-                r_res = requests.get(f['download_url'])
+                # FORCE le rafraîchissement avec ?v=SHA
+                r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
                 if r_res.status_code == 200:
                     data = r_res.json()
+                    # On parcourt les ingrédients du JSON
                     for ing in data.get('ingredients', []):
                         nom = ing.get('Ingrédient')
                         if nom and nom not in ingredients_trouves:
                             ingredients_trouves.append(nom)
-    return sorted(ingredients_trouves)
+    return sorted(list(set(ingredients_trouves)))
 
 def afficher():
     st.header("📸 Importer photo")
 
-    # Initialisation pour la remise à zéro automatique
+    # Initialisation des compteurs
     if 'form_count_img' not in st.session_state:
         st.session_state.form_count_img = 0
-
     if 'ingredients_img' not in st.session_state:
         st.session_state.ingredients_img = []
     
-    if 'liste_choix_img' not in st.session_state:
-        st.session_state.liste_choix_img = [""]
+    # CHARGEMENT : On ne le fait que si la liste est vide (contient juste [""])
+    if 'liste_choix_img' not in st.session_state or len(st.session_state.liste_choix_img) <= 1:
+        with st.spinner("📦 Synchronisation des ingrédients existants..."):
+            st.session_state.liste_choix_img = recuperer_ingredients_existants()
+            
+    # Bouton manuel au cas où (optionnel mais utile)
+    if st.button("🔄 Actualiser les ingrédients", key="ref_ing"):
+        st.session_state.liste_choix_img = recuperer_ingredients_existants()
+        st.rerun()
 
     # --- FORMULAIRE ---
     with st.container():
