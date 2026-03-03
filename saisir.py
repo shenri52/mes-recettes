@@ -4,7 +4,7 @@ import base64
 import requests
 from datetime import datetime
 
-# --- FONCTION D'ENVOI GITHUB ---
+# --- FONCTION D'ENVOI GITHUB (INVISIBILE) ---
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     try:
         token = st.secrets["GITHUB_TOKEN"]
@@ -23,7 +23,7 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
         return False
 
 def afficher():
-    st.header("Saisir une nouvelle recette")
+    st.header("Ajouter une recette")
 
     # Initialisation des listes en mémoire
     if 'ingredients_recette' not in st.session_state:
@@ -32,24 +32,23 @@ def afficher():
     if 'liste_choix' not in st.session_state:
         st.session_state.liste_choix = ["", "Farine", "Sucre", "Œuf", "Lait", "Beurre", "Chocolat"]
 
-    # Utilisation de clés (key) pour pouvoir réinitialiser les champs
-    nom_plat = st.text_input("Nom de la recette", key="nom_recette_input")
+    nom_plat = st.text_input("Nom de la recette")
 
     # --- LIGNE D'AJOUT D'INGRÉDIENTS ---
     col1, col2, col3 = st.columns([2, 1, 1])
     
     with col1:
         options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
-        choix = st.selectbox("Choisir l'ingrédient", options=options, key="sel_ing")
+        choix = st.selectbox("Choisir l'ingrédient", options=options)
         
         ing_final = ""
         if choix == "➕ Ajouter un nouveau...":
-            ing_final = st.text_input("Nom du nouvel ingrédient", key="new_ing_name")
+            ing_final = st.text_input("Nom du nouvel ingrédient")
         else:
             ing_final = choix
 
     with col2:
-        qte = st.text_input("Quantité", key="qte_input")
+        qte = st.text_input("Quantité")
 
     with col3:
         st.write(" ") 
@@ -66,17 +65,22 @@ def afficher():
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
     st.markdown("---")
-    etapes = st.text_area("Étapes de préparation", height=150, key="etapes_input")
-    photo_fb = st.file_uploader("Capture Facebook", type=["jpg", "png", "jpeg"], key="photo_input")
+    etapes = st.text_area("Étapes de préparation", height=150)
+    photo_fb = st.file_uploader("Capture Facebook", type=["jpg", "png", "jpeg"])
 
-    if st.button("Enregistrer la recette", use_container_width=True):
-        if nom_plat and photo_fb:
+    # --- BOUTON DE SAUVEGARDE AVEC EMOJI ---
+    if st.button("💾 Enregistrer la recette", use_container_width=True):
+        if nom_plat: # Seul le nom est obligatoire maintenant
             with st.spinner("Enregistrement..."):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic = nom_plat.replace(" ", "_").lower()
+                chemin_img = ""
 
-                chemin_img = f"data/images/{timestamp}_{nom_fic}.png"
-                img_ok = envoyer_vers_github(chemin_img, photo_fb.getvalue(), "Photo", est_binaire=True)
+                # Envoi de l'image seulement si elle existe
+                img_ok = True
+                if photo_fb:
+                    chemin_img = f"data/images/{timestamp}_{nom_fic}.png"
+                    img_ok = envoyer_vers_github(chemin_img, photo_fb.getvalue(), "Photo", est_binaire=True)
 
                 if img_ok:
                     data = {
@@ -88,13 +92,7 @@ def afficher():
                     chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
                     if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
                         st.success("Enregistré sur GitHub !")
-                        
-                        # --- REMISE À ZÉRO DES CHAMPS ---
                         st.session_state.ingredients_recette = []
-                        # On vide les champs via les clés
-                        for key in ["nom_recette_input", "etapes_input", "qte_input", "new_ing_name"]:
-                            if key in st.session_state:
-                                st.session_state[key] = ""
-                        st.rerun() # Relance pour vider l'affichage
+                        st.rerun()
         else:
-            st.warning("Complète le nom et la photo.")
+            st.warning("Complète au moins le nom de la recette.")
