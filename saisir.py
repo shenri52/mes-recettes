@@ -81,7 +81,7 @@ def afficher():
 
         st.markdown("---")
         etapes = st.text_area("Étapes de préparation", height=150, key=f"etapes_{st.session_state.form_count}")
-        photo_fb = st.file_uploader("Image ou PDF", type=["jpg", "png", "jpeg", "pdf"], key=f"photo_{st.session_state.form_count}")
+        photos_fb = st.file_uploader("Images ou PDF (plusieurs possibles)", type=["jpg", "png", "jpeg", "pdf"], key=f"photo_{st.session_state.form_count}", accept_multiple_files=True)
 
     # --- BOUTON DE SAUVEGARDE ---
     if st.button("💾 Enregistrer la recette", use_container_width=True):
