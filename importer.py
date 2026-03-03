@@ -155,11 +155,17 @@ def afficher():
                         "images": liste_medias
                     }
                     chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
-                    if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data Photo"):
-                        st.success("Enregistré sur GitHub !")
-                        st.session_state.ingredients_img = []
-                        st.session_state.liste_choix_img = [""] # Force le refresh au prochain chargement
-                        st.session_state.form_count_img += 1 
+                    if envoyer_vers_github(chemin_json, json.dumps(data_recette, indent=4, ensure_ascii=False), f"Ajout: {nom_recette}"):
+                        st.success(f"Recette '{nom_recette}' importée !")
+                        
+                        # --- LA MODIFICATION ICI ---
+                        # On vide simplement la liste pour forcer recettes.py à tout recharger
+                        if 'toutes_recettes' in st.session_state:
+                            del st.session_state.toutes_recettes
+                        
+                        # Reset des champs (selon votre demande précédente)
+                        st.session_state.url_import = "" 
+                        time.sleep(1)
                         st.rerun()
         else:
             st.warning("Le nom de la recette est obligatoire.")
