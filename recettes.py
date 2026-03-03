@@ -39,7 +39,6 @@ def supprimer_fichier_github(chemin):
 
 def afficher():
     st.header("📚 Mes recettes")
-
     conf = config_github()
     
     # --- CHARGEMENT DYNAMIQUE ---
@@ -94,11 +93,19 @@ def afficher():
 
             with st.expander(f"📖 {rec.get('nom', 'Sans nom').upper()}"):
                 if st.session_state[m_edit]:
-                    # --- MODE FORMULAIRE ---
+                    # --- MODE FORMULAIRE (MODIFICATION) ---
                     with st.form(key=f"f_edit_{idx}"):
                         e_nom = st.text_input("Nom", value=rec.get('nom', ''))
-                        e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                        
+                        c1, c2, c3 = st.columns(3)
+                        with c1:
+                            e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
                                            index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(rec.get('appareil', 'Aucun')))
+                        with c2:
+                            e_prep = st.text_input("Temps prépa.", value=rec.get('temps_preparation', ''))
+                        with c3:
+                            e_cuis = st.text_input("Temps cuisson", value=rec.get('temps_cuisson', ''))
+                        
                         ing_txt = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in rec.get('ingredients', [])])
                         e_ings = st.text_area("Ingrédients (Qté | Nom)", value=ing_txt)
                         e_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=150)
@@ -110,14 +117,19 @@ def afficher():
                                 if not l.strip(): continue 
                                 if "|" in l:
                                     parties = l.split("|", 1)
-                                    q = parties[0].strip()
-                                    n = parties[1].strip()
-                                    # Correction de l'assignation pour éviter l'inversion
-                                    new_ings.append({"Ingrédient": n, "Quantité": q})
+                                    new_ings.append({"Ingrédient": parties[1].strip(), "Quantité": parties[0].strip()})
                                 else:
                                     new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                             
-                            data_mod = {"nom": e_nom, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])}
+                            data_mod = {
+                                "nom": e_nom, 
+                                "appareil": e_app, 
+                                "temps_preparation": e_prep,
+                                "temps_cuisson": e_cuis,
+                                "ingredients": new_ings, 
+                                "etapes": e_etapes, 
+                                "images": rec.get('images', [])
+                            }
                             
                             if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
                                 st.session_state[m_edit] = False
@@ -129,10 +141,20 @@ def afficher():
                             st.rerun()
                 else:
                     # --- MODE LECTURE ---
+                    # Affichage des temps s'ils existent
+                    t_prep = rec.get('temps_preparation', '')
+                    t_cuis = rec.get('temps_cuisson', '')
+                    if t_prep or t_cuis:
+                        cols_t = st.columns(2)
+                        if t_prep: cols_t[0].markdown(f"⏱️ **Préparation :** {t_prep}")
+                        if t_cuis: cols_t[1].markdown(f"🔥 **Cuisson :** {t_cuis}")
+                        st.write("")
+
                     c_txt, c_img = st.columns([1, 1])
                     with c_txt:
-                        st.subheader("🍴 Préparation")
+                        st.subheader("🍴 Détails")
                         st.write(f"**Appareil :** {rec.get('appareil', 'Aucun')}")
+                        st.write("**Ingrédients :**")
                         for i in rec.get('ingredients', []):
                             st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
                         st.write(f"**Étapes :**\n{rec.get('etapes', '')}")
