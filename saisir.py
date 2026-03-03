@@ -90,7 +90,7 @@ def afficher():
             key=f"appareil_{st.session_state.form_count}"
         )
 
-        col1, col2, col3 = st.columns([2, 1, 1])
+col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
             options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Choisir l'ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
@@ -102,11 +102,18 @@ def afficher():
         with col3:
             st.write(" ")
             st.write(" ")
-            if st.button("Ajouter", key=f"add_{st.session_state.form_count}"):
-                if ing_final:
-                    st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                    if ing_final not in st.session_state.liste_choix:
-                        st.session_state.liste_choix.append(ing_final)
+            # On crée deux sous-colonnes pour les boutons Ajouter et Actualiser
+            btn_col1, btn_col2 = st.columns([1, 1])
+            with btn_col1:
+                if st.button("Ajouter", key=f"add_{st.session_state.form_count}"):
+                    if ing_final:
+                        st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                        if ing_final not in st.session_state.liste_choix:
+                            st.session_state.liste_choix.append(ing_final)
+                        st.rerun()
+            with btn_col2:
+                if st.button("🔄", key=f"ref_{st.session_state.form_count}", help="Actualiser la liste"):
+                    st.session_state.liste_choix = recuperer_ingredients_existants()
                     st.rerun()
 
         for i in st.session_state.ingredients_recette:
