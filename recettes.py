@@ -110,25 +110,36 @@ def afficher():
 
                 with col_media:
                     st.subheader("Médias")
-                    chemin_media = rec.get('image')
-                    if chemin_media:
+                    
+                    # On vérifie les deux clés par sécurité (ancienne version et nouvelle)
+                    chemins_medias = rec.get('images', [])
+                    image_unique = rec.get('image')
+                    
+                    # Si c'était une ancienne recette avec une seule image
+                    if image_unique and not chemins_medias:
+                        chemins_medias = [image_unique]
+
+                    if chemins_medias:
                         conf = config_github()
-                        url_media = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin_media}"
-                        res_m = requests.get(url_media, headers=conf['headers'])
-                        
-                        if res_m.status_code == 200:
-                            b64_data = res_m.json()['content']
-                            file_bytes = base64.b64decode(b64_data)
+                        for chemin in chemins_medias:
+                            url_media = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+                            res_m = requests.get(url_media, headers=conf['headers'])
                             
-                            if chemin_media.lower().endswith('.pdf'):
-                                # Affichage PDF
-                                st.download_button("📂 Télécharger/Voir PDF", file_bytes, file_name=f"{rec['nom']}.pdf")
-                                # Preview PDF simple
-                                base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
-                                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="400" type="application/pdf">'
-                                st.markdown(pdf_display, unsafe_allow_html=True)
-                            else:
-                                # Affichage Image
-                                st.image(file_bytes, use_container_width=True)
+                            if res_m.status_code == 200:
+                                b64_data = res_m.json()['content']
+                                file_bytes = base64.b64decode(b64_data)
+                                
+                                if chemin.lower().endswith('.pdf'):
+                                    st.download_button(f"📂 Télécharger PDF ({chemin.split('/')[-1]})", 
+                                                     file_bytes, 
+                                                     file_name=f"{rec['nom']}.pdf",
+                                                     key=f"btn_{chemin}")
+                                    
+                                    base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
+                                    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="400" type="application/pdf">'
+                                    st.markdown(pdf_display, unsafe_allow_html=True)
+                                else:
+                                    st.image(file_bytes, use_container_width=True, caption=chemin.split('/')[-1])
+                            st.write("---") # Séparateur entre les médias
                     else:
                         st.write("Aucune photo ou PDF.")
