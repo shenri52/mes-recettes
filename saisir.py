@@ -47,7 +47,8 @@ def afficher():
 
     # Table de visualisation
     if st.session_state.ingredients_recette:
-        st.table(pd.DataFrame(st.session_state.ingredients_recette))
+        # Utilise st.dataframe ou st.table avec hide_index=True
+        st.dataframe(st.session_state.ingredients_recette, use_container_width=True, hide_index=True)
         if st.button("🗑️ Vider la liste"):
             st.session_state.ingredients_recette = []
             st.rerun()
