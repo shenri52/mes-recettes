@@ -45,7 +45,7 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
     return res.status_code in [200, 201]
 
 def afficher():
-    st.header("📸 Importer photo")
+    st.header("📥 Importer une recette")
 
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
