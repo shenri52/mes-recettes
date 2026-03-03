@@ -1,7 +1,6 @@
 import streamlit as st
 
 def afficher():
-    st.title("ℹ️ À propos") # Titre ajouté pour tester la mise à jour
     st.subheader("Crédits du Projet")
     
     col1, col2 = st.columns(2)
@@ -9,7 +8,7 @@ def afficher():
     with col1:
         st.write("💡 **Idée originale :**")
         st.write("✍️ **Prompteur :**")
-        st.write("🤖 **Code :**")
+        st.write("💻 **Code :**")
         
     with col2:
         st.write("Stéphanie HENRI")
@@ -25,8 +24,5 @@ def afficher():
     
     Cette application a été développée spécifiquement pour **répondre à un besoin non satisfait par les solutions existantes** : offrir un outil épuré, rapide et entièrement personnalisé pour centraliser vos recettes sans contraintes.
     
-    ---
     *Ce projet est le fruit d'une collaboration entre l'humain et l'intelligence artificielle.*
     """)
-    
-    st.divider()
