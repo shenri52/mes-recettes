@@ -3,7 +3,7 @@ import pandas as pd
 from PIL import Image
 
 def afficher():
-    st.markdown("<h2 style='text-align: center;'>➕ Saisie Manuelle</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>✍️ Saisie Manuelle</h2>", unsafe_allow_html=True)
 
     # --- 1. INITIALISATION ---
     if 'base_ingredients' not in st.session_state:
