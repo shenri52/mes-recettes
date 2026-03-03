@@ -2,6 +2,8 @@ import streamlit as st
 
 def afficher():
     st.subheader("A propos du projet")
+
+    st.write("---")
     
     col1, col2 = st.columns(2)
     
@@ -14,7 +16,9 @@ def afficher():
         st.write("Stéphanie HENRI")
         st.write("Samuel HENRI")
         st.write("Gemini")
-    
+
+     st.write("---")
+
     st.markdown("""
     ### Pourquoi cette application ?
     
