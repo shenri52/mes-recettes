@@ -7,7 +7,6 @@ import io
 from PIL import Image
 import time
 
-# 1. CONFIGURATION GITHUB
 def config_github():
     return {
         "token": st.secrets["GITHUB_TOKEN"],
@@ -19,10 +18,8 @@ def config_github():
         }
     }
 
-# 2. RÉCUPÉRATION DES INGRÉDIENTS (ANTI-CACHE)
 def recuperer_ingredients_existants():
     conf = config_github()
-    # On ajoute un timestamp pour forcer GitHub à rafraîchir la liste des fichiers
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     try:
         res = requests.get(url, headers=conf['headers'])
@@ -42,7 +39,6 @@ def recuperer_ingredients_existants():
     except:
         return [""]
 
-# 3. ENVOI VERS GITHUB
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     try:
         conf = config_github()
@@ -51,120 +47,91 @@ def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
             contenu_final = base64.b64encode(contenu).decode('utf-8')
         else:
             contenu_final = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
-        
         data = {"message": message, "content": contenu_final, "branch": "main"}
         res = requests.put(url, headers=conf['headers'], json=data)
         return res.status_code in [200, 201]
     except:
         return False
 
-# 4. AFFICHAGE DE LA PAGE
 def afficher():
     st.header("✍️ Ajouter une recette")
 
-    # --- INITIALISATION DES VARIABLES (SÉCURITÉ) ---
-    if 'form_count' not in st.session_state:
-        st.session_state.form_count = 0
-    if 'ingredients_recette' not in st.session_state:
-        st.session_state.ingredients_recette = []
-    if 'liste_choix' not in st.session_state:
-        st.session_state.liste_choix = [""]
+    if 'form_count' not in st.session_state: st.session_state.form_count = 0
+    if 'ingredients_recette' not in st.session_state: st.session_state.ingredients_recette = []
+    if 'liste_choix' not in st.session_state: st.session_state.liste_choix = [""]
 
-    # --- SYNCHRONISATION INITIALE ---
     if len(st.session_state.liste_choix) <= 1:
-        with st.spinner("📦 Synchronisation des ingrédients..."):
+        with st.spinner("📦 Synchronisation..."):
             st.session_state.liste_choix = recuperer_ingredients_existants()
 
-    # --- FORMULAIRE ---
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{st.session_state.form_count}")
-        
-        type_appareil = st.selectbox(
-            "Appareil utilisé", 
-            options=["Aucun", "Cookeo", "Thermomix", "Ninja"], 
-            key=f"appareil_{st.session_state.form_count}"
-        )
+        type_appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{st.session_state.form_count}")
 
-        # Ligne ingrédients
-        col1, col2, col3 = st.columns([2, 1, 1])
+        # --- ALIGNEMENT DES BOUTONS SUR UNE LIGNE ---
+        col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
-        with col1:
+        with col_ing:
             options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
-            choix = st.selectbox("Choisir l'ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
-            ing_final = st.text_input("Nom du nouvel ingrédient", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
+            choix = st.selectbox("Ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
+            ing_final = st.text_input("Nom nouveau", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
 
-        with col2:
+        with col_qte:
             qte = st.text_input("Quantité", key=f"qte_{st.session_state.form_count}")
 
-        with col3:
+        with col_btn_add:
+            st.write(" ") # Alignement vertical
             st.write(" ")
-            st.write(" ")
-            # Sous-colonnes pour aligner les deux boutons sur la même ligne
-            btn_col_add, btn_col_ref = st.columns([1, 1])
-            with btn_col_add:
-                if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
-                    if ing_final:
-                        st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                        if ing_final not in st.session_state.liste_choix:
-                            st.session_state.liste_choix.append(ing_final)
-                        st.rerun()
-            with btn_col_ref:
-                if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}", help="Actualiser la liste depuis GitHub"):
-                    st.session_state.liste_choix = recuperer_ingredients_existants()
+            if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
+                if ing_final:
+                    st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                    if ing_final not in st.session_state.liste_choix: st.session_state.liste_choix.append(ing_final)
                     st.rerun()
+
+        with col_btn_ref:
+            st.write(" ") # Alignement vertical
+            st.write(" ")
+            if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}"):
+                st.session_state.liste_choix = recuperer_ingredients_existants()
+                st.rerun()
 
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
         st.markdown("---")
-        etapes = st.text_area("Étapes de préparation", height=150, key=f"etapes_{st.session_state.form_count}")
-        photos_fb = st.file_uploader("Images ou PDF", type=["jpg", "png", "jpeg", "pdf"], key=f"photo_{st.session_state.form_count}", accept_multiple_files=True)
+        etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{st.session_state.form_count}")
+        photos_fb = st.file_uploader("Médias", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{st.session_state.form_count}", accept_multiple_files=True)
 
-    # --- SAUVEGARDE ---
     if st.button("💾 Enregistrer la recette", use_container_width=True):
         if nom_plat:
             with st.spinner("Enregistrement..."):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic = nom_plat.replace(" ", "_").lower()
-                
                 liste_medias = []
                 img_ok = True
 
                 if photos_fb:
-                    for idx, fichier in enumerate(photos_fb):
-                        ext = fichier.name.lower().split('.')[-1]
+                    for idx, f in enumerate(photos_fb):
+                        ext = f.name.lower().split('.')[-1]
                         chemin_media = f"data/images/{timestamp}_{nom_fic}_{idx}.{ext}"
-                        
                         if ext in ["jpg", "jpeg", "png"]:
-                            image = Image.open(fichier)
+                            image = Image.open(f)
                             if image.mode in ("RGBA", "P"): image = image.convert("RGB")
-                            buffer = io.BytesIO()
-                            if ext == "png": image.save(buffer, format="PNG", optimize=True)
-                            else: image.save(buffer, format="JPEG", quality=85, optimize=True)
-                            contenu = buffer.getvalue()
-                        else:
-                            contenu = fichier.getvalue()
+                            buf = io.BytesIO()
+                            image.save(buf, format="JPEG", quality=85)
+                            cnt = buf.getvalue()
+                        else: cnt = f.getvalue()
                         
-                        if envoyer_vers_github(chemin_media, contenu, f"Media {idx}", est_binaire=True):
+                        if envoyer_vers_github(chemin_media, cnt, f"Media {idx}", True):
                             liste_medias.append(chemin_media)
-                        else:
-                            img_ok = False
+                        else: img_ok = False
 
                 if img_ok:
-                    data = {
-                        "nom": nom_plat, 
-                        "appareil": type_appareil,
-                        "ingredients": st.session_state.ingredients_recette, 
-                        "etapes": etapes, 
-                        "images": liste_medias
-                    }
-                    chemin_json = f"data/recettes/{timestamp}_{nom_fic}.json"
-                    if envoyer_vers_github(chemin_json, json.dumps(data, indent=4, ensure_ascii=False), "Data"):
-                        st.success("Enregistré sur GitHub !")
-                        # Reset des champs pour la prochaine saisie
+                    data = {"nom": nom_plat, "appareil": type_appareil, "ingredients": st.session_state.ingredients_recette, "etapes": etapes, "images": liste_medias}
+                    if envoyer_vers_github(f"data/recettes/{timestamp}_{nom_fic}.json", json.dumps(data, indent=4, ensure_ascii=False), "Nouveau"):
+                        st.success("Enregistré !")
+                        # RESET & CLEAN CACHE
                         st.session_state.ingredients_recette = []
-                        st.session_state.liste_choix = [""] # Force le refresh au prochain chargement
-                        st.session_state.form_count += 1 
+                        if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+                        st.session_state.form_count += 1
                         st.rerun()
-        else:
-            st.warning("Le nom de la recette est obligatoire.")
