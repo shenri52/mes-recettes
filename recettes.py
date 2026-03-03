@@ -8,7 +8,10 @@ def config_github():
         "token": st.secrets["GITHUB_TOKEN"],
         "owner": st.secrets["REPO_OWNER"],
         "repo": st.secrets["REPO_NAME"],
-        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"}
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
     }
 
 def charger_fichiers(dossier):
@@ -18,20 +21,20 @@ def charger_fichiers(dossier):
     return res.json() if res.status_code == 200 else []
 
 def supprimer_fichier_github(chemin):
+    if not chemin: return
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
     get_res = requests.get(url, headers=conf['headers'])
     if get_res.status_code == 200:
         sha = get_res.json()['sha']
         requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return True
-    return False
 
 def afficher():
     st.header("📚 Mes recettes")
 
-    if st.button("🔄 Actualiser la liste"):
-        if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+    if st.button("🔄 Actualiser tout"):
+        if 'toutes_recettes' in st.session_state:
+            del st.session_state.toutes_recettes
         st.rerun()
 
     if 'toutes_recettes' not in st.session_state:
@@ -40,19 +43,22 @@ def afficher():
             data_recettes = []
             for f in fichiers:
                 if f['name'].endswith('.json'):
-                    res = requests.get(f['download_url'])
+                    # On ajoute un paramètre aléatoire à l'URL pour éviter le cache GitHub
+                    res = requests.get(f"{f['download_url']}?nocache={f['sha']}")
                     if res.status_code == 200:
                         d = res.json()
                         d['chemin_json'] = f['path']
                         data_recettes.append(d)
             st.session_state.toutes_recettes = data_recettes
 
+    # --- FILTRES ---
     col_s, col_a, col_i = st.columns([2, 1, 1])
     recherche = col_s.text_input("🔍 Rechercher", "").lower()
-    filtre_app = col_a.selectbox("Appareil", ["Tous"] + list(set(r.get('appareil', 'Aucun') for r in st.session_state.toutes_recettes)))
+    apps = ["Tous"] + list(set(r.get('appareil', 'Aucun') for r in st.session_state.toutes_recettes))
+    filtre_app = col_a.selectbox("Appareil", apps)
     
-    tous_ings = sorted(list(set(i.get('Ingrédient') for r in st.session_state.toutes_recettes for i in r.get('ingredients', []))))
-    filtre_ing = col_i.selectbox("Ingrédient", ["Tous"] + tous_ings)
+    ings = sorted(list(set(i.get('Ingrédient') for r in st.session_state.toutes_recettes for i in r.get('ingredients', []))))
+    filtre_ing = col_i.selectbox("Ingrédient", ["Tous"] + ings)
 
     recettes_f = [r for r in st.session_state.toutes_recettes if recherche in r['nom'].lower() 
                   and (filtre_app == "Tous" or r.get('appareil') == filtre_app)
@@ -66,22 +72,37 @@ def afficher():
                 for i in rec.get('ingredients', []): st.write(f"• {i['Quantité']} {i['Ingrédient']}")
                 st.subheader("Préparation")
                 st.write(rec.get('etapes', ""))
+                
                 if st.button(f"🗑️ Supprimer", key=f"del_{idx}"):
+                    # 1. Supprimer le JSON
                     supprimer_fichier_github(rec['chemin_json'])
-                    for img in rec.get('images', []): supprimer_fichier_github(img)
-                    if rec.get('image'): supprimer_fichier_github(rec.get('image'))
+                    # 2. Supprimer les images (cherche dans 'images' ET 'image')
+                    medias = rec.get('images', [])
+                    if not medias and rec.get('image'): medias = [rec.get('image')]
+                    for m in medias:
+                        supprimer_fichier_github(m)
+                    
+                    st.success("Recette et photos supprimées !")
                     del st.session_state.toutes_recettes
                     st.rerun()
+
             with c2:
                 st.subheader("Médias")
-                médias = rec.get('images', [])
-                if not médias and rec.get('image'): médias = [rec.get('image')]
+                medias = rec.get('images', [])
+                if not medias and rec.get('image'): medias = [rec.get('image')]
                 
-                for i, m in enumerate(médias):
-                    res_m = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/{m}", headers=config_github()['headers'])
-                    if res_m.status_code == 200:
-                        data = base64.b64decode(res_m.json()['content'])
-                        if m.lower().endswith('.pdf'):
-                            st.download_button(f"📄 PDF {i+1}", data, file_name=m.split('/')[-1], key=f"pdf_{idx}_{i}")
-                        else:
-                            st.image(data, use_container_width=True)
+                if medias:
+                    conf = config_github()
+                    for i, m in enumerate(medias):
+                        if not m: continue
+                        # On récupère le contenu via l'API plutôt que download_url pour éviter le cache
+                        url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{m}"
+                        res_m = requests.get(url_api, headers=conf['headers'])
+                        if res_m.status_code == 200:
+                            data = base64.b64decode(res_m.json()['content'])
+                            if m.lower().endswith('.pdf'):
+                                st.download_button(f"📄 PDF {i+1}", data, file_name=m.split('/')[-1], key=f"pdf_{idx}_{i}")
+                            else:
+                                st.image(data, use_container_width=True)
+                else:
+                    st.write("Aucun média.")
