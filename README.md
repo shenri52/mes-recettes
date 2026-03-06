@@ -20,22 +20,14 @@ Application interactive développée avec **Streamlit** pour gérer vos recettes
 * 
 ---
 
-## ⚙️ Configuration GitHub (Indispensable)
-
-Pour que l'application puisse écrire sur votre dépôt, vous devez configurer un jeton d'accès.
-
-### 1. Créer le Token (PAT)
-1. Allez dans vos **Settings** GitHub (Photo de profil > Settings).
-2. Tout en bas à gauche : **Developer settings**.
-3. **Personal access tokens** > **Tokens (classic)**.
-4. Cliquez sur **Generate new token (classic)**.
-5. Sélectionnez le scope : `repo` (accès complet aux dépôts).
-6. Copiez le jeton généré (il ne s'affiche qu'une seule fois !).
+### 1. Prérequis
+Vous devez disposer d'un compte GitHub et d'un jeton d'accès personnel (*** Fine-grained personal access tokens **) avec les permissions Read/Wrtie sur `Content `.
 
 ### 2. Configurer Streamlit Cloud
 Dans votre interface Streamlit Cloud, allez dans **Settings** > **Secrets** et collez ceci en remplaçant par vos infos :
 
 ```toml
+- APP_PASSWORD = "votre_mot_de_passe"
 GITHUB_TOKEN = "votre_token_ici"
 REPO_OWNER = "votre_nom_utilisateur"
 REPO_NAME = "nom_de_votre_depot"
