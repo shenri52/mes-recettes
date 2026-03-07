@@ -1,0 +1,37 @@
+{
+    "nom": "Poireaux fondants, Pois chiches et lait de coco",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Pâte de curry jaune",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Curcuma",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_172401_poireaux_fondants,_pois_chiches_et_lait_de_coco_0.jpg",
+        "data/images/20260307_172401_poireaux_fondants,_pois_chiches_et_lait_de_coco_1.jpg"
+    ]
+}
