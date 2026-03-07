@@ -1,0 +1,49 @@
+{
+    "nom": "Orzo crémeux aux épinards et champignons",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "20",
+    "ingredients": [
+        {
+            "Ingrédient": "Orzo",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Epinards",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Parmesan",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_100255_orzo_crémeux_aux_épinards_et_champignons_0.jpg",
+        "data/images/20260307_100255_orzo_crémeux_aux_épinards_et_champignons_1.jpg"
+    ]
+}
