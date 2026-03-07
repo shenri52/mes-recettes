@@ -66,7 +66,7 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
-        col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.5])
+        col_ing, col_btn_add = st.columns([2, 1, 0.5])
         
         with col_ing:
             # Tri alphabétique de la liste des ingrédients existants
