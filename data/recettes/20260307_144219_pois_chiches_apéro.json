@@ -1,0 +1,28 @@
+{
+    "nom": "Pois chiches apéro",
+    "appareil": "Ninja",
+    "temps_preparation": "",
+    "temps_cuisson": "30",
+    "ingredients": [
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail poudre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Assaisonnement ranch",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_144219_pois_chiches_apéro_0.jpg"
+    ]
+}
