@@ -1,0 +1,45 @@
+{
+    "nom": "Marmite toulousaine",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "25",
+    "ingredients": [
+        {
+            "Ingrédient": "Saucisse de Toulouse",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Petit pois",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Eau",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Fond de veau",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Epices à paëlla",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Riz",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Lardons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_143839_marmite_toulousaine_0.jpg",
+        "data/images/20260307_143839_marmite_toulousaine_1.jpg"
+    ]
+}
