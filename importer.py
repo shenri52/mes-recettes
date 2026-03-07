@@ -66,7 +66,7 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
-        col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
+        col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         
         with col_ing:
             # Tri alphabétique de la liste des ingrédients existants
@@ -82,13 +82,6 @@ def afficher():
                     st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
                     if ing_final not in st.session_state.liste_choix_img: st.session_state.liste_choix_img.append(ing_final)
                     st.rerun()
-
-        with col_btn_ref:
-            st.write(" ")
-            st.write(" ")
-            if st.button("🔄", key=f"ri_{st.session_state.form_count_img}"):
-                st.session_state.liste_choix_img = recuperer_ingredients_existants()
-                st.rerun()
 
         for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
         photos_fb = st.file_uploader("Fichiers", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{st.session_state.form_count_img}", accept_multiple_files=True)
