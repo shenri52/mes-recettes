@@ -35,6 +35,7 @@ def recuperer_ingredients_existants():
                             nom = ing.get('Ingrédient')
                             if nom and nom not in ingredients_trouves:
                                 ingredients_trouves.append(nom)
+        # Tri alphabétique des ingrédients récupérés
         return sorted(list(set(ingredients_trouves)))
     except:
         return [""]
@@ -69,7 +70,9 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            type_appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{st.session_state.form_count}")
+            # Tri alphabétique de la liste des appareils
+            options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
+            type_appareil = st.selectbox("Appareil utilisé", options=options_app, key=f"app_{st.session_state.form_count}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"prep_{st.session_state.form_count}", placeholder="ex: 15 min")
         with c_cuis:
@@ -78,7 +81,8 @@ def afficher():
         col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
         with col_ing:
-            options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
+            # Tri alphabétique de la liste de choix existante + option ajouter
+            options = sorted([opt for opt in st.session_state.liste_choix if opt]) + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
 
