@@ -59,9 +59,8 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            # Tri alphabétique des appareils
-            options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
-            type_appareil = st.selectbox("Appareil", options=options_app, key=f"ai_{st.session_state.form_count_img}")
+            # Tri alphabétique des appareils uniquement
+            type_appareil = st.selectbox("Appareil", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
         with c_cuis:
@@ -70,12 +69,11 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            # Option ajouter en tête + liste triée
+            # "Ajouter" en haut + liste triée
             options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             
-            # Logique de masquage strict
-            ing_final = ""
+            # Conservation stricte de votre logique if/else d'affichage
             if choix == "➕ Ajouter un nouveau...":
                 ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}")
             else:
