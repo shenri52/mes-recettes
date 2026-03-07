@@ -59,7 +59,7 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            # Modification : Appareils classés par ordre alphabétique
+            # Tri alphabétique des appareils
             options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
             type_appareil = st.selectbox("Appareil", options=options_app, key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
@@ -70,10 +70,15 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            # Modification : "Ajouter" en haut + reste de la liste classée par ordre alphabétique
+            # "Ajouter" en haut + reste de la liste triée
             options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
-            ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
+            
+            # Condition identique à ton code d'origine pour l'affichage du champ Nom
+            if choix == "➕ Ajouter un nouveau...":
+                ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}")
+            else:
+                ing_final = choix
 
         with col_btn_add:
             st.write(" ")
