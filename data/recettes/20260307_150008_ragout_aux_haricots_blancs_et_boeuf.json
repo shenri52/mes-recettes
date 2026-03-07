@@ -1,0 +1,58 @@
+{
+    "nom": "Ragout aux haricots blancs et boeuf",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Boeuf",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Haricots blancs",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tomates concassées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Concentré de tomates",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Piment",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cumin",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de boeuf",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_150008_ragout_aux_haricots_blancs_et_boeuf_0.jpg",
+        "data/images/20260307_150008_ragout_aux_haricots_blancs_et_boeuf_1.jpg",
+        "data/images/20260307_150008_ragout_aux_haricots_blancs_et_boeuf_2.jpg"
+    ]
+}
