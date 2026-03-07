@@ -87,11 +87,13 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
+            # "Ajouter un nouveau" en haut de la liste
             options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
-            # Le champ de saisie n'apparaît que si "Ajouter un nouveau..." est sélectionné
+            
+            # CONDITION : Le champ de saisie n'apparaît que si l'option "Ajouter un nouveau..." est choisie
             if choix == "➕ Ajouter un nouveau...":
-                ing_final = st.text_input("Nom de l'ingrédient", key=f"nwi_{st.session_state.form_count_img}")
+                ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}")
             else:
                 ing_final = choix
 
