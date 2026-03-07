@@ -57,23 +57,24 @@ def afficher():
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"ni_{st.session_state.form_count_img}")
-        
-        # --- SECTION CATÉGORIE ---
+
+        # Champ Catégorie
         options_cat = ["➕ Ajouter une catégorie..."] + sorted(st.session_state.liste_categories)
         choix_cat = st.selectbox("Catégorie", options=options_cat, key=f"cat_{st.session_state.form_count_img}")
         
-        cat_finale = choix_cat
         if choix_cat == "➕ Ajouter une catégorie...":
-            nouvelle_cat = st.text_input("Nom de la nouvelle catégorie", key=f"ncat_{st.session_state.form_count_img}")
-            if st.button("Valider la catégorie", key=f"bcat_{st.session_state.form_count_img}"):
-                if nouvelle_cat and nouvelle_cat not in st.session_state.liste_categories:
-                    st.session_state.liste_categories.append(nouvelle_cat)
+            cat_saisie = st.text_input("Nom", key=f"ncat_{st.session_state.form_count_img}")
+            if st.button("Ajouter", key=f"bcat_{st.session_state.form_count_img}"):
+                if cat_saisie and cat_saisie not in st.session_state.liste_categories:
+                    st.session_state.liste_categories.append(cat_saisie)
                     st.rerun()
-            cat_finale = nouvelle_cat
-
-        # --- SECTION APPAREILS & TEMPS ---
+            cat_finale = cat_saisie
+        else:
+            cat_finale = choix_cat
+        
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
+            # Appareils classés par ordre alphabétique
             options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
             type_appareil = st.selectbox("Appareil", options=options_app, key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
@@ -81,14 +82,13 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
-        # --- SECTION INGRÉDIENTS ---
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            options_ing = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
-            choix = st.selectbox("Ingrédient", options=options_ing, key=f"si_{st.session_state.form_count_img}")
-            # La zone de texte n'apparaît que si "Ajouter un nouveau..." est sélectionné
-            ing_final = st.text_input("Nom de l'ingrédient", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
+            # Ajouter un nouveau en haut + reste de la liste classée par ordre alphabétique
+            options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
+            choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
+            ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
 
         with col_btn_add:
             st.write(" ")
@@ -124,7 +124,7 @@ def afficher():
                             liste_medias.append(ch)
 
                 data = {
-                    "nom": nom_plat,
+                    "nom": nom_plat, 
                     "categorie": cat_finale,
                     "appareil": type_appareil, 
                     "temps_preparation": tps_prep,
@@ -135,7 +135,6 @@ def afficher():
                 }
                 if envoyer_vers_github(f"data/recettes/{timestamp}_{nom_fic}.json", json.dumps(data, indent=4, ensure_ascii=False), "Import"):
                     st.success("Importé !")
-                    # Reset des champs
                     st.session_state.ingredients_img = []
                     if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                     st.session_state.form_count_img += 1
