@@ -1,0 +1,33 @@
+{
+    "nom": "Gratin de champignons au jambon et fromage",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jambon en dés",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Fromage râpé",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_154056_gratin_de_champignons_au_jambon_et_fromage_0.jpg",
+        "data/images/20260307_154056_gratin_de_champignons_au_jambon_et_fromage_1.jpg"
+    ]
+}
