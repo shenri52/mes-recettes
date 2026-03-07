@@ -59,7 +59,9 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            type_appareil = st.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"ai_{st.session_state.form_count_img}")
+            # Modification : Appareils classés par ordre alphabétique
+            options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
+            type_appareil = st.selectbox("Appareil", options=options_app, key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
         with c_cuis:
@@ -68,7 +70,8 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            options = st.session_state.liste_choix_img + ["➕ Ajouter un nouveau..."]
+            # Modification : "Ajouter" en haut + reste de la liste classée par ordre alphabétique
+            options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
 
