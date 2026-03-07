@@ -1,0 +1,33 @@
+{
+    "nom": "Cookie façon brownie",
+    "appareil": "Aucun",
+    "temps_preparation": "15",
+    "temps_cuisson": "10",
+    "ingredients": [
+        {
+            "Ingrédient": "Chocolat noir",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Chocolat noir",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Farine",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_095845_cookie_façon_brownie_0.jpg",
+        "data/images/20260307_095845_cookie_façon_brownie_1.jpg"
+    ]
+}
