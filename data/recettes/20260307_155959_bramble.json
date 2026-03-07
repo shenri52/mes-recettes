@@ -1,0 +1,25 @@
+{
+    "nom": "Bramble",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Gin",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème de mûre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_155959_bramble_0.jpg",
+        "data/images/20260307_155959_bramble_1.jpg"
+    ]
+}
