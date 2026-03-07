@@ -1,0 +1,32 @@
+{
+    "nom": "Gratin de ravioles aux champi, comté et poireaux",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Ravioles",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Comté",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_160634_gratin_de_ravioles_aux_champi,_comté_et_poireaux_0.jpg"
+    ]
+}
