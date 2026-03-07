@@ -50,9 +50,6 @@ def afficher():
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
     if 'liste_choix_img' not in st.session_state: st.session_state.liste_choix_img = [""]
-    # Initialisation de la liste des catégories
-    if 'liste_cat_img' not in st.session_state: 
-        st.session_state.liste_cat_img = ["entrée", "plat", "dessert", "gateaux", "divers"]
 
     if len(st.session_state.liste_choix_img) <= 1:
         st.session_state.liste_choix_img = recuperer_ingredients_existants()
@@ -60,24 +57,9 @@ def afficher():
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"ni_{st.session_state.form_count_img}")
         
-        # --- SECTION CATÉGORIE (Adaptée de la logique ingrédient) ---
-        options_cat = ["➕ Ajouter un nouveau..."] + sorted(st.session_state.liste_cat_img)
-        choix_cat = st.selectbox("Catégorie", options=options_cat, key=f"cat_sel_{st.session_state.form_count_img}")
-        
-        # Zone de saisie qui n'apparaît que si on clique sur ajouter
-        if choix_cat == "➕ Ajouter un nouveau...":
-            cat_finale = st.text_input("Nom", key=f"nwc_{st.session_state.form_count_img}")
-            if st.button("Ajouter catégorie", key=f"bc_{st.session_state.form_count_img}"):
-                if cat_finale and cat_finale not in st.session_state.liste_cat_img:
-                    st.session_state.liste_cat_img.append(cat_finale)
-                    st.rerun()
-        else:
-            cat_finale = choix_cat
-
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            # Appareils classés par ordre alphabétique
-            type_appareil = st.selectbox("Appareil", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"ai_{st.session_state.form_count_img}")
+            type_appareil = st.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
         with c_cuis:
@@ -86,8 +68,7 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            # Bouton ajouter en haut + liste classée par ordre alphabétique
-            options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
+            options = st.session_state.liste_choix_img + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
 
@@ -126,7 +107,6 @@ def afficher():
 
                 data = {
                     "nom": nom_plat, 
-                    "categorie": cat_finale,
                     "appareil": type_appareil, 
                     "temps_preparation": tps_prep,
                     "temps_cuisson": tps_cuis,
