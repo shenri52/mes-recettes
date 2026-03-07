@@ -1,0 +1,30 @@
+{
+    "nom": "Filet mignon au cidre et chataignes",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet mignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cidre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Chataignes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_152453_filet_mignon_au_cidre_et_chataignes_0.jpg",
+        "data/images/20260307_152453_filet_mignon_au_cidre_et_chataignes_1.jpg",
+        "data/images/20260307_152453_filet_mignon_au_cidre_et_chataignes_2.jpg"
+    ]
+}
