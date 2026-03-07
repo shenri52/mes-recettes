@@ -78,7 +78,7 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cuis_{st.session_state.form_count}", placeholder="ex: 20 min")
 
-        col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
+        col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         
         with col_ing:
             # options contient déjà le vide unique en index 0
@@ -101,13 +101,6 @@ def afficher():
                         pure_list = [i for i in st.session_state.liste_choix if i.strip()]
                         st.session_state.liste_choix = [""] + sorted(pure_list)
                     st.rerun()
-
-        with col_btn_ref:
-            st.write(" ")
-            st.write(" ")
-            if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}"):
-                st.session_state.liste_choix = [""] + recuperer_ingredients_existants()
-                st.rerun()
 
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
