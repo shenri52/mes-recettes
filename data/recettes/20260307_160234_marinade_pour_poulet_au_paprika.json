@@ -1,0 +1,32 @@
+{
+    "nom": "Marinade pour poulet au paprika",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Ail poudre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Herbes de provence",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cumin",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_160234_marinade_pour_poulet_au_paprika_0.jpg"
+    ]
+}
