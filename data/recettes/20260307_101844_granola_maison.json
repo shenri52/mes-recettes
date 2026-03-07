@@ -1,0 +1,36 @@
+{
+    "nom": "Granola Maison",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "30",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "280g"
+        },
+        {
+            "Ingrédient": "Amandes",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Graines",
+            "Quantité": "70g"
+        },
+        {
+            "Ingrédient": "Huile végétale",
+            "Quantité": "2càs"
+        },
+        {
+            "Ingrédient": "Sirop d'agave",
+            "Quantité": "3càs"
+        },
+        {
+            "Ingrédient": "Fruits secs",
+            "Quantité": "50g"
+        }
+    ],
+    "etapes": "Préchauffez votre four à 150°C. Concassez grossièrement les amandes.\n\nFaites fondre l'huile végétale (coco, olive, etc) avec le sucre liquide (sirop agave, érable...) à feu doux.\n\nDans un bol, mélangez les flocons d'avoine, les amandes et les graines. Ajoutez les épices de votre choix puis versez le mélange huile/sucre. Mélangez bien et répartissez sur une plaque recouverte de papier cuisson.\n\nEnfournez pour 30 minutes, en remuant toutes les 10 minutes.\n\nA la sortie du four, laissez refroidir puis ajoutez selon votre choix des fruits secs ou séchés, des pépites de chocolat, etc. Mettez dans un bocal hermétique et conservez dans un endroit frais et sec.",
+    "images": [
+        "data/images/20260307_101844_granola_maison_0.jpg"
+    ]
+}
