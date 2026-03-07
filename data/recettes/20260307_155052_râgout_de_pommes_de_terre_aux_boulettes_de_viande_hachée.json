@@ -1,0 +1,53 @@
+{
+    "nom": "Râgout de pommes de terre aux boulettes de viande hachée",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Boeuf",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Pommes de terre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tomates concassées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Concentré de tomates",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Céleri branche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de boeuf",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_0.jpg",
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_1.jpg",
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_2.jpg",
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_3.jpg",
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_4.jpg",
+        "data/images/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée_5.jpg"
+    ]
+}
