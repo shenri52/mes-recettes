@@ -1,0 +1,37 @@
+{
+    "nom": "Rose des sables Extra croustillantes",
+    "appareil": "Aucun",
+    "temps_preparation": "20",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Chocolat noir",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Corn flakes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Amandes Effillées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sucre glace",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sel",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_101306_rose_des_sables_extra_croustillantes_0.jpg",
+        "data/images/20260307_101306_rose_des_sables_extra_croustillantes_1.jpg"
+    ]
+}
