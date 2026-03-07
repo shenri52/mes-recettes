@@ -1,0 +1,41 @@
+{
+    "nom": "Lait de poule",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Rhum blanc",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Lait",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jaune d'oeufs",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sucre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Noix de muscade",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cannelle",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_153549_lait_de_poule_0.jpg",
+        "data/images/20260307_153549_lait_de_poule_1.jpg"
+    ]
+}
