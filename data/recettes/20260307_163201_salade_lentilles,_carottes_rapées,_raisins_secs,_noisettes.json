@@ -1,0 +1,37 @@
+{
+    "nom": "Salade Lentilles, carottes rapées, raisins secs, noisettes",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Lentilles vertes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Raisins secs",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Noisettes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Vinaigre de cidre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_163201_salade_lentilles,_carottes_rapées,_raisins_secs,_noisettes_0.jpg",
+        "data/images/20260307_163201_salade_lentilles,_carottes_rapées,_raisins_secs,_noisettes_1.jpg"
+    ]
+}
