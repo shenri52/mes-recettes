@@ -1,0 +1,33 @@
+{
+    "nom": "Filet mignon de porc au chorizo",
+    "appareil": "Aucun",
+    "temps_preparation": "15",
+    "temps_cuisson": "40",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet mignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Chorizo",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Maïzena",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_150438_filet_mignon_de_porc_au_chorizo_0.jpg",
+        "data/images/20260307_150438_filet_mignon_de_porc_au_chorizo_1.jpg"
+    ]
+}
