@@ -59,7 +59,9 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            type_appareil = st.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"ai_{st.session_state.form_count_img}")
+            # Modification : Liste des appareils triée par ordre alphabétique
+            appareils = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
+            type_appareil = st.selectbox("Appareil", options=appareils, key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
         with c_cuis:
@@ -68,7 +70,8 @@ def afficher():
         col_ing, col_btn_add, col_btn_ref = st.columns([3, 0.6, 0.4])
         
         with col_ing:
-            options = st.session_state.liste_choix_img + ["➕ Ajouter un nouveau..."]
+            # Modification : "Ajouter un nouveau" placé en haut de la liste
+            options = ["➕ Ajouter un nouveau..."] + sorted([i for i in st.session_state.liste_choix_img if i])
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
 
@@ -88,7 +91,10 @@ def afficher():
                 st.session_state.liste_choix_img = recuperer_ingredients_existants()
                 st.rerun()
 
-        for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
+        # Modification : Affichage de la liste des ingrédients ajoutés par ordre alphabétique
+        ingredients_tries = sorted(st.session_state.ingredients_img, key=lambda x: x['Ingrédient'].lower())
+        for i in ingredients_tries: st.write(f"✅ {i['Ingrédient']}")
+        
         photos_fb = st.file_uploader("Fichiers", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{st.session_state.form_count_img}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer l'import", use_container_width=True):
