@@ -1,0 +1,36 @@
+{
+    "nom": "Salade fraicheur jambon concombre",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Jambon en dés",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Concombre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Maïs en boite",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche épaisse",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Mayonnaise",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_160909_salade_fraicheur_jambon_concombre_0.jpg"
+    ]
+}
