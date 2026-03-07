@@ -1,0 +1,29 @@
+{
+    "nom": "Diamant bleu",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Rhum blanc",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Curacao bleu",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus d'ananas",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron vert",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_151219_diamant_bleu_0.jpg",
+        "data/images/20260307_151219_diamant_bleu_1.jpg"
+    ]
+}
