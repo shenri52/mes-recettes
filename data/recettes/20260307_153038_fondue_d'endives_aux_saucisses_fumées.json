@@ -1,0 +1,36 @@
+{
+    "nom": "Fondue d'endives aux saucisses fumées",
+    "appareil": "Aucun",
+    "temps_preparation": "20mn",
+    "temps_cuisson": "1 heure",
+    "ingredients": [
+        {
+            "Ingrédient": "Endives",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Saucisses fumées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Echalottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_153038_fondue_d'endives_aux_saucisses_fumées_0.jpg",
+        "data/images/20260307_153038_fondue_d'endives_aux_saucisses_fumées_1.jpg",
+        "data/images/20260307_153038_fondue_d'endives_aux_saucisses_fumées_2.jpg",
+        "data/images/20260307_153038_fondue_d'endives_aux_saucisses_fumées_3.jpg",
+        "data/images/20260307_153038_fondue_d'endives_aux_saucisses_fumées_4.jpg"
+    ]
+}
