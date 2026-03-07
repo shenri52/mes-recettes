@@ -1,0 +1,37 @@
+{
+    "nom": "Soupe détox aux légumes verts",
+    "appareil": "Aucun",
+    "temps_preparation": "15",
+    "temps_cuisson": "20",
+    "ingredients": [
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Céleri branche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron vert",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_163705_soupe_détox_aux_légumes_verts_0.jpg",
+        "data/images/20260307_163705_soupe_détox_aux_légumes_verts_1.jpg"
+    ]
+}
