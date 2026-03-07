@@ -1,0 +1,37 @@
+{
+    "nom": "Pink Coconut Mojito",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Rhum blanc",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème de coco",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de lime frais",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sirop de grenadine",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Feuilles de menthe",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Eau pétillante",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_150947_pink_coconut_mojito_0.jpg",
+        "data/images/20260307_150947_pink_coconut_mojito_1.jpg"
+    ]
+}
