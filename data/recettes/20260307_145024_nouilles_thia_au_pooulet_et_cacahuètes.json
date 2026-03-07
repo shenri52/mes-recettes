@@ -1,0 +1,62 @@
+{
+    "nom": "Nouilles Thia au pooulet et cacahuètes",
+    "appareil": "Aucun",
+    "temps_preparation": "15",
+    "temps_cuisson": "10",
+    "ingredients": [
+        {
+            "Ingrédient": "Nouilles de riz",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile sesame",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cacahuètes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre de cacahuètes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Miel",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus citron vert",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Gingembre",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_145024_nouilles_thia_au_pooulet_et_cacahuètes_0.jpg",
+        "data/images/20260307_145024_nouilles_thia_au_pooulet_et_cacahuètes_1.jpg",
+        "data/images/20260307_145024_nouilles_thia_au_pooulet_et_cacahuètes_2.jpg"
+    ]
+}
