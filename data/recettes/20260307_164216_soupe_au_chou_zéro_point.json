@@ -1,0 +1,50 @@
+{
+    "nom": "Soupe au chou Zéro point",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Chou blanc",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Boeuf haché",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Céleri branche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron vert",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tomates concassées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_164216_soupe_au_chou_zéro_point_0.jpg",
+        "data/images/20260307_164216_soupe_au_chou_zéro_point_1.jpg",
+        "data/images/20260307_164216_soupe_au_chou_zéro_point_2.jpg"
+    ]
+}
