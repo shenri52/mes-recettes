@@ -1,0 +1,29 @@
+{
+    "nom": "Polenta crémeuse et poelée de champignons",
+    "appareil": "Aucun",
+    "temps_preparation": "5 mn",
+    "temps_cuisson": "12mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Polenta",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Parmesan",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_165858_polenta_crémeuse_et_poelée_de_champignons_0.jpg",
+        "data/images/20260307_165858_polenta_crémeuse_et_poelée_de_champignons_1.jpg"
+    ]
+}
