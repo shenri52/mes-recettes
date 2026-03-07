@@ -1,0 +1,57 @@
+{
+    "nom": "Salade d'orechiette et sauce crémeuse",
+    "appareil": "Aucun",
+    "temps_preparation": "20",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Pâtes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tomates séchées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Halloumi",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Echalottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Basilic",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde en grain",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tahini (purée de sesame)",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Miel",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_164902_salade_d'orechiette_et_sauce_crémeuse_0.jpg",
+        "data/images/20260307_164902_salade_d'orechiette_et_sauce_crémeuse_1.jpg"
+    ]
+}
