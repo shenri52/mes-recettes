@@ -1,0 +1,57 @@
+{
+    "nom": "Soupe Thai",
+    "appareil": "Aucun",
+    "temps_preparation": "15",
+    "temps_cuisson": "15",
+    "ingredients": [
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Pousses de bambou",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Gingembre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Pâte de curry rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus citron vert",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_173318_soupe_thai_0.jpg",
+        "data/images/20260307_173318_soupe_thai_1.jpg"
+    ]
+}
