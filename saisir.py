@@ -23,7 +23,7 @@ def recuperer_ingredients_existants():
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     try:
         res = requests.get(url, headers=conf['headers'])
-        ingredients_trouves = [""]
+        ingredients_trouves = []
         if res.status_code == 200:
             fichiers = res.json()
             for f in fichiers:
@@ -35,10 +35,9 @@ def recuperer_ingredients_existants():
                             nom = ing.get('Ingrédient')
                             if nom and nom not in ingredients_trouves:
                                 ingredients_trouves.append(nom)
-        # Tri alphabétique des ingrédients récupérés
         return sorted(list(set(ingredients_trouves)))
     except:
-        return [""]
+        return []
 
 def envoyer_vers_github(chemin_fichier, contenu, message, est_binaire=False):
     try:
@@ -59,9 +58,9 @@ def afficher():
 
     if 'form_count' not in st.session_state: st.session_state.form_count = 0
     if 'ingredients_recette' not in st.session_state: st.session_state.ingredients_recette = []
-    if 'liste_choix' not in st.session_state: st.session_state.liste_choix = [""]
+    if 'liste_choix' not in st.session_state: st.session_state.liste_choix = []
 
-    if len(st.session_state.liste_choix) <= 1:
+    if not st.session_state.liste_choix:
         with st.spinner("📦 Synchronisation..."):
             st.session_state.liste_choix = recuperer_ingredients_existants()
 
@@ -70,7 +69,6 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            # Tri alphabétique de la liste des appareils
             options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
             type_appareil = st.selectbox("Appareil utilisé", options=options_app, key=f"app_{st.session_state.form_count}")
         with c_prep:
@@ -81,8 +79,8 @@ def afficher():
         col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
         with col_ing:
-            # Tri alphabétique de la liste de choix existante + option ajouter
-            options = sorted([opt for opt in st.session_state.liste_choix if opt]) + ["➕ Ajouter un nouveau..."]
+            # On force la chaîne vide en premier pour éviter la présélection automatique d'un ingrédient
+            options = [""] + st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
 
@@ -95,7 +93,9 @@ def afficher():
             if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
                 if ing_final:
                     st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                    if ing_final not in st.session_state.liste_choix: st.session_state.liste_choix.append(ing_final)
+                    if ing_final not in st.session_state.liste_choix: 
+                        st.session_state.liste_choix.append(ing_final)
+                        st.session_state.liste_choix.sort()
                     st.rerun()
 
         with col_btn_ref:
