@@ -1,0 +1,48 @@
+{
+    "nom": "Poulet cremeux au paprika",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Riz",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de volaille",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_100916_poulet_cremeux_au_paprika_0.jpg"
+    ]
+}
