@@ -69,7 +69,9 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            type_appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{st.session_state.form_count}")
+            # Modification : Appareils classés par ordre alphabétique
+            options_app = sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"])
+            type_appareil = st.selectbox("Appareil utilisé", options=options_app, key=f"app_{st.session_state.form_count}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"prep_{st.session_state.form_count}", placeholder="ex: 15 min")
         with c_cuis:
@@ -78,7 +80,8 @@ def afficher():
         col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
         with col_ing:
-            options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
+            # Modification : "Ajouter un nouveau" en haut de la liste
+            options = ["➕ Ajouter un nouveau..."] + [i for i in st.session_state.liste_choix if i]
             choix = st.selectbox("Ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
 
@@ -91,7 +94,9 @@ def afficher():
             if st.button("Ajouter", key=f"btn_add_{st.session_state.form_count}"):
                 if ing_final:
                     st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                    if ing_final not in st.session_state.liste_choix: st.session_state.liste_choix.append(ing_final)
+                    if ing_final not in st.session_state.liste_choix: 
+                        st.session_state.liste_choix.append(ing_final)
+                        st.session_state.liste_choix.sort() # Maintien de l'ordre alphabétique
                     st.rerun()
 
         with col_btn_ref:
@@ -101,7 +106,9 @@ def afficher():
                 st.session_state.liste_choix = recuperer_ingredients_existants()
                 st.rerun()
 
-        for i in st.session_state.ingredients_recette:
+        # Modification : Liste des ingrédients ajoutés classée par ordre alphabétique
+        ingredients_tries = sorted(st.session_state.ingredients_recette, key=lambda x: x['Ingrédient'].lower())
+        for i in ingredients_tries:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
         st.markdown("---")
