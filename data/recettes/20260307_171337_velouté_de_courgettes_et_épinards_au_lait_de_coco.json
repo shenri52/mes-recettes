@@ -1,0 +1,37 @@
+{
+    "nom": "Velouté de courgettes et épinards au lait de coco",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "15",
+    "ingredients": [
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Epinards frais",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Curcuma",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco_0.jpg",
+        "data/images/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco_1.jpg"
+    ]
+}
