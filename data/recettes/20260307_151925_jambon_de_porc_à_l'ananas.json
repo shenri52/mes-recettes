@@ -1,0 +1,54 @@
+{
+    "nom": "Jambon de porc à l'ananas",
+    "appareil": "Aucun",
+    "temps_preparation": "20",
+    "temps_cuisson": "2h30",
+    "ingredients": [
+        {
+            "Ingrédient": "Jambon à l'os",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ananas en boite",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de volaille",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Vinaigre de cidre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Miel",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Gingembre",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_151925_jambon_de_porc_à_l'ananas_0.jpg",
+        "data/images/20260307_151925_jambon_de_porc_à_l'ananas_1.jpg",
+        "data/images/20260307_151925_jambon_de_porc_à_l'ananas_2.jpg"
+    ]
+}
