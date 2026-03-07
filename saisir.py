@@ -33,7 +33,8 @@ def recuperer_ingredients_existants():
                         data = r_res.json()
                         for ing in data.get('ingredients', []):
                             nom = ing.get('Ingrédient')
-                            if nom and nom not in ingredients_trouves:
+                            # On ne prend que les noms non vides
+                            if nom and nom.strip() and nom not in ingredients_trouves:
                                 ingredients_trouves.append(nom)
         return sorted(list(set(ingredients_trouves)))
     except:
@@ -58,11 +59,12 @@ def afficher():
 
     if 'form_count' not in st.session_state: st.session_state.form_count = 0
     if 'ingredients_recette' not in st.session_state: st.session_state.ingredients_recette = []
-    if 'liste_choix' not in st.session_state: st.session_state.liste_choix = []
+    if 'liste_choix' not in st.session_state: st.session_state.liste_choix = [""]
 
-    if not st.session_state.liste_choix:
+    if len(st.session_state.liste_choix) <= 1:
         with st.spinner("📦 Synchronisation..."):
-            st.session_state.liste_choix = recuperer_ingredients_existants()
+            # On s'assure d'avoir UN SEUL vide au début, suivi du reste trié
+            st.session_state.liste_choix = [""] + recuperer_ingredients_existants()
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{st.session_state.form_count}")
@@ -79,8 +81,8 @@ def afficher():
         col_ing, col_qte, col_btn_add, col_btn_ref = st.columns([2, 1, 0.6, 0.4])
         
         with col_ing:
-            # On force la chaîne vide en premier pour éviter la présélection automatique d'un ingrédient
-            options = [""] + st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
+            # options contient déjà le vide unique en index 0
+            options = st.session_state.liste_choix + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"sel_{st.session_state.form_count}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{st.session_state.form_count}") if choix == "➕ Ajouter un nouveau..." else choix
 
@@ -95,14 +97,16 @@ def afficher():
                     st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
                     if ing_final not in st.session_state.liste_choix: 
                         st.session_state.liste_choix.append(ing_final)
-                        st.session_state.liste_choix.sort()
+                        # Re-triage propre en gardant le vide en premier
+                        pure_list = [i for i in st.session_state.liste_choix if i.strip()]
+                        st.session_state.liste_choix = [""] + sorted(pure_list)
                     st.rerun()
 
         with col_btn_ref:
             st.write(" ")
             st.write(" ")
             if st.button("🔄", key=f"btn_ref_{st.session_state.form_count}"):
-                st.session_state.liste_choix = recuperer_ingredients_existants()
+                st.session_state.liste_choix = [""] + recuperer_ingredients_existants()
                 st.rerun()
 
         for i in st.session_state.ingredients_recette:
