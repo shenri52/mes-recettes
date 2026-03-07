@@ -1,0 +1,49 @@
+{
+    "nom": "Salade Quinoa et légumes rôtis",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "30",
+    "ingredients": [
+        {
+            "Ingrédient": "Quinoa",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sirop d'érable",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Roquette",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_172033_salade_quinoa_et_légumes_rôtis_0.jpg",
+        "data/images/20260307_172033_salade_quinoa_et_légumes_rôtis_1.jpg"
+    ]
+}
