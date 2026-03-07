@@ -1,0 +1,20 @@
+{
+    "nom": "Eau de Chia",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Graines de Chia",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260307_171548_eau_de_chia_0.jpg"
+    ]
+}
