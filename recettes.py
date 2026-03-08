@@ -184,11 +184,5 @@ def afficher():
                             st.session_state[m_edit] = True
                             st.rerun()
 
-        # BOUTON RETOUR FIXE EN BAS DU CADRE
-        st.divider()
-        if st.button("⬅️ Retour au Menu Principal", use_container_width=True):
-            st.session_state.page = "menu"
-            st.rerun()
-
 if __name__ == "__main__":
     afficher()
