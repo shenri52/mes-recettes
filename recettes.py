@@ -61,7 +61,6 @@ def afficher():
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
     if 'toutes_recettes' in st.session_state:
-        # --- BLOC FILTRES ---
         col_search, col_app, col_ing = st.columns([2, 1, 1])
         recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
         
@@ -77,7 +76,6 @@ def afficher():
 
         st.divider()
 
-        # --- CALCUL DE LA LISTE FILTRÉE ---
         recettes_f = [
             r for r in st.session_state.toutes_recettes 
             if (not recherche or recherche in r.get('nom', '').lower()) 
@@ -85,17 +83,11 @@ def afficher():
             and (filtre_ing == "Tous" or any(i.get('Ingrédient') == filtre_ing for i in r.get('ingredients', [])))
         ]
 
-        # --- LISTE DÉROULANTE AVEC RÉINITIALISATION AUTOMATIQUE ---
         noms_liste = [r.get('nom', 'SANS NOM').upper() for r in recettes_f]
-        
-        # On crée un identifiant qui change si la recherche ou les filtres changent
-        # Cela force la liste à se rafraîchir proprement sans bug
         id_unique = f"select_{recherche}_{filtre_app}_{filtre_ing}"
-        
         choix = st.selectbox("📖 Choisir une recette", ["---"] + noms_liste, key=id_unique)
 
         if choix != "---":
-            # On récupère la recette sélectionnée
             idx_sel = noms_liste.index(choix)
             rec = recettes_f[idx_sel]
             
@@ -103,7 +95,7 @@ def afficher():
             if m_edit not in st.session_state: st.session_state[m_edit] = False
 
             if st.session_state[m_edit]:
-                # --- FORMULAIRE MODIF ---
+                # --- MODE MODIFICATION ---
                 with st.form(key=f"form_modif_{rec['chemin_json']}"):
                     e_nom = st.text_input("Nom", value=rec.get('nom', ''))
                     e_cat = st.text_input("Catégorie", value=rec.get('categorie', ''))
@@ -131,11 +123,16 @@ def afficher():
                             "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])
                         }
                         if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
+                            # ON FORCE LE RETOUR AU MODE LECTURE ICI
                             st.session_state[m_edit] = False
-                            del st.session_state.toutes_recettes
+                            # On vide le cache pour forcer GitHub à renvoyer la nouvelle version
+                            if 'toutes_recettes' in st.session_state:
+                                del st.session_state.toutes_recettes
+                            st.success("Modification enregistrée !")
+                            time.sleep(1)
                             st.rerun()
             else:
-                # --- AFFICHAGE LECTURE ---
+                # --- MODE CONSULTATION (LECTURE) ---
                 st.subheader(rec.get('nom', '').upper())
                 st.info(f"📁 Catégorie : {rec.get('categorie', 'Non classé')}")
                 
@@ -157,7 +154,8 @@ def afficher():
                 b1, b2 = st.columns(2)
                 if b1.button("🗑️ Supprimer", use_container_width=True):
                     if supprimer_fichier_github(rec['chemin_json']):
-                        del st.session_state.toutes_recettes
+                        if 'toutes_recettes' in st.session_state:
+                            del st.session_state.toutes_recettes
                         st.rerun()
                 if b2.button("✍️ Modifier", use_container_width=True):
                     st.session_state[m_edit] = True
