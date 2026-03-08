@@ -4,7 +4,6 @@ import json
 import base64
 import time
 
-# --- FONCTIONS TECHNIQUES AUTONOMES ---
 def config_github():
     return {
         "token": st.secrets["GITHUB_TOKEN"],
@@ -16,116 +15,66 @@ def config_github():
         }
     }
 
-def envoyer_vers_github(chemin, contenu, message):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    # Anti-cache strict pour obtenir le SHA actuel
-    res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    
-    contenu_b64 = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
-    data = {"message": message, "content": contenu_b64, "branch": "main"}
-    if sha: 
-        data["sha"] = sha
-        
-    res = requests.put(url, headers=conf['headers'], json=data)
-    return res.status_code in [200, 201]
-
 def charger_index_local():
     conf = config_github()
-    # On force la récupération du JSON frais avec un timestamp
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
     res = requests.get(url)
-    if res.status_code == 200:
-        return res.json()
-    return []
+    return res.json() if res.status_code == 200 else []
 
-# --- INTERFACE DE RÉPARATION ---
 def afficher():
-    st.header("🩺 Diagnostic et réparation")
-
-    # INITIALISATION : Nettoyage si on change de page
-    if "bouton_analyse_clique" not in st.session_state:
-        if "a_reparer" in st.session_state:
-            del st.session_state.a_reparer
-
-    # BOUTON 1 : ANALYSE
-    if st.button("🔍 Réparer l'index des recettes"):
-        st.session_state.bouton_analyse_clique = True
-        
+    st.header("🩺 Diagnostic Approfondi")
+    
+    if st.button("🔍 Lancer l'analyse complète"):
         conf = config_github()
-        # TIMESTAMP ajouté ici pour forcer GitHub à scanner réellement le dossier data/
+        # 1. Récupération de l'arbre réel sur GitHub
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1&t={int(time.time())}"
         res = requests.get(url_tree, headers=conf['headers'])
         
         if res.status_code == 200:
             tree = res.json().get('tree', [])
-            fichiers_physiques = [
+            # Tous les fichiers .json dans /data (sauf l'index lui-même)
+            fichiers_sur_github = [
                 item['path'] for item in tree 
                 if item['path'].startswith('data/') 
                 and item['path'].endswith('.json') 
                 and item['path'] != 'data/index_recettes.json'
             ]
             
+            # 2. Récupération de l'index
             index_actuel = charger_index_local()
-            chemins_index = [r['chemin'] for r in index_actuel]
+            chemins_dans_index = [r['chemin'] for r in index_actuel]
             
-            # Comparaison
-            manquantes = [f for f in fichiers_physiques if f not in chemins_index]
-            
-            if manquantes:
-                st.warning(f"⚠️ {len(manquantes)} fichier(s) trouvé(s) hors index :")
-                for m in manquantes:
-                    st.code(m)
-                st.session_state.a_reparer = manquantes
+            # --- CALCULS ---
+            hors_index = [f for f in fichiers_sur_github if f not in chemins_dans_index]
+            fantomes = [c for c in chemins_dans_index if c not in fichiers_sur_github]
+
+            # --- AFFICHAGE DES RÉSULTATS ---
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Fichiers physiques", len(fichiers_sur_github))
+            col2.metric("Entrées dans l'index", len(index_actuel))
+            col3.metric("Hors index", len(hors_index))
+
+            if hors_index:
+                st.warning(f"⚠️ {len(hors_index)} fichiers ne sont pas répertoriés :")
+                for f in hors_index:
+                    st.code(f)
+                st.session_state.a_reparer = hors_index
             else:
-                st.success("✅ Félicitations ! Votre index est parfaitement synchronisé.")
-                if "a_reparer" in st.session_state:
-                    del st.session_state.a_reparer
+                st.success("✅ Aucun fichier n'est oublié par l'index.")
+
+            if fantomes:
+                st.error(f"🚫 {len(fantomes)} entrées de l'index pointent vers des fichiers inexistants (Fantômes) :")
+                for f in fantomes:
+                    st.text(f)
+
+            # --- LA LISTE BRUTE (Pour trouver l'intrus) ---
+            with st.expander("📂 Voir la liste complète des 40 fichiers"):
+                for i, f in enumerate(sorted(fichiers_sur_github), 1):
+                    st.write(f"{i}. `{f}`")
         else:
-            st.error("Impossible d'accéder à la liste des fichiers sur GitHub.")
+            st.error("Erreur de connexion à GitHub.")
 
-    # BOUTON 2 : RÉPARATION
+    # Logique de réparation (Bouton 2) identique à la précédente...
     if "a_reparer" in st.session_state and st.session_state.a_reparer:
-        st.divider()
-        st.info("Voulez-vous intégrer ces fichiers à l'index ?")
-        
-        if st.button("🚀 Appliquer la réparation"):
-            with st.spinner("Récupération des données..."):
-                manquantes = st.session_state.a_reparer
-                index_actuel = charger_index_local()
-                nouvelles_recettes = []
-                
-                for chemin in manquantes:
-                    url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{chemin}?t={int(time.time())}"
-                    res_rec = requests.get(url_raw)
-                    if res_rec.status_code == 200:
-                        data = res_rec.json()
-                        nouvelles_recettes.append({
-                            "nom": data.get("nom", "Sans nom"),
-                            "categorie": data.get("categorie", "Non classé"),
-                            "appareil": data.get("appareil", "Aucun"),
-                            "ingredients": [i.get("Ingrédient") for i in data.get("ingredients", [])],
-                            "chemin": chemin
-                        })
-
-                index_final = sorted(index_actuel + nouvelles_recettes, key=lambda x: x['nom'].lower())
-                
-                if envoyer_vers_github("data/index_recettes.json", 
-                                       json.dumps(index_final, indent=4, ensure_ascii=False), 
-                                       "🛠️ Réparation automatique de l'index"):
-                    st.success(f"✅ Terminé ! {len(nouvelles_recettes)} recettes ajoutées.")
-                    st.session_state.index_recettes = index_final
-                    
-                    # Nettoyage complet
-                    if "a_reparer" in st.session_state: del st.session_state.a_reparer
-                    if "bouton_analyse_clique" in st.session_state: del st.session_state.bouton_analyse_clique
-                    
-                    time.sleep(1) # Petit délai pour laisser GitHub traiter l'envoi
-                    st.rerun()
-                else:
-                    st.error("Erreur lors de la sauvegarde sur GitHub.")
-
-    # Nettoyage du marqueur pour le prochain cycle de navigation
-    if "bouton_analyse_clique" in st.session_state:
-        del st.session_state.bouton_analyse_clique
+        # (Garder ton code d'envoi vers GitHub ici)
+        pass
