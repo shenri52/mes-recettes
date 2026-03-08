@@ -37,37 +37,16 @@ def supprimer_fichier_github(chemin):
         return True
     return False
 
-# --- 2. GESTION DE L'INDEX (LE CATALOGUE RAPIDE) ---
+# --- 2. GESTION DE L'INDEX ---
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
-        # On tente de lire l'index global
         url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
         res = requests.get(url)
-        
         if res.status_code == 200:
             st.session_state.index_recettes = res.json()
         else:
-            # GÉNÉRATION INITIALE : Scan des 200 fichiers si l'index n'existe pas
-            with st.spinner("Initialisation du catalogue (scan des 200 fichiers)..."):
-                url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
-                res_api = requests.get(url_api, headers=conf['headers'])
-                if res_api.status_code == 200:
-                    fichiers = [f for f in res_api.json() if f['name'].endswith('.json')]
-                    index_neuf = []
-                    for f in fichiers:
-                        r = requests.get(f['download_url']).json()
-                        index_neuf.append({
-                            "nom": r.get('nom', 'Sans nom'),
-                            "categorie": r.get('categorie', 'Non classé'),
-                            "appareil": r.get('appareil', 'Aucun'),
-                            "ingredients": [i.get('Ingrédient') for i in r.get('ingredients', []) if i.get('Ingrédient')],
-                            "chemin": f['path']
-                        })
-                    st.session_state.index_recettes = sorted(index_neuf, key=lambda x: x['nom'].lower())
-                    envoyer_vers_github("data/index_recettes.json", json.dumps(st.session_state.index_recettes, indent=4, ensure_ascii=False), "Initialisation Index")
-                else:
-                    st.session_state.index_recettes = []
+            st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
 def sauvegarder_index_global(index_maj):
@@ -77,24 +56,14 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 3. FONCTION PRINCIPALE (APPELÉE PAR APP.PY) ---
-def afficher():
-    st.sidebar.title("🍽️ Menu")
-    page = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
-
-    if page == "Consulter":
-        afficher_consultation()
-    else:
-        afficher_ajout()
-
-# --- 4. PAGES DE CONTENU ---
+# --- 3. PAGES DE CONTENU ---
 def afficher_consultation():
     index = charger_index()
     st.header("📚 Mes recettes")
 
     st.write("---")
 
-    # FILTRES (Ton affichage habituel)
+    # FILTRES (Ton affichage d'origine avec 4 colonnes)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
@@ -121,20 +90,15 @@ def afficher_consultation():
 
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
+    
+    # Sélection de la recette
+    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique)
 
-    # --- DEUX ZONES : LE SELECTEUR ET LE BOUTON EN FACE ---
-    st.write("📖 Sélectionner une recette")
-    col_liste, col_btn = st.columns([0.9, 0.1])
-
-    with col_liste:
-        # On cache le label interne pour que la barre soit bien alignée avec le bouton
-        choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique, label_visibility="collapsed")
-
-    with col_btn:
-        if st.button("🔄", help="Forcer l'actualisation de la liste"):
-            if 'index_recettes' in st.session_state:
-                del st.session_state.index_recettes
-            st.rerun()
+    # Bouton Actualiser (en dessous du sélecteur)
+    if st.button("🔄 Actualiser la liste", use_container_width=True):
+        if 'index_recettes' in st.session_state:
+            del st.session_state.index_recettes
+        st.rerun()
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
@@ -142,7 +106,10 @@ def afficher_consultation():
         recette = requests.get(url_full).json()
         
         st.subheader(recette['nom'].upper())
-        st.info(f"📁 {recette.get('categorie')} | 🛠️ Appareil : 🛠️ {recette.get('appareil')}")
+        
+        # Affichage Catégorie et Appareil (Ancienne version)
+        st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
+        st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
         
         col_t, col_i = st.columns([1, 1])
         with col_t:
@@ -156,46 +123,16 @@ def afficher_consultation():
                 st.image(img_url, use_container_width=True)
 
         st.divider()
-        if st.button("🗑️ Supprimer cette recette", use_container_width=True):
+        
+        # Boutons d'action
+        b1, b2 = st.columns(2)
+        if b1.button("🗑️ Supprimer cette recette", use_container_width=True):
             if supprimer_fichier_github(info['chemin']):
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
                 st.success("Supprimé !")
                 time.sleep(1)
                 st.rerun()
-
-def afficher_ajout():
-    st.header("🆕 Ajouter une recette")
-    
-    # Reset des champs via session_state
-    cles = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
-    for k in cles:
-        if k not in st.session_state: st.session_state[k] = ""
-
-    with st.form("form_saisie", clear_on_submit=False):
-        nom = st.text_input("Nom", value=st.session_state.s_nom)
-        cat = st.text_input("Catégorie", value=st.session_state.s_cat)
-        app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"])
-        ings_brut = st.text_area("Ingrédients (Qté | Nom)", value=st.session_state.s_ings)
-        steps = st.text_area("Préparation", value=st.session_state.s_steps)
         
-        if st.form_submit_button("🚀 Enregistrer"):
-            if nom:
-                chemin = f"data/recettes/{nom.replace(' ', '_').lower()}.json"
-                liste_ings = [{"Ingrédient": l.split("|")[1].strip(), "Quantité": l.split("|")[0].strip()} if "|" in l else {"Ingrédient": l.strip(), "Quantité": ""} for l in ings_brut.strip().split('\n') if l.strip()]
-                
-                data_full = {"nom": nom, "categorie": cat, "appareil": app, "ingredients": liste_ings, "etapes": steps, "images": []}
-                
-                if envoyer_vers_github(chemin, json.dumps(data_full, indent=4, ensure_ascii=False), f"Ajout: {nom}"):
-                    index = charger_index()
-                    index.append({
-                        "nom": nom, "categorie": cat, "appareil": app,
-                        "ingredients": [i['Ingrédient'] for i in liste_ings],
-                        "chemin": chemin
-                    })
-                    sauvegarder_index_global(index)
-                    # Reset pour la prochaine saisie
-                    for k in cles: st.session_state[k] = ""
-                    st.success("Ajouté et Indexé !")
-                    time.sleep(1)
-                    st.rerun()
+        if b2.button("✍️ Modifier la recette", use_container_width=True):
+            st.info("Fonction de modification à venir.")
