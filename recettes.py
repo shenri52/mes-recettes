@@ -89,31 +89,28 @@ def afficher():
 
 # --- 4. PAGES DE CONTENU ---
 def afficher_consultation():
-    # 1. On récupère d'abord les données (indispensable pour la suite)
+    # 1. On définit 'index' en premier pour éviter l'erreur NameError
     index = charger_index() 
     
     st.header("📚 Mes recettes")
 
-    # 2. On crée les colonnes pour la barre de recherche et le bouton
-    col_recherche, col_refresh = st.columns([0.85, 0.15])
+    # 2. On crée les colonnes pour mettre le bouton FACE à la liste
+    col_recherche, col_refresh = st.columns([0.9, 0.1])
 
     with col_recherche:
-        # Ta barre de recherche (ou selectbox)
+        # Remets ici TA ligne exacte de recherche ou de sélection
+        # Exemple : choix = st.selectbox("Sélectionner", options=[""] + [r['nom'] for r in index], label_visibility="collapsed")
         recherche = st.text_input("Rechercher...", placeholder="Nom, ingrédient...", label_visibility="collapsed")
 
     with col_refresh:
-        # Le bouton de rafraîchissement
-        if st.button("🔄", help="Actualiser l'index"):
-            if 'index_recettes' in st.session_state:
-                del st.session_state.index_recettes
-            if 'toutes_recettes' in st.session_state:
-                del st.session_state.toutes_recettes
+        # Le bouton d'actualisation sur la même ligne
+        if st.button("🔄"):
+            if 'index_recettes' in st.session_state: del st.session_state.index_recettes
+            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
             st.rerun()
 
-    # 3. Maintenant on peut utiliser 'index' pour les catégories sans erreur
+    # 3. Le reste de ton code (cats, filtres, etc.) peut maintenant utiliser 'index'
     cats = ["Tous"] + sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
-    
-    # ... suite de ton code avec les filtres ...
 
     st.write("---")
 
