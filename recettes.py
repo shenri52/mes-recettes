@@ -4,7 +4,7 @@ import json
 import base64
 import time
 
-# --- 1. CONFIGURATION ---
+# --- 1. CONFIGURATION TECHNIQUE ---
 def config_github():
     return {
         "token": st.secrets["GITHUB_TOKEN"],
@@ -37,18 +37,19 @@ def supprimer_fichier_github(chemin):
         return True
     return False
 
-# --- 2. GESTION DE L'INDEX (LISTE RAPIDE) ---
+# --- 2. GESTION DE L'INDEX (LE CATALOGUE RAPIDE) ---
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
+        # On tente de lire l'index global
         url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
         res = requests.get(url)
         
         if res.status_code == 200:
             st.session_state.index_recettes = res.json()
         else:
-            # GÉNÉRATION INITIALE (Scan des 200 fichiers une seule fois)
-            with st.spinner("Initialisation du catalogue (scan des fichiers)..."):
+            # GÉNÉRATION INITIALE : Scan des 200 fichiers si l'index n'existe pas
+            with st.spinner("Initialisation du catalogue (scan des 200 fichiers)..."):
                 url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
                 res_api = requests.get(url_api, headers=conf['headers'])
                 if res_api.status_code == 200:
@@ -76,33 +77,44 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 3. PAGE CONSULTATION ---
+# --- 3. FONCTION PRINCIPALE (APPELÉE PAR APP.PY) ---
+def afficher():
+    st.sidebar.title("🍽️ Menu")
+    page = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
+
+    if page == "Consulter":
+        afficher_consultation()
+    else:
+        afficher_ajout()
+
+# --- 4. PAGES DE CONTENU ---
 def afficher_consultation():
     index = charger_index()
     st.header("📚 Ma Bibliothèque")
 
-    # FILTRES
+    # FILTRES (Ton affichage habituel)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
-    cats = ["Tous"] + sorted(list(set(r['categorie'] for r in index)))
-    apps = ["Tous"] + sorted(list(set(r['appareil'] for r in index)))
+    cats = ["Tous"] + sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+    apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
     tous_ings = []
-    for r in index: tous_ings.extend(r['ingredients'])
+    for r in index: 
+        if r.get('ingredients'): tous_ings.extend(r['ingredients'])
     ings = ["Tous"] + sorted(list(set(tous_ings)))
 
     f_cat = c2.selectbox("Catégorie", cats)
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ings)
 
-    # Logique de filtrage sur l'index
+    # Filtrage sur l'index (instantané)
     resultats = [
         r for r in index 
         if (not recherche or recherche in r['nom'].lower())
         and (f_cat == "Tous" or r['categorie'] == f_cat)
         and (f_app == "Tous" or r['appareil'] == f_app)
-        and (f_ing == "Tous" or f_ing in r['ingredients'])
+        and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
@@ -137,25 +149,25 @@ def afficher_consultation():
                 time.sleep(1)
                 st.rerun()
 
-# --- 4. PAGE AJOUT ---
 def afficher_ajout():
     st.header("🆕 Ajouter une recette")
     
-    clés = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
-    for k in clés:
+    # Reset des champs via session_state
+    cles = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
+    for k in cles:
         if k not in st.session_state: st.session_state[k] = ""
 
     with st.form("form_saisie", clear_on_submit=False):
         nom = st.text_input("Nom", value=st.session_state.s_nom)
         cat = st.text_input("Catégorie", value=st.session_state.s_cat)
         app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"])
-        ings = st.text_area("Ingrédients (Qté | Nom)", value=st.session_state.s_ings)
+        ings_brut = st.text_area("Ingrédients (Qté | Nom)", value=st.session_state.s_ings)
         steps = st.text_area("Préparation", value=st.session_state.s_steps)
         
         if st.form_submit_button("🚀 Enregistrer"):
             if nom:
                 chemin = f"data/recettes/{nom.replace(' ', '_').lower()}.json"
-                liste_ings = [{"Ingrédient": l.split("|")[1].strip(), "Quantité": l.split("|")[0].strip()} if "|" in l else {"Ingrédient": l.strip(), "Quantité": ""} for l in ings.strip().split('\n') if l.strip()]
+                liste_ings = [{"Ingrédient": l.split("|")[1].strip(), "Quantité": l.split("|")[0].strip()} if "|" in l else {"Ingrédient": l.strip(), "Quantité": ""} for l in ings_brut.strip().split('\n') if l.strip()]
                 
                 data_full = {"nom": nom, "categorie": cat, "appareil": app, "ingredients": liste_ings, "etapes": steps, "images": []}
                 
@@ -167,17 +179,8 @@ def afficher_ajout():
                         "chemin": chemin
                     })
                     sauvegarder_index_global(index)
-                    for k in clés: st.session_state[k] = ""
-                    st.success("Ajouté !")
+                    # Reset pour la prochaine saisie
+                    for k in cles: st.session_state[k] = ""
+                    st.success("Ajouté et Indexé !")
                     time.sleep(1)
                     st.rerun()
-
-# --- 5. ROUTAGE (MAIN) ---
-if __name__ == "__main__":
-    st.sidebar.title("🍽️ Menu")
-    menu = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
-
-    if menu == "Consulter":
-        afficher_consultation()
-    else:
-        afficher_ajout()
