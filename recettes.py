@@ -4,8 +4,8 @@ import json
 import base64
 import time
 
-# --- 4. CONSULTATION ---
-def afficher_consultation():
+# --- CONSULTATION ---
+def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
@@ -55,6 +55,9 @@ def afficher_consultation():
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
+        # Note: config_github() doit être accessible (soit dans ce fichier, soit via import)
+        from app import config_github, supprimer_fichier_github, sauvegarder_index_global, charger_index
+        
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         recette = requests.get(url_full).json()
         
@@ -80,7 +83,7 @@ def afficher_consultation():
                 img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                 st.image(img_url, use_container_width=True)
                 
-                # Boutons de navigation si plusieurs images existent
+                # Boutons de navigation
                 if len(images) > 1:
                     nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
                     if nb_col1.button("⬅️", key="prev_img"):
