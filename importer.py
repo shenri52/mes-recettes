@@ -40,8 +40,16 @@ def recuperer_ingredients_existants():
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    
+    # Récupération du SHA pour permettre la mise à jour (nécessaire pour l'index)
+    res_get = requests.get(url, headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    
     cnt = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
-    res = requests.put(url, headers=conf['headers'], json={"message": message, "content": cnt, "branch": "main"})
+    payload = {"message": message, "content": cnt, "branch": "main"}
+    if sha: payload["sha"] = sha
+    
+    res = requests.put(url, headers=conf['headers'], json=payload)
     return res.status_code in [200, 201]
 
 def afficher():
@@ -59,7 +67,6 @@ def afficher():
         
         c_app, c_prep, c_cuis = st.columns(3)
         with c_app:
-            # Tri alphabétique de la liste des appareils
             type_appareil = st.selectbox("Appareil", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"ai_{st.session_state.form_count_img}")
         with c_prep:
             tps_prep = st.text_input("Temps préparation", key=f"pri_{st.session_state.form_count_img}", placeholder="ex: 10 min")
@@ -69,7 +76,6 @@ def afficher():
         col_ing, col_btn_add = st.columns([2, 0.5])
         
         with col_ing:
-            # Tri alphabétique de la liste des ingrédients existants
             options = sorted(st.session_state.liste_choix_img) + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
@@ -100,6 +106,7 @@ def afficher():
                         if envoyer_vers_github(ch, f.getvalue(), "Media", True):
                             liste_medias.append(ch)
 
+                chemin_recette = f"data/recettes/{timestamp}_{nom_fic}.json"
                 data = {
                     "nom": nom_plat, 
                     "appareil": type_appareil, 
@@ -109,9 +116,31 @@ def afficher():
                     "etapes": "Voir image jointe", 
                     "images": liste_medias
                 }
-                if envoyer_vers_github(f"data/recettes/{timestamp}_{nom_fic}.json", json.dumps(data, indent=4, ensure_ascii=False), "Import"):
+                
+                # Enregistrement du fichier recette
+                if envoyer_vers_github(chemin_recette, json.dumps(data, indent=4, ensure_ascii=False), "Import"):
+                    
+                    # --- MISE À JOUR DE L'INDEX ---
+                    conf = config_github()
+                    url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
+                    res_idx = requests.get(url_idx)
+                    
+                    index_data = res_idx.json() if res_idx.status_code == 200 else []
+                    
+                    index_data.append({
+                        "nom": nom_plat,
+                        "categorie": "Importé",
+                        "appareil": type_appareil,
+                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img],
+                        "chemin": chemin_recette
+                    })
+                    
+                    envoyer_vers_github("data/index_recettes.json", json.dumps(index_data, indent=4, ensure_ascii=False), "MAJ Index")
+                    # --- FIN MISE À JOUR INDEX ---
+
                     st.success("Importé !")
                     st.session_state.ingredients_img = []
+                    if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                     if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                     st.session_state.form_count_img += 1
                     st.rerun()
