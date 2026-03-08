@@ -1,0 +1,30 @@
+{
+    "nom": "Brandle",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Gin",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème de mûre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sirop de sucre de canne",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_105455_brandle_0.jpg",
+        "data/images/20260308_105455_brandle_1.jpg"
+    ]
+}
