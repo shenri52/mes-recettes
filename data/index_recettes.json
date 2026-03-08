@@ -510,5 +510,16 @@
             "Moutarde en grain"
         ],
         "chemin": "data/recettes/20260308_110842_poireaux_vinaigrette_façon_bistrot.json"
+    },
+    {
+        "nom": "Poulet sauce Boursin ai et fines herbes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
     }
 ]
