@@ -48,9 +48,8 @@ def afficher():
         fichiers_github = res_dossier.json()
         jsons_uniques = [f for f in fichiers_github if f['name'].endswith('.json')]
         
-        # Synchronisation initiale
         if 'toutes_recettes' not in st.session_state or len(st.session_state.toutes_recettes) != len(jsons_uniques):
-            with st.spinner("Mise à jour de la bibliothèque..."):
+            with st.spinner("Chargement..."):
                 data_recettes = []
                 for f in jsons_uniques:
                     raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
@@ -62,7 +61,7 @@ def afficher():
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
     if 'toutes_recettes' in st.session_state:
-        # Zone de filtres
+        # --- BLOC FILTRES ---
         col_search, col_app, col_ing = st.columns([2, 1, 1])
         recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
         
@@ -78,7 +77,7 @@ def afficher():
 
         st.divider()
 
-        # Calcul de la liste filtrée à chaque changement
+        # --- CALCUL DE LA LISTE FILTRÉE ---
         recettes_f = [
             r for r in st.session_state.toutes_recettes 
             if (not recherche or recherche in r.get('nom', '').lower()) 
@@ -86,74 +85,83 @@ def afficher():
             and (filtre_ing == "Tous" or any(i.get('Ingrédient') == filtre_ing for i in r.get('ingredients', [])))
         ]
 
-        # Affichage dynamique
-        if not recettes_f:
-            st.info("Aucune recette ne correspond à ces critères.")
-        else:
-            # On utilise une boucle simple d'expanders sans container bloquant
-            for idx, rec in enumerate(recettes_f):
-                m_edit = f"edit_{rec['chemin_json']}" # Clé basée sur le fichier pour éviter les bugs d'index
-                if m_edit not in st.session_state: st.session_state[m_edit] = False
+        # --- LISTE DÉROULANTE AVEC RÉINITIALISATION AUTOMATIQUE ---
+        noms_liste = [r.get('nom', 'SANS NOM').upper() for r in recettes_f]
+        
+        # On crée un identifiant qui change si la recherche ou les filtres changent
+        # Cela force la liste à se rafraîchir proprement sans bug
+        id_unique = f"select_{recherche}_{filtre_app}_{filtre_ing}"
+        
+        choix = st.selectbox("📖 Choisir une recette", ["---"] + noms_liste, key=id_unique)
 
-                with st.expander(f"📖 {rec.get('nom', 'SANS NOM').upper()}"):
-                    if st.session_state[m_edit]:
-                        # --- FORMULAIRE MODIF ---
-                        with st.form(key=f"form_{rec['chemin_json']}"):
-                            e_nom = st.text_input("Nom", value=rec.get('nom', ''))
-                            e_cat = st.text_input("Catégorie", value=rec.get('categorie', ''))
-                            c1, c2, c3 = st.columns(3)
-                            with c1:
-                                e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
-                                               index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(rec.get('appareil', 'Aucun')))
-                            with c2: e_prep = st.text_input("Temps prépa.", value=rec.get('temps_preparation', ''))
-                            with c3: e_cuis = st.text_input("Temps cuisson", value=rec.get('temps_cuisson', ''))
-                            
-                            ing_txt = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in rec.get('ingredients', [])])
-                            e_ings = st.text_area("Ingrédients (Qté | Nom)", value=ing_txt)
-                            e_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=150)
-                            
-                            if st.form_submit_button("✅ Enregistrer"):
-                                new_ings = []
-                                for l in e_ings.strip().split('\n'):
-                                    if not l.strip(): continue 
-                                    p = l.split("|", 1) if "|" in l else ["", l]
-                                    new_ings.append({"Ingrédient": p[-1].strip(), "Quantité": p[0].strip()})
-                                
-                                data_mod = {
-                                    "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
-                                    "temps_preparation": e_prep, "temps_cuisson": e_cuis, 
-                                    "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])
-                                }
-                                if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
-                                    st.session_state[m_edit] = False
-                                    del st.session_state.toutes_recettes
-                                    st.rerun()
-                    else:
-                        # --- MODE LECTURE ---
-                        st.info(f"📁 Catégorie : {rec.get('categorie', 'Non classé')}")
-                        c_txt, c_img = st.columns([1, 1])
-                        with c_txt:
-                            st.write(f"**Appareil :** {rec.get('appareil', 'Aucun')}")
-                            st.write("**Ingrédients :**")
-                            for i in rec.get('ingredients', []):
-                                st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                            st.write(f"**Étapes :**\n{rec.get('etapes', '')}")
+        if choix != "---":
+            # On récupère la recette sélectionnée
+            idx_sel = noms_liste.index(choix)
+            rec = recettes_f[idx_sel]
+            
+            m_edit = f"edit_{rec['chemin_json']}"
+            if m_edit not in st.session_state: st.session_state[m_edit] = False
+
+            if st.session_state[m_edit]:
+                # --- FORMULAIRE MODIF ---
+                with st.form(key=f"form_modif_{rec['chemin_json']}"):
+                    e_nom = st.text_input("Nom", value=rec.get('nom', ''))
+                    e_cat = st.text_input("Catégorie", value=rec.get('categorie', ''))
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                                       index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(rec.get('appareil', 'Aucun')))
+                    with c2: e_prep = st.text_input("Temps prépa.", value=rec.get('temps_preparation', ''))
+                    with c3: e_cuis = st.text_input("Temps cuisson", value=rec.get('temps_cuisson', ''))
+                    
+                    ing_txt = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in rec.get('ingredients', [])])
+                    e_ings = st.text_area("Ingrédients (Qté | Nom)", value=ing_txt)
+                    e_etapes = st.text_area("Préparation", value=rec.get('etapes', ''), height=150)
+                    
+                    if st.form_submit_button("✅ Enregistrer"):
+                        new_ings = []
+                        for l in e_ings.strip().split('\n'):
+                            if not l.strip(): continue 
+                            p = l.split("|", 1) if "|" in l else ["", l]
+                            new_ings.append({"Ingrédient": p[-1].strip(), "Quantité": p[0].strip()})
                         
-                        with c_img:
-                            medias = rec.get('images', [])
-                            if medias:
-                                img_path = medias[0].strip("/")
-                                full_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}"
-                                st.image(full_url, use_container_width=True)
-
-                        b1, b2 = st.columns(2)
-                        if b1.button("🗑️ Supprimer", key=f"del_{idx}"):
-                            if supprimer_fichier_github(rec['chemin_json']):
-                                del st.session_state.toutes_recettes
-                                st.rerun()
-                        if b2.button("✍️ Modifier", key=f"btn_ed_{idx}"):
-                            st.session_state[m_edit] = True
+                        data_mod = {
+                            "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
+                            "temps_preparation": e_prep, "temps_cuisson": e_cuis, 
+                            "ingredients": new_ings, "etapes": e_etapes, "images": rec.get('images', [])
+                        }
+                        if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
+                            st.session_state[m_edit] = False
+                            del st.session_state.toutes_recettes
                             st.rerun()
+            else:
+                # --- AFFICHAGE LECTURE ---
+                st.subheader(rec.get('nom', '').upper())
+                st.info(f"📁 Catégorie : {rec.get('categorie', 'Non classé')}")
+                
+                c_txt, c_img = st.columns([1, 1])
+                with c_txt:
+                    st.write(f"**Appareil :** {rec.get('appareil', 'Aucun')}")
+                    st.write("**Ingrédients :**")
+                    for i in rec.get('ingredients', []):
+                        st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                    st.write(f"**Étapes :**\n{rec.get('etapes', '')}")
+                
+                with c_img:
+                    medias = rec.get('images', [])
+                    if medias:
+                        img_path = medias[0].strip("/")
+                        full_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path if img_path.startswith('data/') else 'data/'+img_path}?t={int(time.time())}"
+                        st.image(full_url, use_container_width=True)
+
+                b1, b2 = st.columns(2)
+                if b1.button("🗑️ Supprimer", use_container_width=True):
+                    if supprimer_fichier_github(rec['chemin_json']):
+                        del st.session_state.toutes_recettes
+                        st.rerun()
+                if b2.button("✍️ Modifier", use_container_width=True):
+                    st.session_state[m_edit] = True
+                    st.rerun()
 
 if __name__ == "__main__":
     afficher()
