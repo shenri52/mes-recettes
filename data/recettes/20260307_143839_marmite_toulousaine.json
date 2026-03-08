@@ -1,5 +1,6 @@
 {
     "nom": "Marmite toulousaine",
+    "categorie": "Plat",
     "appareil": "Aucun",
     "temps_preparation": "10",
     "temps_cuisson": "25",
