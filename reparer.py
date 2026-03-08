@@ -2,10 +2,12 @@ import streamlit as st
 import requests
 import json
 import time
-# On importe les fonctions nécessaires depuis app.py
-from app import config_github, envoyer_vers_github, charger_index
 
+# --- FONCTION PILOTE ---
 def afficher():
+    # IMPORT LOCAL ICI pour éviter l'erreur circulaire
+    from app import config_github, envoyer_vers_github, charger_index
+
     st.header("🛠️ Diagnostic et Réparation")
     st.write("Ce module vérifie la cohérence entre vos fichiers GitHub et l'index des recettes.")
 
@@ -27,16 +29,16 @@ def afficher():
             index_actuel = charger_index()
             chemins_index = [r['chemin'] for r in index_actuel]
             
-            # Identifier les recettes présentes sur le disque mais pas dans l'index
+            # Identifier les recettes présentes physiquement mais pas dans l'index
             manquantes = [f for f in fichiers_physiques if f not in chemins_index]
             
             if manquantes:
                 st.warning(f"⚠️ {len(manquantes)} recette(s) trouvée(s) sur GitHub mais absente(s) de l'index.")
-                st.write("Voici les fichiers à ajouter :")
+                st.write("Voici les fichiers détectés :")
                 for m in manquantes:
                     st.code(m)
                 
-                # On stocke la liste dans la session pour l'étape suivante
+                # Stockage temporaire pour l'étape 2
                 st.session_state.recettes_a_reparer = manquantes
             else:
                 st.success("✅ Tout est en ordre. L'index correspond parfaitement aux fichiers.")
@@ -45,12 +47,13 @@ def afficher():
         else:
             st.error("Impossible de joindre l'API GitHub pour l'analyse.")
 
-    # Étape 2 : Application (Uniquement si des manquantes ont été trouvées)
+    # Étape 2 : Application (si des manquantes sont trouvées)
     if "recettes_a_reparer" in st.session_state and st.session_state.recettes_a_reparer:
         st.divider()
         st.subheader("Action corrective")
-        if st.button("🚀 Appliquer la réparation (Ajouter à l'index)"):
-            with st.spinner("Récupération des données et mise à jour..."):
+        
+        if st.button("🚀 Appliquer la réparation"):
+            with st.spinner("Mise à jour de l'index..."):
                 manquantes = st.session_state.recettes_a_reparer
                 index_actuel = charger_index()
                 nouvelles_entrees = []
@@ -60,6 +63,7 @@ def afficher():
                     res_rec = requests.get(url_raw)
                     if res_rec.status_code == 200:
                         data = res_rec.json()
+                        # On récupère les infos pour l'index
                         nouvelles_entrees.append({
                             "nom": data.get("nom", "Sans nom"),
                             "categorie": data.get("categorie", "Non classé"),
@@ -68,7 +72,7 @@ def afficher():
                             "chemin": chemin
                         })
 
-                # Fusion et tri
+                # Fusion et tri alphabétique
                 index_maj = index_actuel + nouvelles_entrees
                 index_maj = sorted(index_maj, key=lambda x: x['nom'].lower())
                 
