@@ -4,7 +4,7 @@ import json
 import base64
 import time
 
-# --- 1. CONFIGURATION TECHNIQUE ---
+# --- 1. CONFIGURATION ---
 def config_github():
     return {
         "token": st.secrets["GITHUB_TOKEN"],
@@ -37,7 +37,7 @@ def supprimer_fichier_github(chemin):
         return True
     return False
 
-# --- 2. GESTION DE L'INDEX (LE CATALOGUE) ---
+# --- 2. GESTION DE L'INDEX (LISTE RAPIDE) ---
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
@@ -47,86 +47,102 @@ def charger_index():
         if res.status_code == 200:
             st.session_state.index_recettes = res.json()
         else:
-            # GÉNÉRATION INITIALE : Si le fichier n'existe pas, on scanne tout une fois
-            with st.spinner("Création de l'index (scan des 200 fichiers)..."):
+            # GÉNÉRATION INITIALE (Scan des 200 fichiers une seule fois)
+            with st.spinner("Initialisation du catalogue (scan des fichiers)..."):
                 url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes"
                 res_api = requests.get(url_api, headers=conf['headers'])
-                fichiers = [f for f in res_api.json() if f['name'].endswith('.json')]
-                index_neuf = []
-                for f in fichiers:
-                    r = requests.get(f['download_url']).json()
-                    index_neuf.append({
-                        "nom": r.get('nom', 'Sans nom'),
-                        "categorie": r.get('categorie', 'Non classé'),
-                        "appareil": r.get('appareil', 'Aucun'),
-                        "ingredients": [i.get('Ingrédient') for i in r.get('ingredients', []) if i.get('Ingrédient')],
-                        "chemin": f['path']
-                    })
-                st.session_state.index_recettes = sorted(index_neuf, key=lambda x: x['nom'].lower())
-                # On crée le fichier sur GitHub pour les prochaines fois
-                envoyer_vers_github("data/index_recettes.json", json.dumps(st.session_state.index_recettes, indent=4, ensure_ascii=False), "Initialisation Index")
+                if res_api.status_code == 200:
+                    fichiers = [f for f in res_api.json() if f['name'].endswith('.json')]
+                    index_neuf = []
+                    for f in fichiers:
+                        r = requests.get(f['download_url']).json()
+                        index_neuf.append({
+                            "nom": r.get('nom', 'Sans nom'),
+                            "categorie": r.get('categorie', 'Non classé'),
+                            "appareil": r.get('appareil', 'Aucun'),
+                            "ingredients": [i.get('Ingrédient') for i in r.get('ingredients', []) if i.get('Ingrédient')],
+                            "chemin": f['path']
+                        })
+                    st.session_state.index_recettes = sorted(index_neuf, key=lambda x: x['nom'].lower())
+                    envoyer_vers_github("data/index_recettes.json", json.dumps(st.session_state.index_recettes, indent=4, ensure_ascii=False), "Initialisation Index")
+                else:
+                    st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "Mise à jour Index"):
+    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
         st.session_state.index_recettes = index_trie
         return True
     return False
 
-# --- 3. PAGE CONSULTATION & SUPPRESSION ---
-def page_consultation():
+# --- 3. PAGE CONSULTATION ---
+def afficher_consultation():
     index = charger_index()
-    st.header("📚 Bibliothèque Rapide")
+    st.header("📚 Ma Bibliothèque")
 
-    # FILTRES (Directement sur l'index)
-    c1, c2, c3 = st.columns([2, 1, 1])
-    recherche = c1.text_input("🔍 Nom", "").lower()
-    f_cat = c2.selectbox("Catégorie", ["Tous"] + sorted(list(set(r['categorie'] for r in index))))
-    f_app = c3.selectbox("Appareil", ["Tous"] + sorted(list(set(r['appareil'] for r in index))))
+    # FILTRES
+    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
+    recherche = c1.text_input("🔍 Rechercher", "").lower()
+    
+    cats = ["Tous"] + sorted(list(set(r['categorie'] for r in index)))
+    apps = ["Tous"] + sorted(list(set(r['appareil'] for r in index)))
+    
+    tous_ings = []
+    for r in index: tous_ings.extend(r['ingredients'])
+    ings = ["Tous"] + sorted(list(set(tous_ings)))
 
-    resultats = [r for r in index if (not recherche or recherche in r['nom'].lower()) 
-                 and (f_cat == "Tous" or r['categorie'] == f_cat)
-                 and (f_app == "Tous" or r['appareil'] == f_app)]
+    f_cat = c2.selectbox("Catégorie", cats)
+    f_app = c3.selectbox("Appareil", apps)
+    f_ing = c4.selectbox("Ingrédient", ings)
 
-    noms = [r['nom'].upper() for r in resultats]
-    choix = st.selectbox("📖 Sélectionner", ["---"] + noms, key=f"sel_{recherche}_{f_cat}_{f_app}")
+    # Logique de filtrage sur l'index
+    resultats = [
+        r for r in index 
+        if (not recherche or recherche in r['nom'].lower())
+        and (f_cat == "Tous" or r['categorie'] == f_cat)
+        and (f_app == "Tous" or r['appareil'] == f_app)
+        and (f_ing == "Tous" or f_ing in r['ingredients'])
+    ]
+
+    noms_filtres = [r['nom'].upper() for r in resultats]
+    id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
+    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique)
 
     if choix != "---":
-        info = resultats[noms.index(choix)]
-        # On ne charge le détail que de LA recette sélectionnée
+        info = resultats[noms_filtres.index(choix)]
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         recette = requests.get(url_full).json()
         
         st.subheader(recette['nom'].upper())
         st.info(f"📁 {recette.get('categorie')} | 🛠️ {recette.get('appareil')}")
         
-        col_l, col_r = st.columns(2)
-        with col_l:
+        col_t, col_i = st.columns([1, 1])
+        with col_t:
             st.write("**Ingrédients :**")
             for i in recette.get('ingredients', []):
                 st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-        with col_r:
             st.write(f"**Instructions :**\n{recette.get('etapes')}")
+        with col_i:
+            if recette.get('images'):
+                img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{recette['images'][0].strip('/')}"
+                st.image(img_url, use_container_width=True)
 
         st.divider()
-        # LA SUPPRESSION EST ICI
-        if st.button("🗑️ Supprimer la recette et l'index", use_container_width=True):
+        if st.button("🗑️ Supprimer cette recette", use_container_width=True):
             if supprimer_fichier_github(info['chemin']):
-                # On nettoie l'index en mémoire et sur GitHub
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
-                st.success("Recette supprimée avec succès !")
+                st.success("Supprimé !")
                 time.sleep(1)
                 st.rerun()
 
-# --- 4. PAGE SAISIE / IMPORT (AVEC RESET) ---
-def page_saisie():
+# --- 4. PAGE AJOUT ---
+def afficher_ajout():
     st.header("🆕 Ajouter une recette")
     
-    # Reset des champs automatique
-    keys = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
-    for k in keys:
+    clés = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
+    for k in clés:
         if k not in st.session_state: st.session_state[k] = ""
 
     with st.form("form_saisie", clear_on_submit=False):
@@ -144,7 +160,6 @@ def page_saisie():
                 data_full = {"nom": nom, "categorie": cat, "appareil": app, "ingredients": liste_ings, "etapes": steps, "images": []}
                 
                 if envoyer_vers_github(chemin, json.dumps(data_full, indent=4, ensure_ascii=False), f"Ajout: {nom}"):
-                    # MISE À JOUR DE L'INDEX
                     index = charger_index()
                     index.append({
                         "nom": nom, "categorie": cat, "appareil": app,
@@ -152,14 +167,17 @@ def page_saisie():
                         "chemin": chemin
                     })
                     sauvegarder_index_global(index)
-                    
-                    # RESET DES CHAMPS
-                    for k in keys: st.session_state[k] = ""
-                    st.success("Recette ajoutée et indexée !")
+                    for k in clés: st.session_state[k] = ""
+                    st.success("Ajouté !")
                     time.sleep(1)
                     st.rerun()
 
-# --- ROUTAGE ---
-menu = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
-if menu == "Consulter": page_consultation()
-else: page_saisie()
+# --- 5. ROUTAGE (MAIN) ---
+if __name__ == "__main__":
+    st.sidebar.title("🍽️ Menu")
+    menu = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
+
+    if menu == "Consulter":
+        afficher_consultation()
+    else:
+        afficher_ajout()
