@@ -88,7 +88,7 @@ def afficher():
         with col_btn_cat:
             st.write(" ")
             st.write(" ")
-            if st.button("Valider", key=f"bcat_{st.session_state.form_count}"):
+            if st.button("Ajouter", key=f"bcat_{st.session_state.form_count}"):
                 if cat_input:
                     st.session_state.cat_fixee = cat_input
                     if cat_input not in st.session_state.liste_categories: st.session_state.liste_categories.append(cat_input)
