@@ -94,11 +94,6 @@ def afficher_consultation():
 
     st.write("---")
 
-    # Ici, tu places ta logique de filtrage basée sur la variable 'recherche'
-    # ...
-    
-    # La suite de ton code (filtres, affichage des cartes, etc.)
-
     # FILTRES (Ton affichage habituel)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
@@ -115,7 +110,7 @@ def afficher_consultation():
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ings)
 
-    # Filtrage sur l'index (instantané)
+    # Filtrage sur l'index
     resultats = [
         r for r in index 
         if (not recherche or recherche in r['nom'].lower())
@@ -126,7 +121,20 @@ def afficher_consultation():
 
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
-    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique)
+
+    # --- DEUX ZONES : LE SELECTEUR ET LE BOUTON EN FACE ---
+    st.write("📖 Sélectionner une recette")
+    col_liste, col_btn = st.columns([0.9, 0.1])
+
+    with col_liste:
+        # On cache le label interne pour que la barre soit bien alignée avec le bouton
+        choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique, label_visibility="collapsed")
+
+    with col_btn:
+        if st.button("🔄", help="Forcer l'actualisation de la liste"):
+            if 'index_recettes' in st.session_state:
+                del st.session_state.index_recettes
+            st.rerun()
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
