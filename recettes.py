@@ -57,7 +57,7 @@ def sauvegarder_index_global(index_maj):
     return False
 
 # --- 4. CONSULTATION ---
-def afficher_consultation():
+def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
@@ -123,7 +123,7 @@ def afficher_consultation():
         with col_i:
             images = recette.get('images', [])
             if images:
-                # --- AJOUT NAVIGATION ---
+                # Initialisation de l'index pour la navigation
                 if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                     st.session_state.img_idx = 0
                     st.session_state.last_recette = choix
@@ -140,7 +140,6 @@ def afficher_consultation():
                     if nb_col3.button("➡️", key="next_img"):
                         st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
                         st.rerun()
-                # --- FIN NAVIGATION ---
 
         st.divider()
         b1, b2 = st.columns(2)
