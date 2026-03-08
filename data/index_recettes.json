@@ -470,6 +470,13 @@
         "chemin": "data/recettes/20260307_173318_soupe_thai.json"
     },
     {
+        "nom": "test2",
+        "categorie": "tett",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260308_073301_test2.json"
+    },
+    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -482,21 +489,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "Test",
-        "categorie": "Importé",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ail"
-        ],
-        "chemin": "data/recettes/20260308_072750_test.json"
-    },
-    {
-        "nom": "test2",
-        "categorie": "tett",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260308_073301_test2.json"
     }
 ]
