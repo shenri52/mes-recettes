@@ -43,11 +43,11 @@ def charger_index_local():
 
 # --- INTERFACE DE RÉPARATION ---
 def afficher():
-    st.header("🛠️ Réparer l'index")
+    st.header("🛠️ Diagnostic et Réparation")
     st.write("Ce module scanne votre dossier `data/` sur GitHub pour trouver les recettes oubliées.")
 
     # BOUTON 1 : ANALYSE
-    if st.button("🔍 Analyser les fichiers manquants"):
+    if st.button("🔍 Réparer l'index : analyser les fichiers manquants"):
         conf = config_github()
         # On récupère l'arborescence complète du dépôt
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
