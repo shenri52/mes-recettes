@@ -56,7 +56,7 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 3. FONCTION PILOTE (Celle qui manquait et causait l'erreur) ---
+# --- 3. FONCTION PILOTE ---
 def afficher():
     st.sidebar.title("🍽️ Menu")
     page = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
@@ -65,13 +65,13 @@ def afficher():
     else:
         afficher_ajout()
 
-# --- 4. PAGE CONSULTATION (Tes filtres et ton affichage d'origine) ---
+# --- 4. CONSULTATION ---
 def afficher_consultation():
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES : Tes 4 colonnes d'origine
+    # FILTRES (Version d'origine 4 colonnes)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
@@ -99,13 +99,18 @@ def afficher_consultation():
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
     
+    # --- ZONE SÉLECTEUR + ICÔNE ACTUALISER ---
     st.write("📖 Sélectionner une recette")
-    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique, label_visibility="collapsed")
+    col_liste, col_btn = st.columns([0.9, 0.1])
 
-    if st.button("🔄 Actualiser la liste", use_container_width=True):
-        if 'index_recettes' in st.session_state:
-            del st.session_state.index_recettes
-        st.rerun()
+    with col_liste:
+        choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique, label_visibility="collapsed")
+
+    with col_btn:
+        if st.button("🔄", help="Actualiser"):
+            if 'index_recettes' in st.session_state:
+                del st.session_state.index_recettes
+            st.rerun()
 
     st.write("---")
 
@@ -115,8 +120,6 @@ def afficher_consultation():
         recette = requests.get(url_full).json()
         
         st.subheader(recette['nom'].upper())
-        
-        # Affichage Catégorie / Appareil comme tu le voulais
         st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
         st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
         
@@ -141,7 +144,7 @@ def afficher_consultation():
         if b2.button("✍️ Modifier", use_container_width=True):
             st.info("Modification bientôt disponible.")
 
-# --- 5. PAGE AJOUT (Avec reset des champs) ---
+# --- 5. PAGE AJOUT ---
 def afficher_ajout():
     st.header("🆕 Ajouter une recette")
     cles = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
