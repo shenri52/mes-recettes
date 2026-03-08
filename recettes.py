@@ -48,23 +48,31 @@ def afficher():
         fichiers_github = res_dossier.json()
         jsons_uniques = [f for f in fichiers_github if f['name'].endswith('.json')]
         
-        recherche = st.text_input("🔍 Rechercher un plat", "").lower()
+        # Pour garder les filtres fonctionnels, on utilise les noms de fichiers pour l'instant
+        col_search, col_app, col_ing = st.columns([2, 1, 1])
+        recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
+        
+        # Listes pour les filtres (basées sur les noms de fichiers pour la rapidité)
+        filtre_app = col_app.selectbox("Appareil", ["Tous", "Cookeo", "Thermomix", "Ninja", "Aucun"])
+        filtre_ing = col_ing.selectbox("Ingrédient", ["Tous"]) # L'indexation complète nécessiterait un pré-chargement
+
         st.divider()
 
         for idx, f in enumerate(jsons_uniques):
-            # ON CHARGE LE CONTENU DIRECTEMENT POUR AVOIR LE VRAI NOM
-            raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
-            res_file = requests.get(raw_url)
+            nom_affiche = f['name'].replace('.json', '').replace('_', ' ').upper()
             
-            if res_file.status_code == 200:
-                rec = res_file.json()
-                rec['chemin_json'] = f['path']
-                vrai_nom = rec.get('nom', 'Sans nom').upper()
+            if recherche and recherche not in nom_affiche.lower():
+                continue
 
-                if recherche and recherche not in vrai_nom.lower():
-                    continue
-
-                with st.expander(f"📖 {vrai_nom}"):
+            with st.expander(f"📖 {nom_affiche}"):
+                # --- CHARGEMENT AU CLIC ---
+                raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
+                res_file = requests.get(raw_url)
+                
+                if res_file.status_code == 200:
+                    rec = res_file.json()
+                    rec['chemin_json'] = f['path']
+                    
                     m_edit = f"edit_{idx}"
                     if m_edit not in st.session_state: st.session_state[m_edit] = False
 
