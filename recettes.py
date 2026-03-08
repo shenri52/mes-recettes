@@ -61,7 +61,6 @@ def afficher():
                 st.session_state.toutes_recettes = sorted(data_recettes, key=lambda x: x.get('nom', '').lower())
 
     if 'toutes_recettes' in st.session_state:
-        # TES FILTRES (Restent fixes en haut)
         col_search, col_app, col_ing = st.columns([2, 1, 1])
         recherche = col_search.text_input("🔍 Rechercher un plat", "").lower()
         
@@ -77,7 +76,6 @@ def afficher():
 
         st.divider()
 
-        # Filtrage de la liste avant affichage
         recettes_f = [
             r for r in st.session_state.toutes_recettes 
             if recherche in r.get('nom', '').lower() 
@@ -85,7 +83,6 @@ def afficher():
             and (filtre_ing == "Tous" or any(i.get('Ingrédient') == filtre_ing for i in r.get('ingredients', [])))
         ]
 
-        # CADRE DE DÉFILEMENT (Scroll interne)
         with st.container(height=500):
             if not recettes_f:
                 st.info("Aucune recette trouvée.")
@@ -99,6 +96,10 @@ def afficher():
                         # --- MODE MODIFICATION ---
                         with st.form(key=f"f_edit_{idx}"):
                             e_nom = st.text_input("Nom", value=rec.get('nom', ''))
+                            
+                            # AJOUT DU CHAMP CATÉGORIE
+                            e_cat = st.text_input("Catégorie (ex: Dessert, Plat...)", value=rec.get('categorie', ''))
+                            
                             c1, c2, c3 = st.columns(3)
                             with c1:
                                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
@@ -121,10 +122,16 @@ def afficher():
                                     else:
                                         new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                                 
+                                # ENREGISTREMENT DE LA CATÉGORIE DANS LE JSON
                                 data_mod = {
-                                    "nom": e_nom, "appareil": e_app, "temps_preparation": e_prep, 
-                                    "temps_cuisson": e_cuis, "ingredients": new_ings, 
-                                    "etapes": e_etapes, "images": rec.get('images', [])
+                                    "nom": e_nom, 
+                                    "categorie": e_cat, 
+                                    "appareil": e_app, 
+                                    "temps_preparation": e_prep, 
+                                    "temps_cuisson": e_cuis, 
+                                    "ingredients": new_ings, 
+                                    "etapes": e_etapes, 
+                                    "images": rec.get('images', [])
                                 }
                                 if envoyer_vers_github(rec['chemin_json'], json.dumps(data_mod, indent=4, ensure_ascii=False), f"Modif: {e_nom}"):
                                     st.session_state[m_edit] = False
@@ -135,6 +142,10 @@ def afficher():
                                 st.rerun()
                     else:
                         # --- MODE LECTURE ---
+                        # Affichage de la catégorie si elle existe
+                        if rec.get('categorie'):
+                            st.caption(f"📁 Catégorie : {rec.get('categorie')}")
+                            
                         t_prep = rec.get('temps_preparation', '')
                         t_cuis = rec.get('temps_cuisson', '')
                         if t_prep or t_cuis:
