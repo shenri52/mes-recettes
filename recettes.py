@@ -90,7 +90,20 @@ def afficher():
 # --- 4. PAGES DE CONTENU ---
 def afficher_consultation():
     index = charger_index()
-    st.header("📚 Ma Bibliothèque")
+    st.header("📚 Mes recettes")
+
+    # --- BOUTON DE FORÇAGE DE L'ACTUALISATION ---
+    if st.button("🔄 Actualiser la liste", use_container_width=True):
+        # On vide les caches de session pour forcer un nouvel appel GitHub
+        if 'index_recettes' in st.session_state:
+            del st.session_state.index_recettes
+        if 'toutes_recettes' in st.session_state:
+            del st.session_state.toutes_recettes
+        st.rerun()
+    
+    st.write("---") # Petite ligne de séparation visuelle
+    
+    # La suite de ton code (filtres, affichage des cartes, etc.)
 
     # FILTRES (Ton affichage habituel)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
