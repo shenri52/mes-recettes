@@ -95,13 +95,16 @@ def afficher():
 
         st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
         
-        # Préparation du tableau avec les colonnes demandées et arrondi inclu
+        # Préparation du tableau avec formatage strict à 2 décimales
         donnees_tableau = []
         for type_f, info in stats_fichiers.items():
+            poids_mo = info["poids"] / (1024 * 1024)
+            
             donnees_tableau.append({
                 "Type de fichier": type_f,
                 "Nombre": info["nombre"],
-                "Poids (Mo)": round(info["poids"] / 1024 / 1024, 2)
+                # Le formatage :.2f garantit l'affichage du 0 (ex: 0.20 Mo)
+                "Poids (Mo)": f"{poids_mo:.2f}"
             })
             
         st.write("**Détail des ressources :**")
