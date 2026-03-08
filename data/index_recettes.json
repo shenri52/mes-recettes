@@ -499,5 +499,19 @@
             "Gingembre"
         ],
         "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
+    },
+    {
+        "nom": "Blanquette de poireaux au poiré",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Champignons",
+            "Beurre de baratte",
+            "Poiré (cidre de poire)",
+            "Crème fraiche",
+            "Jaune d'oeufs"
+        ],
+        "chemin": "data/recettes/20260308_110523_blanquette_de_poireaux_au_poiré.json"
     }
 ]
