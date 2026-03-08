@@ -1,0 +1,26 @@
+{
+    "nom": "Poulet sauce Boursin ai et fines herbes",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "20",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Boursin",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes_0.jpg",
+        "data/images/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes_1.jpg"
+    ]
+}
