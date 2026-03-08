@@ -111,26 +111,32 @@ def afficher():
         recette = requests.get(url_full).json()
         
         st.subheader(recette['nom'].upper())
-        st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
-        st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
         
         col_t, col_i = st.columns([1, 1])
         with col_t:
+            # Alignement vertical du texte avec le haut de l'image
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            
+            st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
+            st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
             st.write("**Ingrédients :**")
             for i in recette.get('ingredients', []):
                 st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
             st.write(f"**Instructions :**\n{recette.get('etapes')}")
+        
         with col_i:
             images = recette.get('images', [])
             if images:
-                # Initialisation de l'index pour la navigation
+                # Gestion de l'index pour la navigation
                 if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                     st.session_state.img_idx = 0
                     st.session_state.last_recette = choix
 
+                # Affichage image
                 img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                 st.image(img_url, use_container_width=True)
                 
+                # Contrôles de navigation (si + d'une image)
                 if len(images) > 1:
                     nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
                     if nb_col1.button("⬅️", key="prev_img"):
