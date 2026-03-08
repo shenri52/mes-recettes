@@ -1,0 +1,42 @@
+{
+    "nom": "Tartines à l'avocat, Feta, Tomates cerises, Cranberries et Noix",
+    "categorie": "Tartines de pain",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tartines de pain",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tomates cerises",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Feta",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Noix",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cranberries",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix_0.jpg",
+        "data/images/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix_1.jpg"
+    ]
+}
