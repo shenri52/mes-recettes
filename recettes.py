@@ -56,14 +56,22 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 3. PAGES DE CONTENU ---
+# --- 3. FONCTION PILOTE (Celle qui manquait et causait l'erreur) ---
+def afficher():
+    st.sidebar.title("🍽️ Menu")
+    page = st.sidebar.radio("Navigation", ["Consulter", "Ajouter"])
+    if page == "Consulter":
+        afficher_consultation()
+    else:
+        afficher_ajout()
+
+# --- 4. PAGE CONSULTATION (Tes filtres et ton affichage d'origine) ---
 def afficher_consultation():
     index = charger_index()
     st.header("📚 Mes recettes")
-
     st.write("---")
 
-    # FILTRES (Ton affichage d'origine avec 4 colonnes)
+    # FILTRES : Tes 4 colonnes d'origine
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
@@ -79,7 +87,7 @@ def afficher_consultation():
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ings)
 
-    # Filtrage sur l'index
+    # Filtrage
     resultats = [
         r for r in index 
         if (not recherche or recherche in r['nom'].lower())
@@ -91,14 +99,15 @@ def afficher_consultation():
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
     
-    # Sélection de la recette
-    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique)
+    st.write("📖 Sélectionner une recette")
+    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key=id_unique, label_visibility="collapsed")
 
-    # Bouton Actualiser (en dessous du sélecteur)
     if st.button("🔄 Actualiser la liste", use_container_width=True):
         if 'index_recettes' in st.session_state:
             del st.session_state.index_recettes
         st.rerun()
+
+    st.write("---")
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
@@ -107,7 +116,7 @@ def afficher_consultation():
         
         st.subheader(recette['nom'].upper())
         
-        # Affichage Catégorie et Appareil (Ancienne version)
+        # Affichage Catégorie / Appareil comme tu le voulais
         st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
         st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
         
@@ -123,16 +132,40 @@ def afficher_consultation():
                 st.image(img_url, use_container_width=True)
 
         st.divider()
-        
-        # Boutons d'action
         b1, b2 = st.columns(2)
-        if b1.button("🗑️ Supprimer cette recette", use_container_width=True):
+        if b1.button("🗑️ Supprimer", use_container_width=True):
             if supprimer_fichier_github(info['chemin']):
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
-                st.success("Supprimé !")
-                time.sleep(1)
                 st.rerun()
+        if b2.button("✍️ Modifier", use_container_width=True):
+            st.info("Modification bientôt disponible.")
+
+# --- 5. PAGE AJOUT (Avec reset des champs) ---
+def afficher_ajout():
+    st.header("🆕 Ajouter une recette")
+    cles = ["s_nom", "s_cat", "s_app", "s_ings", "s_steps"]
+    for k in cles:
+        if k not in st.session_state: st.session_state[k] = ""
+
+    with st.form("form_saisie", clear_on_submit=False):
+        nom = st.text_input("Nom", value=st.session_state.s_nom)
+        cat = st.text_input("Catégorie", value=st.session_state.s_cat)
+        app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"])
+        ings_brut = st.text_area("Ingrédients (Qté | Nom)", value=st.session_state.s_ings)
+        steps = st.text_area("Préparation", value=st.session_state.s_steps)
         
-        if b2.button("✍️ Modifier la recette", use_container_width=True):
-            st.info("Fonction de modification à venir.")
+        if st.form_submit_button("🚀 Enregistrer"):
+            if nom:
+                chemin = f"data/recettes/{nom.replace(' ', '_').lower()}.json"
+                liste_ings = [{"Ingrédient": l.split("|")[1].strip(), "Quantité": l.split("|")[0].strip()} if "|" in l else {"Ingrédient": l.strip(), "Quantité": ""} for l in ings_brut.strip().split('\n') if l.strip()]
+                data_full = {"nom": nom, "categorie": cat, "appareil": app, "ingredients": liste_ings, "etapes": steps, "images": []}
+                
+                if envoyer_vers_github(chemin, json.dumps(data_full, indent=4, ensure_ascii=False), f"Ajout: {nom}"):
+                    index = charger_index()
+                    index.append({"nom": nom, "categorie": cat, "appareil": app, "ingredients": [i['Ingrédient'] for i in liste_ings], "chemin": chemin})
+                    sauvegarder_index_global(index)
+                    for k in cles: st.session_state[k] = ""
+                    st.success("Enregistré !")
+                    time.sleep(1)
+                    st.rerun()
