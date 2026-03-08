@@ -67,7 +67,7 @@ def afficher():
     st.divider()
 
     # --- 3. POIDS ET TYPES DE FICHIERS ---
-    st.subheader("💾 Stockage et Fichiers")
+    st.subheader("💾 Stockage")
     conf = config_github()
     
     url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
