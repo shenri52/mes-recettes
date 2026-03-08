@@ -71,7 +71,7 @@ def afficher_consultation():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES (Version d'origine 4 colonnes)
+    # FILTRES
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
@@ -87,7 +87,6 @@ def afficher_consultation():
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ings)
 
-    # Filtrage
     resultats = [
         r for r in index 
         if (not recherche or recherche in r['nom'].lower())
@@ -99,7 +98,6 @@ def afficher_consultation():
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
     
-    # --- ZONE SÉLECTEUR + ICÔNE ACTUALISER ---
     st.write("📖 Sélectionner une recette")
     col_liste, col_btn = st.columns([0.9, 0.1])
 
@@ -129,10 +127,27 @@ def afficher_consultation():
             for i in recette.get('ingredients', []):
                 st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
             st.write(f"**Instructions :**\n{recette.get('etapes')}")
+        
         with col_i:
-            if recette.get('images'):
-                img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{recette['images'][0].strip('/')}"
+            images = recette.get('images', [])
+            if images:
+                # Gestion de la navigation photo
+                if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
+                    st.session_state.img_idx = 0
+                    st.session_state.last_recette = choix
+
+                img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                 st.image(img_url, use_container_width=True)
+                
+                if len(images) > 1:
+                    nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
+                    if nb_col1.button("⬅️", key="prev"):
+                        st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                        st.rerun()
+                    nb_col2.write(f"Photo {st.session_state.img_idx + 1} / {len(images)}")
+                    if nb_col3.button("➡️", key="next"):
+                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                        st.rerun()
 
         st.divider()
         b1, b2 = st.columns(2)
@@ -164,11 +179,4 @@ def afficher_ajout():
                 liste_ings = [{"Ingrédient": l.split("|")[1].strip(), "Quantité": l.split("|")[0].strip()} if "|" in l else {"Ingrédient": l.strip(), "Quantité": ""} for l in ings_brut.strip().split('\n') if l.strip()]
                 data_full = {"nom": nom, "categorie": cat, "appareil": app, "ingredients": liste_ings, "etapes": steps, "images": []}
                 
-                if envoyer_vers_github(chemin, json.dumps(data_full, indent=4, ensure_ascii=False), f"Ajout: {nom}"):
-                    index = charger_index()
-                    index.append({"nom": nom, "categorie": cat, "appareil": app, "ingredients": [i['Ingrédient'] for i in liste_ings], "chemin": chemin})
-                    sauvegarder_index_global(index)
-                    for k in cles: st.session_state[k] = ""
-                    st.success("Enregistré !")
-                    time.sleep(1)
-                    st.rerun()
+                if envoyer_vers_github(chemin, json.dumps(data_full, indent
