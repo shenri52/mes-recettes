@@ -79,7 +79,7 @@ def afficher():
         with col_btn_cat:
             st.write(" ")
             st.write(" ")
-            if st.button("Valider", key=f"bcat_{st.session_state.form_count_img}"):
+            if st.button("Ajouter", key=f"bcat_{st.session_state.form_count_img}"):
                 if cat_finale:
                     st.session_state.cat_selectionnee = cat_finale
                     if cat_finale not in st.session_state.liste_categories_img: st.session_state.liste_categories_img.append(cat_finale)
