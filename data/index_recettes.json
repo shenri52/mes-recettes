@@ -15,17 +15,6 @@
         "chemin": "data/recettes/20260307_155721_boeuf_stroganoff.json"
     },
     {
-        "nom": "Bramble",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Gin",
-            "Crème de mûre",
-            "Jus de citron"
-        ],
-        "chemin": "data/recettes/20260307_155959_bramble.json"
-    },
-    {
         "nom": "Cookie façon brownie",
         "categorie": "Goûter",
         "appareil": "Aucun",
