@@ -1,0 +1,14 @@
+{
+    "nom": "Test",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": []
+}
