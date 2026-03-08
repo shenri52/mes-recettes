@@ -19,7 +19,6 @@ def config_github():
 def envoyer_vers_github(chemin, contenu, message):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    # Anti-cache strict sur l'appel GET pour obtenir le SHA
     res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
     
@@ -33,7 +32,6 @@ def envoyer_vers_github(chemin, contenu, message):
 
 def charger_index_local():
     conf = config_github()
-    # Force la récupération sans cache
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
     res = requests.get(url)
     if res.status_code == 200:
@@ -44,14 +42,16 @@ def charger_index_local():
 def afficher():
     st.header("🛠️ Diagnostic et Réparation")
 
+    # INITIALISATION : Si on arrive sur la page sans avoir cliqué, on nettoie
+    if "bouton_analyse_clique" not in st.session_state:
+        if "a_reparer" in st.session_state:
+            del st.session_state.a_reparer
+
     # BOUTON 1 : ANALYSE
     if st.button("🔍 Réparer l'index des recettes"):
-        # Nettoyage de l'index en session pour forcer le rechargement
-        if 'index_recettes' in st.session_state:
-            del st.session_state.index_recettes
-            
+        st.session_state.bouton_analyse_clique = True  # Marqueur pour garder l'affichage
+        
         conf = config_github()
-        # On ajoute le timestamp ici aussi pour forcer GitHub à scanner le disque
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1&t={int(time.time())}"
         res = requests.get(url_tree, headers=conf['headers'])
         
@@ -87,13 +87,13 @@ def afficher():
         st.info("Voulez-vous intégrer ces fichiers à l'index ?")
         
         if st.button("🚀 Appliquer la réparation"):
-            with st.spinner("Récupération et synchronisation..."):
+            with st.spinner("Récupération des données..."):
                 manquantes = st.session_state.a_reparer
                 index_actuel = charger_index_local()
                 nouvelles_recettes = []
                 
                 for chemin in manquantes:
-                    url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{chemin}?t={int(time.time())}"
+                    url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{chemin}"
                     res_rec = requests.get(url_raw)
                     if res_rec.status_code == 200:
                         data = res_rec.json()
@@ -101,7 +101,7 @@ def afficher():
                             "nom": data.get("nom", "Sans nom"),
                             "categorie": data.get("categorie", "Non classé"),
                             "appareil": data.get("appareil", "Aucun"),
-                            "ingredients": [i.get("Ingrédient") for i in data.get("ingredients", [])] if isinstance(data.get("ingredients"), list) else [],
+                            "ingredients": [i.get("Ingrédient") for i in data.get("ingredients", [])],
                             "chemin": chemin
                         })
 
@@ -110,14 +110,15 @@ def afficher():
                 if envoyer_vers_github("data/index_recettes.json", 
                                        json.dumps(index_final, indent=4, ensure_ascii=False), 
                                        "🛠️ Réparation automatique de l'index"):
-                    
-                    # On attend une demi-seconde pour laisser GitHub respirer
-                    time.sleep(0.5)
-                    
                     st.success(f"✅ Terminé ! {len(nouvelles_recettes)} recettes ajoutées.")
                     st.session_state.index_recettes = index_final
-                    if "a_reparer" in st.session_state:
-                        del st.session_state.a_reparer
+                    # On nettoie tout après succès
+                    if "a_reparer" in st.session_state: del st.session_state.a_reparer
+                    if "bouton_analyse_clique" in st.session_state: del st.session_state.bouton_analyse_clique
                     st.rerun()
                 else:
                     st.error("Erreur lors de la sauvegarde sur GitHub.")
+
+    # Nettoyage du marqueur en fin de script pour le prochain passage
+    if "bouton_analyse_clique" in st.session_state:
+        del st.session_state.bouton_analyse_clique
