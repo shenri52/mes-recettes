@@ -64,7 +64,6 @@ def afficher():
     st.subheader("💾 Stockage et Fichiers")
     conf = config_github()
     
-    # Appel récursif pour scanner tout le dépôt
     url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
     res = requests.get(url_tree, headers=conf['headers'])
     
@@ -72,20 +71,55 @@ def afficher():
         tree = res.json().get('tree', [])
         
         poids_total = 0
-        compte_fichiers = {"JSON (Recettes)": 0, "Images (Photos)": 0, "Système/Autres": 0}
+        # Initialisation des compteurs (Nombre et Poids)
+        stats_fichiers = {
+            "JSON (Recettes)": {"nombre": 0, "poids": 0},
+            "Images (Photos)": {"nombre": 0, "poids": 0},
+            "Système/Autres": {"nombre": 0, "poids": 0}
+        }
         
         for item in tree:
             size = item.get('size', 0)
             poids_total += size
-            
             ext = item['path'].lower()
+            
             if ext.endswith('.json'):
-                compte_fichiers["JSON (Recettes)"] += 1
+                key = "JSON (Recettes)"
             elif ext.endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                compte_fichiers["Images (Photos)"] += 1
+                key = "Images (Photos)"
             else:
-                compte_fichiers["Système/Autres"] += 1
+                key = "Système/Autres"
+            
+            stats_fichiers[key]["nombre"] += 1
+            stats_fichiers[key]["poids"] += size
 
         st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
-        st.write("**Détail des fichiers présents :**")
-        st.table({"Type": compte_fichiers.keys(), "Nombre": compte_fichiers.values()})
+        
+        # Préparation du tableau avec les colonnes demandées
+        donnees_tableau = []
+        for type_f, info in stats_fichiers.items():
+            donnees_tableau.append({
+                "Type de fichier": type_f,
+                "Nombre": info["nombre"],
+                "Poids (Mo)": round(info["poids"] / 1024 / 1024, 2)
+            })
+            
+        st.write("**Détail des ressources :**")
+        st.table(donnees_tableau)
+
+    # --- 4. ANALYSE DES AJOUTS ---
+    st.divider()
+    st.subheader("📥 Méthode d'ajout (Estimation)")
+    
+    saisie = 0
+    import_photo = 0
+    for r in index:
+        if len(r.get('ingredients', [])) <= 1:
+            import_photo += 1
+        else:
+            saisie += 1
+            
+    c_s1, c_s2 = st.columns(2)
+    c_s1.metric("✍️ Saisies manuelles", saisie)
+    c_s2.metric("📸 Imports / Photos", import_photo)
+    st.progress(saisie / total_recettes if total_recettes > 0 else 0, text="Ratio Saisie vs Import")
