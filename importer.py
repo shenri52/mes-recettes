@@ -24,17 +24,15 @@ def recuperer_donnees_index():
     try:
         res = requests.get(url)
         ingredients = [""]
-        cocktails = [""]
+        categories = [""]
         if res.status_code == 200:
             index_data = res.json()
             for r in index_data:
-                # Extraction ingrédients
                 for ing in r.get('ingredients', []):
                     if ing and ing not in ingredients: ingredients.append(ing)
-                # Extraction cocktail (si présent dans l'index)
-                c_nom = r.get('cocktail')
-                if c_nom and c_nom not in cocktails: cocktails.append(c_nom)
-        return sorted(list(set(ingredients))), sorted(list(set(cocktails)))
+                cat = r.get('categorie')
+                if cat and cat not in categories: categories.append(cat)
+        return sorted(list(set(ingredients))), sorted(list(set(categories)))
     except:
         return [""], [""]
 
@@ -55,11 +53,11 @@ def afficher():
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
     if 'liste_choix_img' not in st.session_state: st.session_state.liste_choix_img = [""]
-    if 'liste_cocktails_img' not in st.session_state: st.session_state.liste_cocktails_img = [""]
+    if 'liste_categories_img' not in st.session_state: st.session_state.liste_categories_img = [""]
+    if 'cat_selectionnee' not in st.session_state: st.session_state.cat_selectionnee = ""
 
-    # Chargement initial des listes depuis l'index
     if len(st.session_state.liste_choix_img) <= 1:
-        st.session_state.liste_choix_img, st.session_state.liste_cocktails_img = recuperer_donnees_index()
+        st.session_state.liste_choix_img, st.session_state.liste_categories_img = recuperer_donnees_index()
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"ni_{st.session_state.form_count_img}")
@@ -72,22 +70,30 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
-        # --- SECTION COCKTAIL ---
-        st.write("---")
-        col_cock, col_n_cock = st.columns([2, 1])
-        with col_cock:
-            opts_cock = sorted(st.session_state.liste_cocktails_img) + ["➕ Nouveau Cocktail..."]
-            choix_cock = st.selectbox("Associer à un Cocktail", options=opts_cock, key=f"ck_{st.session_state.form_count_img}")
-            cocktail_final = st.text_input("Nom du nouveau cocktail", key=f"nck_{st.session_state.form_count_img}") if choix_cock == "➕ Nouveau Cocktail..." else choix_cock
+        # --- SECTION CATÉGORIE ---
+        col_cat, col_btn_cat = st.columns([2, 0.5])
+        with col_cat:
+            opts_cat = sorted(st.session_state.liste_categories_img) + ["➕ Ajouter une nouvelle..."]
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{st.session_state.form_count_img}")
+            cat_finale = st.text_input("Nom nouvelle catégorie", key=f"ncat_{st.session_state.form_count_img}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+        with col_btn_cat:
+            st.write(" ")
+            st.write(" ")
+            if st.button("Valider", key=f"bcat_{st.session_state.form_count_img}"):
+                if cat_finale:
+                    st.session_state.cat_selectionnee = cat_finale
+                    if cat_finale not in st.session_state.liste_categories_img: st.session_state.liste_categories_img.append(cat_finale)
+                    st.toast(f"Catégorie fixée : {cat_finale}")
+
+        if st.session_state.cat_selectionnee:
+            st.write(f"📂 Catégorie retenue : **{st.session_state.cat_selectionnee}**")
 
         # --- SECTION INGRÉDIENTS ---
-        st.write("---")
         col_ing, col_btn_add = st.columns([2, 0.5])
         with col_ing:
             options = sorted(st.session_state.liste_choix_img) + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
             ing_final = st.text_input("Nom", key=f"nwi_{st.session_state.form_count_img}") if choix == "➕ Ajouter un nouveau..." else choix
-
         with col_btn_add:
             st.write(" ")
             st.write(" ")
@@ -101,6 +107,7 @@ def afficher():
         photos_fb = st.file_uploader("Fichiers", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{st.session_state.form_count_img}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer l'import", use_container_width=True):
+        final_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
         if nom_plat:
             with st.spinner("Enregistrement..."):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -117,17 +124,16 @@ def afficher():
                 chemin_recette = f"data/recettes/{timestamp}_{nom_fic}.json"
                 data = {
                     "nom": nom_plat, 
+                    "categorie": final_cat,
                     "appareil": type_appareil, 
                     "temps_preparation": tps_prep,
                     "temps_cuisson": tps_cuis,
                     "ingredients": st.session_state.ingredients_img, 
-                    "cocktail": cocktail_final,
                     "etapes": "Voir image jointe", 
                     "images": liste_medias
                 }
                 
                 if envoyer_vers_github(chemin_recette, json.dumps(data, indent=4, ensure_ascii=False), "Import"):
-                    # MISE À JOUR DE L'INDEX
                     conf = config_github()
                     url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
                     res_idx = requests.get(url_idx)
@@ -135,10 +141,9 @@ def afficher():
                     
                     index_data.append({
                         "nom": nom_plat,
-                        "categorie": "Importé",
+                        "categorie": final_cat,
                         "appareil": type_appareil,
                         "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img],
-                        "cocktail": cocktail_final,
                         "chemin": chemin_recette
                     })
                     
@@ -146,6 +151,7 @@ def afficher():
 
                     st.success("Importé !")
                     st.session_state.ingredients_img = []
+                    st.session_state.cat_selectionnee = ""
                     if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                     st.session_state.form_count_img += 1
                     st.rerun()
