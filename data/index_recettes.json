@@ -471,5 +471,17 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "Brandle",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Gin",
+            "Crème de mûre",
+            "Jus de citron",
+            "Sirop de sucre de canne"
+        ],
+        "chemin": "data/recettes/20260308_105455_brandle.json"
     }
 ]
