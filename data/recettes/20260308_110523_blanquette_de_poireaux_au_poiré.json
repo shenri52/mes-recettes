@@ -1,0 +1,39 @@
+{
+    "nom": "Blanquette de poireaux au poiré",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre de baratte",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poiré (cidre de poire)",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jaune d'oeufs",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_110523_blanquette_de_poireaux_au_poiré_0.jpg",
+        "data/images/20260308_110523_blanquette_de_poireaux_au_poiré_1.jpg",
+        "data/images/20260308_110523_blanquette_de_poireaux_au_poiré_2.jpg"
+    ]
+}
