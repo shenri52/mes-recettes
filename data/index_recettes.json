@@ -521,5 +521,20 @@
             "Crème fraiche"
         ],
         "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
+    },
+    {
+        "nom": "Tartines à l'avocat, Feta, Tomates cerises, Cranberries et Noix",
+        "categorie": "Tartines de pain",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Avocat",
+            "Avocat",
+            "Tartines de pain",
+            "Tomates cerises",
+            "Feta",
+            "Noix",
+            "Cranberries"
+        ],
+        "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     }
 ]
