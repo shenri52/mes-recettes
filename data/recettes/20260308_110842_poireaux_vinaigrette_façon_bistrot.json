@@ -1,0 +1,26 @@
+{
+    "nom": "Poireaux vinaigrette façon bistrot",
+    "categorie": "Entrée",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "20",
+    "ingredients": [
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde en grain",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_110842_poireaux_vinaigrette_façon_bistrot_0.jpg",
+        "data/images/20260308_110842_poireaux_vinaigrette_façon_bistrot_1.jpg"
+    ]
+}
