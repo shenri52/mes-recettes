@@ -26,7 +26,7 @@ def charger_index():
 
 # --- FONCTION PILOTE APPELÉE PAR APP.PY ---
 def afficher():
-    st.header("📊 Statistiques de la cuisine")
+    st.header("📊 Statistiques")
     index = charger_index()
     
     if not index:
@@ -95,7 +95,7 @@ def afficher():
 
         st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
         
-        # Préparation du tableau avec les colonnes demandées
+        # Préparation du tableau avec les colonnes demandées et arrondi inclu
         donnees_tableau = []
         for type_f, info in stats_fichiers.items():
             donnees_tableau.append({
@@ -106,20 +106,3 @@ def afficher():
             
         st.write("**Détail des ressources :**")
         st.table(donnees_tableau)
-
-    # --- 4. ANALYSE DES AJOUTS ---
-    st.divider()
-    st.subheader("📥 Méthode d'ajout (Estimation)")
-    
-    saisie = 0
-    import_photo = 0
-    for r in index:
-        if len(r.get('ingredients', [])) <= 1:
-            import_photo += 1
-        else:
-            saisie += 1
-            
-    c_s1, c_s2 = st.columns(2)
-    c_s1.metric("✍️ Saisies manuelles", saisie)
-    c_s2.metric("📸 Imports / Photos", import_photo)
-    st.progress(saisie / total_recettes if total_recettes > 0 else 0, text="Ratio Saisie vs Import")
