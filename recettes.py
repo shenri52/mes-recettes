@@ -89,28 +89,38 @@ def afficher():
 
 # --- 4. PAGES DE CONTENU ---
 def afficher_consultation():
-    # 1. On définit 'index' en premier pour éviter l'erreur NameError
-    index = charger_index() 
-    
+    index = charger_index()
     st.header("📚 Mes recettes")
 
-    # 2. On crée les colonnes pour mettre le bouton FACE à la liste
-    col_recherche, col_refresh = st.columns([0.9, 0.1])
+    # 1. Garde ta zone de recherche du haut
+    recherche_rapide = st.text_input("Nom, ingrédient...", placeholder="Nom, ingrédient...", label_visibility="collapsed")
+    st.write("---")
 
-    with col_recherche:
-        # Remets ici TA ligne exacte de recherche ou de sélection
-        # Exemple : choix = st.selectbox("Sélectionner", options=[""] + [r['nom'] for r in index], label_visibility="collapsed")
-        recherche = st.text_input("Rechercher...", placeholder="Nom, ingrédient...", label_visibility="collapsed")
+    # 2. Garde ton bloc de filtres (Rechercher, Catégorie, Appareil, Ingrédient)
+    # [Ton code actuel pour les colonnes de filtres ici]
+
+    # 3. Zone "Sélectionner une recette" avec le bouton EN FACE
+    st.write("📖 Sélectionner une recette")
+    
+    # On crée les colonnes ici pour l'alignement horizontal
+    col_select, col_refresh = st.columns([0.9, 0.1])
+
+    with col_select:
+        # Ton sélecteur exact, on cache le label interne pour l'aligner au bouton
+        choix_recette = st.selectbox(
+            "Sélectionner une recette",
+            options=["---"] + [r['nom'] for r in index],
+            label_visibility="collapsed"
+        )
 
     with col_refresh:
-        # Le bouton d'actualisation sur la même ligne
-        if st.button("🔄"):
-            if 'index_recettes' in st.session_state: del st.session_state.index_recettes
-            if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
+        # Le bouton d'actualisation qui vide le cache
+        if st.button("🔄", key="refresh_consult"):
+            if 'index_recettes' in st.session_state: 
+                del st.session_state.index_recettes
+            if 'toutes_recettes' in st.session_state: 
+                del st.session_state.toutes_recettes
             st.rerun()
-
-    # 3. Le reste de ton code (cats, filtres, etc.) peut maintenant utiliser 'index'
-    cats = ["Tous"] + sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
 
     st.write("---")
 
