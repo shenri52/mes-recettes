@@ -42,7 +42,7 @@ def charger_index_local():
 
 # --- INTERFACE DE RÉPARATION ---
 def afficher():
-    st.header("🛠️ Diagnostic et Réparation")
+    st.header("🩺 Diagnostic et réparation")
 
     # INITIALISATION : Nettoyage si on change de page
     if "bouton_analyse_clique" not in st.session_state:
