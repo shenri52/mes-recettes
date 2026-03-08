@@ -491,5 +491,12 @@
             "Ail"
         ],
         "chemin": "data/recettes/20260308_072750_test.json"
+    },
+    {
+        "nom": "test2",
+        "categorie": "tett",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260308_073301_test2.json"
     }
 ]
