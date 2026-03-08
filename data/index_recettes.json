@@ -482,5 +482,14 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "Test",
+        "categorie": "Importé",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ail"
+        ],
+        "chemin": "data/recettes/20260308_072750_test.json"
     }
 ]
