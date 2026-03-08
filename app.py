@@ -45,7 +45,7 @@ if verifier_mot_de_passe():
             changer_page("recettes")
         if st.button("📊 Statistiques", use_container_width=True):
             changer_page("stats")
-        if st.button("🛠️ Diagnostic et Réparation", use_container_width=True):
+        if st.button("🩺 Diagnostic et Réparation", use_container_width=True):
             changer_page("reparer")
 
     # --- 3. Routage (Contenu de la page) ---
