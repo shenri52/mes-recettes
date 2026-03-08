@@ -1,0 +1,46 @@
+{
+    "nom": "Salade Thaï au Quinoa et sauce cacahuète",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Quinoa",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Chou rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Cacahuètes non salées",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre de cacahuètes",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus citron vert",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Gingembre",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète_0.jpg",
+        "data/images/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète_1.jpg"
+    ]
+}
