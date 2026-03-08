@@ -1,5 +1,5 @@
 import streamlit as st
-import importer, saisir, recettes, stats
+import importer, saisir, recettes, stats, reparer
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -45,6 +45,8 @@ if verifier_mot_de_passe():
             changer_page("recettes")
         if st.button("📊 Statistiques", use_container_width=True):
             changer_page("stats")
+        if st.button("📊 Statistiques", use_container_width=True):
+            changer_page("reparer")
 
     # --- 3. Routage (Contenu de la page) ---
     else:
@@ -56,6 +58,8 @@ if verifier_mot_de_passe():
             recettes.afficher()
         elif st.session_state.page == "stats":
             stats.afficher()
+        elif st.session_state.page == "reparer":
+            reparer.afficher()
 
         # --- 4. BOUTON RETOUR ---
         st.write("---") # Petit séparateur avant le bouton retour
