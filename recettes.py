@@ -89,19 +89,28 @@ def afficher():
 
 # --- 4. PAGES DE CONTENU ---
 def afficher_consultation():
-    index = charger_index()
     st.header("📚 Mes recettes")
 
-    # --- BOUTON DE FORÇAGE DE L'ACTUALISATION ---
-    if st.button("🔄 Actualiser la liste", use_container_width=True):
-        # On vide les caches de session pour forcer un nouvel appel GitHub
-        if 'index_recettes' in st.session_state:
-            del st.session_state.index_recettes
-        if 'toutes_recettes' in st.session_state:
-            del st.session_state.toutes_recettes
-        st.rerun()
-    
-    st.write("---") # Petite ligne de séparation visuelle
+    # On crée deux colonnes pour aligner la recherche et le bouton refresh
+    col_recherche, col_refresh = st.columns([0.85, 0.15])
+
+    with col_recherche:
+        # Ta logique de recherche actuelle (exemple avec un text_input ou selectbox)
+        recherche = st.text_input("Rechercher une recette...", placeholder="Ex: Lasagnes, Poulet...", label_visibility="collapsed")
+
+    with col_refresh:
+        # Le bouton d'actualisation placé juste à côté
+        if st.button("🔄", help="Actualiser la liste depuis GitHub"):
+            if 'index_recettes' in st.session_state:
+                del st.session_state.index_recettes
+            if 'toutes_recettes' in st.session_state:
+                del st.session_state.toutes_recettes
+            st.rerun()
+
+    st.write("---")
+
+    # Ici, tu places ta logique de filtrage basée sur la variable 'recherche'
+    # ...
     
     # La suite de ton code (filtres, affichage des cartes, etc.)
 
