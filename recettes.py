@@ -92,36 +92,6 @@ def afficher_consultation():
     index = charger_index()
     st.header("📚 Mes recettes")
 
-    # 1. Garde ta zone de recherche du haut
-    recherche_rapide = st.text_input("Nom, ingrédient...", placeholder="Nom, ingrédient...", label_visibility="collapsed")
-    st.write("---")
-
-    # 2. Garde ton bloc de filtres (Rechercher, Catégorie, Appareil, Ingrédient)
-    # [Ton code actuel pour les colonnes de filtres ici]
-
-    # 3. Zone "Sélectionner une recette" avec le bouton EN FACE
-    st.write("📖 Sélectionner une recette")
-    
-    # On crée les colonnes ici pour l'alignement horizontal
-    col_select, col_refresh = st.columns([0.9, 0.1])
-
-    with col_select:
-        # Ton sélecteur exact, on cache le label interne pour l'aligner au bouton
-        choix_recette = st.selectbox(
-            "Sélectionner une recette",
-            options=["---"] + [r['nom'] for r in index],
-            label_visibility="collapsed"
-        )
-
-    with col_refresh:
-        # Le bouton d'actualisation qui vide le cache
-        if st.button("🔄", key="refresh_consult"):
-            if 'index_recettes' in st.session_state: 
-                del st.session_state.index_recettes
-            if 'toutes_recettes' in st.session_state: 
-                del st.session_state.toutes_recettes
-            st.rerun()
-
     st.write("---")
 
     # Ici, tu places ta logique de filtrage basée sur la variable 'recherche'
