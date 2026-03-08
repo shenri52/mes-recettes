@@ -18,37 +18,34 @@ def config_github():
         }
     }
 
-def recuperer_ingredients_existants():
+def recuperer_donnees_index():
     conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
     try:
-        res = requests.get(url, headers=conf['headers'])
-        ingredients_trouves = [""]
+        res = requests.get(url)
+        ingredients = [""]
+        cocktails = [""]
         if res.status_code == 200:
-            fichiers = res.json()
-            for f in fichiers:
-                if f['name'].endswith('.json'):
-                    r_res = requests.get(f"{f['download_url']}?v={f['sha']}")
-                    if r_res.status_code == 200:
-                        data = r_res.json()
-                        for ing in data.get('ingredients', []):
-                            nom = ing.get('Ingrédient')
-                            if nom and nom not in ingredients_trouves: ingredients_trouves.append(nom)
-        return sorted(list(set(ingredients_trouves)))
-    except: return [""]
+            index_data = res.json()
+            for r in index_data:
+                # Extraction ingrédients
+                for ing in r.get('ingredients', []):
+                    if ing and ing not in ingredients: ingredients.append(ing)
+                # Extraction cocktail (si présent dans l'index)
+                c_nom = r.get('cocktail')
+                if c_nom and c_nom not in cocktails: cocktails.append(c_nom)
+        return sorted(list(set(ingredients))), sorted(list(set(cocktails)))
+    except:
+        return [""], [""]
 
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    
-    # Récupération du SHA pour permettre la mise à jour (nécessaire pour l'index)
     res_get = requests.get(url, headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    
     cnt = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
     payload = {"message": message, "content": cnt, "branch": "main"}
     if sha: payload["sha"] = sha
-    
     res = requests.put(url, headers=conf['headers'], json=payload)
     return res.status_code in [200, 201]
 
@@ -58,9 +55,11 @@ def afficher():
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
     if 'liste_choix_img' not in st.session_state: st.session_state.liste_choix_img = [""]
+    if 'liste_cocktails_img' not in st.session_state: st.session_state.liste_cocktails_img = [""]
 
+    # Chargement initial des listes depuis l'index
     if len(st.session_state.liste_choix_img) <= 1:
-        st.session_state.liste_choix_img = recuperer_ingredients_existants()
+        st.session_state.liste_choix_img, st.session_state.liste_cocktails_img = recuperer_donnees_index()
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"ni_{st.session_state.form_count_img}")
@@ -73,8 +72,17 @@ def afficher():
         with c_cuis:
             tps_cuis = st.text_input("Temps cuisson", key=f"cui_{st.session_state.form_count_img}", placeholder="ex: 5 min")
 
+        # --- SECTION COCKTAIL ---
+        st.write("---")
+        col_cock, col_n_cock = st.columns([2, 1])
+        with col_cock:
+            opts_cock = sorted(st.session_state.liste_cocktails_img) + ["➕ Nouveau Cocktail..."]
+            choix_cock = st.selectbox("Associer à un Cocktail", options=opts_cock, key=f"ck_{st.session_state.form_count_img}")
+            cocktail_final = st.text_input("Nom du nouveau cocktail", key=f"nck_{st.session_state.form_count_img}") if choix_cock == "➕ Nouveau Cocktail..." else choix_cock
+
+        # --- SECTION INGRÉDIENTS ---
+        st.write("---")
         col_ing, col_btn_add = st.columns([2, 0.5])
-        
         with col_ing:
             options = sorted(st.session_state.liste_choix_img) + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=options, key=f"si_{st.session_state.form_count_img}")
@@ -113,18 +121,16 @@ def afficher():
                     "temps_preparation": tps_prep,
                     "temps_cuisson": tps_cuis,
                     "ingredients": st.session_state.ingredients_img, 
+                    "cocktail": cocktail_final,
                     "etapes": "Voir image jointe", 
                     "images": liste_medias
                 }
                 
-                # Enregistrement du fichier recette
                 if envoyer_vers_github(chemin_recette, json.dumps(data, indent=4, ensure_ascii=False), "Import"):
-                    
-                    # --- MISE À JOUR DE L'INDEX ---
+                    # MISE À JOUR DE L'INDEX
                     conf = config_github()
                     url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
                     res_idx = requests.get(url_idx)
-                    
                     index_data = res_idx.json() if res_idx.status_code == 200 else []
                     
                     index_data.append({
@@ -132,15 +138,14 @@ def afficher():
                         "categorie": "Importé",
                         "appareil": type_appareil,
                         "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img],
+                        "cocktail": cocktail_final,
                         "chemin": chemin_recette
                     })
                     
                     envoyer_vers_github("data/index_recettes.json", json.dumps(index_data, indent=4, ensure_ascii=False), "MAJ Index")
-                    # --- FIN MISE À JOUR INDEX ---
 
                     st.success("Importé !")
                     st.session_state.ingredients_img = []
                     if 'index_recettes' in st.session_state: del st.session_state.index_recettes
-                    if 'toutes_recettes' in st.session_state: del st.session_state.toutes_recettes
                     st.session_state.form_count_img += 1
                     st.rerun()
