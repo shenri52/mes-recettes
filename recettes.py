@@ -142,7 +142,7 @@ def afficher_consultation():
         recette = requests.get(url_full).json()
         
         st.subheader(recette['nom'].upper())
-        st.info(f"📁 {recette.get('categorie')} | 🛠️ {recette.get('appareil')}")
+        st.info(f"📁 {recette.get('categorie')} | 🛠️ Appareil : 🛠️ {recette.get('appareil')}")
         
         col_t, col_i = st.columns([1, 1])
         with col_t:
