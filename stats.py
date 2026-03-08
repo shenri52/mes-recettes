@@ -35,7 +35,7 @@ def afficher():
 
     # --- 1. CHIFFRES CLÉS ---
     total_recettes = len(index)
-    st.metric("Nombre total de recettes", total_recettes)
+    st.info(f"📊 **Nombre total de recettes :** {total_recettes}")
     
     st.divider()
 
@@ -89,24 +89,3 @@ def afficher():
         st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
         st.write("**Détail des fichiers présents :**")
         st.table({"Type": compte_fichiers.keys(), "Nombre": compte_fichiers.values()})
-
-    # --- 4. ANALYSE DES AJOUTS (Saisie vs Import) ---
-    st.divider()
-    st.subheader("📥 Méthode d'ajout (Estimation)")
-    
-    # On estime qu'une recette avec moins de 2 ingrédients est un import photo/scan
-    saisie = 0
-    import_photo = 0
-    
-    for r in index:
-        # On vérifie si les ingrédients sont détaillés ou non
-        if len(r.get('ingredients', [])) <= 1:
-            import_photo += 1
-        else:
-            saisie += 1
-            
-    c_s1, c_s2 = st.columns(2)
-    c_s1.metric("✍️ Saisies manuelles", saisie)
-    c_s2.metric("📸 Imports / Photos", import_photo)
-    
-    st.progress(saisie / total_recettes if total_recettes > 0 else 0, text="Ratio Saisie vs Import")
