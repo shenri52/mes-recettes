@@ -1,5 +1,19 @@
 [
     {
+        "nom": "Blanquette de poireaux au poiré",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Champignons",
+            "Beurre de baratte",
+            "Poiré (cidre de poire)",
+            "Crème fraiche",
+            "Jaune d'oeufs"
+        ],
+        "chemin": "data/recettes/20260308_110523_blanquette_de_poireaux_au_poiré.json"
+    },
+    {
         "nom": "Boeuf Stroganoff",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -13,6 +27,18 @@
             "Bouillon de boeuf"
         ],
         "chemin": "data/recettes/20260307_155721_boeuf_stroganoff.json"
+    },
+    {
+        "nom": "Brandle",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Gin",
+            "Crème de mûre",
+            "Jus de citron",
+            "Sirop de sucre de canne"
+        ],
+        "chemin": "data/recettes/20260308_105455_brandle.json"
     },
     {
         "nom": "Cookie façon brownie",
@@ -254,6 +280,17 @@
         "chemin": "data/recettes/20260307_172401_poireaux_fondants,_pois_chiches_et_lait_de_coco.json"
     },
     {
+        "nom": "Poireaux vinaigrette façon bistrot",
+        "categorie": "Entrée",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Oeuf",
+            "Moutarde en grain"
+        ],
+        "chemin": "data/recettes/20260308_110842_poireaux_vinaigrette_façon_bistrot.json"
+    },
+    {
         "nom": "Pois chiches apéro",
         "categorie": "Divers",
         "appareil": "Ninja",
@@ -293,6 +330,17 @@
             "Huile olive"
         ],
         "chemin": "data/recettes/20260307_100916_poulet_cremeux_au_paprika.json"
+    },
+    {
+        "nom": "Poulet sauce Boursin ai et fines herbes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
     },
     {
         "nom": "Ragout aux haricots blancs et boeuf",
@@ -409,6 +457,22 @@
         "chemin": "data/recettes/20260307_172033_salade_quinoa_et_légumes_rôtis.json"
     },
     {
+        "nom": "Salade Thaï au Quinoa et sauce cacahuète",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Quinoa",
+            "Chou rouge",
+            "Carottes",
+            "Poivron rouge",
+            "Cacahuètes non salées",
+            "Beurre de cacahuètes",
+            "Jus citron vert",
+            "Gingembre"
+        ],
+        "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
+    },
+    {
         "nom": "Soupe au chou Zéro point",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -459,70 +523,6 @@
         "chemin": "data/recettes/20260307_173318_soupe_thai.json"
     },
     {
-        "nom": "Velouté de courgettes et épinards au lait de coco",
-        "categorie": "Soupe",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Courgette",
-            "Epinards frais",
-            "Oignon",
-            "Bouillon de légumes",
-            "Lait de coco",
-            "Curcuma"
-        ],
-        "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "Brandle",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Gin",
-            "Crème de mûre",
-            "Jus de citron",
-            "Sirop de sucre de canne"
-        ],
-        "chemin": "data/recettes/20260308_105455_brandle.json"
-    },
-    {
-        "nom": "Salade Thaï au Quinoa et sauce cacahuète",
-        "categorie": "Salade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Quinoa",
-            "Chou rouge",
-            "Carottes",
-            "Poivron rouge",
-            "Cacahuètes non salées",
-            "Beurre de cacahuètes",
-            "Jus citron vert",
-            "Gingembre"
-        ],
-        "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
-    },
-    {
-        "nom": "Poireaux vinaigrette façon bistrot",
-        "categorie": "Entrée",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Poireaux",
-            "Oeuf",
-            "Moutarde en grain"
-        ],
-        "chemin": "data/recettes/20260308_110842_poireaux_vinaigrette_façon_bistrot.json"
-    },
-    {
-        "nom": "Poulet sauce Boursin ai et fines herbes",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Filet de poulet",
-            "Boursin",
-            "Crème fraiche"
-        ],
-        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
-    },
-    {
         "nom": "Tartines à l'avocat, Feta, Tomates cerises, Cranberries et Noix",
         "categorie": "Tartines de pain",
         "appareil": "Aucun",
@@ -536,5 +536,19 @@
             "Cranberries"
         ],
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
+    },
+    {
+        "nom": "Velouté de courgettes et épinards au lait de coco",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Courgette",
+            "Epinards frais",
+            "Oignon",
+            "Bouillon de légumes",
+            "Lait de coco",
+            "Curcuma"
+        ],
+        "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
     }
 ]
