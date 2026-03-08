@@ -39,7 +39,7 @@ def afficher():
     
     st.divider()
 
-    # --- 2. RÉPARTITION PAR CATÉGORIE ET APPAREIL ---
+    # --- 2. RÉPARTITION PAR CATÉGORIE ET APPAREIL (TABLEAUX) ---
     col1, col2 = st.columns(2)
     
     with col1:
@@ -48,7 +48,10 @@ def afficher():
         for r in index:
             cat = r.get('categorie', 'Non classé')
             stats_cat[cat] = stats_cat.get(cat, 0) + 1
-        st.bar_chart(stats_cat)
+        
+        # Transformation du dictionnaire en liste pour le tableau
+        tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
+        st.table(tab_cat)
 
     with col2:
         st.subheader("🛠️ Par Appareil")
@@ -56,7 +59,10 @@ def afficher():
         for r in index:
             app = r.get('appareil', 'Aucun')
             stats_app[app] = stats_app.get(app, 0) + 1
-        st.bar_chart(stats_app)
+        
+        # Transformation du dictionnaire en liste pour le tableau
+        tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
+        st.table(tab_app)
 
     st.divider()
 
@@ -71,7 +77,6 @@ def afficher():
         tree = res.json().get('tree', [])
         
         poids_total = 0
-        # Initialisation des compteurs (Nombre et Poids)
         stats_fichiers = {
             "JSON (Recettes)": {"nombre": 0, "poids": 0},
             "Images (Photos)": {"nombre": 0, "poids": 0},
@@ -95,15 +100,12 @@ def afficher():
 
         st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
         
-        # Préparation du tableau avec formatage strict à 2 décimales
         donnees_tableau = []
         for type_f, info in stats_fichiers.items():
             poids_mo = info["poids"] / (1024 * 1024)
-            
             donnees_tableau.append({
                 "Type de fichier": type_f,
                 "Nombre": info["nombre"],
-                # Le formatage :.2f garantit l'affichage du 0 (ex: 0.20 Mo)
                 "Poids (Mo)": f"{poids_mo:.2f}"
             })
             
