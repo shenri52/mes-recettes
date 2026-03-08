@@ -3,10 +3,61 @@ import requests
 import json
 import base64
 import time
-from app import charger_index, config_github, supprimer_fichier_github, sauvegarder_index_global
+
+# --- 1. CONFIGURATION TECHNIQUE ---
+def config_github():
+    return {
+        "token": st.secrets["GITHUB_TOKEN"],
+        "owner": st.secrets["REPO_OWNER"],
+        "repo": st.secrets["REPO_NAME"],
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+    }
+
+def envoyer_vers_github(chemin, contenu, message):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    contenu_b64 = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
+    data = {"message": message, "content": contenu_b64, "branch": "main"}
+    if sha: data["sha"] = sha
+    res = requests.put(url, headers=conf['headers'], json=data)
+    return res.status_code in [200, 201]
+
+def supprimer_fichier_github(chemin):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
+    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+    if get_res.status_code == 200:
+        sha = get_res.json()['sha']
+        requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
+        return True
+    return False
+
+# --- 2. GESTION DE L'INDEX ---
+def charger_index():
+    if 'index_recettes' not in st.session_state:
+        conf = config_github()
+        url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
+        res = requests.get(url)
+        if res.status_code == 200:
+            st.session_state.index_recettes = res.json()
+        else:
+            st.session_state.index_recettes = []
+    return st.session_state.index_recettes
+
+def sauvegarder_index_global(index_maj):
+    index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
+    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
+        st.session_state.index_recettes = index_trie
+        return True
+    return False
 
 # --- 4. CONSULTATION ---
-def afficher():
+def afficher_consultation():
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
@@ -69,11 +120,10 @@ def afficher():
             for i in recette.get('ingredients', []):
                 st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
             st.write(f"**Instructions :**\n{recette.get('etapes')}")
-        
         with col_i:
             images = recette.get('images', [])
             if images:
-                # Gestion de l'index pour la navigation des photos
+                # --- AJOUT NAVIGATION ---
                 if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                     st.session_state.img_idx = 0
                     st.session_state.last_recette = choix
@@ -81,7 +131,6 @@ def afficher():
                 img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                 st.image(img_url, use_container_width=True)
                 
-                # Boutons de navigation si plusieurs images existent
                 if len(images) > 1:
                     nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
                     if nb_col1.button("⬅️", key="prev_img"):
@@ -91,6 +140,7 @@ def afficher():
                     if nb_col3.button("➡️", key="next_img"):
                         st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
                         st.rerun()
+                # --- FIN NAVIGATION ---
 
         st.divider()
         b1, b2 = st.columns(2)
