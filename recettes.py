@@ -41,7 +41,6 @@ def afficher():
     st.header("📚 Mes recettes")
     conf = config_github()
     
-    # 1. On récupère seulement la liste des fichiers (rapide)
     url_dossier = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/recettes?t={int(time.time())}"
     res_dossier = requests.get(url_dossier, headers=conf['headers'])
     
@@ -53,26 +52,24 @@ def afficher():
         st.divider()
 
         for idx, f in enumerate(jsons_uniques):
-            # Nom affiché basé sur le nom du fichier pour l'instantanéité
-            nom_affiche = f['name'].replace('.json', '').replace('_', ' ').upper()
+            # ON CHARGE LE CONTENU DIRECTEMENT POUR AVOIR LE VRAI NOM
+            raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
+            res_file = requests.get(raw_url)
             
-            if recherche and recherche not in nom_affiche.lower():
-                continue
+            if res_file.status_code == 200:
+                rec = res_file.json()
+                rec['chemin_json'] = f['path']
+                vrai_nom = rec.get('nom', 'Sans nom').upper()
 
-            with st.expander(f"📖 {nom_affiche}"):
-                # --- CHARGEMENT DU CONTENU UNIQUEMENT SI L'EXPANDER EST OUVERT ---
-                raw_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{f['path']}?v={f['sha']}"
-                res_file = requests.get(raw_url)
-                
-                if res_file.status_code == 200:
-                    rec = res_file.json()
-                    rec['chemin_json'] = f['path']
-                    
+                if recherche and recherche not in vrai_nom.lower():
+                    continue
+
+                with st.expander(f"📖 {vrai_nom}"):
                     m_edit = f"edit_{idx}"
                     if m_edit not in st.session_state: st.session_state[m_edit] = False
 
                     if st.session_state[m_edit]:
-                        # --- MODE MODIFICATION ORIGINAL ---
+                        # --- MODE MODIFICATION ---
                         with st.form(key=f"f_edit_{idx}"):
                             e_nom = st.text_input("Nom", value=rec.get('nom', ''))
                             c1, c2, c3 = st.columns(3)
@@ -111,7 +108,7 @@ def afficher():
                                 st.session_state[m_edit] = False
                                 st.rerun()
                     else:
-                        # --- MODE LECTURE ORIGINAL ---
+                        # --- MODE LECTURE ---
                         t_prep = rec.get('temps_preparation', '')
                         t_cuis = rec.get('temps_cuisson', '')
                         if t_prep or t_cuis:
@@ -160,9 +157,6 @@ def afficher():
                         if b2.button(f"✍️ Modifier la recette", key=f"edit_btn_{idx}", use_container_width=True):
                             st.session_state[m_edit] = True
                             st.rerun()
-                else:
-                    st.error("Erreur de chargement.")
 
-# Appel de la fonction pour Streamlit
 if __name__ == "__main__":
     afficher()
