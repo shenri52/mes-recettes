@@ -501,17 +501,14 @@
         "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
     },
     {
-        "nom": "Blanquette de poireaux au poiré",
-        "categorie": "Plat",
+        "nom": "Poireaux vinaigrette façon bistrot",
+        "categorie": "Entrée",
         "appareil": "Aucun",
         "ingredients": [
             "Poireaux",
-            "Champignons",
-            "Beurre de baratte",
-            "Poiré (cidre de poire)",
-            "Crème fraiche",
-            "Jaune d'oeufs"
+            "Oeuf",
+            "Moutarde en grain"
         ],
-        "chemin": "data/recettes/20260308_110523_blanquette_de_poireaux_au_poiré.json"
+        "chemin": "data/recettes/20260308_110842_poireaux_vinaigrette_façon_bistrot.json"
     }
 ]
