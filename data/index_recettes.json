@@ -483,5 +483,21 @@
             "Sirop de sucre de canne"
         ],
         "chemin": "data/recettes/20260308_105455_brandle.json"
+    },
+    {
+        "nom": "Salade Thaï au Quinoa et sauce cacahuète",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Quinoa",
+            "Chou rouge",
+            "Carottes",
+            "Poivron rouge",
+            "Cacahuètes non salées",
+            "Beurre de cacahuètes",
+            "Jus citron vert",
+            "Gingembre"
+        ],
+        "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
     }
 ]
