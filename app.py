@@ -1,5 +1,5 @@
 import streamlit as st
-import importer, saisir, recettes, stats, maintenance
+import importer, saisir, recettes, stats, maintenance, planning
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -53,7 +53,7 @@ if verifier_mot_de_passe():
 
         # Ligne 3 : Planning
         if st.button("📅 Mon Planning", use_container_width=True):
-            st.info("Module Planning bientôt disponible")
+            changer_page("planning")
 
         # Ligne 4 : Sur 2 colonnes
         col3, col4 = st.columns(2)
@@ -74,6 +74,8 @@ if verifier_mot_de_passe():
             recettes.afficher()
         elif st.session_state.page == "stats":
             stats.afficher()
+        elif st.session_state.page == "planning":
+            planning.afficher()
         elif st.session_state.page == "maintenance":
             maintenance.afficher()
 
