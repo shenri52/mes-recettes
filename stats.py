@@ -37,8 +37,6 @@ def afficher():
     total_recettes = len(index)
     st.info(f"📊 **Nombre total de recettes :** {total_recettes}")
     
-    st.divider()
-
     # --- 2. RÉPARTITION PAR CATÉGORIE ET APPAREIL (TABLEAUX) ---
     col1, col2 = st.columns(2)
     
@@ -111,3 +109,5 @@ def afficher():
             
         st.write("**Détail des ressources :**")
         st.table(donnees_tableau)
+
+    st.divider()
