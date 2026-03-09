@@ -69,7 +69,7 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES (4 colonnes d'origine)
+    # FILTRES
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
@@ -77,14 +77,17 @@ def afficher():
     cats = ["Tous"] + cats_existantes
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
-    tous_ings = []
+    # Liste globale de TOUS les ingrédients pour les listes déroulantes
+    tous_ings_bruts = []
     for r in index: 
-        if r.get('ingredients'): tous_ings.extend(r['ingredients'])
-    ings = ["Tous"] + sorted(list(set(tous_ings)))
+        if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
+    liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
+    
+    ings_filtre = ["Tous"] + liste_ingredients_unique
 
     f_cat = c2.selectbox("Catégorie", cats)
-    f_app = c3.selectbox("🤖 Appareil", apps) # Icône Robot
-    f_ing = c4.selectbox("Ingrédient", ings)
+    f_app = c3.selectbox("Appareil", apps)
+    f_ing = c4.selectbox("Ingrédient", ings_filtre)
 
     # Filtrage
     resultats = [
@@ -117,7 +120,6 @@ def afficher():
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         recette = requests.get(url_full).json()
 
-        # --- LOGIQUE DE MODIFICATION INTERNE ---
         m_edit = f"edit_{info['chemin']}"
         if m_edit not in st.session_state: st.session_state[m_edit] = False
 
@@ -126,15 +128,13 @@ def afficher():
                 st.subheader("✍️ Modification")
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 
-                # Catégorie en liste déroulante
                 cat_actuelle = recette.get('categorie', 'Non classé')
                 if cat_actuelle not in cats_existantes: cats_existantes.append(cat_actuelle)
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(cat_actuelle))
                 
                 e_app = st.selectbox("🤖 Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
                                    index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
-                
-                # --- NOUVELLE GESTION DES INGRÉDIENTS (Style Saisir) ---
+
                 st.write("**Ingrédients**")
                 state_key = f"ings_edit_{info['chemin']}"
                 if state_key not in st.session_state:
@@ -144,20 +144,24 @@ def afficher():
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n = st.columns([1, 2])
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
-                    n = col_n.text_input(f"Nom", value=ing.get('Ingrédient', ''), key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
+                    
+                    # --- LISTE DÉROULANTE POUR LES INGRÉDIENTS ---
+                    ing_nom = ing.get('Ingrédient', '')
+                    options_ing = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
+                    idx_ing = options_ing.index(ing_nom) if ing_nom in options_ing else 0
+                    
+                    n = col_n.selectbox(f"Nom", options=options_ing, index=idx_ing, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     new_ingredients.append({"Ingrédient": n, "Quantité": q})
 
                 if st.form_submit_button("➕ Ajouter un ingrédient"):
-                    st.session_state[state_key].append({"Ingrédient": "", "Quantité": ""})
+                    st.session_state[state_key].append({"Ingrédient": liste_ingredients_unique[0] if liste_ingredients_unique else "", "Quantité": ""})
                     st.rerun()
 
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
                 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("✅ Enregistrer", use_container_width=True):
-                    # Filtrer les ingrédients vides
                     ings_final = [i for i in new_ingredients if i['Ingrédient'].strip()]
-                    
                     recette_maj = recette.copy()
                     recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_final, "etapes": e_etapes})
                     
