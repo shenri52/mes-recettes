@@ -47,15 +47,15 @@ def afficher():
 
     c1, c2, c3 = st.columns([1, 3, 1])
     with c1:
-        if st.button("⬅️", use_container_width=True): 
+        if st.button("⬅️", key="prev_sem", use_container_width=True): 
             st.session_state.offset_semaine -= 1
             st.rerun()
     with c2:
-        if st.button(f"Du {date_range_str}", use_container_width=True):
+        if st.button(f"Du {date_range_str}", key="reset_sem", use_container_width=True):
             st.session_state.offset_semaine = 0
             st.rerun()
     with c3:
-        if st.button("➡️", use_container_width=True):
+        if st.button("➡️", key="next_sem", use_container_width=True):
             st.session_state.offset_semaine += 1
             st.rerun()
 
@@ -65,7 +65,6 @@ def afficher():
     
     st.write("") 
     c_head_label, c_head_m, c_head_s = st.columns([1.2, 2, 2])
-    # Rétablissement du centrage des titres
     with c_head_m: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Midi</p>", unsafe_allow_html=True)
     with c_head_s: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Soir</p>", unsafe_allow_html=True)
     st.divider()
@@ -79,13 +78,15 @@ def afficher():
 
         col_d, col_m, col_s = st.columns([1.2, 2, 2])
         
-        # Vérification et application du jour actuel
-        bg = "#e1f5fe" if d_j == aujourdhui else "transparent"
-        border = "2px solid #0288d1" if d_j == aujourdhui else "1px solid #ddd"
+        is_today = (d_j == aujourdhui)
+        bg = "#e1f5fe" if is_today else "transparent"
+        border = "2px solid #0288d1" if is_today else "1px solid #ddd"
+        # On force la couleur du texte pour que ce soit lisible sur le bleu
+        text_color = "#000000" if is_today else "inherit"
         
         col_d.markdown(f"""
-            <div style='background:{bg}; padding:10px; border-radius:5px; border:{border}; height:102px; display:flex; flex-direction:column; justify-content:center;'>
-                <small>{nom}</small><br><b>{d_j.strftime('%d/%m/%y')}</b>
+            <div style='background:{bg}; color:{text_color}; padding:10px; border-radius:5px; border:{border}; height:102px; display:flex; flex-direction:column; justify-content:center;'>
+                <small style='color:{text_color}; font-weight:normal;'>{nom}</small><br><b style='color:{text_color}; font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
             </div>
         """, unsafe_allow_html=True)
 
@@ -110,7 +111,7 @@ def afficher():
             time.sleep(1)
             st.rerun()
 
-    if b2.button("Liste des courses", use_container_width=True):
+    if b2.button("🛒 Liste des courses", use_container_width=True):
         liste_ingredients = []
         for i in range(7):
             d_str = (debut + datetime.timedelta(days=i)).isoformat()
