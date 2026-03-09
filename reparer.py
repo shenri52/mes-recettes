@@ -29,7 +29,6 @@ def envoyer_vers_github(chemin, contenu, message):
     res = requests.put(url, headers=conf['headers'], json=data)
     return res.status_code in [200, 201]
 
-# Nouvelle fonction spécifique pour les images (format binaire)
 def envoyer_image_vers_github(chemin, contenu_octets, message):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
@@ -58,8 +57,8 @@ def afficher():
         if "a_reparer" in st.session_state:
             del st.session_state.a_reparer
 
-    # --- SECTION 1 : RÉPARER L'INDEX (TON CODE ORIGINAL) ---
-    if st.button("🔍 Réparer l'index des recettes"):
+    # --- SECTION 1 : RÉPARER L'INDEX ---
+    if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         conf = config_github()
         
@@ -102,7 +101,7 @@ def afficher():
     if "a_reparer" in st.session_state and st.session_state.a_reparer:
         st.divider()
         st.info("Voulez-vous intégrer ces fichiers à l'index ?")
-        if st.button("🚀 Appliquer la réparation"):
+        if st.button("🚀 Appliquer la réparation", use_container_width=True):
             with st.spinner("Synchronisation..."):
                 manquantes = st.session_state.a_reparer
                 index_actuel = charger_index_local()
@@ -129,16 +128,14 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-    # --- SECTION 2 : COMPRESSION DES IMAGES (AJOUT) ---
-    
-    if st.button("🖼️ Optimisation des Images"):
+    # --- SECTION 2 : COMPRESSION DES IMAGES ---
+    if st.button("🖼️ Optimisation des Images", use_container_width=True):
         conf = config_github()
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
         res = requests.get(url_tree, headers=conf['headers'])
         
         if res.status_code == 200:
             tree = res.json().get('tree', [])
-            # On cherche les images > 500 Ko
             lourdes = [i for i in tree if i['path'].lower().endswith(('.jpg', '.jpeg', '.png')) and i.get('size', 0) > 500 * 1024]
             
             if lourdes:
@@ -152,7 +149,7 @@ def afficher():
             st.error("Erreur GitHub.")
 
     if "images_a_compresser" in st.session_state:
-        if st.button("⚡ Lancer la compression sans perte"):
+        if st.button("⚡ Lancer la compression sans perte", use_container_width=True):
             barre = st.progress(0)
             lourdes = st.session_state.images_a_compresser
             for idx, img_info in enumerate(lourdes):
@@ -160,7 +157,6 @@ def afficher():
                 res = requests.get(url_raw)
                 if res.status_code == 200:
                     image_pil = Image.open(io.BytesIO(res.content))
-                    # Compression JPEG optimisée
                     buffer = io.BytesIO()
                     image_pil.save(buffer, format="JPEG", quality=80, optimize=True)
                     if envoyer_image_vers_github(img_info['path'], buffer.getvalue(), "📸 Compression image"):
