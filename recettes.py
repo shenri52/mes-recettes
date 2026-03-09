@@ -132,7 +132,7 @@ def afficher():
                 if cat_actuelle not in cats_existantes: cats_existantes.append(cat_actuelle)
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(cat_actuelle))
                 
-                e_app = st.selectbox("🤖 Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
                                    index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
 
                 st.write("**Ingrédients**")
