@@ -75,7 +75,7 @@ def afficher():
     ings = ["Tous"] + sorted(list(set(tous_ings)))
 
     f_cat = c2.selectbox("Catégorie", cats)
-    f_app = c3.selectbox("🍳 Appareil", apps) # Icône mise à jour ici
+    f_app = c3.selectbox("🍳 Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ings)
 
     # Filtrage
@@ -90,7 +90,6 @@ def afficher():
     noms_filtres = [r['nom'].upper() for r in resultats]
     id_unique = f"sel_{recherche}_{f_cat}_{f_app}_{f_ing}"
     
-    # --- ZONE SÉLECTEUR + ICÔNE ACTUALISER ---
     st.write("📖 Sélectionner une recette")
     col_liste, col_btn = st.columns([0.9, 0.1])
 
@@ -109,51 +108,86 @@ def afficher():
         info = resultats[noms_filtres.index(choix)]
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         recette = requests.get(url_full).json()
-        
-        st.subheader(recette['nom'].upper())
-        
-        col_t, col_i = st.columns([1, 1])
-        with col_t:
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            
-            st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
-            st.write(f"**🍳 Appareil :** {recette.get('appareil', 'Aucun')}")
-            st.write("**Ingrédients :**")
-            for i in recette.get('ingredients', []):
-                st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-            st.write(f"**Instructions :**\n{recette.get('etapes')}")
-        
-        with col_i:
-            images = recette.get('images', [])
-            if images:
-                if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
-                    st.session_state.img_idx = 0
-                    st.session_state.last_recette = choix
 
-                img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
-                st.image(img_url, use_container_width=True)
+        # --- LOGIQUE DE MODIFICATION INTERNE ---
+        m_edit = f"edit_{info['chemin']}"
+        if m_edit not in st.session_state: st.session_state[m_edit] = False
+
+        if st.session_state[m_edit]:
+            with st.form(key=f"f_edit_{info['chemin']}"):
+                st.subheader("✍️ Modification")
+                e_nom = st.text_input("Nom", value=recette.get('nom', ''))
+                e_cat = st.text_input("Catégorie", value=recette.get('categorie', ''))
+                e_app = st.selectbox("🍳 Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                                   index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
                 
-                if len(images) > 1:
-                    nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
-                    if nb_col1.button("⬅️", key="prev_img"):
-                        st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                ing_txt = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in recette.get('ingredients', [])])
+                e_ings = st.text_area("Ingrédients (Qté | Nom)", value=ing_txt)
+                e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
+                
+                c_save, c_cancel = st.columns(2)
+                if c_save.form_submit_button("✅ Enregistrer", use_container_width=True):
+                    new_ings = []
+                    for l in e_ings.strip().split('\n'):
+                        if "|" in l:
+                            p = l.split("|", 1)
+                            new_ings.append({"Ingrédient": p[1].strip(), "Quantité": p[0].strip()})
+                        elif l.strip():
+                            new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
+                    
+                    recette.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes})
+                    
+                    if envoyer_vers_github(info['chemin'], json.dumps(recette, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
+                        # Mise à jour de l'index sans tout recharger
+                        for item in index:
+                            if item['chemin'] == info['chemin']:
+                                item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in new_ings]})
+                        sauvegarder_index_global(index)
+                        st.session_state[m_edit] = False
                         st.rerun()
-                    nb_col2.write(f"{st.session_state.img_idx + 1} / {len(images)}")
-                    if nb_col3.button("➡️", key="next_img"):
-                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                        st.rerun()
+                
+                if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
+                    st.session_state[m_edit] = False
+                    st.rerun()
+        else:
+            # --- AFFICHAGE LECTURE ---
+            st.subheader(recette['nom'].upper())
+            col_t, col_i = st.columns([1, 1])
+            with col_t:
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
+                st.write(f"**🍳 Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write("**Ingrédients :**")
+                for i in recette.get('ingredients', []):
+                    st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                st.write(f"**Instructions :**\n{recette.get('etapes')}")
+            
+            with col_i:
+                images = recette.get('images', [])
+                if images:
+                    if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
+                        st.session_state.img_idx = 0
+                        st.session_state.last_recette = choix
+                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
+                    st.image(img_url, use_container_width=True)
+                    if len(images) > 1:
+                        nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
+                        if nb_col1.button("⬅️", key="prev_img"):
+                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                            st.rerun()
+                        nb_col2.write(f"{st.session_state.img_idx + 1} / {len(images)}")
+                        if nb_col3.button("➡️", key="next_img"):
+                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                            st.rerun()
 
-        st.divider()
-        b1, b2 = st.columns(2)
-        if b1.button("🗑️ Supprimer", use_container_width=True):
-            if supprimer_fichier_github(info['chemin']):
-                nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                sauvegarder_index_global(nouvel_index)
+            st.divider()
+            b1, b2 = st.columns(2)
+            if b1.button("🗑️ Supprimer", use_container_width=True):
+                if supprimer_fichier_github(info['chemin']):
+                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                    sauvegarder_index_global(nouvel_index)
+                    st.rerun()
+            
+            if b2.button("✍️ Modifier", use_container_width=True):
+                st.session_state[m_edit] = True
                 st.rerun()
-        
-        # --- LOGIQUE DE MODIFICATION ACTIVÉE ---
-        if b2.button("✍️ Modifier", use_container_width=True):
-            st.session_state.recette_a_modifier = recette
-            st.session_state.chemin_a_modifier = info['chemin']
-            st.session_state.page = "Saisir" # Redirige vers la page de saisie
-            st.rerun()
