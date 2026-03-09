@@ -4,6 +4,7 @@ import json
 import requests
 import time
 import base64
+from collections import Counter
 
 # --- FONCTIONS TECHNIQUES ---
 def config_github():
@@ -11,10 +12,7 @@ def config_github():
         "token": st.secrets["GITHUB_TOKEN"],
         "owner": st.secrets["REPO_OWNER"],
         "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
+        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"}
     }
 
 def charger_donnees(chemin):
@@ -30,113 +28,92 @@ def sauvegarder_github(chemin, contenu_dict):
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
     contenu_json = json.dumps(contenu_dict, indent=4, ensure_ascii=False)
     contenu_b64 = base64.b64encode(contenu_json.encode('utf-8')).decode('utf-8')
-    data = {"message": "MAJ Planning", "content": contenu_b64, "branch": "main"}
-    if sha: data["sha"] = sha
-    res = requests.put(url, headers=conf['headers'], json=data)
-    return res.status_code in [200, 201]
+    data = {"message": "MAJ Planning", "content": contenu_b64, "branch": "main", "sha": sha} if sha else {"message": "MAJ Planning", "content": contenu_b64, "branch": "main"}
+    return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
 # --- INTERFACE PLANNING ---
 def afficher():
     st.header("Planning")
 
-    # Initialisation des donnees dans la session
-    if 'index_complet' not in st.session_state:
-        st.session_state.index_complet = charger_donnees("data/index_recettes.json")
-    if 'planning_data' not in st.session_state:
-        st.session_state.planning_data = charger_donnees("data/planning.json")
+    for k, f in [('index_complet', 'data/index_recettes.json'), ('planning_data', 'data/planning.json')]:
+        if k not in st.session_state: st.session_state[k] = charger_donnees(f)
     
-    if 'offset_semaine' not in st.session_state:
-        st.session_state.offset_semaine = 0
+    if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
-    options_repas = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
+    options = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
 
-    # 1. Barre de Navigation
-    col_prev, col_today, col_next = st.columns([1, 1, 1])
-    
-    with col_prev:
-        if st.button("Semaine precedente", use_container_width=True):
-            st.session_state.offset_semaine -= 1
-            st.rerun()
-    with col_today:
-        if st.button("Aujourd'hui", use_container_width=True):
-            st.session_state.offset_semaine = 0
-            st.rerun()
-    with col_next:
-        if st.button("Semaine suivante", use_container_width=True):
-            st.session_state.offset_semaine += 1
-            st.rerun()
+    # 1. Navigation
+    c1, c2, c3 = st.columns([1, 1, 1])
+    if c1.button("Précédente", use_container_width=True): st.session_state.offset_semaine -= 1; st.rerun()
+    if c2.button("Aujourd'hui", use_container_width=True): st.session_state.offset_semaine = 0; st.rerun()
+    if c3.button("Suivante", use_container_width=True): st.session_state.offset_semaine += 1; st.rerun()
 
-    # 2. Calcul des dates (Vendredi a Jeudi)
+    # 2. Dates
     aujourdhui = datetime.date.today()
-    ecart_vendredi = (aujourdhui.weekday() - 4) % 7
-    vendredi_base = aujourdhui - datetime.timedelta(days=ecart_vendredi)
-    debut_semaine = vendredi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
-    fin_semaine = debut_semaine + datetime.timedelta(days=6)
+    debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
+    st.markdown(f"<h3 style='text-align: center;'>Du {debut.strftime('%d/%m/%y')} au {(debut + datetime.timedelta(days=6)).strftime('%d/%m/%y')}</h3>", unsafe_allow_html=True)
 
-    st.markdown(f"<h3 style='text-align: center;'>Du {debut_semaine.strftime('%d/%m/%y')} au {fin_semaine.strftime('%d/%m/%y')}</h3>", unsafe_allow_html=True)
-
-    # 3. Affichage en Tableau
-    jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
-    temp_planning = st.session_state.planning_data.copy()
-
-    # En-tête des colonnes
-    c_label, c_midi, c_soir = st.columns([1.2, 2, 2])
-    with c_midi: st.markdown("**Midi**")
-    with c_soir: st.markdown("**Soir**")
+    # 3. Tableau
+    jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
+    temp = st.session_state.planning_data.copy()
+    
+    cols_h = st.columns([1.2, 2, 2])
+    cols_h[1].markdown("**Midi**")
+    cols_h[2].markdown("**Soir**")
     st.divider()
 
-    for i, nom in enumerate(jours_noms):
-        date_j = debut_semaine + datetime.timedelta(days=i)
-        date_str = date_j.isoformat()
+    for i, nom in enumerate(jours):
+        d_j = debut + datetime.timedelta(days=i)
+        d_str = d_j.isoformat()
+        if d_str not in temp: temp[d_str] = {"midi": {"plat": "---", "comp": "---"}, "soir": {"plat": "---", "comp": "---"}}
+
+        col_d, col_m, col_s = st.columns([1.2, 2, 2])
+        bg = "#e1f5fe" if d_j == aujourdhui else "transparent"
         
-        # Initialisation si la date n'existe pas dans les donnees
-        if date_str not in temp_planning:
-            temp_planning[date_str] = {
-                "midi": {"plat": "---", "complement": "---"},
-                "soir": {"plat": "---", "complement": "---"}
-            }
+        col_d.markdown(f"<div style='background:{bg};padding:10px;border-radius:5px;border:1px solid #ddd;height:95px;display:flex;flex-direction:column;justify-content:center;'><small>{nom}</small><br><b>{d_j.strftime('%d/%m/%y')}</b></div>", unsafe_allow_html=True)
 
-        col_date, col_m, col_s = st.columns([1.2, 2, 2])
-        
-        with col_date:
-            bg = "#e1f5fe" if date_j == aujourdhui else "transparent"
-            # Cadre aligne sur la hauteur des widgets de droite
-            st.markdown(f"""
-                <div style="background-color: {bg}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 102px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 1rem;">
-                    <small style="line-height: 1.2;">{nom}</small><br><b style="font-size: 1.1em;">{date_j.strftime('%d/%m/%y')}</b>
-                </div>
-            """, unsafe_allow_html=True)
+        for rep, col in zip(["midi", "soir"], [col_m, col_s]):
+            with col:
+                r = temp[d_str].get(rep, {"plat": "---", "comp": "---"})
+                p = st.selectbox("P", options, index=options.index(r.get("plat", "---")) if r.get("plat") in options else 0, key=f"p{d_str}{rep}", label_visibility="collapsed")
+                with st.popover("Ajouter"):
+                    c = st.selectbox("R", options, index=options.index(r.get("comp", "---")) if r.get("comp") in options else 0, key=f"c{d_str}{rep}", label_visibility="collapsed")
+                temp[d_str][rep] = {"plat": p, "comp": c}
 
-        for repas, col_repas in zip(["midi", "soir"], [col_m, col_s]):
-            with col_repas:
-                r_data = temp_planning[date_str][repas]
-                val_plat = r_data.get("plat", "---")
-                val_comp = r_data.get("complement", "---")
-                
-                p_idx = options_repas.index(val_plat) if val_plat in options_repas else 0
-                c_idx = options_repas.index(val_comp) if val_comp in options_repas else 0
-
-                # Sélection du Plat
-                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
-                
-                # Sélection du Complément (Entrée/Dessert/etc)
-                with st.popover("Ajouter un plat", use_container_width=True):
-                    comp = st.selectbox("Recette", options_repas, index=c_idx, key=f"c_{date_str}_{repas}")
-                
-                # Mise à jour du dictionnaire temporaire
-                temp_planning[date_str][repas] = {"plat": p, "complement": comp}
-        st.write("") 
-
-    # 4. Sauvegarde
+    # 4. Actions (Sauvegarde et Courses)
     st.divider()
-    if st.button("💾 Enregistrer les modifications", use_container_width=True):
-        st.session_state.planning_data.update(temp_planning)
-        # On conserve un historique glissant de 10 jours
-        seuil = (aujourdhui - datetime.timedelta(days=10)).isoformat()
-        final_data = {k: v for k, v in st.session_state.planning_data.items() if k >= seuil}
+    b1, b2 = st.columns(2)
+    
+    if b1.button("Enregistrer le planning", use_container_width=True):
+        st.session_state.planning_data.update(temp)
+        final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
+        if sauvegarder_github("data/planning.json", final):
+            st.session_state.planning_data = final
+            st.success("Enregistré 💾"); time.sleep(1); st.rerun()
+
+    if b2.button("Générer la liste de courses", use_container_width=True):
+        liste_ingredients = []
+        # Parcourir les 7 jours de la semaine affichée
+        for i in range(7):
+            d_str = (debut + datetime.timedelta(days=i)).isoformat()
+            if d_str in temp:
+                for rep in ["midi", "soir"]:
+                    for type_p in ["plat", "comp"]:
+                        nom_recette = temp[d_str][rep].get(type_p)
+                        if nom_recette and nom_recette != "---":
+                            # Chercher les ingrédients de cette recette
+                            recette_data = next((r for r in st.session_state.index_complet if r['nom'] == nom_recette), None)
+                            if recette_data and 'ingredients' in recette_data:
+                                # On nettoie et on ajoute à la liste
+                                liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
         
-        if sauvegarder_github("data/planning.json", final_data):
-            st.session_state.planning_data = final_data
-            st.success("Enregistrement reussi")
-            time.sleep(1)
-            st.rerun()
+        if liste_ingredients:
+            st.subheader("🛒 Liste de courses")
+            # Compter les occurrences
+            counts = Counter(liste_ingredients)
+            # Affichage trié par nom
+            for ing in sorted(counts.keys()):
+                suffixe = f" ({counts[ing]})" if counts[ing] > 1 else ""
+                st.write(f"- {ing}{suffixe}")
+        else:
+            st.warning("Aucun plat sélectionné pour cette semaine.")
