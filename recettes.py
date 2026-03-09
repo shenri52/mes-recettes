@@ -172,7 +172,7 @@ def afficher():
                 nouvelles_photos = st.file_uploader("Ajouter de nouvelles photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
 
                 c_save, c_cancel = st.columns(2)
-                if c_save.form_submit_button("✅ Enregistrer", use_container_width=True):
+                if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
                     # 1. Supprimer physiquement les fichiers décochés
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder:
@@ -213,7 +213,7 @@ def afficher():
             col_t, col_i = st.columns([1, 1])
             with col_t:
                 st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
-                st.write(f"**🤖 Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
