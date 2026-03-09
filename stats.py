@@ -54,7 +54,7 @@ def afficher():
         st.table(tab_cat)
 
     with col2:
-        st.subheader("🛠️ Par Appareil")
+        st.subheader("🔌 Par Appareil")
         stats_app = {}
         for r in index:
             app = r.get('appareil', 'Aucun')
