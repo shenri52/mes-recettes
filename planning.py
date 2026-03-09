@@ -35,7 +35,6 @@ def sauvegarder_github(chemin, contenu_dict):
 def afficher():
     st.header("📅 Mon planning")
     
-def afficher():
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state: st.session_state.planning_data = charger_donnees("data/planning.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
