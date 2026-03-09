@@ -97,8 +97,9 @@ def afficher():
         
         with col_date:
             bg = "#e1f5fe" if date_j == aujourdhui else "transparent"
+            # Ajustement de la hauteur pour alignement avec selectbox + popover
             st.markdown(f"""
-                <div style="background-color: {bg}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 90px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="background-color: {bg}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 102px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 1rem;">
                     <small style="line-height: 1.2;">{nom}</small><br><b style="font-size: 1.1em;">{date_j.strftime('%d/%m/%y')}</b>
                 </div>
             """, unsafe_allow_html=True)
@@ -106,14 +107,13 @@ def afficher():
         for repas, col_repas in zip(["midi", "soir"], [col_m, col_s]):
             with col_repas:
                 r_data = temp_planning[date_str][repas]
-                # On gere l'ancien format (entree/dessert) s'il existe pour eviter les bugs
                 val_plat = r_data.get("plat", "---")
-                val_comp = r_data.get("complement", r_data.get("entree", "---"))
+                val_comp = r_data.get("complement", "---")
                 
                 p_idx = options_repas.index(val_plat) if val_plat in options_repas else 0
                 c_idx = options_repas.index(val_comp) if val_comp in options_repas else 0
 
-                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
+                st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
                 
                 with st.popover("Ajouter un plat", use_container_width=True):
                     comp = st.selectbox("Recette", options_repas, index=c_idx, key=f"c_{date_str}_{repas}")
