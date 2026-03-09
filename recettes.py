@@ -17,15 +17,23 @@ def config_github():
     }
 
 def envoyer_vers_github(chemin, contenu, message):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    contenu_b64 = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
-    data = {"message": message, "content": contenu_b64, "branch": "main"}
-    if sha: data["sha"] = sha
-    res = requests.put(url, headers=conf['headers'], json=data)
-    return res.status_code in [200, 201]
+    try:
+        conf = config_github()
+        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+        contenu_b64 = base64.b64encode(contenu.encode('utf-8')).decode('utf-8')
+        data = {"message": message, "content": contenu_b64, "branch": "main"}
+        if sha: data["sha"] = sha
+        res = requests.put(url, headers=conf['headers'], json=data)
+        
+        if res.status_code not in [200, 201]:
+            st.error(f"Erreur GitHub ({res.status_code}): {res.text}")
+            return False
+        return True
+    except Exception as e:
+        st.error(f"Erreur technique : {str(e)}")
+        return False
 
 def supprimer_fichier_github(chemin):
     conf = config_github()
@@ -33,8 +41,11 @@ def supprimer_fichier_github(chemin):
     get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
     if get_res.status_code == 200:
         sha = get_res.json()['sha']
-        requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return True
+        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
+        if res_del.status_code in [200, 204]:
+            return True
+        else:
+            st.error(f"Erreur lors de la suppression : {res_del.text}")
     return False
 
 # --- 2. GESTION DE L'INDEX ---
@@ -51,6 +62,7 @@ def charger_index():
 
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
+    # On ne fait le rerun que si l'envoi réussit
     if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
         st.session_state.index_recettes = index_trie
         return True
@@ -135,16 +147,20 @@ def afficher():
                         elif l.strip():
                             new_ings.append({"Ingrédient": l.strip(), "Quantité": ""})
                     
-                    recette.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes})
+                    recette_maj = recette.copy()
+                    recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes})
                     
-                    if envoyer_vers_github(info['chemin'], json.dumps(recette, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
-                        # Mise à jour de l'index sans tout recharger
+                    # Tentative d'envoi
+                    if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
                         for item in index:
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in new_ings]})
-                        sauvegarder_index_global(index)
-                        st.session_state[m_edit] = False
-                        st.rerun()
+                        
+                        if sauvegarder_index_global(index):
+                            st.success("Modifications enregistrées !")
+                            st.session_state[m_edit] = False
+                            time.sleep(1) # Laisse le temps de voir le message de succès
+                            st.rerun()
                 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
                     st.session_state[m_edit] = False
@@ -185,8 +201,8 @@ def afficher():
             if b1.button("🗑️ Supprimer", use_container_width=True):
                 if supprimer_fichier_github(info['chemin']):
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    sauvegarder_index_global(nouvel_index)
-                    st.rerun()
+                    if sauvegarder_index_global(nouvel_index):
+                        st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):
                 st.session_state[m_edit] = True
