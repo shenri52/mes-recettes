@@ -33,6 +33,9 @@ def sauvegarder_github(chemin, contenu_dict):
 
 # --- INTERFACE PLANNING ---
 def afficher():
+    st.header("📅 Mon planning")
+    
+def afficher():
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state: st.session_state.planning_data = charger_donnees("data/planning.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
@@ -99,6 +102,8 @@ def afficher():
                 temp[d_str][rep] = {"plat": p, "comp": c}
 
     # 3. Actions
+    st.divider()
+    
     b1, b2 = st.columns(2)
     
     if b1.button("💾 Enregistrer", use_container_width=True):
