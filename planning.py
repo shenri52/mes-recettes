@@ -39,11 +39,10 @@ def afficher():
 
     options = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
 
-    # 1. Navigation Compacte avec Dates intégrées
+    # 1. Navigation Compacte
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin = debut + datetime.timedelta(days=6)
-    
     date_range_str = f"{debut.strftime('%d/%m/%y')} au {fin.strftime('%d/%m/%y')}"
 
     c1, c2, c3 = st.columns([1, 3, 1])
@@ -52,7 +51,6 @@ def afficher():
             st.session_state.offset_semaine -= 1
             st.rerun()
     with c2:
-        # Le bouton central affiche les dates et remet à zéro (Aujourd'hui) au clic
         if st.button(f"Du {date_range_str}", use_container_width=True):
             st.session_state.offset_semaine = 0
             st.rerun()
@@ -65,11 +63,11 @@ def afficher():
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
     
-    # En-tête bien aligné
-    st.write("") # Petit espace sous la nav
+    st.write("") 
     c_head_label, c_head_m, c_head_s = st.columns([1.2, 2, 2])
-    with c_head_m: st.markdown("**Midi**")
-    with c_head_s: st.markdown("**Soir**")
+    # Rétablissement du centrage des titres
+    with c_head_m: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Midi</p>", unsafe_allow_html=True)
+    with c_head_s: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Soir</p>", unsafe_allow_html=True)
     st.divider()
 
     for i, nom in enumerate(jours):
@@ -80,15 +78,22 @@ def afficher():
             temp[d_str] = {"midi": {"plat": "---", "comp": "---"}, "soir": {"plat": "---", "comp": "---"}}
 
         col_d, col_m, col_s = st.columns([1.2, 2, 2])
-        bg = "#e1f5fe" if d_j == aujourdhui else "transparent"
         
-        col_d.markdown(f"<div style='background:{bg};padding:10px;border-radius:5px;border:1px solid #ddd;height:102px;display:flex;flex-direction:column;justify-content:center;'><small>{nom}</small><br><b>{d_j.strftime('%d/%m/%y')}</b></div>", unsafe_allow_html=True)
+        # Vérification et application du jour actuel
+        bg = "#e1f5fe" if d_j == aujourdhui else "transparent"
+        border = "2px solid #0288d1" if d_j == aujourdhui else "1px solid #ddd"
+        
+        col_d.markdown(f"""
+            <div style='background:{bg}; padding:10px; border-radius:5px; border:{border}; height:102px; display:flex; flex-direction:column; justify-content:center;'>
+                <small>{nom}</small><br><b>{d_j.strftime('%d/%m/%y')}</b>
+            </div>
+        """, unsafe_allow_html=True)
 
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
                 r = temp[d_str].get(rep, {"plat": "---", "comp": "---"})
                 p = st.selectbox("P", options, index=options.index(r.get("plat", "---")) if r.get("plat") in options else 0, key=f"p{d_str}{rep}", label_visibility="collapsed")
-                with st.popover("Ajouter"):
+                with st.popover("Ajouter", use_container_width=True):
                     c = st.selectbox("R", options, index=options.index(r.get("comp", "---")) if r.get("comp") in options else 0, key=f"c{d_str}{rep}", label_visibility="collapsed")
                 temp[d_str][rep] = {"plat": p, "comp": c}
 
@@ -96,7 +101,7 @@ def afficher():
     st.divider()
     b1, b2 = st.columns(2)
     
-    if b1.button("Enregistrer", use_container_width=True):
+    if b1.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
         if sauvegarder_github("data/planning.json", final):
@@ -105,7 +110,7 @@ def afficher():
             time.sleep(1)
             st.rerun()
 
-    if b2.button("Liste courses", use_container_width=True):
+    if b2.button("Liste des courses", use_container_width=True):
         liste_ingredients = []
         for i in range(7):
             d_str = (debut + datetime.timedelta(days=i)).isoformat()
@@ -114,12 +119,12 @@ def afficher():
                     for type_p in ["plat", "comp"]:
                         nom_recette = temp[d_str][rep].get(type_p)
                         if nom_recette and nom_recette != "---":
-                            recette_data = next((r for r in st.session_state.index_complet if r['nom'] == nom_recette), None)
+                            recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
                             if recette_data and 'ingredients' in recette_data:
                                 liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
         
         if liste_ingredients:
-            st.subheader("🛒 Liste de courses")
+            st.subheader("🛒 Liste des courses")
             counts = Counter(liste_ingredients)
             for ing in sorted(counts.keys()):
                 suffixe = f" ({counts[ing]})" if counts[ing] > 1 else ""
