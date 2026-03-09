@@ -164,3 +164,5 @@ def afficher():
                 barre.progress((idx + 1) / len(lourdes))
             del st.session_state.images_a_compresser
             st.success("Toutes les images ont été traitées.")
+
+    st.divider()
