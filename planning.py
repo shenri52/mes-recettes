@@ -72,17 +72,19 @@ def afficher():
     debut_semaine = vendredi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin_semaine = debut_semaine + datetime.timedelta(days=6)
 
-    # Affichage de la plage de dates au format JJ/MM/YY
     st.markdown(f"<h3 style='text-align: center;'>Du {debut_semaine.strftime('%d/%m/%y')} au {fin_semaine.strftime('%d/%m/%y')}</h3>", unsafe_allow_html=True)
 
-    # 3. Affichage en Tableau
-    jours_noms = ["Ven", "Sam", "Dim", "Lun", "Mar", "Mer", "Jeu"]
+    # 3. Affichage en Tableau (Lignes = Jours / Colonnes = Repas)
+    jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp_planning = st.session_state.planning_data.copy()
 
-    # Création des colonnes pour les 7 jours
-    cols = st.columns(7)
+    # En-tête des colonnes repas
+    c_label, c_midi, c_soir = st.columns([1.2, 2, 2])
+    with c_midi: st.markdown("**Midi**")
+    with c_soir: st.markdown("**Soir**")
+    st.divider()
 
-    for i, col in enumerate(cols):
+    for i, nom in enumerate(jours_noms):
         date_j = debut_semaine + datetime.timedelta(days=i)
         date_str = date_j.isoformat()
         
@@ -92,32 +94,37 @@ def afficher():
                 "soir": {"plat": "---", "entree": "---", "dessert": "---"}
             }
 
-        with col:
-            # En-tête du jour avec format JJ/MM/YY
-            couleur = "#e1f5fe" if date_j == aujourdhui else "transparent"
+        # Une ligne par jour
+        col_date, col_m, col_s = st.columns([1.2, 2, 2])
+        
+        with col_date:
+            # Mise en valeur du jour actuel
+            bg = "#e1f5fe" if date_j == aujourdhui else "transparent"
             st.markdown(f"""
-                <div style="background-color: {couleur}; border-radius: 5px; padding: 5px; text-align: center; border: 1px solid #ddd;">
-                    <small>{jours_noms[i]}</small><br><b>{date_j.strftime('%d/%m/%y')}</b>
+                <div style="background-color: {bg}; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
+                    <small>{nom}</small><br><b>{date_j.strftime('%d/%m/%y')}</b>
                 </div>
             """, unsafe_allow_html=True)
-            
-            for repas in ["midi", "soir"]:
-                st.write(f"**{repas.capitalize()}**")
+
+        # Gestion des repas pour ce jour
+        for repas, col_repas in zip(["midi", "soir"], [col_m, col_s]):
+            with col_repas:
                 r_data = temp_planning[date_str][repas]
                 
                 p_idx = options_repas.index(r_data["plat"]) if r_data["plat"] in options_repas else 0
                 e_idx = options_repas.index(r_data["entree"]) if r_data["entree"] in options_repas else 0
                 d_idx = options_repas.index(r_data["dessert"]) if r_data["dessert"] in options_repas else 0
 
-                # Sélection simplifiée (Plat principal)
+                # Menu principal
                 p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
                 
-                # Popover pour ajouter un plat (Entrée/Dessert)
+                # Options secondaires
                 with st.popover("Ajouter un plat"):
                     e = st.selectbox("Entree", options_repas, index=e_idx, key=f"e_{date_str}_{repas}")
                     d = st.selectbox("Dessert", options_repas, index=d_idx, key=f"d_{date_str}_{repas}")
                 
                 temp_planning[date_str][repas] = {"plat": p, "entree": e, "dessert": d}
+        st.write("") # Espacement entre les lignes
 
     # 4. Sauvegarde
     st.divider()
