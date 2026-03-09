@@ -116,7 +116,6 @@ def afficher():
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
-        st.markdown("---")
         etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{st.session_state.form_count}")
         photos_fb = st.file_uploader("Médias", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{st.session_state.form_count}", accept_multiple_files=True)
 
@@ -184,3 +183,6 @@ def afficher():
                         if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                         st.session_state.form_count += 1
                         st.rerun()
+
+
+    st.divider()
