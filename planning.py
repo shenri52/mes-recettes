@@ -64,7 +64,6 @@ def afficher():
 
     # 2. Calcul des dates (Vendredi a Jeudi)
     aujourdhui = datetime.date.today()
-    # On recule jusqu'au vendredi precedent (4=Ven)
     ecart_vendredi = (aujourdhui.weekday() - 4) % 7
     vendredi_base = aujourdhui - datetime.timedelta(days=ecart_vendredi)
     debut_semaine = vendredi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
@@ -81,7 +80,6 @@ def afficher():
         date_j = debut_semaine + datetime.timedelta(days=i)
         date_str = date_j.isoformat()
         
-        # Recuperation des donnees pour l'affichage du resume
         if date_str not in temp_planning:
             temp_planning[date_str] = {
                 "midi": {"plat": "---", "entree": "---", "dessert": "---"},
@@ -91,29 +89,28 @@ def afficher():
         m_plat = temp_planning[date_str]["midi"].get("plat", "---")
         s_plat = temp_planning[date_str]["soir"].get("plat", "---")
 
-        # Titre et Resume du menu directement visible
-        titre_complet = f"{nom} {date_j.strftime('%d %b')}"
+        # Formatage de la date avec mois abregé (ex: mar.)
+        titre_complet = f"{nom} {date_j.strftime('%d %b.')}"
         if date_j == aujourdhui:
             titre_complet = f"Aujourd'hui : {titre_complet}"
         
-        # Affichage du resume sous le nom du jour
         resume_menu = f"Midi : {m_plat} | Soir : {s_plat}"
         
         with st.expander(f"{titre_complet} ({resume_menu})", expanded=(date_j == aujourdhui)):
             for repas in ["midi", "soir"]:
                 st.write(f"**{repas.capitalize()}**")
-                c1, c2, c3 = st.columns(3)
                 
                 r_data = temp_planning[date_str][repas]
                 p_idx = options_repas.index(r_data["plat"]) if r_data["plat"] in options_repas else 0
                 e_idx = options_repas.index(r_data["entree"]) if r_data["entree"] in options_repas else 0
                 d_idx = options_repas.index(r_data["dessert"]) if r_data["dessert"] in options_repas else 0
 
-                with c1:
-                    p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}")
-                with c2:
+                # Sélection du Plat principal
+                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}")
+                
+                # Bouton pour ajouter Entree/Dessert (masqués par défaut)
+                with st.popover("Ajouter une entree ou un dessert"):
                     e = st.selectbox("Entree", options_repas, index=e_idx, key=f"e_{date_str}_{repas}")
-                with c3:
                     d = st.selectbox("Dessert", options_repas, index=d_idx, key=f"d_{date_str}_{repas}")
                 
                 temp_planning[date_str][repas] = {"plat": p, "entree": e, "dessert": d}
