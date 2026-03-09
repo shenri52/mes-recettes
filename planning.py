@@ -39,6 +39,7 @@ def sauvegarder_github(chemin, contenu_dict):
 def afficher():
     st.header("Planning")
 
+    # Initialisation des donnees dans la session
     if 'index_complet' not in st.session_state:
         st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state:
@@ -78,6 +79,7 @@ def afficher():
     jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp_planning = st.session_state.planning_data.copy()
 
+    # En-tête des colonnes
     c_label, c_midi, c_soir = st.columns([1.2, 2, 2])
     with c_midi: st.markdown("**Midi**")
     with c_soir: st.markdown("**Soir**")
@@ -87,6 +89,7 @@ def afficher():
         date_j = debut_semaine + datetime.timedelta(days=i)
         date_str = date_j.isoformat()
         
+        # Initialisation si la date n'existe pas dans les donnees
         if date_str not in temp_planning:
             temp_planning[date_str] = {
                 "midi": {"plat": "---", "complement": "---"},
@@ -97,7 +100,7 @@ def afficher():
         
         with col_date:
             bg = "#e1f5fe" if date_j == aujourdhui else "transparent"
-            # Ajustement de la hauteur pour alignement avec selectbox + popover
+            # Cadre aligne sur la hauteur des widgets de droite
             st.markdown(f"""
                 <div style="background-color: {bg}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 102px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 1rem;">
                     <small style="line-height: 1.2;">{nom}</small><br><b style="font-size: 1.1em;">{date_j.strftime('%d/%m/%y')}</b>
@@ -113,11 +116,14 @@ def afficher():
                 p_idx = options_repas.index(val_plat) if val_plat in options_repas else 0
                 c_idx = options_repas.index(val_comp) if val_comp in options_repas else 0
 
-                st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
+                # Sélection du Plat
+                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
                 
+                # Sélection du Complément (Entrée/Dessert/etc)
                 with st.popover("Ajouter un plat", use_container_width=True):
                     comp = st.selectbox("Recette", options_repas, index=c_idx, key=f"c_{date_str}_{repas}")
                 
+                # Mise à jour du dictionnaire temporaire
                 temp_planning[date_str][repas] = {"plat": p, "complement": comp}
         st.write("") 
 
@@ -125,6 +131,7 @@ def afficher():
     st.divider()
     if st.button("Enregistrer les modifications", use_container_width=True):
         st.session_state.planning_data.update(temp_planning)
+        # On conserve un historique glissant de 10 jours
         seuil = (aujourdhui - datetime.timedelta(days=10)).isoformat()
         final_data = {k: v for k, v in st.session_state.planning_data.items() if k >= seuil}
         
