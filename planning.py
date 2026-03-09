@@ -99,7 +99,6 @@ def afficher():
                 temp[d_str][rep] = {"plat": p, "comp": c}
 
     # 3. Actions
-    st.divider()
     b1, b2 = st.columns(2)
     
     if b1.button("💾 Enregistrer", use_container_width=True):
