@@ -50,6 +50,8 @@ def charger_index_local():
 # --- INTERFACE DE RÉPARATION ---
 def afficher():
     st.header("🛠️ Diagnostic et réparation")
+    
+    st.divider()
 
     # INITIALISATION : Nettoyage si on change de page
     if "bouton_analyse_clique" not in st.session_state:
@@ -128,7 +130,6 @@ def afficher():
                     st.rerun()
 
     # --- SECTION 2 : COMPRESSION DES IMAGES (AJOUT) ---
-    st.divider()
     
     if st.button("🖼️ Optimisation des Images"):
         conf = config_github()
