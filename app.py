@@ -4,21 +4,6 @@ import importer, saisir, recettes, stats, reparer
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
-# --- STYLE PERSONNALISÉ (BOUTON ROUGE) ---
-st.markdown("""
-    <style>
-    div.stButton > button[kind="primary"] {
-        background-color: #ff4b4b;
-        color: white;
-        border: None;
-    }
-    div.stButton > button[kind="primary"]:hover {
-        background-color: #ff3333;
-        color: white;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
     if "authentifie" not in st.session_state:
@@ -26,6 +11,7 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"]:
         st.markdown("<h1 style='text-align: center;'>🔒 Accès réservé</h1>", unsafe_allow_html=True)
+        # On utilise st.secrets pour ne pas afficher le MDP dans le code public
         mdp_saisi = st.text_input("Veuillez saisir le mot de passe :", type="password")
         if st.button("Se connecter", use_container_width=True):
             if mdp_saisi == st.secrets["APP_PASSWORD"]:
@@ -38,6 +24,7 @@ def verifier_mot_de_passe():
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
+    # --- Initialisation et Fonction ---
     if 'page' not in st.session_state:
         st.session_state.page = 'accueil'
 
@@ -48,14 +35,14 @@ if verifier_mot_de_passe():
     # --- 2. Menu d'accueil ---
     if st.session_state.page == 'accueil':
         st.markdown("<h1 style='text-align: center;'>🍳 Mes recettes</h1>", unsafe_allow_html=True)
-        
-        # Ligne 1 : Recettes (Rouge via CSS)
-        if st.button("📚 Mes recettes", use_container_width=True, type="primary"):
+
+        st.divider()
+
+        # Ligne 1 : Bouton principal
+        if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
         
-        st.write("") 
-
-        # Ligne 2 : Importer et Saisir
+        # Ligne 2 : Sur 2 colonnes
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📥 Importer une recette", use_container_width=True):
@@ -68,7 +55,7 @@ if verifier_mot_de_passe():
         if st.button("📅 Mon Planning", use_container_width=True):
             st.info("Module Planning bientôt disponible")
 
-        # Ligne 4 : Stats et Maintenance
+        # Ligne 4 : Sur 2 colonnes
         col3, col4 = st.columns(2)
         with col3:
             if st.button("📊 Statistiques", use_container_width=True):
@@ -77,7 +64,7 @@ if verifier_mot_de_passe():
             if st.button("🛠️ Maintenance", use_container_width=True):
                 changer_page("reparer")
 
-    # --- 3. Routage ---
+    # --- 3. Routage (Contenu de la page) ---
     else:
         if st.session_state.page == "importer":
             importer.afficher()
@@ -91,6 +78,5 @@ if verifier_mot_de_passe():
             reparer.afficher()
 
         # --- 4. BOUTON RETOUR ---
-        st.write("") 
         if st.button("⬅️ Retour à l'accueil", use_container_width=True):
             changer_page('accueil')
