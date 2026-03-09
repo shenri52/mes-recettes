@@ -75,7 +75,7 @@ def afficher():
     ings = ["Tous"] + sorted(list(set(tous_ings)))
 
     f_cat = c2.selectbox("Catégorie", cats)
-    f_app = c3.selectbox("Appareil", apps)
+    f_app = c3.selectbox("🍳 Appareil", apps) # Icône mise à jour ici
     f_ing = c4.selectbox("Ingrédient", ings)
 
     # Filtrage
@@ -114,11 +114,10 @@ def afficher():
         
         col_t, col_i = st.columns([1, 1])
         with col_t:
-            # Alignement vertical du texte avec le haut de l'image
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
             st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
-            st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
+            st.write(f"**🍳 Appareil :** {recette.get('appareil', 'Aucun')}")
             st.write("**Ingrédients :**")
             for i in recette.get('ingredients', []):
                 st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
@@ -127,16 +126,13 @@ def afficher():
         with col_i:
             images = recette.get('images', [])
             if images:
-                # Gestion de l'index pour la navigation
                 if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                     st.session_state.img_idx = 0
                     st.session_state.last_recette = choix
 
-                # Affichage image
                 img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                 st.image(img_url, use_container_width=True)
                 
-                # Contrôles de navigation (si + d'une image)
                 if len(images) > 1:
                     nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
                     if nb_col1.button("⬅️", key="prev_img"):
@@ -154,5 +150,10 @@ def afficher():
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
                 st.rerun()
+        
+        # --- LOGIQUE DE MODIFICATION ACTIVÉE ---
         if b2.button("✍️ Modifier", use_container_width=True):
-            st.info("Modification bientôt disponible.")
+            st.session_state.recette_a_modifier = recette
+            st.session_state.chemin_a_modifier = info['chemin']
+            st.session_state.page = "Saisir" # Redirige vers la page de saisie
+            st.rerun()
