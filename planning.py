@@ -130,3 +130,5 @@ def afficher():
             for ing in sorted(counts.keys()):
                 suffixe = f" ({counts[ing]})" if counts[ing] > 1 else ""
                 st.write(f"- {ing}{suffixe}")
+
+    st.divider()
