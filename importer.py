@@ -167,3 +167,5 @@ def afficher():
                     if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                     st.session_state.form_count_img += 1
                     st.rerun()
+
+    st.divider()
