@@ -52,7 +52,7 @@ if verifier_mot_de_passe():
                 changer_page("ajouter")
 
         # Ligne 3 : Planning
-        if st.button("📅 Mon Planning", use_container_width=True):
+        if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
 
         # Ligne 4 : Sur 2 colonnes
