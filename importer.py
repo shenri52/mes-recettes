@@ -117,8 +117,20 @@ def afficher():
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
                         ext = f.name.lower().split('.')[-1]
+                        contenu_a_envoyer = f.getvalue()
+                        
+                        # --- LOGIQUE DE COMPRESSION AJOUTÉE ---
+                        if ext in ["jpg", "jpeg", "png"]:
+                            img = Image.open(f)
+                            if img.mode in ("RGBA", "P"): img = img.convert("RGB")
+                            buf = io.BytesIO()
+                            img.save(buf, format="JPEG", quality=80, optimize=True)
+                            contenu_a_envoyer = buf.getvalue()
+                            ext = "jpg" 
+                        # --------------------------------------
+
                         ch = f"data/images/{timestamp}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_vers_github(ch, f.getvalue(), "Media", True):
+                        if envoyer_vers_github(ch, contenu_a_envoyer, "Media", True):
                             liste_medias.append(ch)
 
                 chemin_recette = f"data/recettes/{timestamp}_{nom_fic}.json"
