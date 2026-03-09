@@ -26,7 +26,6 @@ def envoyer_vers_github(chemin, contenu, message):
         data = {"message": message, "content": contenu_b64, "branch": "main"}
         if sha: data["sha"] = sha
         res = requests.put(url, headers=conf['headers'], json=data)
-        
         if res.status_code not in [200, 201]:
             st.error(f"Erreur GitHub ({res.status_code}): {res.text}")
             return False
@@ -42,10 +41,7 @@ def supprimer_fichier_github(chemin):
     if get_res.status_code == 200:
         sha = get_res.json()['sha']
         res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        if res_del.status_code in [200, 204]:
-            return True
-        else:
-            st.error(f"Erreur lors de la suppression : {res_del.text}")
+        return res_del.status_code in [200, 204]
     return False
 
 # --- 2. GESTION DE L'INDEX ---
@@ -62,7 +58,6 @@ def charger_index():
 
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    # On ne fait le rerun que si l'envoi réussit
     if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
         st.session_state.index_recettes = index_trie
         return True
@@ -74,11 +69,12 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES (Version d'origine 4 colonnes)
+    # FILTRES (4 colonnes d'origine)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     
-    cats = ["Tous"] + sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+    cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+    cats = ["Tous"] + cats_existantes
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
     tous_ings = []
@@ -87,7 +83,7 @@ def afficher():
     ings = ["Tous"] + sorted(list(set(tous_ings)))
 
     f_cat = c2.selectbox("Catégorie", cats)
-    f_app = c3.selectbox("🍳 Appareil", apps)
+    f_app = c3.selectbox("🤖 Appareil", apps) # Icône Robot
     f_ing = c4.selectbox("Ingrédient", ings)
 
     # Filtrage
@@ -129,8 +125,13 @@ def afficher():
             with st.form(key=f"f_edit_{info['chemin']}"):
                 st.subheader("✍️ Modification")
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
-                e_cat = st.text_input("Catégorie", value=recette.get('categorie', ''))
-                e_app = st.selectbox("🍳 Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], 
+                
+                # Catégorie en liste déroulante
+                cat_actuelle = recette.get('categorie', 'Non classé')
+                if cat_actuelle not in cats_existantes: cats_existantes.append(cat_actuelle)
+                e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(cat_actuelle))
+                
+                e_app = st.selectbox("🤖 Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], # Icône Robot
                                    index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
                 
                 ing_txt = "\n".join([f"{i.get('Quantité', '')} | {i.get('Ingrédient', '')}" for i in recette.get('ingredients', [])])
@@ -150,16 +151,12 @@ def afficher():
                     recette_maj = recette.copy()
                     recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": new_ings, "etapes": e_etapes})
                     
-                    # Tentative d'envoi
                     if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
                         for item in index:
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in new_ings]})
-                        
                         if sauvegarder_index_global(index):
-                            st.success("Modifications enregistrées !")
                             st.session_state[m_edit] = False
-                            time.sleep(1) # Laisse le temps de voir le message de succès
                             st.rerun()
                 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
@@ -172,7 +169,7 @@ def afficher():
             with col_t:
                 st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
                 st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
-                st.write(f"**🍳 Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write(f"**🤖 Appareil :** {recette.get('appareil', 'Aucun')}") # Icône Robot
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
