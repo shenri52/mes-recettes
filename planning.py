@@ -78,7 +78,6 @@ def afficher():
     jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp_planning = st.session_state.planning_data.copy()
 
-    # En-tête
     c_label, c_midi, c_soir = st.columns([1.2, 2, 2])
     with c_midi: st.markdown("**Midi**")
     with c_soir: st.markdown("**Soir**")
@@ -90,18 +89,16 @@ def afficher():
         
         if date_str not in temp_planning:
             temp_planning[date_str] = {
-                "midi": {"plat": "---", "entree": "---", "dessert": "---"},
-                "soir": {"plat": "---", "entree": "---", "dessert": "---"}
+                "midi": {"plat": "---", "complement": "---"},
+                "soir": {"plat": "---", "complement": "---"}
             }
 
         col_date, col_m, col_s = st.columns([1.2, 2, 2])
         
         with col_date:
             bg = "#e1f5fe" if date_j == aujourdhui else "transparent"
-            color = "#000000" if date_j == aujourdhui else "inherit"
-            # AJUSTEMENT : On force la hauteur et on centre le contenu
             st.markdown(f"""
-                <div style="background-color: {bg}; color: {color}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 105px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="background-color: {bg}; padding: 10px; border-radius: 5px; border: 1px solid #ddd; height: 90px; display: flex; flex-direction: column; justify-content: center;">
                     <small style="line-height: 1.2;">{nom}</small><br><b style="font-size: 1.1em;">{date_j.strftime('%d/%m/%y')}</b>
                 </div>
             """, unsafe_allow_html=True)
@@ -109,17 +106,19 @@ def afficher():
         for repas, col_repas in zip(["midi", "soir"], [col_m, col_s]):
             with col_repas:
                 r_data = temp_planning[date_str][repas]
-                p_idx = options_repas.index(r_data["plat"]) if r_data["plat"] in options_repas else 0
-                e_idx = options_repas.index(r_data["entree"]) if r_data["entree"] in options_repas else 0
-                d_idx = options_repas.index(r_data["dessert"]) if r_data["dessert"] in options_repas else 0
+                # On gere l'ancien format (entree/dessert) s'il existe pour eviter les bugs
+                val_plat = r_data.get("plat", "---")
+                val_comp = r_data.get("complement", r_data.get("entree", "---"))
+                
+                p_idx = options_repas.index(val_plat) if val_plat in options_repas else 0
+                c_idx = options_repas.index(val_comp) if val_comp in options_repas else 0
 
                 p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
                 
                 with st.popover("Ajouter un plat", use_container_width=True):
-                    e = st.selectbox("Entree", options_repas, index=e_idx, key=f"e_{date_str}_{repas}")
-                    d = st.selectbox("Dessert", options_repas, index=d_idx, key=f"d_{date_str}_{repas}")
+                    comp = st.selectbox("Recette", options_repas, index=c_idx, key=f"c_{date_str}_{repas}")
                 
-                temp_planning[date_str][repas] = {"plat": p, "entree": e, "dessert": d}
+                temp_planning[date_str][repas] = {"plat": p, "complement": comp}
         st.write("") 
 
     # 4. Sauvegarde
