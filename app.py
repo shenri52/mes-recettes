@@ -4,6 +4,21 @@ import importer, saisir, recettes, stats, reparer
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
+# --- STYLE PERSONNALISÉ (BOUTON ROUGE) ---
+st.markdown("""
+    <style>
+    div.stButton > button[kind="primary"] {
+        background-color: #ff4b4b;
+        color: white;
+        border: None;
+    }
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #ff3333;
+        color: white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
     if "authentifie" not in st.session_state:
@@ -30,18 +45,17 @@ if verifier_mot_de_passe():
         st.session_state.page = nom
         st.rerun()
 
-    # --- 2. Menu d'accueil (ORGANISATION MODIFIÉE SELON TA DEMANDE) ---
+    # --- 2. Menu d'accueil ---
     if st.session_state.page == 'accueil':
         st.markdown("<h1 style='text-align: center;'>🍳 Mes recettes</h1>", unsafe_allow_html=True)
-        st.write("---")
-
-        # Ligne 1 : Recettes
+        
+        # Ligne 1 : Recettes (Rouge via CSS)
         if st.button("📚 Mes recettes", use_container_width=True, type="primary"):
             changer_page("recettes")
         
         st.write("") 
 
-        # Ligne 2 : Importer et Saisir (2 colonnes)
+        # Ligne 2 : Importer et Saisir
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📥 Importer une recette", use_container_width=True):
@@ -50,16 +64,11 @@ if verifier_mot_de_passe():
             if st.button("✍️ Saisir une recette", use_container_width=True):
                 changer_page("ajouter")
 
-        st.write("---")
-
         # Ligne 3 : Planning
         if st.button("📅 Mon Planning", use_container_width=True):
-            # changer_page("planning") 
             st.info("Module Planning bientôt disponible")
 
-        st.write("---")
-
-        # Ligne 4 : Stats et Maintenance (2 colonnes)
+        # Ligne 4 : Stats et Maintenance
         col3, col4 = st.columns(2)
         with col3:
             if st.button("📊 Statistiques", use_container_width=True):
@@ -68,7 +77,7 @@ if verifier_mot_de_passe():
             if st.button("🛠️ Maintenance", use_container_width=True):
                 changer_page("reparer")
 
-    # --- 3. Routage (IDENTIQUE AU CODE ORIGINAL) ---
+    # --- 3. Routage ---
     else:
         if st.session_state.page == "importer":
             importer.afficher()
@@ -81,6 +90,7 @@ if verifier_mot_de_passe():
         elif st.session_state.page == "reparer":
             reparer.afficher()
 
-        st.write("---") 
+        # --- 4. BOUTON RETOUR ---
+        st.write("") 
         if st.button("⬅️ Retour à l'accueil", use_container_width=True):
             changer_page('accueil')
