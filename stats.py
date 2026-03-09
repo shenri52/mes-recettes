@@ -27,6 +27,9 @@ def charger_index():
 # --- FONCTION PILOTE APPELÉE PAR APP.PY ---
 def afficher():
     st.header("📊 Statistiques")
+
+    st.divider()
+    
     index = charger_index()
     
     if not index:
