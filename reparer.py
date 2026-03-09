@@ -3,6 +3,8 @@ import requests
 import json
 import base64
 import time
+import io
+from PIL import Image
 
 # --- FONCTIONS TECHNIQUES AUTONOMES ---
 def config_github():
@@ -27,6 +29,18 @@ def envoyer_vers_github(chemin, contenu, message):
     res = requests.put(url, headers=conf['headers'], json=data)
     return res.status_code in [200, 201]
 
+# Nouvelle fonction spécifique pour les images (format binaire)
+def envoyer_image_vers_github(chemin, contenu_octets, message):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    contenu_b64 = base64.b64encode(contenu_octets).decode('utf-8')
+    data = {"message": message, "content": contenu_b64, "branch": "main"}
+    if sha: data["sha"] = sha
+    res = requests.put(url, headers=conf['headers'], json=data)
+    return res.status_code in [200, 201]
+
 def charger_index_local():
     conf = config_github()
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
@@ -42,12 +56,11 @@ def afficher():
         if "a_reparer" in st.session_state:
             del st.session_state.a_reparer
 
-    # BOUTON 1 : ANALYSE (Ton bouton d'origine)
+    # --- SECTION 1 : RÉPARER L'INDEX (TON CODE ORIGINAL) ---
     if st.button("🔍 Réparer l'index des recettes"):
         st.session_state.bouton_analyse_clique = True
         conf = config_github()
         
-        # Récupération de l'arbre réel
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1&t={int(time.time())}"
         res = requests.get(url_tree, headers=conf['headers'])
         
@@ -62,11 +75,8 @@ def afficher():
             
             index_actuel = charger_index_local()
             chemins_index = [r['chemin'] for r in index_actuel]
-            
-            # Comparaison
             manquantes = [f for f in fichiers_physiques if f not in chemins_index]
             
-            # Affichage des compteurs pour comprendre tes 40 fichiers
             col1, col2 = st.columns(2)
             col1.metric("Fichiers dans /data", len(fichiers_physiques))
             col2.metric("Recettes dans l'index", len(index_actuel))
@@ -81,24 +91,20 @@ def afficher():
                 if "a_reparer" in st.session_state:
                     del st.session_state.a_reparer
             
-            # Liste brute pour trouver l'intrus parmi les 40
             with st.expander("📂 Voir la liste de tous les fichiers détectés"):
                 for i, f in enumerate(sorted(fichiers_physiques), 1):
                     st.write(f"{i}. `{f}`")
         else:
             st.error("Impossible d'accéder à GitHub.")
 
-    # BOUTON 2 : RÉPARATION (Ton bouton d'origine)
     if "a_reparer" in st.session_state and st.session_state.a_reparer:
         st.divider()
         st.info("Voulez-vous intégrer ces fichiers à l'index ?")
-        
         if st.button("🚀 Appliquer la réparation"):
             with st.spinner("Synchronisation..."):
                 manquantes = st.session_state.a_reparer
                 index_actuel = charger_index_local()
                 nouvelles_recettes = []
-                
                 for chemin in manquantes:
                     url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{chemin}?t={int(time.time())}"
                     res_rec = requests.get(url_raw)
@@ -111,20 +117,53 @@ def afficher():
                             "ingredients": [i.get("Ingrédient") for i in data.get("ingredients", [])],
                             "chemin": chemin
                         })
-
                 index_final = sorted(index_actuel + nouvelles_recettes, key=lambda x: x['nom'].lower())
-                
                 if envoyer_vers_github("data/index_recettes.json", 
                                        json.dumps(index_final, indent=4, ensure_ascii=False), 
                                        "🛠️ Réparation automatique de l'index"):
                     st.success(f"✅ Terminé ! {len(nouvelles_recettes)} recettes ajoutées.")
                     st.session_state.index_recettes = index_final
                     if "a_reparer" in st.session_state: del st.session_state.a_reparer
-                    if "bouton_analyse_clique" in st.session_state: del st.session_state.bouton_analyse_clique
                     time.sleep(1)
                     st.rerun()
-                else:
-                    st.error("Erreur lors de la sauvegarde.")
 
-    if "bouton_analyse_clique" in st.session_state:
-        del st.session_state.bouton_analyse_clique
+    # --- SECTION 2 : COMPRESSION DES IMAGES (AJOUT) ---
+    st.divider()
+    
+    if st.button("🖼️ Optimisation des Images"):
+        conf = config_github()
+        url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
+        res = requests.get(url_tree, headers=conf['headers'])
+        
+        if res.status_code == 200:
+            tree = res.json().get('tree', [])
+            # On cherche les images > 500 Ko
+            lourdes = [i for i in tree if i['path'].lower().endswith(('.jpg', '.jpeg', '.png')) and i.get('size', 0) > 500 * 1024]
+            
+            if lourdes:
+                st.warning(f"Il y a {len(lourdes)} images à optimiser.")
+                for img in lourdes:
+                    st.text(f"📍 {img['path']} ({img['size']//1024} Ko)")
+                st.session_state.images_a_compresser = lourdes
+            else:
+                st.success("Toutes les images sont légères !")
+        else:
+            st.error("Erreur GitHub.")
+
+    if "images_a_compresser" in st.session_state:
+        if st.button("⚡ Lancer la compression sans perte"):
+            barre = st.progress(0)
+            lourdes = st.session_state.images_a_compresser
+            for idx, img_info in enumerate(lourdes):
+                url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{img_info['path']}"
+                res = requests.get(url_raw)
+                if res.status_code == 200:
+                    image_pil = Image.open(io.BytesIO(res.content))
+                    # Compression JPEG optimisée
+                    buffer = io.BytesIO()
+                    image_pil.save(buffer, format="JPEG", quality=80, optimize=True)
+                    if envoyer_image_vers_github(img_info['path'], buffer.getvalue(), "📸 Compression image"):
+                        st.write(f"✅ {img_info['path']} optimisée.")
+                barre.progress((idx + 1) / len(lourdes))
+            del st.session_state.images_a_compresser
+            st.success("Toutes les images ont été traitées.")
