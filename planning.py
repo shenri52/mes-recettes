@@ -50,13 +50,16 @@ def afficher():
     options_repas = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
 
     # 1. Barre de Navigation
-    col_prev, col_titre, col_next = st.columns([1, 3, 1])
+    col_prev, col_today, col_next = st.columns([1, 1, 1])
     
     with col_prev:
         if st.button("Semaine precedente", use_container_width=True):
             st.session_state.offset_semaine -= 1
             st.rerun()
-    
+    with col_today:
+        if st.button("Aujourd'hui", use_container_width=True):
+            st.session_state.offset_semaine = 0
+            st.rerun()
     with col_next:
         if st.button("Semaine suivante", use_container_width=True):
             st.session_state.offset_semaine += 1
@@ -69,14 +72,17 @@ def afficher():
     debut_semaine = vendredi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin_semaine = debut_semaine + datetime.timedelta(days=6)
 
-    with col_titre:
-        st.markdown(f"<h3 style='text-align: center;'>Du {debut_semaine.strftime('%d/%m')} au {fin_semaine.strftime('%d/%m')}</h3>", unsafe_allow_html=True)
+    # Affichage de la plage de dates au format JJ/MM/YY
+    st.markdown(f"<h3 style='text-align: center;'>Du {debut_semaine.strftime('%d/%m/%y')} au {fin_semaine.strftime('%d/%m/%y')}</h3>", unsafe_allow_html=True)
 
-    # 3. Affichage des 7 jours
-    jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
+    # 3. Affichage en Tableau
+    jours_noms = ["Ven", "Sam", "Dim", "Lun", "Mar", "Mer", "Jeu"]
     temp_planning = st.session_state.planning_data.copy()
 
-    for i, nom in enumerate(jours_noms):
+    # Création des colonnes pour les 7 jours
+    cols = st.columns(7)
+
+    for i, col in enumerate(cols):
         date_j = debut_semaine + datetime.timedelta(days=i)
         date_str = date_j.isoformat()
         
@@ -85,38 +91,36 @@ def afficher():
                 "midi": {"plat": "---", "entree": "---", "dessert": "---"},
                 "soir": {"plat": "---", "entree": "---", "dessert": "---"}
             }
-        
-        m_plat = temp_planning[date_str]["midi"].get("plat", "---")
-        s_plat = temp_planning[date_str]["soir"].get("plat", "---")
 
-        # Formatage de la date avec mois abregé (ex: mar.)
-        titre_complet = f"{nom} {date_j.strftime('%d %b.')}"
-        if date_j == aujourdhui:
-            titre_complet = f"Aujourd'hui : {titre_complet}"
-        
-        resume_menu = f"Midi : {m_plat} | Soir : {s_plat}"
-        
-        with st.expander(f"{titre_complet} ({resume_menu})", expanded=(date_j == aujourdhui)):
+        with col:
+            # En-tête du jour avec format JJ/MM/YY
+            couleur = "#e1f5fe" if date_j == aujourdhui else "transparent"
+            st.markdown(f"""
+                <div style="background-color: {couleur}; border-radius: 5px; padding: 5px; text-align: center; border: 1px solid #ddd;">
+                    <small>{jours_noms[i]}</small><br><b>{date_j.strftime('%d/%m/%y')}</b>
+                </div>
+            """, unsafe_allow_html=True)
+            
             for repas in ["midi", "soir"]:
                 st.write(f"**{repas.capitalize()}**")
-                
                 r_data = temp_planning[date_str][repas]
+                
                 p_idx = options_repas.index(r_data["plat"]) if r_data["plat"] in options_repas else 0
                 e_idx = options_repas.index(r_data["entree"]) if r_data["entree"] in options_repas else 0
                 d_idx = options_repas.index(r_data["dessert"]) if r_data["dessert"] in options_repas else 0
 
-                # Sélection du Plat principal
-                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}")
+                # Sélection simplifiée (Plat principal)
+                p = st.selectbox("Plat", options_repas, index=p_idx, key=f"p_{date_str}_{repas}", label_visibility="collapsed")
                 
-                # Bouton pour ajouter Entree/Dessert (masqués par défaut)
-                with st.popover("Ajouter une entree ou un dessert"):
+                # Popover pour ajouter un plat (Entrée/Dessert)
+                with st.popover("Ajouter un plat"):
                     e = st.selectbox("Entree", options_repas, index=e_idx, key=f"e_{date_str}_{repas}")
                     d = st.selectbox("Dessert", options_repas, index=d_idx, key=f"d_{date_str}_{repas}")
                 
                 temp_planning[date_str][repas] = {"plat": p, "entree": e, "dessert": d}
 
     # 4. Sauvegarde
-    st.write("")
+    st.divider()
     if st.button("Enregistrer les modifications", use_container_width=True):
         st.session_state.planning_data.update(temp_planning)
         seuil = (aujourdhui - datetime.timedelta(days=10)).isoformat()
