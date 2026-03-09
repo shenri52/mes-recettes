@@ -39,19 +39,17 @@ def sauvegarder_github(chemin, contenu_dict):
 def afficher():
     st.header("Planning")
 
-    # 1. Chargement Unique via Session State pour optimiser les appels API
     if 'index_complet' not in st.session_state:
         st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state:
         st.session_state.planning_data = charger_donnees("data/planning.json")
     
-    # Gestion de la semaine affichée
     if 'offset_semaine' not in st.session_state:
         st.session_state.offset_semaine = 0
 
     options_repas = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
 
-    # 2. Barre de Navigation
+    # 1. Barre de Navigation
     col_prev, col_titre, col_next = st.columns([1, 3, 1])
     
     with col_prev:
@@ -64,45 +62,49 @@ def afficher():
             st.session_state.offset_semaine += 1
             st.rerun()
 
-    # 3. Calcul des dates (Samedi a Vendredi)
+    # 2. Calcul des dates (Vendredi a Jeudi)
     aujourdhui = datetime.date.today()
-    ecart_samedi = (aujourdhui.weekday() - 5) % 7
-    samedi_base = aujourdhui - datetime.timedelta(days=ecart_samedi)
-    debut_semaine = samedi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
+    # On recule jusqu'au vendredi precedent (4=Ven)
+    ecart_vendredi = (aujourdhui.weekday() - 4) % 7
+    vendredi_base = aujourdhui - datetime.timedelta(days=ecart_vendredi)
+    debut_semaine = vendredi_base + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin_semaine = debut_semaine + datetime.timedelta(days=6)
 
     with col_titre:
         st.markdown(f"<h3 style='text-align: center;'>Du {debut_semaine.strftime('%d/%m')} au {fin_semaine.strftime('%d/%m')}</h3>", unsafe_allow_html=True)
 
-    # 4. Affichage des 7 jours
-    jours_noms = ["Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
-    
-    # Copie de travail pour la vue actuelle
+    # 3. Affichage des 7 jours
+    jours_noms = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp_planning = st.session_state.planning_data.copy()
 
     for i, nom in enumerate(jours_noms):
         date_j = debut_semaine + datetime.timedelta(days=i)
         date_str = date_j.isoformat()
         
-        titre = f"{nom} {date_j.strftime('%d %b')}"
+        # Recuperation des donnees pour l'affichage du resume
+        if date_str not in temp_planning:
+            temp_planning[date_str] = {
+                "midi": {"plat": "---", "entree": "---", "dessert": "---"},
+                "soir": {"plat": "---", "entree": "---", "dessert": "---"}
+            }
+        
+        m_plat = temp_planning[date_str]["midi"].get("plat", "---")
+        s_plat = temp_planning[date_str]["soir"].get("plat", "---")
+
+        # Titre et Resume du menu directement visible
+        titre_complet = f"{nom} {date_j.strftime('%d %b')}"
         if date_j == aujourdhui:
-            titre = f"Aujourd'hui : {titre}"
-
-        # Seul le jour actuel est ouvert par defaut
-        with st.expander(titre, expanded=(date_j == aujourdhui)):
-            if date_str not in temp_planning:
-                temp_planning[date_str] = {
-                    "midi": {"plat": "---", "entree": "---", "dessert": "---"},
-                    "soir": {"plat": "---", "entree": "---", "dessert": "---"}
-                }
-
+            titre_complet = f"Aujourd'hui : {titre_complet}"
+        
+        # Affichage du resume sous le nom du jour
+        resume_menu = f"Midi : {m_plat} | Soir : {s_plat}"
+        
+        with st.expander(f"{titre_complet} ({resume_menu})", expanded=(date_j == aujourdhui)):
             for repas in ["midi", "soir"]:
                 st.write(f"**{repas.capitalize()}**")
                 c1, c2, c3 = st.columns(3)
                 
                 r_data = temp_planning[date_str][repas]
-                
-                # Pre-selection des index dans les listes
                 p_idx = options_repas.index(r_data["plat"]) if r_data["plat"] in options_repas else 0
                 e_idx = options_repas.index(r_data["entree"]) if r_data["entree"] in options_repas else 0
                 d_idx = options_repas.index(r_data["dessert"]) if r_data["dessert"] in options_repas else 0
@@ -116,13 +118,10 @@ def afficher():
                 
                 temp_planning[date_str][repas] = {"plat": p, "entree": e, "dessert": d}
 
-    # 5. Sauvegarde finale
+    # 4. Sauvegarde
     st.write("")
     if st.button("Enregistrer les modifications", use_container_width=True):
-        # Fusion des donnees de la semaine affichee avec le reste
         st.session_state.planning_data.update(temp_planning)
-        
-        # Nettoyage : on garde un historique de 10 jours maximum
         seuil = (aujourdhui - datetime.timedelta(days=10)).isoformat()
         final_data = {k: v for k, v in st.session_state.planning_data.items() if k >= seuil}
         
