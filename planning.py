@@ -129,7 +129,7 @@ def afficher():
 
     # 4. Sauvegarde
     st.divider()
-    if st.button("Enregistrer les modifications", use_container_width=True):
+    if st.button("💾 Enregistrer les modifications", use_container_width=True):
         st.session_state.planning_data.update(temp_planning)
         # On conserve un historique glissant de 10 jours
         seuil = (aujourdhui - datetime.timedelta(days=10)).isoformat()
