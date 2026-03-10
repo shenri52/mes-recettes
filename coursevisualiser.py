@@ -4,7 +4,7 @@ import requests
 import base64
 
 def afficher():
-    # --- STYLE CSS (Remis à l'original) ---
+    # --- STYLE CSS ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: 4rem; }
@@ -12,6 +12,13 @@ def afficher():
         .stButton>button { 
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
             font-size: 14px;
+        }
+        /* Style pour les boutons fantômes invisibles */
+        .ghost-btn button {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            color: transparent !important;
+            cursor: default !important;
         }
         [data-testid="stVerticalBlock"] { gap: 0.5rem !important; }
         </style>
@@ -52,12 +59,10 @@ def afficher():
         st.session_state.data_a5, st.session_state.sha_a5 = get_data()
 
     # --- CALCUL DE L'ALIGNEMENT ---
-    # On cherche le rayon qui a le plus de produits pour définir la hauteur commune
     max_produits = 0
     for val in st.session_state.data_a5.values():
         max_produits = max(max_produits, len(val["panier"]))
     
-    # On arrondit au nombre pair supérieur car on affiche par lignes de 2
     max_lignes = (max_produits + 1) // 2
 
     # --- GRILLE PRINCIPALE (2 COLONNES) ---
@@ -70,7 +75,6 @@ def afficher():
                 with cols[j]:
                     with st.container(border=True):
                         panier = case["panier"]
-                        # On itère sur le nombre de lignes maximum pour aligner les boites
                         for row_idx in range(max_lignes):
                             sub_cols = st.columns(2)
                             for k in range(2):
@@ -78,8 +82,6 @@ def afficher():
                                 if p_idx < len(panier):
                                     p = panier[p_idx]
                                     is_checked = p.get("checked", False)
-                                    
-                                    # Formatage du label (Barré si coché)
                                     txt = f"{p['nom']} ({p['qte']})"
                                     label = f"~~{txt}~~" if is_checked else txt
                                     
@@ -88,8 +90,11 @@ def afficher():
                                         save_data(st.session_state.data_a5, st.session_state.sha_a5)
                                         st.rerun()
                                 else:
-                                    # Produit fantôme pour maintenir l'alignement
-                                    sub_cols[k].button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
+                                    # Bouton fantôme dans une div invisible
+                                    with sub_cols[k].container():
+                                        st.markdown('<div class="ghost-btn">', unsafe_allow_html=True)
+                                        st.button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
+                                        st.markdown('</div>', unsafe_allow_html=True)
 
     # --- NAVIGATION ET CONTRÔLES ---
     if st.button("🔄 Rafraîchir", use_container_width=True):
