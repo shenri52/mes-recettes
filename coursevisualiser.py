@@ -13,12 +13,14 @@ def afficher():
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
             font-size: 14px;
         }
-        /* Style pour les boutons fantômes invisibles */
-        .ghost-btn button {
+        /* Rendre les boutons fantômes (texte vide) invisibles */
+        div.stButton > button:has(div[p=" "]), 
+        div.stButton > button:empty,
+        div.stButton > button[disabled] {
             background-color: transparent !important;
             border-color: transparent !important;
             color: transparent !important;
-            cursor: default !important;
+            box-shadow: none !important;
         }
         [data-testid="stVerticalBlock"] { gap: 0.5rem !important; }
         </style>
@@ -90,11 +92,8 @@ def afficher():
                                         save_data(st.session_state.data_a5, st.session_state.sha_a5)
                                         st.rerun()
                                 else:
-                                    # Bouton fantôme dans une div invisible
-                                    with sub_cols[k].container():
-                                        st.markdown('<div class="ghost-btn">', unsafe_allow_html=True)
-                                        st.button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
-                                        st.markdown('</div>', unsafe_allow_html=True)
+                                    # Produit fantôme avec texte " " (espace)
+                                    sub_cols[k].button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
 
     # --- NAVIGATION ET CONTRÔLES ---
     if st.button("🔄 Rafraîchir", use_container_width=True):
