@@ -137,6 +137,11 @@
         "nom": "Chorizo",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Boeuf",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
