@@ -93,22 +93,19 @@ def afficher():
 
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
-                # Récupération de la liste des plats (initialisation si besoin)
                 plats = temp[d_str].get(rep, [])
-                if isinstance(plats, dict): plats = [] # Migration ancienne structure
+                if isinstance(plats, dict): plats = [] 
                 
-                # Affichage des plats existants
                 for idx, p_nom in enumerate(plats):
-                    if st.button(p_nom, key=f"del_{d_str}{rep}{idx}", use_container_width=True, help="Cliquer pour supprimer"):
+                    if st.button(p_nom, key=f"del_{d_str}{rep}{idx}", use_container_width=True):
                         plats.pop(idx)
                         temp[d_str][rep] = plats
                         st.session_state.planning_data.update(temp)
                         st.rerun()
                 
-                # Bouton d'ajout (max 3 plats)
                 if len(plats) < 3:
                     with st.popover("➕ Ajouter", use_container_width=True):
-                        choix = st.selectbox("Choisir", options, key=f"sel_{d_str}{rep}")
+                        choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
                         if choix != "---":
                             plats.append(choix)
                             temp[d_str][rep] = plats
