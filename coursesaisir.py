@@ -97,7 +97,7 @@ def afficher():
                                 if save_data(st.session_state.data_a5, st.session_state.sha_a5):
                                     st.rerun()
 
-    st.divider()
+      # --- st.divider()---
 
     # --- BOUTONS DE NAVIGATION (Inchangés) ---
     c_ref, c_res = st.columns(2)
