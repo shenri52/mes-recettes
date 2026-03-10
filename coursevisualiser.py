@@ -87,8 +87,3 @@ def afficher():
                                     p2["checked"] = not p2.get("checked", False)
                                     save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                     st.rerun()
-
-    st.divider()
-    if st.button("🔄 Rafraîchir", use_container_width=True):
-        st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
-        st.rerun()
