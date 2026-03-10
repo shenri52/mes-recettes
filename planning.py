@@ -4,7 +4,6 @@ import json
 import requests
 import time
 import base64
-from collections import Counter
 
 # --- FONCTIONS TECHNIQUES ---
 def config_github():
@@ -164,9 +163,7 @@ def afficher():
 
     # 3. Actions Finales
     st.divider()
-    
-    b1, b2 = st.columns(2)
-    
+       
     if b1.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
@@ -175,25 +172,5 @@ def afficher():
             st.success("Planning enregistré 💾")
             time.sleep(1)
             st.rerun()
-
-    if b2.button("🛒 Liste des courses", use_container_width=True):
-        liste_ingredients = []
-        for i in range(7):
-            d_str = (debut + datetime.timedelta(days=i)).isoformat()
-            if d_str in temp:
-                for rep in ["midi", "soir"]:
-                    plats_rep = temp[d_str].get(rep, [])
-                    for nom_recette in plats_rep:
-                        if nom_recette and nom_recette != "---":
-                            recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
-                            if recette_data and 'ingredients' in recette_data:
-                                liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
-        
-        if liste_ingredients:
-            st.subheader("🛒 Liste des courses")
-            counts = Counter(liste_ingredients)
-            for ing in sorted(counts.keys()):
-                suffixe = f" ({counts[ing]})" if counts[ing] > 1 else ""
-                st.write(f"- {ing}{suffixe}")
 
     st.divider()
