@@ -5,7 +5,7 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS (RETOUR AU DESIGN D'ORIGINE) ---
+    # --- STYLE CSS (STRICTEMENT TON ORIGINAL) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -51,13 +51,13 @@ def afficher():
             return True
         return False
 
-    # Chargement
+    # Chargement unique au démarrage
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
             st.session_state.data_a5 = {str(i): {"panier": []} for i in range(12)}
 
-    # --- GRILLE DES ZONES ---
+    # --- AFFICHAGE DES 12 ZONES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -67,12 +67,14 @@ def afficher():
                 with cols[j]:
                     st.caption(f"Zone {int(idx)+1}")
                     with st.container(border=True):
-                        # On n'affiche rien si la zone est vide (pas de bouton vide)
+                        # On affiche la liste des produits de la zone
                         for p_idx, p in enumerate(case.get("panier", [])):
                             is_checked = p.get("checked", False)
-                            # On barre le texte si coché, sinon texte normal
-                            label = f"~~{p['nom']} ({p['qte']})~~" if is_checked else f"{p['nom']} ({p['qte']})"
+                            # Si coché, on utilise ~~ pour barrer le texte
+                            txt = f"{p['nom']} ({p['qte']})"
+                            label = f"~~{txt}~~" if is_checked else txt
                             
+                            # Clic sur le bouton = Inverse l'état + Sauvegarde GitHub
                             if st.button(label, key=f"vis_{idx}_{p_idx}"):
                                 p["checked"] = not is_checked
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
@@ -80,4 +82,5 @@ def afficher():
 
     st.divider()
     if st.button("🔄 Rafraîchir", use_container_width=True):
-        st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE
+        st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
+        st.rerun()
