@@ -42,10 +42,11 @@ def afficher():
     if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
+    # FUSION DYNAMIQUE : Recettes + Plats Rapides
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
-    # 1. Navigation
+    # 1. Navigation Compacte
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin = debut + datetime.timedelta(days=6)
@@ -69,63 +70,103 @@ def afficher():
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
     
+    st.write("") 
+    c_head_label, c_head_m, c_head_s = st.columns([1.2, 2, 2])
+    with c_head_m: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Midi</p>", unsafe_allow_html=True)
+    with c_head_s: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Soir</p>", unsafe_allow_html=True)
     st.divider()
 
     for i, nom in enumerate(jours):
         d_j = debut + datetime.timedelta(days=i)
         d_str = d_j.isoformat()
         
-        if d_str not in temp: temp[d_str] = {"midi": [], "soir": []}
+        if d_str not in temp: 
+            temp[d_str] = {"midi": [], "soir": []}
 
         col_d, col_m, col_s = st.columns([1.2, 2, 2])
         
         is_today = (d_j == aujourdhui)
         bg = "#e1f5fe" if is_today else "transparent"
+        border = "2px solid #0288d1" if is_today else "1px solid #ddd"
+        text_color = "#01579b" if is_today else "inherit"
         
-        col_d.markdown(f"<div style='background:{bg}; padding:10px; border-radius:5px; border:1px solid #ddd;'><b>{nom}</b><br>{d_j.strftime('%d/%m')}</div>", unsafe_allow_html=True)
+        col_d.markdown(f"""
+            <div style='background:{bg}; color:{text_color}; padding:10px; border-radius:5px; border:{border}; min-height:102px; display:flex; flex-direction:column; justify-content:center;'>
+                <small style='font-weight:normal;'>{nom}</small><br><b style='font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
+            </div>
+        """, unsafe_allow_html=True)
 
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
                 plats = temp[d_str].get(rep, [])
-                if isinstance(plats, dict): plats = []
+                if isinstance(plats, dict): plats = [] 
                 
                 for idx, p_nom in enumerate(plats):
-                    if st.button(f"🗑️ {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
+                    est_recette = any(r['nom'] == p_nom for r in st.session_state.index_complet)
+                    icon = "📖" if est_recette else "⚡"
+                    
+                    if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
                         plats.pop(idx)
                         temp[d_str][rep] = plats
                         st.session_state.planning_data.update(temp)
                         st.rerun()
                 
                 if len(plats) < 3:
-                    with st.popover("➕", use_container_width=True):
-                        choix = st.selectbox("Ajouter", options, key=f"sel_{d_str}{rep}{len(plats)}")
+                    with st.popover("➕ Ajouter", use_container_width=True):
+                        choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
                         if choix != "---":
                             plats.append(choix)
                             temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
 
-    # 3. Plats Rapides
+    # --- ZONE : GESTION DES PLATS RAPIDES ---
     st.divider()
-    st.subheader("🍴 Plats rapides")
+    st.subheader("🍴 Mes plats rapides (sans recette)")
+    
+    plats_rapides = sorted(st.session_state.plats_rapides)
+    if plats_rapides:
+        col_sel, col_ren, col_btn_ren, col_btn_del = st.columns([1.5, 1.5, 1, 1])
+        with col_sel:
+            plat_sel = st.selectbox("Plats enregistrés", ["---"] + plats_rapides, key="sel_rapide_manage", label_visibility="collapsed")
+        
+        if plat_sel != "---":
+            with col_ren:
+                nouveau_nom = st.text_input("Nouveau nom", value=plat_sel, key="rename_plat", label_visibility="collapsed")
+            with col_btn_ren:
+                if st.button("📝 OK", key="btn_rename", use_container_width=True):
+                    if nouveau_nom and nouveau_nom != plat_sel:
+                        st.session_state.plats_rapides.remove(plat_sel)
+                        st.session_state.plats_rapides.append(nouveau_nom)
+                        sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                        st.rerun()
+            with col_btn_del:
+                if st.button("🗑️ Suppr", key="btn_del_rapide", use_container_width=True):
+                    st.session_state.plats_rapides.remove(plat_sel)
+                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                    st.rerun()
+
     col_add_txt, col_add_btn = st.columns([3, 1])
     with col_add_txt:
-        nouveau_plat = st.text_input("Nom du plat", placeholder="Ex: Pâtes pesto", key="new_plat_input", label_visibility="collapsed")
+        nouveau_plat = st.text_input("Nom du nouveau plat", placeholder="Ajouter un plat...", key="input_new_plat", label_visibility="collapsed")
     with col_add_btn:
-        if st.button("➕", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
+        if st.button("➕ Ajouter", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
             if nouveau_plat not in st.session_state.plats_rapides:
                 st.session_state.plats_rapides.append(nouveau_plat)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    # 4. Enregistrement
+    # 3. Actions Finales
     st.divider()
+    
+    # Bouton d'enregistrement unique (plus de colonne b2)
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
-        limite = (aujourdhui - datetime.timedelta(days=10)).isoformat()
-        final = {k: v for k, v in st.session_state.planning_data.items() if k >= limite}
+        final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
         if sauvegarder_github("data/planning.json", final):
             st.session_state.planning_data = final
-            st.success("Enregistré ! 💾")
+            st.success("Planning enregistré 💾")
             time.sleep(1)
-            st.rerun()
+            st.rerun() # Effectue le reset visuel des champs
+
+    st.divider()
