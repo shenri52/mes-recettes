@@ -4,7 +4,7 @@ import requests
 import base64
 
 def afficher():
-    # --- STYLE CSS ---
+    # --- STYLE CSS (Inchangé) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: 4rem; }
@@ -56,7 +56,6 @@ def afficher():
             if idx in st.session_state.data_a5:
                 case = st.session_state.data_a5[idx]
                 with cols[j]:
-                    # Utilisation de Container au lieu de Expander
                     with st.container(border=True):
                         
                         # Formulaire pour l'ajout avec Reset automatique
@@ -68,25 +67,36 @@ def afficher():
                             if st.form_submit_button("Ajouter", use_container_width=True):
                                 final_nom = nom.strip() if choix == "-- Nouveau --" else choix
                                 if final_nom:
-                                    case["panier"].append({"nom": final_nom, "qte": qte.strip() or "1"})
+                                    # --- LOGIQUE DE FUSION (Seule modification) ---
+                                    produit_existant = False
+                                    for p in case["panier"]:
+                                        if p["nom"].lower() == final_nom.lower():
+                                            p["qte"] = qte.strip() or "1" 
+                                            produit_existant = True
+                                            break
+                                    
+                                    if not produit_existant:
+                                        case["panier"].append({"nom": final_nom, "qte": qte.strip() or "1"})
+                                    
                                     if final_nom not in case["catalogue"]:
                                         case["catalogue"].append(final_nom)
                                         case["catalogue"].sort()
+                                    
                                     save_data(st.session_state.data_a5, st.session_state.sha_a5)
                                     st.rerun()
 
                         st.divider()
 
-                        # Affichage de la liste actuelle dans le rayon
+                        # Affichage de la liste (Strictement identique à avant)
                         for p_idx, p in enumerate(case["panier"]):
                             if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx}_{p_idx}"):
-                                case["panier"].pop(p_idx)
+                                case["panier"].pop(p_idx) # <--- TOUJOURS PRÉSENT POUR SUPPRIMER
                                 save_data(st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
 
     st.divider()
 
-    # --- BOUTONS DE NAVIGATION ---
+    # --- BOUTONS DE NAVIGATION (Inchangé) ---
     c_ref, c_res = st.columns(2)
     with c_ref:
         if st.button("🔄 Rafraîchir", use_container_width=True):
