@@ -339,6 +339,10 @@ def afficher():
     # 3. Actions Finales
     st.divider()
        
+# 3. Actions Finales
+    st.divider()
+    
+    # On affiche le bouton sur toute la largeur (plus besoin de b1, b2 = st.columns)
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
@@ -348,4 +352,4 @@ def afficher():
             time.sleep(1)
             st.rerun()
 
-    st.divider()
+    st.divider()()
