@@ -168,5 +168,3 @@ def afficher():
             st.success("Planning enregistré 💾")
             time.sleep(1)
             st.rerun() # Effectue le reset visuel des champs
-
-    st.divider()
