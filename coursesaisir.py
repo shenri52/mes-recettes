@@ -7,7 +7,7 @@ from collections import Counter
 import time
 
 def afficher():
-    # --- STYLE CSS (STRICTEMENT TON ORIGINAL) ---
+    # --- STYLE CSS (INCHANGÉ) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -71,7 +71,7 @@ def afficher():
     if "exclus_transit" not in st.session_state: st.session_state.exclus_transit = []
     if "liste_a_trier" not in st.session_state: st.session_state.liste_a_trier = {}
 
-    # --- ZONE DE TRANSIT (AVEC BOUTON ACTUALISER) ---
+    # --- ZONE DE TRANSIT ---
     st.subheader("📦 Zone de Transit")
     
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -90,7 +90,6 @@ def afficher():
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
-    # BOUTON ACTUALISER : Il scanne le planning et remplit la liste temporaire
     if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
         planning, _ = get_github_data("data/planning.json")
         index_recettes, _ = get_github_data("data/index_recettes.json")
@@ -107,7 +106,6 @@ def afficher():
             st.session_state.liste_a_trier = Counter(liste_brute)
             st.rerun()
 
-    # Affichage de la liste de transit uniquement si elle contient des choses
     if st.session_state.liste_a_trier:
         with st.container(border=True):
             items_transit = sorted(st.session_state.liste_a_trier.items())
@@ -121,9 +119,17 @@ def afficher():
                 col_nom, col_sel, col_add, col_del = st.columns([2, 1.5, 0.4, 0.4])
                 col_nom.write(f"**{ing}** ({qte})")
                 
+                # CORRECTION : Recherche robuste de la zone mémorisée
                 zone_pref = st.session_state.index_zones.get(ing, "0")
+                # Sécurité : on vérifie que c'est un index valide (0-11)
+                try:
+                    idx_pref = int(zone_pref)
+                    if idx_pref < 0 or idx_pref > 11: idx_pref = 0
+                except:
+                    idx_pref = 0
+                
                 options_zones = [str(i) for i in range(12)]
-                zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
+                zone_dest = col_sel.selectbox("Zone", options_zones, index=idx_pref, key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
                 
                 if col_add.button("➕", key=f"btn_add_{ing}"):
                     st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
@@ -140,7 +146,7 @@ def afficher():
 
     st.divider()
 
-    # --- GRILLE DES 12 CASES (RESTE INCHANGÉE) ---
+    # --- GRILLE DES 12 CASES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
