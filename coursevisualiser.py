@@ -107,7 +107,7 @@ def afficher():
     counts = Counter(liste_brute)
 
     # BOUTON ACTUALISER (CORRIGÉ : AJOUTE, MET À JOUR ET SUPPRIME)
-    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
+    if st.button("🚀 Actualiserla liste des courses", use_container_width=True):
         # 1. Mise à jour et Ajout
         for ing, qte in counts.items():
             zone_dest = st.session_state.index_zones.get(ing)
@@ -200,7 +200,7 @@ def afficher():
                                 else:
                                     sub_cols[k].button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
 
-    if st.button("🔄 Rafraîchir", use_container_width=True):
+    if st.button("🔄 Rafraîchir les ingrédients", use_container_width=True):
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
         st.session_state.exclus_transit = []
