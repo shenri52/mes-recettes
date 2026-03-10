@@ -59,26 +59,37 @@ def afficher():
 
     # --- AFFICHAGE DES 12 ZONES ---
     for i in range(0, 12, 2):
-        cols = st.columns(2)
+        cols_zones = st.columns(2)
         for j in range(2):
             idx = str(i + j)
             if idx in st.session_state.data_a5:
                 case = st.session_state.data_a5[idx]
-                with cols[j]:
+                with cols_zones[j]:
                     st.caption(f"Zone {int(idx)+1}")
                     with st.container(border=True):
-                        # On affiche la liste des produits de la zone
-                        for p_idx, p in enumerate(case.get("panier", [])):
-                            is_checked = p.get("checked", False)
-                            # Si coché, on utilise ~~ pour barrer le texte
-                            txt = f"{p['nom']} ({p['qte']})"
-                            label = f"~~{txt}~~" if is_checked else txt
+                        panier = case.get("panier", [])
+                        # On parcourt le panier 2 par 2 pour l'affichage en colonnes
+                        for p_idx in range(0, len(panier), 2):
+                            cols_ing = st.columns(2)
                             
-                            # Clic sur le bouton = Inverse l'état + Sauvegarde GitHub
-                            if st.button(label, key=f"vis_{idx}_{p_idx}"):
-                                p["checked"] = not is_checked
+                            # Ingrédient 1 (colonne gauche)
+                            p1 = panier[p_idx]
+                            txt1 = f"{p1['nom']} ({p1['qte']})"
+                            label1 = f"~~{txt1}~~" if p1.get("checked", False) else txt1
+                            if cols_ing[0].button(label1, key=f"vis_{idx}_{p_idx}"):
+                                p1["checked"] = not p1.get("checked", False)
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
+                            
+                            # Ingrédient 2 (colonne droite, si existe)
+                            if p_idx + 1 < len(panier):
+                                p2 = panier[p_idx + 1]
+                                txt2 = f"{p2['nom']} ({p2['qte']})"
+                                label2 = f"~~{txt2}~~" if p2.get("checked", False) else txt2
+                                if cols_ing[1].button(label2, key=f"vis_{idx}_{p_idx+1}"):
+                                    p2["checked"] = not p2.get("checked", False)
+                                    save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                                    st.rerun()
 
     st.divider()
     if st.button("🔄 Rafraîchir", use_container_width=True):
