@@ -76,7 +76,7 @@ def afficher():
         d_str = d_j.isoformat()
         
         if d_str not in temp: 
-            temp[d_str] = {"midi": {"plat": "---", "comp": "---"}, "soir": {"plat": "---", "comp": "---"}}
+            temp[d_str] = {"midi": [], "soir": []}
 
         col_d, col_m, col_s = st.columns([1.2, 2, 2])
         
@@ -86,28 +86,32 @@ def afficher():
         text_color = "#000000" if is_today else "inherit"
         
         col_d.markdown(f"""
-            <div style='background:{bg}; color:{text_color}; padding:10px; border-radius:5px; border:{border}; height:102px; display:flex; flex-direction:column; justify-content:center;'>
+            <div style='background:{bg}; color:{text_color}; padding:10px; border-radius:5px; border:{border}; min-height:102px; display:flex; flex-direction:column; justify-content:center;'>
                 <small style='color:{text_color}; font-weight:normal;'>{nom}</small><br><b style='color:{text_color}; font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
             </div>
         """, unsafe_allow_html=True)
 
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
-                r = temp[d_str].get(rep, {"plat": "---", "comp": "---"})
-                plat_actuel = r.get("plat", "---")
+                # Récupération de la liste des plats (initialisation si besoin)
+                plats = temp[d_str].get(rep, [])
+                if isinstance(plats, dict): plats = [] # Migration ancienne structure
                 
-                # Si un plat est sélectionné, on l'affiche en bouton rouge pour suppression
-                if plat_actuel != "---":
-                    if st.button(f"🔴 {plat_actuel}", key=f"del_{d_str}{rep}", use_container_width=True):
-                        temp[d_str][rep]["plat"] = "---"
+                # Affichage des plats existants
+                for idx, p_nom in enumerate(plats):
+                    if st.button(p_nom, key=f"del_{d_str}{rep}{idx}", use_container_width=True, help="Cliquer pour supprimer"):
+                        plats.pop(idx)
+                        temp[d_str][rep] = plats
                         st.session_state.planning_data.update(temp)
                         st.rerun()
-                else:
-                    # Sinon, on affiche le bouton d'ajout avec la liste déroulante
+                
+                # Bouton d'ajout (max 3 plats)
+                if len(plats) < 3:
                     with st.popover("➕ Ajouter", use_container_width=True):
                         choix = st.selectbox("Choisir", options, key=f"sel_{d_str}{rep}")
                         if choix != "---":
-                            temp[d_str][rep]["plat"] = choix
+                            plats.append(choix)
+                            temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
 
@@ -131,12 +135,12 @@ def afficher():
             d_str = (debut + datetime.timedelta(days=i)).isoformat()
             if d_str in temp:
                 for rep in ["midi", "soir"]:
-                    # On ne garde que "plat" car vous avez indiqué ne plus vouloir de liste au milieu
-                    nom_recette = temp[d_str][rep].get("plat")
-                    if nom_recette and nom_recette != "---":
-                        recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
-                        if recette_data and 'ingredients' in recette_data:
-                            liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
+                    plats_rep = temp[d_str].get(rep, [])
+                    for nom_recette in plats_rep:
+                        if nom_recette and nom_recette != "---":
+                            recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
+                            if recette_data and 'ingredients' in recette_data:
+                                liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
         
         if liste_ingredients:
             st.subheader("🛒 Liste des courses")
