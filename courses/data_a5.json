@@ -12,6 +12,11 @@
       {
         "nom": "Pepsi",
         "qte": "1"
+      },
+      {
+        "nom": "Poiré (cidre de poire)",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
