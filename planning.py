@@ -168,7 +168,7 @@ def afficher():
     # 3. Actions Finales
     st.divider()
        
-    if b1.button("💾 Enregistrer Planning", use_container_width=True):
+    if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
         if sauvegarder_github("data/planning.json", final):
@@ -342,7 +342,7 @@ def afficher():
 # 3. Actions Finales
     st.divider()
     
-    # On affiche le bouton sur toute la largeur (plus besoin de b1, b2 = st.columns)
+    # On affiche le bouton sur toute la largeur 
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
