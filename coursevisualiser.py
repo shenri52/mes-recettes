@@ -114,21 +114,19 @@ def afficher():
                 continue
 
             visible_count += 1
-            col_nom, col_sel, col_add, col_del = st.columns([2, 1.4, 0.4, 0.4])
+            col_nom, col_sel, col_add, col_del = st.columns([2, 1.5, 0.4, 0.4])
             
-            # Affichage nom + étoile si connu
             label_ing = f"⭐ {ing}" if ing in st.session_state.index_zones else ing
             col_nom.write(f"**{label_ing}** ({qte})")
             
-            # Pré-sélection intelligente
             zone_pref = st.session_state.index_zones.get(ing, "0")
             options_zones = [str(i) for i in range(12)]
-            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Z{int(x)+1}")
+            # RETOUR AU NOM COMPLET "Zone X"
+            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
             
             if col_add.button("➕", key=f"btn_add_{ing}"):
                 st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                # On mémorise la zone pour la pré-sélection future
                 st.session_state.index_zones[ing] = zone_dest
                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                 st.rerun()
