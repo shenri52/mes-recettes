@@ -45,7 +45,13 @@
     "catalogue": []
   },
   "8": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Maïzena",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": []
   },
   "9": {
