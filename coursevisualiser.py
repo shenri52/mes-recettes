@@ -91,7 +91,7 @@ def afficher():
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
-    # Calcul des ingrédients du planning actuel
+    # Calcul des ingrédients du planning
     planning, _ = get_github_data("data/planning.json")
     index_recettes, _ = get_github_data("data/index_recettes.json")
     liste_brute = []
@@ -106,34 +106,26 @@ def afficher():
                             liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
     counts = Counter(liste_brute)
 
-    # BOUTON ACTUALISER (CORRIGÉ : AJOUTE, MET À JOUR ET SUPPRIME)
-    if st.button("🚀 Actualiserla liste des courses", use_container_width=True):
-        # 1. Mise à jour et Ajout
-        for ing, qte in counts.items():
-            zone_dest = st.session_state.index_zones.get(ing)
-            if zone_dest:
-                trouve = False
-                for item in st.session_state.data_a5[zone_dest]["panier"]:
-                    if item['nom'] == ing:
-                        item['qte'] = str(qte)
-                        trouve = True
-                        break
-                if not trouve:
-                    st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-        
-        # 2. NETTOYAGE : Supprime les produits qui ne sont plus dans le planning
-        for z_id in st.session_state.data_a5:
-            panier_filtre = []
-            for item in st.session_state.data_a5[z_id]["panier"]:
-                # On garde le produit SI il est encore dans le planning OU si on l'a ajouté à la main (pas dans l'index)
-                if item['nom'] in counts or item['nom'] not in st.session_state.index_zones:
-                    panier_filtre.append(item)
-            st.session_state.data_a5[z_id]["panier"] = panier_filtre
+    # BOUTON ACTUALISER (CORRIGÉ : PLUS DE NETTOYAGE AUTOMATIQUE)
+    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
+        if counts:
+            for ing, qte in counts.items():
+                zone_dest = st.session_state.index_zones.get(ing)
+                if zone_dest:
+                    trouve = False
+                    for item in st.session_state.data_a5[zone_dest]["panier"]:
+                        if item['nom'] == ing:
+                            item['qte'] = str(qte)
+                            trouve = True
+                            break
+                    if not trouve:
+                        st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
             
-        save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-        st.success("Synchronisation et Nettoyage terminés !")
-        time.sleep(0.5)
-        st.rerun()
+            # SUPPRESSION DE LA LIGNE DE NETTOYAGE ICI POUR GARDER TES SAISIES MANUELLES
+            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+            st.success("Synchronisation terminée !")
+            time.sleep(0.5)
+            st.rerun()
 
     # AFFICHAGE TRANSIT
     with st.container(border=True):
@@ -200,7 +192,7 @@ def afficher():
                                 else:
                                     sub_cols[k].button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
 
-    if st.button("🔄 Rafraîchir les ingrédients", use_container_width=True):
+    if st.button("🔄 Rafraîchir", use_container_width=True):
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
         st.session_state.exclus_transit = []
