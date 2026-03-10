@@ -45,7 +45,7 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
-# --- 2. TRAITEMENT IMAGE (UNIQUEMENT POUR LES NOUVEAUX UPLOADS) ---
+# --- 2. TRAITEMENT IMAGE ---
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
@@ -79,7 +79,6 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES (IDENTIQUES AU CODE FONCTIONNEL)
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
@@ -134,7 +133,6 @@ def afficher():
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
 
-                # Gestion Ingrédients (Liste déroulante préservée)
                 st.write("**Ingrédients**")
                 state_key = f"ings_edit_{info['chemin']}"
                 if state_key not in st.session_state:
@@ -142,20 +140,26 @@ def afficher():
 
                 new_ingredients = []
                 for idx, ing in enumerate(st.session_state[state_key]):
-                    col_q, col_n = st.columns([1, 2])
+                    col_q, col_n, col_del = st.columns([1, 2, 0.5]) # AJOUT COL_DEL
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
                     ing_nom = ing.get('Ingrédient', '')
                     opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
                     n = col_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
+                    
+                    # BOUTON SUPPRIMER LIGNE
+                    if col_del.button("🗑️", key=f"del_{idx}_{info['chemin']}"):
+                        st.session_state[state_key].pop(idx)
+                        st.rerun()
+                        
                     new_ingredients.append({"Ingrédient": n, "Quantité": q})
 
                 if st.form_submit_button("➕ Ajouter un ingrédient"):
+                    st.session_state[state_key] = new_ingredients
                     st.session_state[state_key].append({"Ingrédient": liste_ingredients_unique[0] if liste_ingredients_unique else "", "Quantité": ""})
                     st.rerun()
 
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
 
-                # --- GESTION DES PHOTOS ---
                 st.write("**Photos**")
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
@@ -173,12 +177,9 @@ def afficher():
 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
-                    # 1. Supprimer physiquement les fichiers décochés
                     for p_path in photos_actuelles:
-                        if p_path not in photos_a_garder:
-                            supprimer_fichier_github(p_path)
+                        if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
 
-                    # 2. Upload nouvelles photos (seules celles-ci sont compressées)
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
                         nom_img = f"images/{int(time.time())}_{f.name}"
@@ -186,7 +187,6 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
-                    # 3. Sauvegarde
                     ings_final = [i for i in new_ingredients if i['Ingrédient'].strip()]
                     recette_maj = recette.copy()
                     recette_maj.update({
@@ -208,7 +208,6 @@ def afficher():
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
-            # --- AFFICHAGE LECTURE (AUCUN CHANGEMENT) ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
