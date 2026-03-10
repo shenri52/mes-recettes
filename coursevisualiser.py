@@ -24,8 +24,6 @@ def afficher():
             box-shadow: none !important;
         }
         [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
-        /* Style pour mettre en évidence la zone déjà connue */
-        .stButton>button.known-zone { background-color: #0288d1 !important; color: white !important; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -61,7 +59,7 @@ def afficher():
         if sha: payload["sha"] = sha
         return requests.put(url, json=payload, headers=headers).status_code in [200, 201]
 
-    # Initialisation data A5 et Index Produits
+    # Initialisation
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
@@ -73,7 +71,7 @@ def afficher():
 
     if "offset_semaine" not in st.session_state: st.session_state.offset_semaine = 0
 
-    # --- ZONE DE TRANSIT (ÉTAPE 1 + ÉTAPE 2) ---
+    # --- ZONE DE TRANSIT ---
     st.subheader("📦 Zone de Transit")
     
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -105,34 +103,28 @@ def afficher():
             st.info("Aucun ingrédient.")
         else:
             for ing, qte in sorted(counts.items()):
-                # On vérifie si l'ingrédient est déjà dans l'une des zones A5 pour ne pas l'afficher
-                deja_present = False
-                for z in st.session_state.data_a5.values():
-                    if any(item['nom'] == ing for item in z["panier"]):
-                        deja_present = True; break
-                
-                if not deja_present:
-                    col_nom, col_z1, col_z2, col_z3, col_z4 = st.columns([2.5, 1, 1, 1, 1])
-                    col_nom.write(f"**{ing}** ({qte})")
-                    
-                    # Zone connue ?
-                    zone_pref = st.session_state.index_zones.get(ing)
+                # On cache si déjà dans une zone
+                if any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values()):
+                    continue
 
-                    for i, col_z in enumerate([col_z1, col_z2, col_z3, col_z4]):
-                        z_id = str(i)
-                        btn_label = f"[{i+1}]"
-                        # Si c'est la zone connue, on pourrait changer le style (via CSS ou icône ici)
-                        final_label = f"⭐ {i+1}" if zone_pref == z_id else f"{i+1}"
-                        
-                        if col_z.button(final_label, key=f"tr_{ing}_{z_id}"):
-                            # 1. Ajouter au panier de la zone
-                            st.session_state.data_a5[z_id]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-                            # 2. Sauvegarder A5
-                            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                            # 3. Mettre à jour l'index des zones
-                            st.session_state.index_zones[ing] = z_id
-                            save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
-                            st.rerun()
+                col_nom, col_sel, col_go = st.columns([2, 1.5, 0.8])
+                col_nom.write(f"**{ing}** ({qte})")
+                
+                # Zone connue ?
+                zone_pref = st.session_state.index_zones.get(ing, "0")
+                
+                # Sélecteur de 1 à 12
+                options_zones = [str(i) for i in range(12)]
+                zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
+                
+                if col_go.button("➕", key=f"btn_{ing}"):
+                    # Ajouter au panier
+                    st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
+                    save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                    # Apprentissage
+                    st.session_state.index_zones[ing] = zone_dest
+                    save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
+                    st.rerun()
 
     st.divider()
 
