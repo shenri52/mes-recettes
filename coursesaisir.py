@@ -103,7 +103,7 @@ def afficher():
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
     # BOUTON ACTUALISER (SYNCHRONISATION ACTIVE)
-    if st.button("🚀 Actualiser la liste", use_container_width=True):
+    if st.button("🚀 Actualiser / Classer la liste", use_container_width=True):
         if counts:
             for ing, qte in counts.items():
                 zone_dest = st.session_state.index_zones.get(ing)
