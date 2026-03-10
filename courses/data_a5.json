@@ -15,7 +15,7 @@
       }
     ],
     "catalogue": [
-      "Bi\u00e8re blonde",
+      "Bière blonde",
       "Jus d'orange",
       "Pepsi"
     ]
@@ -55,7 +55,18 @@
     ]
   },
   "10": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Champignons",
+        "qte": "4",
+        "checked": false
+      },
+      {
+        "nom": "Ail",
+        "qte": "2",
+        "checked": false
+      }
+    ],
     "catalogue": []
   },
   "11": {
