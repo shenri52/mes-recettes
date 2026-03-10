@@ -105,7 +105,7 @@ def afficher():
             st.session_state.data_a5, st.session_state.sha_a5 = get_data()
             st.rerun()
     with c_res:
-        if st.button("🗑️ Vider le panier", use_container_width=True):
+        if st.button("🗑️ Vider la liste", use_container_width=True):
             for k in range(12): st.session_state.data_a5[str(k)]["panier"] = []
             if save_data(st.session_state.data_a5, st.session_state.sha_a5):
                 st.rerun()
