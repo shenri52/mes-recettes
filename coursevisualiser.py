@@ -2,33 +2,24 @@ import streamlit as st
 import json
 import requests
 import base64
-import datetime
-from collections import Counter
 import time
 
 def afficher():
-    # --- STYLE CSS (STRICTEMENT INCHANGÉ) ---
+    # --- STYLE CSS ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
-        header { visibility: hidden;} 
+        header { visibility: hidden; } 
         .stButton>button { 
-            width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
-            font-size: 14px;
+            width: 100%; border-radius: 6px; padding: 2px; height: 2.2em; 
+            font-size: 13px; text-align: left; padding-left: 10px;
         }
-        div.stButton > button:has(div[p=" "]), 
-        div.stButton > button:empty,
-        div.stButton > button[disabled] {
-            background-color: transparent !important;
-            border-color: transparent !important;
-            color: transparent !important;
-            box-shadow: none !important;
-        }
-        [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
+        /* Style pour le bouton barré */
+        .stButton>button p { text-decoration: inherit; } 
         </style>
     """, unsafe_allow_html=True)
 
-    # --- RÉCUPÉRATION SECRETS ---
+    # --- CONFIG GITHUB ---
     try:
         GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
         REPO_OWNER = st.secrets["REPO_OWNER"]
@@ -39,7 +30,6 @@ def afficher():
         st.stop()
 
     FILE_PATH = "courses/data_a5.json"
-    INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
     # --- FONCTIONS DATA ---
     def get_github_data(path):
@@ -53,119 +43,27 @@ def afficher():
             return content, res.get('sha')
         return None, None
 
-    def save_github_data(path, data, sha, message="🔄 Sync"):
+    def save_github_data(path, data, sha):
         url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
         content_encoded = base64.b64encode(json.dumps(data, indent=2, ensure_ascii=False).encode('utf-8')).decode('utf-8')
-        payload = {"message": message, "content": content_encoded, "branch": BRANCH}
+        payload = {"message": "🛒 MàJ Panier", "content": content_encoded, "branch": BRANCH}
         if sha: payload["sha"] = sha
-        return requests.put(url, json=payload, headers=headers).status_code in [200, 201]
+        r = requests.put(url, json=payload, headers=headers)
+        if r.status_code in [200, 201]:
+            st.session_state.sha_a5 = r.json()['content']['sha']
+            return True
+        return False
 
-    # Initialisation
+    # --- INITIALISATION ---
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
-            st.session_state.data_a5 = {str(i): {"panier": [], "catalogue": []} for i in range(12)}
-    
-    if "index_zones" not in st.session_state:
-        st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
-        if st.session_state.index_zones is None: st.session_state.index_zones = {}
+            st.session_state.data_a5 = {str(i): {"panier": []} for i in range(12)}
 
-    if "offset_semaine" not in st.session_state: st.session_state.offset_semaine = 0
-    if "exclus_transit" not in st.session_state: st.session_state.exclus_transit = []
+    st.subheader("🛒 Mes Courses par Zone")
 
-    # --- ZONE DE TRANSIT ---
-    st.subheader("📦 Zone de Transit")
-    
-    c1, c2, c3 = st.columns([1, 2, 1])
-    if c1.button("⬅️", key="prev_t"): 
-        st.session_state.offset_semaine -= 1
-        st.session_state.exclus_transit = []
-        st.rerun()
-    if c3.button("➡️", key="next_t"): 
-        st.session_state.offset_semaine += 1
-        st.session_state.exclus_transit = []
-        st.rerun()
-    
-    aujourdhui = datetime.date.today()
-    debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
-    c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
-
-    # Calcul des ingrédients du planning
-    planning, _ = get_github_data("data/planning.json")
-    index_recettes, _ = get_github_data("data/index_recettes.json")
-    liste_brute = []
-    if planning and index_recettes:
-        for d_offset in range(7):
-            d_str = (debut + datetime.timedelta(days=d_offset)).isoformat()
-            if d_str in planning:
-                for rep in ["midi", "soir"]:
-                    for nom_r in planning[d_str].get(rep, []):
-                        recette = next((r for r in index_recettes if r['nom'] == nom_r), None)
-                        if recette and 'ingredients' in recette:
-                            liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
-    counts = Counter(liste_brute)
-
-    # BOUTON ACTUALISER (CORRIGÉ : PLUS DE NETTOYAGE AUTOMATIQUE)
-    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
-        if counts:
-            for ing, qte in counts.items():
-                zone_dest = st.session_state.index_zones.get(ing)
-                if zone_dest:
-                    trouve = False
-                    for item in st.session_state.data_a5[zone_dest]["panier"]:
-                        if item['nom'] == ing:
-                            item['qte'] = str(qte)
-                            trouve = True
-                            break
-                    if not trouve:
-                        st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-            
-            # SUPPRESSION DE LA LIGNE DE NETTOYAGE ICI POUR GARDER TES SAISIES MANUELLES
-            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-            st.success("Synchronisation terminée !")
-            time.sleep(0.5)
-            st.rerun()
-
-    # AFFICHAGE TRANSIT
-    with st.container(border=True):
-        items_transit = sorted(counts.items())
-        visible_count = 0
-        for ing, qte in items_transit:
-            dans_panier = any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values())
-            if ing in st.session_state.exclus_transit or dans_panier:
-                continue
-
-            visible_count += 1
-            col_nom, col_sel, col_add, col_del = st.columns([2, 1.5, 0.4, 0.4])
-            col_nom.write(f"**{ing}** ({qte})")
-            
-            zone_pref = st.session_state.index_zones.get(ing, "0")
-            options_zones = [str(i) for i in range(12)]
-            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
-            
-            if col_add.button("➕", key=f"btn_add_{ing}"):
-                st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-                st.session_state.index_zones[ing] = zone_dest
-                save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
-                st.rerun()
-            
-            if col_del.button("➖", key=f"btn_del_{ing}"):
-                st.session_state.exclus_transit.append(ing)
-                st.rerun()
-
-        if visible_count == 0:
-            st.info("Tout est classé ! ✅")
-
-    st.divider()
-
-    # --- GRILLE PRINCIPALE A5 (STRICTEMENT INCHANGÉE) ---
-    max_produits = 0
-    for val in st.session_state.data_a5.values():
-        max_produits = max(max_produits, len(val["panier"]))
-    max_lignes = (max_produits + 1) // 2
-
+    # --- GRILLE DES 12 ZONES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -173,27 +71,30 @@ def afficher():
             if idx in st.session_state.data_a5:
                 case = st.session_state.data_a5[idx]
                 with cols[j]:
-                    st.caption(f"Zone {int(idx)+1}")
+                    st.caption(f"📍 Zone {int(idx)+1}")
                     with st.container(border=True):
-                        panier = case["panier"]
-                        for row_idx in range(max_lignes):
-                            sub_cols = st.columns(2)
-                            for k in range(2):
-                                p_idx = (row_idx * 2) + k
-                                if p_idx < len(panier):
-                                    p = panier[p_idx]
-                                    is_checked = p.get("checked", False)
-                                    txt = f"{p['nom']} ({p['qte']})"
-                                    label = f"~~{txt}~~" if is_checked else txt
-                                    if sub_cols[k].button(label, key=f"vis_{idx}_{p_idx}"):
-                                        p["checked"] = not is_checked
-                                        save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                                        st.rerun()
-                                else:
-                                    sub_cols[k].button(" ", key=f"ghost_{idx}_{p_idx}", disabled=True)
+                        # Affichage des produits existants
+                        for p_idx, p in enumerate(case.get("panier", [])):
+                            is_checked = p.get("checked", False)
+                            # On barre le texte si coché
+                            label = f"~~{p['nom']} ({p['qte']})~~" if is_checked else f"{p['nom']} ({p['qte']})"
+                            
+                            # CLIC SUR LE PRODUIT = BARRAGE + SAVE
+                            if st.button(label, key=f"p_{idx}_{p_idx}"):
+                                p["checked"] = not is_checked
+                                save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                                st.rerun()
 
-    if st.button("🔄 Rafraîchir", use_container_width=True):
-        st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
-        st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
-        st.session_state.exclus_transit = []
-        st.rerun()
+    st.divider()
+
+    # --- ACTIONS GLOBALES ---
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("🔄 Rafraîchir", use_container_width=True):
+            st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
+            st.rerun()
+    with c2:
+        if st.button("🗑️ Vider tout", use_container_width=True):
+            for k in range(12): st.session_state.data_a5[str(k)]["panier"] = []
+            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+            st.rerun()
