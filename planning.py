@@ -83,7 +83,6 @@ def afficher():
         is_today = (d_j == aujourdhui)
         bg = "#e1f5fe" if is_today else "transparent"
         border = "2px solid #0288d1" if is_today else "1px solid #ddd"
-        # On force la couleur du texte pour que ce soit lisible sur le bleu
         text_color = "#000000" if is_today else "inherit"
         
         col_d.markdown(f"""
@@ -95,10 +94,22 @@ def afficher():
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
                 r = temp[d_str].get(rep, {"plat": "---", "comp": "---"})
-                p = st.selectbox("P", options, index=options.index(r.get("plat", "---")) if r.get("plat") in options else 0, key=f"p{d_str}{rep}", label_visibility="collapsed")
-                with st.popover("Ajouter", use_container_width=True):
-                    c = st.selectbox("R", options, index=options.index(r.get("comp", "---")) if r.get("comp") in options else 0, key=f"c{d_str}{rep}", label_visibility="collapsed")
-                temp[d_str][rep] = {"plat": p, "comp": c}
+                plat_actuel = r.get("plat", "---")
+                
+                # Si un plat est sélectionné, on l'affiche en bouton rouge pour suppression
+                if plat_actuel != "---":
+                    if st.button(f"🔴 {plat_actuel}", key=f"del_{d_str}{rep}", use_container_width=True):
+                        temp[d_str][rep]["plat"] = "---"
+                        st.session_state.planning_data.update(temp)
+                        st.rerun()
+                else:
+                    # Sinon, on affiche le bouton d'ajout avec la liste déroulante
+                    with st.popover("➕ Ajouter", use_container_width=True):
+                        choix = st.selectbox("Choisir", options, key=f"sel_{d_str}{rep}")
+                        if choix != "---":
+                            temp[d_str][rep]["plat"] = choix
+                            st.session_state.planning_data.update(temp)
+                            st.rerun()
 
     # 3. Actions
     st.divider()
@@ -120,12 +131,12 @@ def afficher():
             d_str = (debut + datetime.timedelta(days=i)).isoformat()
             if d_str in temp:
                 for rep in ["midi", "soir"]:
-                    for type_p in ["plat", "comp"]:
-                        nom_recette = temp[d_str][rep].get(type_p)
-                        if nom_recette and nom_recette != "---":
-                            recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
-                            if recette_data and 'ingredients' in recette_data:
-                                liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
+                    # On ne garde que "plat" car vous avez indiqué ne plus vouloir de liste au milieu
+                    nom_recette = temp[d_str][rep].get("plat")
+                    if nom_recette and nom_recette != "---":
+                        recette_data = next((rec for rec in st.session_state.index_complet if rec['nom'] == nom_recette), None)
+                        if recette_data and 'ingredients' in recette_data:
+                            liste_ingredients.extend([ing.strip().capitalize() for ing in recette_data['ingredients']])
         
         if liste_ingredients:
             st.subheader("🛒 Liste des courses")
