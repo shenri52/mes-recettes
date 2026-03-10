@@ -1,5 +1,5 @@
 import streamlit as st
-import importer, saisir, recettes, stats, maintenance, planning, course-saisir, course-visualiser
+import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
 # Configuration
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -55,9 +55,9 @@ if verifier_mot_de_passe():
         if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
         if st.button("📅 Préparer les courses", use_container_width=True):
-            changer_page("course-saisir")
+            changer_page("coursesaisir")
         if st.button("📅 Visualiser les courses", use_container_width=True):
-            changer_page("course-visualiser")
+            changer_page("coursevisualiser")
 
         # Ligne 4 : Sur 2 colonnes
         col3, col4 = st.columns(2)
@@ -76,10 +76,10 @@ if verifier_mot_de_passe():
             saisir.afficher()
         elif st.session_state.page == "recettes":
             recettes.afficher()
-        elif st.session_state.page == "course-saisir":
-            course-saisir.afficher()
-        elif st.session_state.page == "course-visualiser":
-            course-visualiser.afficher()
+        elif st.session_state.page == "coursesaisir":
+            coursesaisir.afficher()
+        elif st.session_state.page == "coursevisualiser":
+            coursevisualiser.afficher()
         elif st.session_state.page == "stats":
             stats.afficher()
         elif st.session_state.page == "planning":
