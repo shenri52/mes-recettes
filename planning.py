@@ -19,16 +19,19 @@ def charger_donnees(chemin):
     conf = config_github()
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"
     res = requests.get(url)
-    return res.json() if res.status_code == 200 else {}
+    if res.status_code == 200:
+        return res.json()
+    return [] if "plats_rapides" in chemin else {}
 
-def sauvegarder_github(chemin, contenu_dict):
+def sauvegarder_github(chemin, contenu_dict_ou_liste):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
     res_get = requests.get(url, headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    contenu_json = json.dumps(contenu_dict, indent=4, ensure_ascii=False)
+    contenu_json = json.dumps(contenu_dict_ou_liste, indent=4, ensure_ascii=False)
     contenu_b64 = base64.b64encode(contenu_json.encode('utf-8')).decode('utf-8')
-    data = {"message": "MAJ Planning", "content": contenu_b64, "branch": "main", "sha": sha} if sha else {"message": "MAJ Planning", "content": contenu_b64, "branch": "main"}
+    data = {"message": f"MAJ {chemin}", "content": contenu_b64, "branch": "main"}
+    if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
 # --- INTERFACE PLANNING ---
@@ -37,6 +40,7 @@ def afficher():
     
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state: st.session_state.planning_data = charger_donnees("data/planning.json")
+    if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
     options = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
@@ -112,17 +116,51 @@ def afficher():
                             st.session_state.planning_data.update(temp)
                             st.rerun()
 
-    # 3. Actions
+    # --- ZONE : GESTION DES PLATS RAPIDES ---
+    st.divider()
+    st.subheader("🍴 Mes Plats Rapides (sans recette)")
+    
+    col_list, col_add = st.columns([2, 1])
+    
+    with col_list:
+        plats_rapides = sorted(st.session_state.plats_rapides)
+        plat_sel = st.selectbox("Plats enregistrés", ["---"] + plats_rapides, label_visibility="collapsed")
+        
+        if plat_sel != "---":
+            c_edit, c_del = st.columns(2)
+            with c_edit:
+                nouveau_nom = st.text_input("Renommer", value=plat_sel, key="rename_plat")
+                if nouveau_nom != plat_sel and st.button("📝 Valider", use_container_width=True):
+                    st.session_state.plats_rapides.remove(plat_sel)
+                    st.session_state.plats_rapides.append(nouveau_nom)
+                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                    st.rerun()
+            with c_del:
+                st.write("") 
+                if st.button("🗑️ Supprimer plat", use_container_width=True):
+                    st.session_state.plats_rapides.remove(plat_sel)
+                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                    st.rerun()
+
+    with col_add:
+        nouveau_plat = st.text_input("Nouveau plat rapide", placeholder="Ex: Steak frites", key="new_plat_input")
+        if st.button("➕ Ajouter", key="btn_new_rapide", use_container_width=True) and nouveau_plat:
+            if nouveau_plat not in st.session_state.plats_rapides:
+                st.session_state.plats_rapides.append(nouveau_plat)
+                sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                st.rerun()
+
+    # 3. Actions Finales
     st.divider()
     
     b1, b2 = st.columns(2)
     
-    if b1.button("💾 Enregistrer", use_container_width=True):
+    if b1.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
         if sauvegarder_github("data/planning.json", final):
             st.session_state.planning_data = final
-            st.success("Enregistré 💾")
+            st.success("Planning enregistré 💾")
             time.sleep(1)
             st.rerun()
 
