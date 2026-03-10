@@ -89,9 +89,7 @@ def afficher():
                                     # Enregistrement avec vérification du SHA
                                     if save_data(st.session_state.data_a5, st.session_state.sha_a5):
                                         st.rerun()
-
-                        st.divider()
-
+                                        
                         # Affichage de la liste actuelle (Suppression au clic toujours active)
                         for p_idx, p in enumerate(case["panier"]):
                             if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx}_{p_idx}"):
