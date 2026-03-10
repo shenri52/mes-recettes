@@ -6,13 +6,13 @@
   "1": {
     "panier": [
       {
-        "nom": "Bi\u00e8re blonde",
+        "nom": "Bière blonde",
         "qte": "1",
         "checked": false
       }
     ],
     "catalogue": [
-      "Bi\u00e8re blonde",
+      "Bière blonde",
       "Jus d'orange",
       "Pepsi"
     ]
@@ -52,7 +52,13 @@
     ]
   },
   "10": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Ail",
+        "qte": "2",
+        "checked": false
+      }
+    ],
     "catalogue": []
   },
   "11": {
