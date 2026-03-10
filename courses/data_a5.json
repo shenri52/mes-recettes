@@ -12,6 +12,10 @@
       {
         "nom": "Jus d'orange",
         "qte": "1"
+      },
+      {
+        "nom": "Pepsi",
+        "qte": "3"
       }
     ],
     "catalogue": [
