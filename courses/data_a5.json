@@ -52,13 +52,7 @@
     ]
   },
   "10": {
-    "panier": [
-      {
-        "nom": "Ail",
-        "qte": "2",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": []
   },
   "11": {
