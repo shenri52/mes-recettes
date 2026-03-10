@@ -352,4 +352,4 @@ def afficher():
             time.sleep(1)
             st.rerun()
 
-    st.divider()()
+    st.divider()
