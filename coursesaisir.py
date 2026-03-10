@@ -11,7 +11,7 @@ def afficher():
         header { visibility: hidden; } 
         .stButton>button { 
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
-            border: 1px solid #ddd; font-size: 14px;
+            font-size: 14px;
         }
         .streamlit-expanderHeader { background-color: #f8f9fa; border-radius: 6px; }
         </style>
