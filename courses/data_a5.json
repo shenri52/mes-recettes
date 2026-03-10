@@ -95,6 +95,11 @@
         "nom": "Filet mignon",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Chorizo",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
