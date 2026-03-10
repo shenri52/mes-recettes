@@ -48,7 +48,7 @@ def afficher():
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_data()
 
-    # --- GRILLE DES 12 CASES (EXPANDERS) ---
+    # --- GRILLE DES 12 CASES (CONTAINERS) ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -56,8 +56,8 @@ def afficher():
             if idx in st.session_state.data_a5:
                 case = st.session_state.data_a5[idx]
                 with cols[j]:
-                    # Utilisation de l'Expander pour le côté "carré déroulant"
-                    with st.expander(f"**Rayon {int(idx)+1}**", expanded=False):
+                    # Utilisation de Container au lieu de Expander
+                    with st.container(border=True):
                         
                         # Formulaire pour l'ajout avec Reset automatique
                         with st.form(key=f"form_{idx}", clear_on_submit=True):
