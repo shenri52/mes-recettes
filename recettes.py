@@ -45,7 +45,7 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
-# --- 2. TRAITEMENT IMAGE ---
+# --- 2. TRAITEMENT IMAGE (UNIQUEMENT POUR LES NOUVEAUX UPLOADS) ---
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
@@ -79,6 +79,7 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
+    # FILTRES
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
@@ -140,14 +141,13 @@ def afficher():
 
                 new_ingredients = []
                 for idx, ing in enumerate(st.session_state[state_key]):
-                    col_q, col_n, col_del = st.columns([1, 2, 0.5]) # AJOUT COL_DEL
+                    col_q, col_n, col_del = st.columns([1, 2, 0.5])
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
                     ing_nom = ing.get('Ingrédient', '')
                     opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
                     n = col_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
-                    # BOUTON SUPPRIMER LIGNE
-                    if col_del.button("🗑️", key=f"del_{idx}_{info['chemin']}"):
+                    if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
                         st.session_state[state_key].pop(idx)
                         st.rerun()
                         
@@ -178,7 +178,8 @@ def afficher():
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
                     for p_path in photos_actuelles:
-                        if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
+                        if p_path not in photos_a_garder:
+                            supprimer_fichier_github(p_path)
 
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
