@@ -65,6 +65,11 @@
         "nom": "Vinaigre de cidre",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Ananas en boite",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
