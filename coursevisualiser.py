@@ -78,7 +78,7 @@ def afficher():
     c1, c2, c3 = st.columns([1, 2, 1])
     if c1.button("⬅️", key="prev_t"): 
         st.session_state.offset_semaine -= 1
-        st.session_state.exclus_transit = [] # Reset des exclusions au changement de semaine
+        st.session_state.exclus_transit = []
         st.rerun()
     if c3.button("➡️", key="next_t"): 
         st.session_state.offset_semaine += 1
@@ -109,28 +109,30 @@ def afficher():
         items_transit = sorted(counts.items())
         visible_count = 0
         for ing, qte in items_transit:
-            # On cache si déjà dans une zone OU si marqué comme "déjà chez moi" (-)
             if ing in st.session_state.exclus_transit: continue
             if any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values()):
                 continue
 
             visible_count += 1
-            col_nom, col_sel, col_add, col_del = st.columns([2, 1.5, 0.5, 0.5])
-            col_nom.write(f"**{ing}** ({qte})")
+            col_nom, col_sel, col_add, col_del = st.columns([2, 1.4, 0.4, 0.4])
             
+            # Affichage nom + étoile si connu
+            label_ing = f"⭐ {ing}" if ing in st.session_state.index_zones else ing
+            col_nom.write(f"**{label_ing}** ({qte})")
+            
+            # Pré-sélection intelligente
             zone_pref = st.session_state.index_zones.get(ing, "0")
             options_zones = [str(i) for i in range(12)]
-            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
+            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Z{int(x)+1}")
             
-            # BOUTON + (Ajouter à la zone)
             if col_add.button("➕", key=f"btn_add_{ing}"):
                 st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                # On mémorise la zone pour la pré-sélection future
                 st.session_state.index_zones[ing] = zone_dest
                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                 st.rerun()
             
-            # BOUTON - (Déjà en stock)
             if col_del.button("➖", key=f"btn_del_{ing}"):
                 st.session_state.exclus_transit.append(ing)
                 st.rerun()
