@@ -7,7 +7,7 @@ from collections import Counter
 import time
 
 def afficher():
-    # --- STYLE CSS (INCHANGÉ) ---
+    # --- STYLE CSS (STRICTEMENT INCHANGÉ) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -91,45 +91,7 @@ def afficher():
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
-    # BOUTON ACTUALISER ADAPTATIF
-    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
-        planning, _ = get_github_data("data/planning.json")
-        index_recettes, _ = get_github_data("data/index_recettes.json")
-        
-        if planning and index_recettes:
-            liste_brute = []
-            for d_offset in range(7):
-                d_str = (debut + datetime.timedelta(days=d_offset)).isoformat()
-                if d_str in planning:
-                    for rep in ["midi", "soir"]:
-                        for nom_r in planning[d_str].get(rep, []):
-                            recette = next((r for r in index_recettes if r['nom'] == nom_r), None)
-                            if recette and 'ingredients' in recette:
-                                liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
-            
-            counts = Counter(liste_brute)
-            
-            # Synchronisation avec les zones existantes
-            for ing, qte in counts.items():
-                zone_dest = st.session_state.index_zones.get(ing)
-                if zone_dest:
-                    # Si déjà là, on met à jour la quantité
-                    trouve = False
-                    for item in st.session_state.data_a5[zone_dest]["panier"]:
-                        if item['nom'] == ing:
-                            item['qte'] = str(qte)
-                            trouve = True
-                            break
-                    # Si connu mais pas encore dans le panier, on l'ajoute
-                    if not trouve:
-                        st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-            
-            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-            st.success("Synchronisation terminée !")
-            time.sleep(0.5)
-            st.rerun()
-
-    # Re-calcul du transit pour affichage
+    # Calcul des ingrédients du planning
     planning, _ = get_github_data("data/planning.json")
     index_recettes, _ = get_github_data("data/index_recettes.json")
     liste_brute = []
@@ -143,14 +105,36 @@ def afficher():
                         if recette and 'ingredients' in recette:
                             liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
     counts = Counter(liste_brute)
-    
+
+    # BOUTON ACTUALISER (CORRIGÉ : FORCE LE CLASSEMENT SI CONNU)
+    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
+        if counts:
+            for ing, qte in counts.items():
+                zone_dest = st.session_state.index_zones.get(ing)
+                if zone_dest:
+                    trouve = False
+                    for item in st.session_state.data_a5[zone_dest]["panier"]:
+                        if item['nom'] == ing:
+                            item['qte'] = str(qte)
+                            trouve = True
+                            break
+                    if not trouve:
+                        st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
+            
+            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+            st.success("Synchronisation terminée !")
+            time.sleep(0.5)
+            st.rerun()
+
+    # AFFICHAGE TRANSIT
     with st.container(border=True):
         items_transit = sorted(counts.items())
         visible_count = 0
         for ing, qte in items_transit:
-            # On cache si déjà dans une zone A5
-            if ing in st.session_state.exclus_transit: continue
-            if any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values()):
+            # Ne pas afficher si déjà présent dans n'importe quelle zone A5
+            dans_panier = any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values())
+            
+            if ing in st.session_state.exclus_transit or dans_panier:
                 continue
 
             visible_count += 1
@@ -162,9 +146,10 @@ def afficher():
             zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
             
             if col_add.button("➕", key=f"btn_add_{ing}"):
+                # Ajout panier + Mémorisation index systématique
                 st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-                save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                 st.session_state.index_zones[ing] = zone_dest
+                save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                 st.rerun()
             
@@ -172,9 +157,12 @@ def afficher():
                 st.session_state.exclus_transit.append(ing)
                 st.rerun()
 
+        if visible_count == 0:
+            st.info("Tout est classé ! ✅")
+
     st.divider()
 
-    # --- GRILLE PRINCIPALE A5 (INCHANGÉE) ---
+    # --- GRILLE PRINCIPALE A5 (STRICTEMENT INCHANGÉE) ---
     max_produits = 0
     for val in st.session_state.data_a5.values():
         max_produits = max(max_produits, len(val["panier"]))
