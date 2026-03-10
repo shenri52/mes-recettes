@@ -4,7 +4,12 @@
     "catalogue": []
   },
   "1": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Jus d'orange",
+        "qte": "1"
+      }
+    ],
     "catalogue": [
       "Bi\u00e8re blonde",
       "Jus d'orange",
