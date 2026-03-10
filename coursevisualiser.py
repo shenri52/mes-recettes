@@ -78,8 +78,6 @@ def afficher():
                                         save_data(st.session_state.data_a5, st.session_state.sha_a5)
                                         st.rerun()
 
-     st.write(" ")
-
     # --- NAVIGATION ET CONTRÔLES ---
     if st.button("🔄 Rafraîchir", use_container_width=True):
         st.session_state.data_a5, st.session_state.sha_a5 = get_data()
