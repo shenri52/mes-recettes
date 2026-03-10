@@ -120,35 +120,40 @@ def afficher():
     st.divider()
     st.subheader("🍴 Mes Plats Rapides (sans recette)")
     
-    col_list, col_add = st.columns([2, 1])
-    
-    with col_list:
-        plats_rapides = sorted(st.session_state.plats_rapides)
-        plat_sel = st.selectbox("Plats enregistrés", ["---"] + plats_rapides, label_visibility="collapsed")
-        
-        if plat_sel != "---":
-            c_edit, c_del = st.columns(2)
-            with c_edit:
-                nouveau_nom = st.text_input("Renommer", value=plat_sel, key="rename_plat")
-                if nouveau_nom != plat_sel and st.button("📝 Valider", use_container_width=True):
-                    st.session_state.plats_rapides.remove(plat_sel)
-                    st.session_state.plats_rapides.append(nouveau_nom)
-                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                    st.rerun()
-            with c_del:
-                st.write("") 
-                if st.button("🗑️ Supprimer plat", use_container_width=True):
-                    st.session_state.plats_rapides.remove(plat_sel)
-                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                    st.rerun()
-
-    with col_add:
-        nouveau_plat = st.text_input("Nouveau plat rapide", placeholder="Ex: Steak frites", key="new_plat_input")
-        if st.button("➕ Ajouter", key="btn_new_rapide", use_container_width=True) and nouveau_plat:
+    # 1. Ligne d'ajout (Alignée)
+    col_add_txt, col_add_btn = st.columns([3, 1])
+    txt_key = f"new_plat_{len(st.session_state.plats_rapides)}"
+    with col_add_txt:
+        nouveau_plat = st.text_input("Nom du nouveau plat", placeholder="Ex: Steak frites", key=txt_key, label_visibility="collapsed")
+    with col_add_btn:
+        if st.button("➕ Ajouter", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
             if nouveau_plat not in st.session_state.plats_rapides:
                 st.session_state.plats_rapides.append(nouveau_plat)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
+
+    # 2. Ligne de gestion (Alignée)
+    plats_rapides = sorted(st.session_state.plats_rapides)
+    if plats_rapides:
+        col_sel, col_ren, col_btn_ren, col_btn_del = st.columns([1.5, 1.5, 1, 1])
+        with col_sel:
+            plat_sel = st.selectbox("Plats enregistrés", ["---"] + plats_rapides, key="sel_rapide_manage", label_visibility="collapsed")
+        
+        if plat_sel != "---":
+            with col_ren:
+                nouveau_nom = st.text_input("Nouveau nom", value=plat_sel, key="rename_plat", label_visibility="collapsed")
+            with col_btn_ren:
+                if st.button("📝 OK", key="btn_rename", use_container_width=True):
+                    if nouveau_nom and nouveau_nom != plat_sel:
+                        st.session_state.plats_rapides.remove(plat_sel)
+                        st.session_state.plats_rapides.append(nouveau_nom)
+                        sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                        st.rerun()
+            with col_btn_del:
+                if st.button("🗑️ Suppr", key="btn_del_rapide", use_container_width=True):
+                    st.session_state.plats_rapides.remove(plat_sel)
+                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                    st.rerun()
 
     # 3. Actions Finales
     st.divider()
