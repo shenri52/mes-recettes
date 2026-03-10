@@ -120,7 +120,7 @@ def afficher():
 
     # --- ZONE : GESTION DES PLATS RAPIDES ---
     st.divider()
-    st.subheader("🍴 Mes Plats Rapides (sans recette)")
+    st.subheader("🍴 Mes plats rapides (sans recette)")
     
     # 1. Ligne de gestion (Haut)
     plats_rapides = sorted(st.session_state.plats_rapides)
