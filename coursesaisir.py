@@ -7,7 +7,7 @@ from collections import Counter
 import time
 
 def afficher():
-    # --- STYLE CSS (REPRIS DE TA VERSION) ---
+    # --- STYLE CSS ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -16,7 +16,6 @@ def afficher():
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
             font-size: 14px;
         }
-        /* Style pour les inputs de quantité compacts */
         div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
         </style>
     """, unsafe_allow_html=True)
@@ -33,7 +32,6 @@ def afficher():
     FILE_PATH = "courses/data_a5.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
-    # --- FONCTIONS DATA ---
     def get_github_data(path):
         t = int(time.time())
         url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}?t={t}"
@@ -58,7 +56,6 @@ def afficher():
             return True
         return False
 
-    # Initialisation de la session
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
@@ -71,7 +68,7 @@ def afficher():
     if "offset_semaine" not in st.session_state: st.session_state.offset_semaine = 0
     if "exclus_transit" not in st.session_state: st.session_state.exclus_transit = []
 
-    # --- LOGIQUE DE CALCUL DU PLANNING ---
+    # --- PLANNING ---
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     
@@ -89,7 +86,6 @@ def afficher():
                             liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
     counts = Counter(liste_brute)
 
-    # --- ZONE DE TRANSIT ---
     st.subheader("📝 Préparer les courses")
     
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -120,7 +116,6 @@ def afficher():
             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
             st.rerun()
 
-    # AFFICHAGE TRANSIT AVEC QUANTITÉ MODIFIABLE
     with st.container(border=True):
         items_transit = sorted(counts.items())
         visible_count = 0
@@ -133,12 +128,11 @@ def afficher():
             col_nom, col_qte, col_sel, col_add, col_del = st.columns([1.8, 0.7, 1.3, 0.4, 0.4])
             col_nom.write(ing)
             
-            # Champ quantité modifiable
             qte_input = col_qte.text_input("Qté", value=str(qte), key=f"qte_t_{ing}", label_visibility="collapsed")
 
             zone_pref = st.session_state.index_zones.get(ing, "0")
             options_zones = [str(i) for i in range(12)]
-            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref) if zone_pref.isdigit() else 0, key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Z{int(x)+1}")
+            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref) if zone_pref.isdigit() else 0, key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
             
             if col_add.button("➕", key=f"btn_add_{ing}"):
                 st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": qte_input, "checked": False})
@@ -156,7 +150,6 @@ def afficher():
 
     st.divider()
 
-    # --- GRILLE DES 12 CASES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -189,7 +182,6 @@ def afficher():
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
-                    # Affichage panier avec suppression (ton style original)
                     for p_idx, p in enumerate(case["panier"]):
                         if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx}_{p_idx}"):
                             case["panier"].pop(p_idx)
