@@ -4,9 +4,10 @@ import requests
 import base64
 import datetime
 from collections import Counter
+import time
 
 def afficher():
-    # --- STYLE CSS ---
+    # --- STYLE CSS (INCHANGÉ) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -42,7 +43,8 @@ def afficher():
 
     # --- FONCTIONS DATA ---
     def get_github_data(path):
-        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
+        t = int(time.time())
+        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}?t={t}"
         headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
         r = requests.get(url, headers=headers)
         if r.status_code == 200:
@@ -89,9 +91,45 @@ def afficher():
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
+    # BOUTON ACTUALISER - LOGIQUE CORRIGÉE
+    if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
+        planning, _ = get_github_data("data/planning.json")
+        index_recettes, _ = get_github_data("data/index_recettes.json")
+        
+        if planning and index_recettes:
+            liste_brute = []
+            for d_offset in range(7):
+                d_str = (debut + datetime.timedelta(days=d_offset)).isoformat()
+                if d_str in planning:
+                    for rep in ["midi", "soir"]:
+                        for nom_r in planning[d_str].get(rep, []):
+                            recette = next((r for r in index_recettes if r['nom'] == nom_r), None)
+                            if recette and 'ingredients' in recette:
+                                liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
+            
+            counts = Counter(liste_brute)
+            
+            # On met à jour les zones pour TOUT ce qu'on connaît
+            for ing, qte in counts.items():
+                zone_dest = st.session_state.index_zones.get(ing)
+                if zone_dest:
+                    trouve = False
+                    for item in st.session_state.data_a5[zone_dest]["panier"]:
+                        if item['nom'] == ing:
+                            item['qte'] = str(qte) # Mise à jour de la quantité
+                            trouve = True
+                            break
+                    if not trouve:
+                        st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
+            
+            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+            st.success("Synchronisation terminée !")
+            time.sleep(0.5)
+            st.rerun()
+
+    # Re-calcul des ingrédients totaux pour l'affichage
     planning, _ = get_github_data("data/planning.json")
     index_recettes, _ = get_github_data("data/index_recettes.json")
-    
     liste_brute = []
     if planning and index_recettes:
         for d_offset in range(7):
@@ -102,26 +140,25 @@ def afficher():
                         recette = next((r for r in index_recettes if r['nom'] == nom_r), None)
                         if recette and 'ingredients' in recette:
                             liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
-    
     counts = Counter(liste_brute)
     
+    # AFFICHAGE TRANSIT (Uniquement ce qui n'est pas déjà dans les zones)
     with st.container(border=True):
         items_transit = sorted(counts.items())
         visible_count = 0
         for ing, qte in items_transit:
-            if ing in st.session_state.exclus_transit: continue
-            if any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values()):
+            # RÈGLE D'OR : Si l'ingrédient est déjà dans N'IMPORTE QUELLE zone A5, on ne l'affiche pas ici.
+            deja_dans_panier = any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values())
+            
+            if ing in st.session_state.exclus_transit or deja_dans_panier:
                 continue
 
             visible_count += 1
             col_nom, col_sel, col_add, col_del = st.columns([2, 1.5, 0.4, 0.4])
-            
-            label_ing = f"⭐ {ing}" if ing in st.session_state.index_zones else ing
-            col_nom.write(f"**{label_ing}** ({qte})")
+            col_nom.write(f"**{ing}** ({qte})")
             
             zone_pref = st.session_state.index_zones.get(ing, "0")
             options_zones = [str(i) for i in range(12)]
-            # RETOUR AU NOM COMPLET "Zone X"
             zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref), key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
             
             if col_add.button("➕", key=f"btn_add_{ing}"):
@@ -136,7 +173,7 @@ def afficher():
                 st.rerun()
 
         if visible_count == 0:
-            st.info("Aucun ingrédient à trier.")
+            st.info("Aucun ingrédient à classer.")
 
     st.divider()
 
