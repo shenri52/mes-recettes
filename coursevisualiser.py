@@ -83,4 +83,4 @@ def afficher():
         st.session_state.data_a5, st.session_state.sha_a5 = get_data()
         st.rerun()
 
-    st.divider()
+    st.write(" ")
