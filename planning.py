@@ -43,7 +43,9 @@ def afficher():
     if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
-    options = ["---"] + sorted([r['nom'] for r in st.session_state.index_complet])
+    # FUSION DYNAMIQUE : Recettes + Plats Rapides
+    noms_recettes = [r['nom'] for r in st.session_state.index_complet]
+    options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
     # 1. Navigation Compacte
     aujourdhui = datetime.date.today()
