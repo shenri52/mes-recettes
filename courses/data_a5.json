@@ -1,0 +1,56 @@
+{
+  "0": {
+    "panier": [],
+    "catalogue": []
+  },
+  "1": {
+    "panier": [],
+    "catalogue": [
+      "Bi\u00e8re blonde",
+      "Jus d'orange",
+      "Pepsi"
+    ]
+  },
+  "2": {
+    "panier": [],
+    "catalogue": []
+  },
+  "3": {
+    "panier": [],
+    "catalogue": []
+  },
+  "4": {
+    "panier": [],
+    "catalogue": []
+  },
+  "5": {
+    "panier": [],
+    "catalogue": []
+  },
+  "6": {
+    "panier": [],
+    "catalogue": []
+  },
+  "7": {
+    "panier": [],
+    "catalogue": []
+  },
+  "8": {
+    "panier": [],
+    "catalogue": []
+  },
+  "9": {
+    "panier": [],
+    "catalogue": [
+      "Fromage"
+    ]
+  },
+  "10": {
+    "panier": [],
+    "catalogue": []
+  },
+  "11": {
+    "panier": [],
+    "catalogue": []
+  }
+}
