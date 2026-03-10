@@ -102,8 +102,13 @@ def afficher():
                 plats = temp[d_str].get(rep, [])
                 if isinstance(plats, dict): plats = [] 
                 
-                for idx, p_nom in enumerate(plats):
-                    if st.button(p_nom, key=f"del_{d_str}{rep}{idx}", use_container_width=True):
+        for idx, p_nom in enumerate(plats):
+                    # On vérifie si le plat existe dans l'index des recettes
+                    est_recette = any(r['nom'] == p_nom for r in st.session_state.index_complet)
+                    icon = "📖" if est_recette else "⚡"
+                    
+                    # On affiche le bouton avec son icône
+                    if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
                         plats.pop(idx)
                         temp[d_str][rep] = plats
                         st.session_state.planning_data.update(temp)
