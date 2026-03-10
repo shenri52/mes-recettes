@@ -7,7 +7,8 @@
     "panier": [
       {
         "nom": "Bi\u00e8re blonde",
-        "qte": "1"
+        "qte": "1",
+        "checked": true
       }
     ],
     "catalogue": [
