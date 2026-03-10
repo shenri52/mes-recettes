@@ -109,5 +109,3 @@ def afficher():
             for k in range(12): st.session_state.data_a5[str(k)]["panier"] = []
             if save_data(st.session_state.data_a5, st.session_state.sha_a5):
                 st.rerun()
-                
-    st.divider()
