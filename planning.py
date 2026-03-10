@@ -120,19 +120,7 @@ def afficher():
     st.divider()
     st.subheader("🍴 Mes Plats Rapides (sans recette)")
     
-    # 1. Ligne d'ajout (Alignée)
-    col_add_txt, col_add_btn = st.columns([3, 1])
-    txt_key = f"new_plat_{len(st.session_state.plats_rapides)}"
-    with col_add_txt:
-        nouveau_plat = st.text_input("Nom du nouveau plat", placeholder="Ex: Steak frites", key=txt_key, label_visibility="collapsed")
-    with col_add_btn:
-        if st.button("➕ Ajouter", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
-            if nouveau_plat not in st.session_state.plats_rapides:
-                st.session_state.plats_rapides.append(nouveau_plat)
-                sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                st.rerun()
-
-    # 2. Ligne de gestion (Alignée)
+    # 1. Ligne de gestion (Haut)
     plats_rapides = sorted(st.session_state.plats_rapides)
     if plats_rapides:
         col_sel, col_ren, col_btn_ren, col_btn_del = st.columns([1.5, 1.5, 1, 1])
@@ -154,6 +142,19 @@ def afficher():
                     st.session_state.plats_rapides.remove(plat_sel)
                     sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                     st.rerun()
+        st.write("") 
+
+    # 2. Ligne d'ajout (Bas)
+    col_add_txt, col_add_btn = st.columns([3, 1])
+    txt_key = f"new_plat_{len(st.session_state.plats_rapides)}"
+    with col_add_txt:
+        nouveau_plat = st.text_input("Nom du nouveau plat", placeholder="Ajouter un nouveau plat rapide...", key=txt_key, label_visibility="collapsed")
+    with col_add_btn:
+        if st.button("➕ Ajouter", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
+            if nouveau_plat not in st.session_state.plats_rapides:
+                st.session_state.plats_rapides.append(nouveau_plat)
+                sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                st.rerun()
 
     # 3. Actions Finales
     st.divider()
