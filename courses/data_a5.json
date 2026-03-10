@@ -50,6 +50,11 @@
         "nom": "Maïzena",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Miel",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
