@@ -65,12 +65,38 @@
         "nom": "Ail",
         "qte": "2",
         "checked": false
+      },
+      {
+        "nom": "Oignon",
+        "qte": "3",
+        "checked": false
+      },
+      {
+        "nom": "Poireaux",
+        "qte": "2",
+        "checked": false
+      },
+      {
+        "nom": "Poivron rouge",
+        "qte": "1",
+        "checked": false
+      },
+      {
+        "nom": "Gingembre",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
   },
   "11": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Filet mignon",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": []
   }
 }
