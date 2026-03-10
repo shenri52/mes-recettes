@@ -91,7 +91,7 @@ def afficher():
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
-    # BOUTON ACTUALISER - LOGIQUE CORRIGÉE
+    # BOUTON ACTUALISER ADAPTATIF
     if st.button("🚀 Actualiser & Synchroniser", use_container_width=True):
         planning, _ = get_github_data("data/planning.json")
         index_recettes, _ = get_github_data("data/index_recettes.json")
@@ -109,16 +109,18 @@ def afficher():
             
             counts = Counter(liste_brute)
             
-            # On met à jour les zones pour TOUT ce qu'on connaît
+            # Synchronisation avec les zones existantes
             for ing, qte in counts.items():
                 zone_dest = st.session_state.index_zones.get(ing)
                 if zone_dest:
+                    # Si déjà là, on met à jour la quantité
                     trouve = False
                     for item in st.session_state.data_a5[zone_dest]["panier"]:
                         if item['nom'] == ing:
-                            item['qte'] = str(qte) # Mise à jour de la quantité
+                            item['qte'] = str(qte)
                             trouve = True
                             break
+                    # Si connu mais pas encore dans le panier, on l'ajoute
                     if not trouve:
                         st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
             
@@ -127,7 +129,7 @@ def afficher():
             time.sleep(0.5)
             st.rerun()
 
-    # Re-calcul des ingrédients totaux pour l'affichage
+    # Re-calcul du transit pour affichage
     planning, _ = get_github_data("data/planning.json")
     index_recettes, _ = get_github_data("data/index_recettes.json")
     liste_brute = []
@@ -142,15 +144,13 @@ def afficher():
                             liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
     counts = Counter(liste_brute)
     
-    # AFFICHAGE TRANSIT (Uniquement ce qui n'est pas déjà dans les zones)
     with st.container(border=True):
         items_transit = sorted(counts.items())
         visible_count = 0
         for ing, qte in items_transit:
-            # RÈGLE D'OR : Si l'ingrédient est déjà dans N'IMPORTE QUELLE zone A5, on ne l'affiche pas ici.
-            deja_dans_panier = any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values())
-            
-            if ing in st.session_state.exclus_transit or deja_dans_panier:
+            # On cache si déjà dans une zone A5
+            if ing in st.session_state.exclus_transit: continue
+            if any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values()):
                 continue
 
             visible_count += 1
@@ -171,9 +171,6 @@ def afficher():
             if col_del.button("➖", key=f"btn_del_{ing}"):
                 st.session_state.exclus_transit.append(ing)
                 st.rerun()
-
-        if visible_count == 0:
-            st.info("Aucun ingrédient à classer.")
 
     st.divider()
 
