@@ -54,6 +54,11 @@
         "nom": "Comté",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Fromage râpé",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
