@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
 # Configuration
@@ -31,6 +32,25 @@ if verifier_mot_de_passe():
     def changer_page(nom):
         st.session_state.page = nom
         st.rerun()
+
+    # --- BLOC ANTI-VEILLE (Centralisé) ---
+    # Liste précise des pages où l'on veut l'option
+    PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
+
+    if st.session_state.page in PAGES_CUISINE:
+        st.sidebar.markdown("### 🛠️ Options")
+        mode_cuisine = st.sidebar.checkbox("🚫 Garder l'écran allumé", value=False)
+        if mode_cuisine:
+            components.html(
+                """
+                <div style="display:none;">
+                    <video autoplay loop muted playsinline style="width:1px; height:1px;">
+                        <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4">
+                    </video>
+                </div>
+                """,
+                height=0
+            )
 
     # --- 2. Menu d'accueil ---
     if st.session_state.page == 'accueil':
@@ -88,5 +108,6 @@ if verifier_mot_de_passe():
             maintenance.afficher()
 
         # --- 4. BOUTON RETOUR ---
+        st.write("") 
         if st.button("⬅️ Retour à l'accueil", use_container_width=True):
             changer_page('accueil')
