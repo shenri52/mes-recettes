@@ -2,6 +2,12 @@
 
 Application interactive développée avec **Streamlit** pour gérer vos recettes. Les données (JSON) et les médias (Images/PDF) sont stockés directement sur votre dépôt GitHub.
 
+## 🤖 Conception & IA
+Ce projet a la particularité d'avoir été **entièrement développé à l'aide de l'IA Gemini** grâce à des **instructions précises et détaillées**. L'application a été structurée, codée et optimisée sans écriture manuelle de code.
+
+## 🎯 But du projet
+Répondre à un besoin spécifique **non couvert par les applications actuellement disponibles** sur les stores. L'objectif est d'offrir une solution sur mesure, légère et totalement maîtrisée pour la gestion quotidienne des repas.
+
 ## ✨ Fonctionnalités
 
 * **✍️ Saisie Manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
