@@ -10,6 +10,14 @@ Application interactive développée avec **Streamlit** pour gérer vos recettes
     * Recherche par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
     * Galerie photo avec navigation fluide (Précédent/Suivant).
     * Mode modification pour corriger vos fiches à la volée.
+* **📚 Planing Dynamique** : 
+    * Organisation de la semaine (Midi & Soir).
+    * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
+    * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
+* **📚 Gestion des courses** : 
+    * Génération automatique de la liste basée sur votre planning
+    * Module de visualisation optimisé pour faire ses courses sur mobile..
+* **🚫 Mode Cuisine : Option "Écran allumé" pour empêcher la mise en veille du téléphone pendant la lecture.
 
 ## 🛠️ Technologies utilisées
 
@@ -35,12 +43,20 @@ REPO_NAME = "nom_de_votre_depot"
 
 ### 3. Arborescence du projet
 ```
-├── app.py                # Fichier principal (Gestion du menu)
+├── app.py                # Fichier principal
 ├── saisir.py             # Module d'ajout manuel
 ├── importer.py           # Module d'import par photo
 ├── recettes.py           # Module de consultation et modification
+├── planning.py           # Gestion du planning hebdomadaire
+├── coursesaisir.py       # Préparation de la liste de courses
+├── coursevisualiser.py   # Mode "Magasin" pour les courses
+├── stats.py              # Statistiques d'utilisation
+├── maintenance.py        # Outils de corrections et de contrôles
 ├── requirements.txt      # Liste des bibliothèques nécessaires
 └── data/
-    ├── recettes/         # Dossier contenant les fichiers .json (vos recettes)
-    └── images/           # Dossier contenant les photos et PDF
+    ├── recettes/               # Dossier contenant les fichiers .json des recettes
+    └── images/                 # Dossier contenant les photos et PDF
+    ├── index_recettes.json     # Index pour recherche rapide
+    ├── planning.json           # Données du planning
+    ├── plats_rapides.json      # Liste des plats sans recette
 ```
