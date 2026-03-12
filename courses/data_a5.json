@@ -57,11 +57,6 @@
   "9": {
     "panier": [
       {
-        "nom": "Comté",
-        "qte": "1",
-        "checked": false
-      },
-      {
         "nom": "Jambon en dés",
         "qte": "1",
         "checked": false
