@@ -1,6 +1,12 @@
 {
   "0": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Noisettes",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": []
   },
   "1": {
