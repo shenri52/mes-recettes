@@ -100,7 +100,7 @@
     "panier": [
       {
         "nom": "Champignons",
-        "qte": "4",
+        "qte": "1",
         "checked": false
       },
       {
@@ -110,12 +110,12 @@
       },
       {
         "nom": "Oignon",
-        "qte": "3",
+        "qte": "1",
         "checked": false
       },
       {
         "nom": "Poireaux",
-        "qte": "2",
+        "qte": "1",
         "checked": false
       },
       {
