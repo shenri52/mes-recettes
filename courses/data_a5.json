@@ -1,25 +1,10 @@
 {
   "0": {
-    "panier": [
-      {
-        "nom": "Noisettes",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": []
   },
   "1": {
-    "panier": [
-      {
-        "nom": "Jus d'orange",
-        "qte": "1"
-      },
-      {
-        "nom": "Pepsi",
-        "qte": "1"
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Bière blonde",
       "Jus d'orange",
@@ -55,75 +40,17 @@
     "catalogue": []
   },
   "9": {
-    "panier": [
-      {
-        "nom": "Jambon en dés",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Fromage"
     ]
   },
   "10": {
-    "panier": [
-      {
-        "nom": "Champignons",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Ail",
-        "qte": "2",
-        "checked": false
-      },
-      {
-        "nom": "Oignon",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Poireaux",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Poivron rouge",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Gingembre",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Courgette",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": []
   },
   "11": {
-    "panier": [
-      {
-        "nom": "Filet mignon",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Chorizo",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Boeuf",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": []
   }
 }
