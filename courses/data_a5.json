@@ -127,6 +127,11 @@
         "nom": "Gingembre",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Courgette",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": []
