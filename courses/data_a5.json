@@ -51,13 +51,7 @@
     "catalogue": []
   },
   "8": {
-    "panier": [
-      {
-        "nom": "Ananas en boite",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": []
   },
   "9": {
