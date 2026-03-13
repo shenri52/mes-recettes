@@ -18,7 +18,7 @@ def afficher():
         .stTabs [data-baseweb="tab-list"] { gap: 2px; }
         .stTabs [data-baseweb="tab"] {
             background-color: #f0f2f6; border-radius: 4px 4px 0 0;
-            padding: 8px 12px !important; font-size: 14px;
+            padding: 6px 8px !important; font-size: 14px;
         }
         .stTabs [aria-selected="true"] {
             background-color: #007bff !important; color: white !important;
