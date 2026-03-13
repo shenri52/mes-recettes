@@ -1,0 +1,45 @@
+{
+    "nom": "Patates douces, pois chiches, épinards et tomates",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Patates douces",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Tomates pelées",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Curcuma",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Curry",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Epinards",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Feta",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "1. Piquer les patates douces, les arroser d'huile d'olive. Mettre dans un plat, au four à 200° pendant 1 heure\n2. Faire revenir l'ail. Ajouter les tomates, les épinards et les épices.\n3. Sortir les patates du four, les couper en 2 dans le sens de la longueur. Ecraser la chair pour faire de la purée. Ajouter la garniture et un peu de feta",
+    "images": [
+        "data/images/20260313_122717_patates_douces,_pois_chiches,_épinards_et_tomates_0.jpg"
+    ]
+}
