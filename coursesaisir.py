@@ -5,39 +5,33 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS OPTIMISÉ MOBILE ---
+    # --- STYLE CSS OPTIMISÉ MOBILE (FORCE LIGNES) ---
     st.markdown("""
         <style>
-        /* Optimisation de l'espace global */
-        .block-container { padding: 0.5rem 0.5rem !important; max-width: 100% !important; }
+        .block-container { padding: 0.5rem !important; max-width: 100% !important; }
         header { visibility: hidden; } 
         
-        /* Boutons plus tactiles */
+        /* FORCE LES COLONNES À RESTER EN LIGNE SUR MOBILE */
+        [data-testid="column"] {
+            width: calc(33% - 1rem) !important;
+            flex: 1 1 calc(33% - 1rem) !important;
+            min-width: 0px !important;
+        }
+
+        /* Ajustement spécifique pour les formulaires */
         .stButton>button { 
-            width: 100%; border-radius: 8px; padding: 8px; height: 3em; 
-            font-size: 15px !important; font-weight: 500;
-            margin-bottom: 4px;
+            width: 100%; border-radius: 8px; height: 3em; 
+            font-size: 15px !important;
         }
         
-        /* Champs de saisie optimisés pour le pouce et le zoom */
         div[data-testid="stTextInput"] input { 
-            padding: 8px; height: 2.5em; 
-            font-size: 16px !important; /* Évite le zoom auto sur iPhone */
-        }
-        
-        /* Réduction de l'espace entre les éléments du formulaire */
-        .stVerticalBlock { gap: 0.4rem !important; }
-        
-        /* Style du label "Zone" miniature */
-        .label-mini { 
-            text-align: center; padding-top: 10px; 
-            font-size: 12px; color: #666; font-weight: bold;
-        }
-        
-        /* Container de zone plus compact */
-        div[data-testid="stExpander"], div.stContainer {
-            border-radius: 10px !important;
+            font-size: 16px !important; 
             padding: 5px !important;
+        }
+
+        .label-mini { 
+            text-align: center; margin-top: 10px; 
+            font-size: 11px; color: #666; white-space: nowrap;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -54,7 +48,6 @@ def afficher():
     FILE_PATH = "courses/data_a5.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
-    # Fonctions de données (inchangées pour la stabilité)
     def get_github_data(path):
         t = int(time.time())
         url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}?t={t}"
@@ -79,7 +72,6 @@ def afficher():
             return True
         return False
 
-    # --- INITIALISATION ---
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
@@ -94,7 +86,6 @@ def afficher():
 
     st.subheader("📝 Préparer les courses")
 
-    # --- AFFICHAGE DES 12 ZONES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -103,7 +94,6 @@ def afficher():
             with cols[j]:
                 st.caption(f"📍 Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
-                    
                     key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
                     choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_hist, label_visibility="collapsed")
                     
@@ -111,7 +101,8 @@ def afficher():
                         nom_initial = "" if choix == "---" else choix
                         nom = st.text_input("Produit", value=nom_initial, placeholder="Nom", label_visibility="collapsed")
                         
-                        col_q, col_txt, col_z = st.columns([1, 0.6, 1])
+                        # Ici on définit les colonnes pour la ligne Quantité/Zone
+                        col_q, col_txt, col_z = st.columns([1, 0.8, 1])
                         qte_f = col_q.text_input("Qté", placeholder="1", label_visibility="collapsed")
                         col_txt.markdown("<p class='label-mini'>ZONE</p>", unsafe_allow_html=True)
                         n_zone = col_z.text_input("Z", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
@@ -150,7 +141,6 @@ def afficher():
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
-                    # Liste des produits (boutons plus hauts pour le tactile)
                     for p_idx, p in enumerate(case["panier"]):
                         if st.button(f"🗑️ {p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                             case["panier"].pop(p_idx)
