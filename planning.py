@@ -33,60 +33,54 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
-# --- NOUVELLE FONCTION : APERÇU AVEC NAVIGATION ---
+# --- NOUVELLE FONCTION : APERÇU BASÉ SUR TON MODÈLE ---
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
-    recette = next((r for r in st.session_state.index_complet if r['nom'] == nom_plat), None)
+    # On cherche l'info dans l'index (correspondance insensible à la casse)
+    info = next((r for r in st.session_state.index_complet if r['nom'].upper() == nom_plat.upper()), None)
     
-    if recette:
-        st.subheader(recette['nom'])
-        
-        tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
-        
-        with tab1:
-            if 'ingredients' in recette:
+    if info:
+        # Chargement du JSON complet de la recette via son chemin
+        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
+        res = requests.get(url_full)
+        if res.status_code == 200:
+            recette = res.json()
+            
+            tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
+            
+            with tab1:
+                st.subheader(recette.get('nom', '').upper())
+                st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
                 st.write("**Ingrédients :**")
-                for ing in recette['ingredients']:
-                    qte = recette.get('quantites', {}).get(ing, "")
-                    st.write(f"- {ing} : **{qte}**" if qte else f"- {ing}")
-            
-            if 'instructions' in recette and recette['instructions']:
-                st.write("**Préparation :**")
-                st.info(recette['instructions'])
-        
-        with tab2:
-            conf = config_github()
-            # On liste les images potentielles (ex: Plat.png, Plat_1.png, Plat_2.png)
-            base_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/captures/{nom_plat.replace(' ', '%20')}"
-            
-            # On vérifie les images existantes (jusqu'à 5)
-            images_valides = []
-            for ext in [".png", ".jpg", ".jpeg", ".PNG"]:
-                # Image principale
-                if requests.head(base_url + ext).status_code == 200:
-                    images_valides.append(base_url + ext)
-                # Images numérotées (Plat_1, Plat_2...)
-                for i in range(1, 4):
-                    if requests.head(f"{base_url}_{i}{ext}").status_code == 200:
-                        images_valides.append(f"{base_url}_{i}{ext}")
-
-            if images_valides:
-                if 'img_idx' not in st.session_state: st.session_state.img_idx = 0
+                for i in recette.get('ingredients', []):
+                    st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                st.write("**Instructions :**")
+                st.info(recette.get('etapes', 'Aucune instruction saisie.'))
                 
-                # Navigation si plusieurs images
-                if len(images_valides) > 1:
-                    c_prev, c_count, c_next = st.columns([1, 2, 1])
-                    if c_prev.button("⬅️", use_container_width=True):
-                        st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images_valides)
-                    c_count.markdown(f"<p style='text-align:center;'>Image {st.session_state.img_idx + 1} / {len(images_valides)}</p>", unsafe_allow_html=True)
-                    if c_next.button("➡️", use_container_width=True):
-                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images_valides)
-                
-                st.image(images_valides[st.session_state.img_idx], use_container_width=True)
-            else:
-                st.caption("Aucune capture d'écran trouvée dans le dossier /captures/")
+            with tab2:
+                images = recette.get('images', [])
+                if images:
+                    if "img_idx" not in st.session_state: st.session_state.img_idx = 0
+                    
+                    # Construction de l'URL brute de l'image
+                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
+                    st.image(img_url, use_container_width=True)
+                    
+                    if len(images) > 1:
+                        c1, c2, c3 = st.columns([1, 2, 1])
+                        if c1.button("⬅️", key="btn_prev_img"):
+                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                            st.rerun()
+                        c2.markdown(f"<p style='text-align:center;'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
+                        if c3.button("➡️", key="btn_next_img"):
+                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                            st.rerun()
+                else:
+                    st.info("Aucune photo disponible pour cette recette.")
+        else:
+            st.error("Impossible de charger le fichier de la recette.")
     else:
-        st.error("Détails introuvables.")
+        st.error("Recette introuvable dans l'index.")
 
 # --- INTERFACE PLANNING ---
 def afficher():
@@ -154,7 +148,7 @@ def afficher():
                 if isinstance(plats, dict): plats = [] 
                 
                 for idx, p_nom in enumerate(plats):
-                    est_recette = any(r['nom'] == p_nom for r in st.session_state.index_complet)
+                    est_recette = any(r['nom'].upper() == p_nom.upper() for r in st.session_state.index_complet)
                     icon = "📖" if est_recette else "⚡"
                     
                     c_txt, c_eye = st.columns([4, 1])
@@ -167,8 +161,7 @@ def afficher():
                     with c_eye:
                         if est_recette:
                             if st.button("👁️", key=f"view_{d_str}{rep}{idx}", use_container_width=True):
-                                # Reset l'index image à chaque ouverture
-                                st.session_state.img_idx = 0
+                                st.session_state.img_idx = 0 # Reset à l'ouverture
                                 ouvrir_fiche(p_nom)
                 
                 if len(plats) < 3:
