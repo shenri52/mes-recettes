@@ -33,42 +33,60 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
-# --- NOUVELLE FONCTION : APERÇU RECETTE AMÉLIORÉ ---
-@st.dialog("Fiche Recette 📖")
+# --- NOUVELLE FONCTION : APERÇU AVEC NAVIGATION ---
+@st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
     recette = next((r for r in st.session_state.index_complet if r['nom'] == nom_plat), None)
     
     if recette:
         st.subheader(recette['nom'])
         
-        # 1. Affichage des Ingrédients et Quantités
-        if 'ingredients' in recette:
-            st.write("**Ingrédients :**")
-            for ing in recette['ingredients']:
-                # Gestion dynamique : affiche quantité si présente, sinon juste l'ingrédient
-                qte = recette.get('quantites', {}).get(ing, "")
-                txt = f"- {ing} : **{qte}**" if qte else f"- {ing}"
-                st.write(txt)
+        tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
         
-        # 2. Affichage des Instructions
-        if 'instructions' in recette and recette['instructions']:
-            st.write("**Préparation :**")
-            st.info(recette['instructions'])
+        with tab1:
+            if 'ingredients' in recette:
+                st.write("**Ingrédients :**")
+                for ing in recette['ingredients']:
+                    qte = recette.get('quantites', {}).get(ing, "")
+                    st.write(f"- {ing} : **{qte}**" if qte else f"- {ing}")
+            
+            if 'instructions' in recette and recette['instructions']:
+                st.write("**Préparation :**")
+                st.info(recette['instructions'])
         
-        # 3. Affichage des Captures d'écran (Images)
-        st.write("**Captures d'écran :**")
-        conf = config_github()
-        # On tente de charger l'image depuis le dossier captures/Nom_du_plat.png
-        img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/captures/{nom_plat.replace(' ', '%20')}.png"
-        
-        # Vérification si l'image existe
-        res = requests.head(img_url)
-        if res.status_code == 200:
-            st.image(img_url, use_container_width=True)
-        else:
-            st.caption("Aucune capture d'écran disponible pour ce plat.")
+        with tab2:
+            conf = config_github()
+            # On liste les images potentielles (ex: Plat.png, Plat_1.png, Plat_2.png)
+            base_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/captures/{nom_plat.replace(' ', '%20')}"
+            
+            # On vérifie les images existantes (jusqu'à 5)
+            images_valides = []
+            for ext in [".png", ".jpg", ".jpeg", ".PNG"]:
+                # Image principale
+                if requests.head(base_url + ext).status_code == 200:
+                    images_valides.append(base_url + ext)
+                # Images numérotées (Plat_1, Plat_2...)
+                for i in range(1, 4):
+                    if requests.head(f"{base_url}_{i}{ext}").status_code == 200:
+                        images_valides.append(f"{base_url}_{i}{ext}")
+
+            if images_valides:
+                if 'img_idx' not in st.session_state: st.session_state.img_idx = 0
+                
+                # Navigation si plusieurs images
+                if len(images_valides) > 1:
+                    c_prev, c_count, c_next = st.columns([1, 2, 1])
+                    if c_prev.button("⬅️", use_container_width=True):
+                        st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images_valides)
+                    c_count.markdown(f"<p style='text-align:center;'>Image {st.session_state.img_idx + 1} / {len(images_valides)}</p>", unsafe_allow_html=True)
+                    if c_next.button("➡️", use_container_width=True):
+                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images_valides)
+                
+                st.image(images_valides[st.session_state.img_idx], use_container_width=True)
+            else:
+                st.caption("Aucune capture d'écran trouvée dans le dossier /captures/")
     else:
-        st.error("Détails de la recette introuvables.")
+        st.error("Détails introuvables.")
 
 # --- INTERFACE PLANNING ---
 def afficher():
@@ -149,6 +167,8 @@ def afficher():
                     with c_eye:
                         if est_recette:
                             if st.button("👁️", key=f"view_{d_str}{rep}{idx}", use_container_width=True):
+                                # Reset l'index image à chaque ouverture
+                                st.session_state.img_idx = 0
                                 ouvrir_fiche(p_nom)
                 
                 if len(plats) < 3:
