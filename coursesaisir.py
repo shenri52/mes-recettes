@@ -5,28 +5,36 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS (Optimisé pour les onglets) ---
+    # --- STYLE CSS (Pour transformer le texte en "vrais" onglets) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
         header { visibility: hidden; } 
+        
+        /* Style des boutons de produits */
         .stButton>button { 
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
             font-size: 14px;
         }
-        div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
         
-        /* Amélioration visuelle des onglets */
+        /* Transformation du texte souligné en onglets visuels */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-            border-bottom: 1px solid #ddd;
+            gap: 4px;
+            border-bottom: none;
         }
         .stTabs [data-baseweb="tab"] {
-            height: 40px;
-            white-space: nowrap;
-            background-color: transparent;
+            background-color: #f0f2f6; /* Fond gris clair */
             border-radius: 4px 4px 0 0;
-            padding: 0px 10px;
+            padding: 5px 12px !important;
+            height: 35px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+        /* Onglet sélectionné */
+        .stTabs [aria-selected="true"] {
+            background-color: #007bff !important; /* Bleu */
+            color: white !important;
+            border-color: #0056b3;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -82,11 +90,11 @@ def afficher():
 
     st.subheader("📝 Préparer les courses")
 
-    # --- LES 12 ONGLETS (Libellés complets : Zone 1, Zone 2...) ---
-    onglets = st.tabs([f"Zone {i+1}" for i in range(12)])
+    # --- LES 12 ONGLETS (Retour à Z1, Z2... avec style bouton) ---
+    onglets = st.tabs([f"Z{i+1}" for i in range(12)])
 
     for i in range(12):
-        with onglets[i]: # On entre dans l'onglet
+        with onglets[i]: 
             idx_actuelle = str(i)
             case = st.session_state.data_a5[idx_actuelle]
             
