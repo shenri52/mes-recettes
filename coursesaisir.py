@@ -28,7 +28,7 @@ def afficher():
             padding: 6px 4px !important;
             height: 30px;
             font-size: 11px;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
         }
         /* Onglet sélectionné */
         .stTabs [aria-selected="true"] {
