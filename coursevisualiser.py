@@ -17,8 +17,8 @@ def afficher():
         /* Style pour rendre les onglets plus tactiles sur mobile */
         .stTabs [data-baseweb="tab-list"] { gap: 2px; }
         .stTabs [data-baseweb="tab"] {
-            background-color: #f0f2f6; border-radius: 4px 2px 0 0;
-            padding: 3px 8px !important; font-size: 14px;
+            background-color: #f0f2f6; border-radius: 3px 3px 0 0;
+            padding: 4px 6px !important; font-size: 14px;
         }
         .stTabs [aria-selected="true"] {
             background-color: #007bff !important; color: white !important;
