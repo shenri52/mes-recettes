@@ -5,7 +5,7 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS ÉPURÉ (Pour ne pas bloquer les onglets) ---
+    # --- STYLE CSS NETTOYÉ (Identique à ton planning) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -15,13 +15,6 @@ def afficher():
             font-size: 14px;
         }
         div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
-        
-        /* Force l'affichage des onglets pour qu'ils soient bien visibles */
-        .stTabs [data-baseweb="tab-list"] {
-            display: flex !important;
-            overflow-x: auto;
-            border-bottom: 1px solid #ddd;
-        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -76,14 +69,17 @@ def afficher():
 
     st.subheader("📝 Préparer les courses")
 
-    # --- LES 12 ONGLETS (Comme dans ta fiche recette) ---
-    onglets = st.tabs([f"Zone {i+1}" for i in range(12)])
+    # --- LA STRUCTURE EN ONGLETS (Comme dans tab1, tab2 de ta Dialog) ---
+    # On crée les 12 onglets d'un coup
+    onglets = st.tabs([f"Z{i+1}" for i in range(12)])
 
     for i in range(12):
-        with onglets[i]: # On entre dans l'onglet
+        # On utilise chaque onglet de la liste
+        with onglets[i]:
             idx_actuelle = str(i)
             case = st.session_state.data_a5[idx_actuelle]
             
+            # Contenu de l'onglet (Identique à ton ancien code)
             with st.container(border=True):
                 key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
                 choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_hist, label_visibility="collapsed")
@@ -97,7 +93,7 @@ def afficher():
                     col_txt.markdown("<p style='text-align:center; padding-top:5px;'>Zone :</p>", unsafe_allow_html=True)
                     n_zone = col_z.text_input("Zone", value=str(i+1), label_visibility="collapsed")
                     
-                    if st.form_submit_button("➕ AJOUTER", use_container_width=True):
+                    if st.form_submit_button("➕", use_container_width=True):
                         final_nom = nom.strip().capitalize()
                         try:
                             num_extrait = "".join(filter(str.isdigit, n_zone))
