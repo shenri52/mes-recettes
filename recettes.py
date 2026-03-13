@@ -56,14 +56,17 @@ def compresser_image(upload_file):
 
 # --- 3. GESTION DE L'INDEX ---
 def charger_index():
-    # Si on appuie sur 🔄, st.session_state.index_recettes sera absent
     if 'index_recettes' not in st.session_state:
         conf = config_github()
-        # On ajoute ?t=... pour forcer GitHub à donner la version la plus récente
-        url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
-        res = requests.get(url)
+        # On passe par l'API GitHub pour contourner le cache du contenu RAW
+        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
+        res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+        
         if res.status_code == 200:
-            st.session_state.index_recettes = res.json()
+            # L'API renvoie du Base64, on doit le décoder
+            content_b64 = res.json()['content']
+            content_json = base64.b64decode(content_b64).decode('utf-8')
+            st.session_state.index_recettes = json.loads(content_json)
         else:
             st.session_state.index_recettes = []
     return st.session_state.index_recettes
