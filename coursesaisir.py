@@ -25,9 +25,9 @@ def afficher():
         .stTabs [data-baseweb="tab"] {
             background-color: #f0f2f6; /* Fond gris clair */
             border-radius: 3px 3px 0 0;
-            padding: 2px 4px !important;
-            height: 28px;
-            font-size: 10px;
+            padding: 4px 4px !important;
+            height: 30px;
+            font-size: 11px;
             border: 1px solid #ddd;
         }
         /* Onglet sélectionné */
