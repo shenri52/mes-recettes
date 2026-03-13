@@ -157,4 +157,4 @@ def afficher():
         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
         st.rerun()
 
-    st.write("---")
+    st.write("")
