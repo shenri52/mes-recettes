@@ -106,7 +106,9 @@ if verifier_mot_de_passe():
         elif st.session_state.page == "maintenance":
             maintenance.afficher()
 
-        # --- 4. BOUTON RETOUR ---
+    # --- 4. BOUTON RETOUR ---
         st.write("") 
-        if st.button("⬅️ Retour à l'accueil", use_container_width=True):
-            changer_page('accueil')
+        # On n'affiche le bouton du bas QUE si on n'est pas sur le planning
+        if st.session_state.page != "planning":
+            if st.button("⬅️ Retour à l'accueil", use_container_width=True):
+                changer_page('accueil')
