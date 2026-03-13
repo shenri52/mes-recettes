@@ -2,8 +2,6 @@ import streamlit as st
 import json
 import requests
 import base64
-import datetime
-from collections import Counter
 import time
 
 def afficher():
@@ -56,6 +54,7 @@ def afficher():
             return True
         return False
 
+    # --- INITIALISATION ---
     if "data_a5" not in st.session_state:
         st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
         if st.session_state.data_a5 is None:
@@ -65,91 +64,9 @@ def afficher():
         st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
         if st.session_state.index_zones is None: st.session_state.index_zones = {}
 
-    if "offset_semaine" not in st.session_state: st.session_state.offset_semaine = 0
-    if "exclus_transit" not in st.session_state: st.session_state.exclus_transit = []
-
-    # --- PLANNING ---
-    aujourdhui = datetime.date.today()
-    debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
-    
-    planning, _ = get_github_data("data/planning.json")
-    index_recettes, _ = get_github_data("data/index_recettes.json")
-    liste_brute = []
-    if planning and index_recettes:
-        for d_offset in range(7):
-            d_str = (debut + datetime.timedelta(days=d_offset)).isoformat()
-            if d_str in planning:
-                for rep in ["midi", "soir"]:
-                    for nom_r in planning[d_str].get(rep, []):
-                        recette = next((r for r in index_recettes if r['nom'] == nom_r), None)
-                        if recette and 'ingredients' in recette:
-                            liste_brute.extend([ing.strip().capitalize() for ing in recette['ingredients']])
-    counts = Counter(liste_brute)
-
     st.subheader("📝 Préparer les courses")
-    
-    c1, c2, c3 = st.columns([1, 2, 1])
-    if c1.button("⬅️", key="prev_t"): 
-        st.session_state.offset_semaine -= 1
-        st.session_state.exclus_transit = []
-        st.rerun()
-    if c3.button("➡️", key="next_t"): 
-        st.session_state.offset_semaine += 1
-        st.session_state.exclus_transit = []
-        st.rerun()
-    
-    c2.markdown(f"<p style='text-align:center;'>Semaine du <b>{debut.strftime('%d/%m')}</b></p>", unsafe_allow_html=True)
 
-    if st.button("🚀 Actualiser / Classer la liste", use_container_width=True):
-        if counts:
-            for ing, qte in counts.items():
-                zone_dest = st.session_state.index_zones.get(ing)
-                if zone_dest:
-                    trouve = False
-                    for item in st.session_state.data_a5[str(zone_dest)]["panier"]:
-                        if item['nom'] == ing:
-                            item['qte'] = str(qte)
-                            trouve = True
-                            break
-                    if not trouve:
-                        st.session_state.data_a5[str(zone_dest)]["panier"].append({"nom": ing, "qte": str(qte), "checked": False})
-            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-            st.rerun()
-
-    with st.container(border=True):
-        items_transit = sorted(counts.items())
-        visible_count = 0
-        for ing, qte in items_transit:
-            dans_panier = any(any(item['nom'] == ing for item in z["panier"]) for z in st.session_state.data_a5.values())
-            if ing in st.session_state.exclus_transit or dans_panier:
-                continue
-
-            visible_count += 1
-            col_nom, col_qte, col_sel, col_add, col_del = st.columns([1.8, 0.7, 1.3, 0.4, 0.4])
-            col_nom.write(ing)
-            
-            qte_input = col_qte.text_input("Qté", value=str(qte), key=f"qte_t_{ing}", label_visibility="collapsed")
-
-            zone_pref = st.session_state.index_zones.get(ing, "0")
-            options_zones = [str(i) for i in range(12)]
-            zone_dest = col_sel.selectbox("Zone", options_zones, index=int(zone_pref) if zone_pref.isdigit() else 0, key=f"sel_{ing}", label_visibility="collapsed", format_func=lambda x: f"Zone {int(x)+1}")
-            
-            if col_add.button("➕", key=f"btn_add_{ing}"):
-                st.session_state.data_a5[zone_dest]["panier"].append({"nom": ing, "qte": qte_input, "checked": False})
-                st.session_state.index_zones[ing] = zone_dest
-                save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
-                st.rerun()
-            
-            if col_del.button("➖", key=f"btn_del_{ing}"):
-                st.session_state.exclus_transit.append(ing)
-                st.rerun()
-
-        if visible_count == 0:
-            st.info("Tout est classé ! ✅")
-
-    st.divider()
-
+    # --- AFFICHAGE DES 12 ZONES ---
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
@@ -158,16 +75,19 @@ def afficher():
             with cols[j]:
                 st.caption(f"Zone {int(idx)+1}")
                 with st.container(border=True):
+                    # Formulaire d'ajout : rien ne se passe avant le clic sur "+"
                     with st.form(key=f"form_{idx}", clear_on_submit=True):
                         choix = st.selectbox("Histo", ["-- Nouveau --"] + case["catalogue"], label_visibility="collapsed")
                         nom = st.text_input("Nom", placeholder="Produit", label_visibility="collapsed")
                         qte_f = st.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
                         
-                        if st.form_submit_button("Ajouter", use_container_width=True):
+                        # Transformation du bouton en "+"
+                        if st.form_submit_button("+", use_container_width=True):
                             final_nom = nom.strip().capitalize() if choix == "-- Nouveau --" else choix
                             if final_nom:
                                 st.session_state.index_zones[final_nom] = idx
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
+                                
                                 trouve = False
                                 for p in case["panier"]:
                                     if p["nom"].lower() == final_nom.lower():
@@ -176,12 +96,15 @@ def afficher():
                                         break
                                 if not trouve:
                                     case["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
+                                
                                 if final_nom not in case["catalogue"]:
                                     case["catalogue"].append(final_nom)
                                     case["catalogue"].sort()
+                                
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
+                    # Liste des produits cliquables pour suppression
                     for p_idx, p in enumerate(case["panier"]):
                         if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx}_{p_idx}"):
                             case["panier"].pop(p_idx)
@@ -190,6 +113,7 @@ def afficher():
 
     st.divider()
     if st.button("🗑️ Vider tout le panier", use_container_width=True):
-        for k in range(12): st.session_state.data_a5[str(k)]["panier"] = []
+        for k in range(12): 
+            st.session_state.data_a5[str(k)]["panier"] = []
         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
         st.rerun()
