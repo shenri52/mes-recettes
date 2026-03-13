@@ -130,10 +130,8 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-    st.divider()
-
     # --- SECTION 2 : REPARER L'INDEX INGREDIENT (ÉTAPE MANUELLE) ---
-    if st.button("🧹 Analyser l'index ingredient", use_container_width=True):
+    if st.button("🧹 Réparer l'index ingredient", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs = []
         index_nettoye = []
@@ -183,8 +181,6 @@ def afficher():
                 del st.session_state.index_a_sauvegarder
                 time.sleep(1)
                 st.rerun()
-
-    st.divider()
 
     # --- SECTION 3 : COMPRESSION DES IMAGES ---
     if st.button("🖼️ Optimisation des Images", use_container_width=True):
