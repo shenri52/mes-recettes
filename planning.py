@@ -54,8 +54,6 @@ def ouvrir_fiche(nom_plat):
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                st.write("**Instructions :**")
-                st.info(recette.get('etapes', 'Aucune instruction saisie.'))
                 
             with tab2:
                 images = recette.get('images', [])
