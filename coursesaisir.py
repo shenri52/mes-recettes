@@ -19,7 +19,7 @@ def afficher():
         
         /* Transformation du texte souligné en onglets visuels */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 4px;
+            gap: 2px;
             border-bottom: none;
         }
         .stTabs [data-baseweb="tab"] {
@@ -157,4 +157,4 @@ def afficher():
         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
         st.rerun()
 
-    st.write("")
+    st.write("---")
