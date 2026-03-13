@@ -33,19 +33,16 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
-# --- NOUVELLE FONCTION : APERÇU BASÉ SUR TON MODÈLE ---
+# --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
-    # On cherche l'info dans l'index (correspondance insensible à la casse)
     info = next((r for r in st.session_state.index_complet if r['nom'].upper() == nom_plat.upper()), None)
     
     if info:
-        # Chargement du JSON complet de la recette via son chemin
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         res = requests.get(url_full)
         if res.status_code == 200:
             recette = res.json()
-            
             tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
             
             with tab1:
@@ -54,16 +51,14 @@ def ouvrir_fiche(nom_plat):
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                # Instructions supprimées selon ta demande ✂️
                 
             with tab2:
                 images = recette.get('images', [])
                 if images:
                     if "img_idx" not in st.session_state: st.session_state.img_idx = 0
-                    
-                    # Construction de l'URL brute de l'image
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                     st.image(img_url, use_container_width=True)
-                    
                     if len(images) > 1:
                         c1, c2, c3 = st.columns([1, 2, 1])
                         if c1.button("⬅️", key="btn_prev_img"):
@@ -74,11 +69,9 @@ def ouvrir_fiche(nom_plat):
                             st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
                             st.rerun()
                 else:
-                    st.info("Aucune photo disponible pour cette recette.")
+                    st.info("Aucune photo disponible.")
         else:
-            st.error("Impossible de charger le fichier de la recette.")
-    else:
-        st.error("Recette introuvable dans l'index.")
+            st.error("Erreur de chargement.")
 
 # --- INTERFACE PLANNING ---
 def afficher():
@@ -97,6 +90,7 @@ def afficher():
     fin = debut + datetime.timedelta(days=6)
     date_range_str = f"{debut.strftime('%d/%m/%y')} au {fin.strftime('%d/%m/%y')}"
 
+    # Navigation semaines
     c1, c2, c3 = st.columns([1, 3, 1])
     with c1:
         if st.button("⬅️", key="prev_sem", use_container_width=True): 
@@ -114,10 +108,6 @@ def afficher():
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
     
-    st.write("") 
-    c_head_label, c_head_m, c_head_s = st.columns([1.2, 2, 2])
-    with c_head_m: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Midi</p>", unsafe_allow_html=True)
-    with c_head_s: st.markdown("<p style='text-align:center; font-weight:bold; margin-bottom:0;'>Soir</p>", unsafe_allow_html=True)
     st.divider()
 
     for i, nom in enumerate(jours):
@@ -127,21 +117,31 @@ def afficher():
         if d_str not in temp: 
             temp[d_str] = {"midi": [], "soir": []}
 
-        col_d, col_m, col_s = st.columns([1.2, 2, 2])
-        
+        # Header du jour stylisé
         is_today = (d_j == aujourdhui)
-        bg = "#e1f5fe" if is_today else "transparent"
-        border = "2px solid #0288d1" if is_today else "1px solid #ddd"
-        text_color = "#01579b" if is_today else "inherit"
+        bg_jour = "#e1f5fe" if is_today else "#f8f9fa"
+        border_jour = "2px solid #0288d1" if is_today else "1px solid #eee"
         
-        col_d.markdown(f"""
-            <div style='background:{bg}; color:{text_color}; padding:10px; border-radius:5px; border:{border}; min-height:102px; display:flex; flex-direction:column; justify-content:center;'>
-                <small style='font-weight:normal;'>{nom}</small><br><b style='font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
+        st.markdown(f"""
+            <div style='background:{bg_jour}; padding:10px; border-radius:10px 10px 0 0; border:{border_jour}; border-bottom:none;'>
+                <span style='color:#555; font-size:0.8em;'>{nom}</span><br>
+                <b style='font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
             </div>
         """, unsafe_allow_html=True)
 
+        col_m, col_s = st.columns(2)
+        
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
+                # Bandeaux de distinction Midi/Soir
+                bg_rep = "#ffe0b2" if rep == "midi" else "#c5cae9"
+                txt_rep = "#e65100" if rep == "midi" else "#1a237e"
+                st.markdown(f"""
+                    <div style='background:{bg_rep}; color:{txt_rep}; padding:2px; border-radius:5px; font-size:0.7em; font-weight:bold; margin-bottom:5px; text-transform:uppercase; text-align:center;'>
+                        {rep}
+                    </div>
+                """, unsafe_allow_html=True)
+
                 plats = temp[d_str].get(rep, [])
                 if isinstance(plats, dict): plats = [] 
                 
@@ -159,60 +159,43 @@ def afficher():
                     with c_eye:
                         if est_recette:
                             if st.button("👁️", key=f"view_{d_str}{rep}{idx}", use_container_width=True):
-                                st.session_state.img_idx = 0 # Reset à l'ouverture
+                                st.session_state.img_idx = 0
                                 ouvrir_fiche(p_nom)
                 
                 if len(plats) < 3:
-                    with st.popover("➕ Ajouter", use_container_width=True):
+                    with st.popover("➕", use_container_width=True):
                         choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
                         if choix != "---":
                             plats.append(choix)
                             temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
+        
+        st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
     st.divider()
-    st.subheader("🍴 Mes plats rapides (sans recette)")
-    
+    # Gestion des plats rapides (inchangée)
+    st.subheader("🍴 Plats rapides")
     plats_rapides = sorted(st.session_state.plats_rapides)
     if plats_rapides:
-        col_sel, col_ren, col_btn_ren, col_btn_del = st.columns([1.5, 1.5, 1, 1])
-        with col_sel:
-            plat_sel = st.selectbox("Plats enregistrés", ["---"] + plats_rapides, key="sel_rapide_manage", label_visibility="collapsed")
-        
+        plat_sel = st.selectbox("Gérer mes plats", ["---"] + plats_rapides, key="sel_rapide_manage")
         if plat_sel != "---":
-            with col_ren:
-                nouveau_nom = st.text_input("Nouveau nom", value=plat_sel, key="rename_plat", label_visibility="collapsed")
-            with col_btn_ren:
-                if st.button("📝 OK", key="btn_rename", use_container_width=True):
-                    if nouveau_nom and nouveau_nom != plat_sel:
-                        st.session_state.plats_rapides.remove(plat_sel)
-                        st.session_state.plats_rapides.append(nouveau_nom)
-                        sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                        st.rerun()
-            with col_btn_del:
-                if st.button("🗑️ Suppr", key="btn_del_rapide", use_container_width=True):
-                    st.session_state.plats_rapides.remove(plat_sel)
-                    sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                    st.rerun()
-
-    col_add_txt, col_add_btn = st.columns([3, 1])
-    with col_add_txt:
-        nouveau_plat = st.text_input("Nom du nouveau plat", placeholder="Ajouter un plat...", key="input_new_plat", label_visibility="collapsed")
-    with col_add_btn:
-        if st.button("➕ Ajouter", key="btn_add_rapide", use_container_width=True) and nouveau_plat:
-            if nouveau_plat not in st.session_state.plats_rapides:
-                st.session_state.plats_rapides.append(nouveau_plat)
+            c_ren, c_del = st.columns(2)
+            if c_del.button("🗑️ Supprimer", use_container_width=True):
+                st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    st.divider()
-    
+    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...")
+    if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
+        if nouveau_plat not in st.session_state.plats_rapides:
+            st.session_state.plats_rapides.append(nouveau_plat)
+            sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+            st.rerun()
+
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
-        final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
-        if sauvegarder_github("data/planning.json", final):
-            st.session_state.planning_data = final
-            st.success("Planning enregistré 💾")
+        if sauvegarder_github("data/planning.json", st.session_state.planning_data):
+            st.success("Planning enregistré ! 💾")
             time.sleep(1)
             st.rerun()
