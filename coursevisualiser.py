@@ -66,7 +66,7 @@ def afficher():
             st.session_state.data_a5 = {str(i): {"panier": []} for i in range(12)}
 
     # --- REMPLACEMENT DES COLONNES PAR DES ONGLETS ---
-    onglets = st.tabs([f"Zone {i+1}" for i in range(12)])
+    onglets = st.tabs([f"{i+1}" for i in range(12)])
 
     for i in range(12):
         with onglets[i]:
