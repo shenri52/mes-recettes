@@ -56,6 +56,8 @@ def afficher():
     if "bouton_analyse_clique" not in st.session_state:
         if "a_reparer" in st.session_state:
             del st.session_state.a_reparer
+        if "index_a_sauvegarder" in st.session_state:
+            del st.session_state.index_a_sauvegarder
 
     # --- SECTION 1 : RÉPARER L'INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
@@ -67,20 +69,11 @@ def afficher():
         
         if res.status_code == 200:
             tree = res.json().get('tree', [])
-            
-            # Exclusion des fichiers système pour éviter les erreurs d'indexation
-            fichiers_exclus = [
-                'data/index_recettes.json', 
-                'data/index_produits_zones.json', 
-                'data/planning.json', 
-                'data/plats_rapides.json'
-            ]
-            
             fichiers_physiques = [
                 item['path'] for item in tree 
                 if item['path'].startswith('data/') 
                 and item['path'].endswith('.json') 
-                and item['path'] not in fichiers_exclus
+                and item['path'] != 'data/index_recettes.json'
             ]
             
             index_actuel = charger_index_local()
@@ -137,47 +130,61 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-# --- SECTION 2 : REPARER L'INDEX INGREDIENT (Version Nettoyage Strict) ---
-    if st.button("🧹 Reparer l'index ingredient", use_container_width=True):
-        with st.spinner("Analyse et nettoyage des ingrédients..."):
-            index_actuel = charger_index_local()
-            modifie = False
-            recettes_corrigees = 0
+    st.divider()
+
+    # --- SECTION 2 : REPARER L'INDEX INGREDIENT (ÉTAPE MANUELLE) ---
+    if st.button("🧹 Analyser l'index ingredient", use_container_width=True):
+        index_actuel = charger_index_local()
+        erreurs = []
+        index_nettoye = []
+        
+        for recette in index_actuel:
+            liste_brute = recette.get("ingredients", [])
+            vus = set()
+            liste_propre = []
+            a_modifie = False
             
-            for recette in index_actuel:
-                if "ingredients" in recette and recette["ingredients"]:
-                    liste_brute = recette["ingredients"]
-                    vus = set()
-                    liste_propre = []
-                    
-                    for ing in liste_brute:
-                        if ing:
-                            # 1. On enlève les espaces au début et à la fin (.strip())
-                            # 2. On réduit les doubles espaces intérieurs (.replace)
-                            # 3. On passe en minuscule pour la comparaison (.lower())
-                            nom_nettoye = " ".join(ing.split()) 
-                            cle_comparaison = nom_nettoye.lower()
-                            
-                            if cle_comparaison not in vus:
-                                vus.add(cle_comparaison)
-                                # On garde la version propre (sans espace à la fin)
-                                liste_propre.append(nom_nettoye)
-                    
-                    # Si la liste a changé (doublon ou espace supprimé)
-                    if len(liste_propre) != len(liste_brute) or any(i != j for i, j in zip(liste_brute, liste_propre)):
-                        recette["ingredients"] = liste_propre
-                        modifie = True
-                        recettes_corrigees += 1
+            for ing in liste_brute:
+                if ing:
+                    # Nettoyage strict : espaces inutiles et doubles espaces
+                    nom_nettoye = " ".join(ing.split())
+                    cle = nom_nettoye.lower()
+                    if cle not in vus:
+                        vus.add(cle)
+                        liste_propre.append(nom_nettoye)
+                        if nom_nettoye != ing:
+                            a_modifie = True
+                    else:
+                        a_modifie = True # Doublon
             
-            if modifie:
-                if envoyer_vers_github("data/index_recettes.json", 
-                                       json.dumps(index_actuel, indent=4, ensure_ascii=False), 
-                                       "🧹 Nettoyage strict des espaces et doublons"):
-                    st.success(f"✨ Nettoyage terminé ! {recettes_corrigees} recette(s) corrigée(s).")
-                    time.sleep(1)
-                    st.rerun()
-            else:
-                st.success("✅ Aucun espace inutile ou doublon détecté.")
+            if a_modifie:
+                erreurs.append({"nom": recette["nom"], "avant": liste_brute, "apres": liste_propre})
+            
+            recette_nettoyee = recette.copy()
+            recette_nettoyee["ingredients"] = liste_propre
+            index_nettoye.append(recette_nettoyee)
+            
+        if erreurs:
+            st.warning(f"⚠️ {len(erreurs)} recette(s) ont des ingrédients mal formatés ou en double.")
+            for e in erreurs:
+                with st.expander(f"📍 {e['nom']}"):
+                    st.write("**Original :**", e["avant"])
+                    st.write("**Nettoyé :**", e["apres"])
+            st.session_state.index_a_sauvegarder = index_nettoye
+        else:
+            st.success("✅ Les ingrédients sont tous propres !")
+
+    if "index_a_sauvegarder" in st.session_state:
+        if st.button("🚀 Appliquer le nettoyage des ingrédients", use_container_width=True):
+            if envoyer_vers_github("data/index_recettes.json", 
+                                   json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), 
+                                   "🧹 Nettoyage manuel des ingrédients"):
+                st.success("✨ Index ingredient réparé !")
+                del st.session_state.index_a_sauvegarder
+                time.sleep(1)
+                st.rerun()
+
+    st.divider()
 
     # --- SECTION 3 : COMPRESSION DES IMAGES ---
     if st.button("🖼️ Optimisation des Images", use_container_width=True):
