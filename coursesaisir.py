@@ -19,15 +19,15 @@ def afficher():
         
         /* Transformation du texte souligné en onglets visuels */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 2px;
+            gap: 1px;
             border-bottom: none;
         }
         .stTabs [data-baseweb="tab"] {
             background-color: #f0f2f6; /* Fond gris clair */
-            border-radius: 4px 4px 0 0;
-            padding: 2px 8px !important;
-            height: 30px;
-            font-size: 11px;
+            border-radius: 3px 3px 0 0;
+            padding: 2px 4px !important;
+            height: 28px;
+            font-size: 10px;
             border: 1px solid #ddd;
         }
         /* Onglet sélectionné */
