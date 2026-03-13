@@ -1,9 +1,7 @@
 {
   "0": {
     "panier": [],
-    "catalogue": [
-      "Eau"
-    ]
+    "catalogue": []
   },
   "1": {
     "panier": [
@@ -11,10 +9,16 @@
         "nom": "Bière blonde",
         "qte": "2",
         "checked": false
+      },
+      {
+        "nom": "Eau",
+        "qte": "2",
+        "checked": false
       }
     ],
     "catalogue": [
       "Bière blonde",
+      "Eau",
       "Jus d'orange",
       "Pepsi"
     ]
