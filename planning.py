@@ -33,7 +33,7 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
-# --- NOUVELLE FONCTION : APERÇU ---
+# --- NOUVELLE FONCTION : APERÇU RECETTE ---
 @st.dialog("Fiche Recette 📖")
 def ouvrir_fiche(nom_plat):
     recette = next((r for r in st.session_state.index_complet if r['nom'] == nom_plat), None)
@@ -46,7 +46,7 @@ def ouvrir_fiche(nom_plat):
             st.write("**Préparation :**")
             st.write(recette['instructions'])
     else:
-        st.info("Aucun détail disponible pour ce plat.")
+        st.info("Aucune fiche détaillée pour ce plat.")
 
 # --- INTERFACE PLANNING ---
 def afficher():
@@ -57,9 +57,11 @@ def afficher():
     if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
+    # FUSION DYNAMIQUE : Recettes + Plats Rapides
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
+    # 1. Navigation Compacte
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin = debut + datetime.timedelta(days=6)
@@ -79,6 +81,7 @@ def afficher():
             st.session_state.offset_semaine += 1
             st.rerun()
 
+    # 2. Tableau
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
     
@@ -117,9 +120,9 @@ def afficher():
                     est_recette = any(r['nom'] == p_nom for r in st.session_state.index_complet)
                     icon = "📖" if est_recette else "⚡"
                     
-                    # --- AJOUT DE L'OEIL DYNAMIQUE ---
-                    c_btn, c_eye = st.columns([4, 1])
-                    with c_btn:
+                    # --- AFFICHAGE DYNAMIQUE BOUTON + OEIL ---
+                    c_txt, c_eye = st.columns([4, 1])
+                    with c_txt:
                         if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
                             plats.pop(idx)
                             temp[d_str][rep] = plats
@@ -139,6 +142,7 @@ def afficher():
                             st.session_state.planning_data.update(temp)
                             st.rerun()
 
+    # --- ZONE : GESTION DES PLATS RAPIDES ---
     st.divider()
     st.subheader("🍴 Mes plats rapides (sans recette)")
     
@@ -174,6 +178,7 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
+    # 3. Actions Finales
     st.divider()
     
     if st.button("💾 Enregistrer Planning", use_container_width=True):
