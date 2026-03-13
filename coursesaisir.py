@@ -73,9 +73,10 @@ def afficher():
             idx_actuelle = str(i + j)
             case = st.session_state.data_a5[idx_actuelle]
             with cols[j]:
-                st.caption(f"📍 Zone {int(idx_actuelle)+1}")
+                st.caption(f"Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
                     
+                    # Histo hors formulaire pour la réactivité
                     choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=f"hist_{idx_actuelle}", label_visibility="collapsed")
                     
                     with st.form(key=f"form_{idx_actuelle}", clear_on_submit=True):
@@ -84,28 +85,28 @@ def afficher():
                         
                         col_q, col_z = st.columns([1, 1.2])
                         qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
-                        # Affiche par défaut le numéro de la zone en cours
+                        
+                        # Le n° zone est forcé sur la zone actuelle grâce au clear_on_submit du formulaire
                         n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
                         
                         if st.form_submit_button("➕", use_container_width=True):
                             final_nom = nom.strip().capitalize()
                             try:
-                                # On calcule la zone de destination choisie (ex: saisie "5" -> index "4")
                                 dest_idx = str(int(n_zone) - 1)
                                 if not (0 <= int(dest_idx) <= 11): dest_idx = idx_actuelle
                             except:
                                 dest_idx = idx_actuelle
 
                             if final_nom:
-                                # 1. Si la zone change, on nettoie l'ancien catalogue
+                                # 1. Si changement de zone, on nettoie l'ancien catalogue
                                 if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
                                     case["catalogue"].remove(final_nom)
 
-                                # 2. Mise à jour de l'index global
+                                # 2. Update Index Global
                                 st.session_state.index_zones[final_nom] = dest_idx
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                                 
-                                # 3. Ajout au panier de destination
+                                # 3. Ajout panier destination
                                 cible = st.session_state.data_a5[dest_idx]
                                 trouve = False
                                 for p in cible["panier"]:
@@ -116,7 +117,7 @@ def afficher():
                                 if not trouve:
                                     cible["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                                 
-                                # 4. Ajout au catalogue de destination
+                                # 4. Ajout catalogue destination
                                 if final_nom not in cible["catalogue"]:
                                     cible["catalogue"].append(final_nom)
                                     cible["catalogue"].sort()
