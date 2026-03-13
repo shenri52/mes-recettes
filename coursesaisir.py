@@ -86,10 +86,16 @@ def afficher():
                         nom_initial = "" if choix == "---" else choix
                         nom = st.text_input("Nom", value=nom_initial, placeholder="Produit", label_visibility="collapsed")
                         
-                        col_q, col_z = st.columns([1, 1.2])
+                        col_q, col_txt, col_z = st.columns([1, 0.6, 1])
+
+                        # 1. La Quantité
                         qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
-                        # Affichage avec "Zone X"
-                        n_zone = col_z.text_input("Zone", value=f"Zone {int(idx_actuelle)+1}", label_visibility="collapsed")
+                        
+                        # 2. Le label statique (on utilise markdown pour l'aligner verticalement)
+                        col_txt.markdown("<p style='text-align:center; padding-top:5px;'>Zone :</p>", unsafe_allow_html=True)
+                        
+                        # 3. Le numéro de zone (pur, sans le mot "Zone" dedans pour faciliter la saisie)
+                        n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
                         
                         if st.form_submit_button("➕", use_container_width=True):
                             final_nom = nom.strip().capitalize()
