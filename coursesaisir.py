@@ -5,7 +5,7 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS ---
+    # --- STYLE CSS ÉPURÉ (Pour ne pas bloquer les onglets) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -16,15 +16,12 @@ def afficher():
         }
         div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
         
-        /* Style pour rendre les onglets plus visibles et espacés */
-        .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-        .stTabs [data-baseweb="tab"] {
-            background-color: #f0f2f6;
-            border-radius: 5px 5px 0px 0px;
-            padding: 8px 12px;
-            font-weight: bold;
+        /* Force l'affichage des onglets pour qu'ils soient bien visibles */
+        .stTabs [data-baseweb="tab-list"] {
+            display: flex !important;
+            overflow-x: auto;
+            border-bottom: 1px solid #ddd;
         }
-        .stTabs [aria-selected="true"] { background-color: #e1e4e8 !important; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -79,19 +76,15 @@ def afficher():
 
     st.subheader("📝 Préparer les courses")
 
-    # --- CRÉATION DES 12 ONGLETS ---
-    # On crée une liste de titres pour les onglets
-    titres_onglets = [f"Z{i+1}" for i in range(12)]
-    onglets = st.tabs(titres_onglets)
+    # --- LES 12 ONGLETS (Comme dans ta fiche recette) ---
+    onglets = st.tabs([f"Zone {i+1}" for i in range(12)])
 
     for i in range(12):
-        idx_actuelle = str(i)
-        case = st.session_state.data_a5[idx_actuelle]
-        
-        with onglets[i]: # Chaque zone est dans son onglet
-            st.caption(f"📍 Zone {i+1}")
+        with onglets[i]: # On entre dans l'onglet
+            idx_actuelle = str(i)
+            case = st.session_state.data_a5[idx_actuelle]
+            
             with st.container(border=True):
-                
                 key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
                 choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_hist, label_visibility="collapsed")
                 
@@ -138,7 +131,6 @@ def afficher():
                             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                             st.rerun()
                                     
-                # Liste des produits du panier pour cette zone
                 for p_idx, p in enumerate(case["panier"]):
                     if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                         case["panier"].pop(p_idx)
