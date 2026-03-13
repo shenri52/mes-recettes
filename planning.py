@@ -33,7 +33,7 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
-# --- APERÇU FICHE RECETTE ---
+#  APERÇU FICHE RECETTE 
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
     info = next((r for r in st.session_state.index_complet if r['nom'].upper() == nom_plat.upper()), None)
@@ -72,7 +72,7 @@ def ouvrir_fiche(nom_plat):
         else:
             st.error("Erreur de chargement.")
 
-# --- INTERFACE PLANNING ---
+#  INTERFACE PLANNING 
 
 def afficher():
     # 1. Barre d'outils sur deux colonnes
@@ -101,7 +101,7 @@ def afficher():
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
-    options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
+    options = ["-"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
@@ -210,12 +210,7 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
                 
-    # Le placeholder s'efface tout seul dès que tu tapes une lettre
-    nouveau_plat = st.text_input(
-        "Ajouter un plat rapide", 
-        placeholder="Tapez le nom ici...", 
-        key="input_plat"
-    )
+    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_plat")
     if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
             if nouveau_plat not in st.session_state.plats_rapides:
                 st.session_state.plats_rapides.append(nouveau_plat)
