@@ -74,6 +74,10 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
+    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
+        st.session_state.page = 'accueil'
+        st.rerun()
+        
     st.header("📅 Mon planning")
     
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
