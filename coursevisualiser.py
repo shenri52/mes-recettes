@@ -11,7 +11,7 @@ def afficher():
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
         header { visibility: hidden; } 
         .stButton>button { 
-            width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
+            width: 100%; border-radius: 3px; padding: 2px; height: 2.8em; 
             font-size: 14px;
         }
         /* Style pour rendre les onglets plus tactiles sur mobile */
