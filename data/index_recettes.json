@@ -252,6 +252,22 @@
         "chemin": "data/recettes/20260307_100255_orzo_crémeux_aux_épinards_et_champignons.json"
     },
     {
+        "nom": "Patates douces, pois chiches, épinards et tomates",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Patates douces",
+            "Pois chiche",
+            "Tomates pelées",
+            "Curcuma",
+            "Curry",
+            "Ail",
+            "Epinards",
+            "Feta"
+        ],
+        "chemin": "data/recettes/20260313_122717_patates_douces,_pois_chiches,_épinards_et_tomates.json"
+    },
+    {
         "nom": "Pink Coconut Mojito",
         "categorie": "Cocktail",
         "appareil": "Aucun",
@@ -550,21 +566,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "Patates douces, pois chiches, épinards et tomates",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Patates douces",
-            "Pois chiche",
-            "Tomates pelées",
-            "Curcuma",
-            "Curry",
-            "Ail",
-            "Epinards",
-            "Feta"
-        ],
-        "chemin": "data/recettes/20260313_122717_patates_douces,_pois_chiches,_épinards_et_tomates.json"
     }
 ]
