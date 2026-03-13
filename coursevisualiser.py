@@ -14,14 +14,24 @@ def afficher():
             width: 100%; border-radius: 3px; padding: 2px; height: 2.8em; 
             font-size: 14px;
         }
-        /* Style pour rendre les onglets plus tactiles sur mobile */
-        .stTabs [data-baseweb="tab-list"] { gap: 2px; }
-        .stTabs [data-baseweb="tab"] {
-            background-color: #f0f2f6; border-radius: 3px 3px 0 0;
-            padding: 4px 6px !important; font-size: 14px;
+        /* Transformation du texte souligné en onglets visuels */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 2px;
+            border-bottom: none;
         }
+        .stTabs [data-baseweb="tab"] {
+            background-color: #f0f2f6; /* Fond gris clair */
+            border-radius: 4px 3px 0 0;
+            padding: 4px 6px !important;
+            height: 30px;
+            font-size: 11px;
+            border: 2px solid #ddd;
+        }
+        /* Onglet sélectionné */
         .stTabs [aria-selected="true"] {
-            background-color: #007bff !important; color: white !important;
+            background-color: #007bff !important; /* Bleu */
+            color: white !important;
+            border-color: #0056b3;
         }
         </style>
     """, unsafe_allow_html=True)
