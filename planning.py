@@ -33,6 +33,21 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
+# --- NOUVELLE FONCTION : APERÇU ---
+@st.dialog("Fiche Recette 📖")
+def ouvrir_fiche(nom_plat):
+    recette = next((r for r in st.session_state.index_complet if r['nom'] == nom_plat), None)
+    if recette:
+        st.subheader(recette['nom'])
+        if 'ingredients' in recette:
+            st.write("**Ingrédients :**")
+            for ing in recette['ingredients']: st.write(f"- {ing}")
+        if 'instructions' in recette:
+            st.write("**Préparation :**")
+            st.write(recette['instructions'])
+    else:
+        st.info("Aucun détail disponible pour ce plat.")
+
 # --- INTERFACE PLANNING ---
 def afficher():
     st.header("📅 Mon planning")
@@ -42,11 +57,9 @@ def afficher():
     if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
-    # FUSION DYNAMIQUE : Recettes + Plats Rapides
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
-    # 1. Navigation Compacte
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
     fin = debut + datetime.timedelta(days=6)
@@ -66,7 +79,6 @@ def afficher():
             st.session_state.offset_semaine += 1
             st.rerun()
 
-    # 2. Tableau
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
     
@@ -105,11 +117,18 @@ def afficher():
                     est_recette = any(r['nom'] == p_nom for r in st.session_state.index_complet)
                     icon = "📖" if est_recette else "⚡"
                     
-                    if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
-                        plats.pop(idx)
-                        temp[d_str][rep] = plats
-                        st.session_state.planning_data.update(temp)
-                        st.rerun()
+                    # --- AJOUT DE L'OEIL DYNAMIQUE ---
+                    c_btn, c_eye = st.columns([4, 1])
+                    with c_btn:
+                        if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
+                            plats.pop(idx)
+                            temp[d_str][rep] = plats
+                            st.session_state.planning_data.update(temp)
+                            st.rerun()
+                    with c_eye:
+                        if est_recette:
+                            if st.button("👁️", key=f"view_{d_str}{rep}{idx}", use_container_width=True):
+                                ouvrir_fiche(p_nom)
                 
                 if len(plats) < 3:
                     with st.popover("➕ Ajouter", use_container_width=True):
@@ -120,7 +139,6 @@ def afficher():
                             st.session_state.planning_data.update(temp)
                             st.rerun()
 
-    # --- ZONE : GESTION DES PLATS RAPIDES ---
     st.divider()
     st.subheader("🍴 Mes plats rapides (sans recette)")
     
@@ -156,10 +174,8 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    # 3. Actions Finales
     st.divider()
     
-    # Bouton d'enregistrement unique (plus de colonne b2)
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         final = {k: v for k, v in st.session_state.planning_data.items() if k >= (aujourdhui - datetime.timedelta(days=10)).isoformat()}
@@ -167,4 +183,4 @@ def afficher():
             st.session_state.planning_data = final
             st.success("Planning enregistré 💾")
             time.sleep(1)
-            st.rerun() # Effectue le reset visuel des champs
+            st.rerun()
