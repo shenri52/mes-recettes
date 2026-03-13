@@ -151,9 +151,10 @@ def afficher():
                         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                         st.rerun()
 
-    st.divider()
     if st.button("🗑️ Vider tout le panier", use_container_width=True):
         for k in range(12): 
             st.session_state.data_a5[str(k)]["panier"] = []
         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
         st.rerun()
+
+    st.divider()
