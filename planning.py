@@ -74,6 +74,19 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
+    col_ret, col_actu = st.columns([0.85, 0.15]) # On sépare le haut en deux
+              
+    with col_actu:
+        if st.button("🔄"):
+            # On supprime les données en mémoire pour forcer le rechargement
+            keys_to_del = ['index_complet', 'planning_data', 'plats_rapides']
+            for key in keys_to_del:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+
+    st.header("📅 Mon planning")
+    # ... reste du code
     if st.button("⬅️ Retour à l'accueil", use_container_width=True):
         st.session_state.page = 'accueil'
         st.rerun()
