@@ -73,10 +73,10 @@ if verifier_mot_de_passe():
         # Ligne 3 : Planning
         if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
-        if st.button("📝 Préparer les courses", use_container_width=True):
-            changer_page("coursesaisir")
-        if st.button("👁️ Visualiser les courses", use_container_width=True):
-            changer_page("coursevisualiser")
+        # --- if st.button("📝 Préparer les courses", use_container_width=True):
+        # ---     changer_page("coursesaisir")
+        # --- if st.button("👁️ Visualiser les courses", use_container_width=True):
+        # ---     changer_page("coursevisualiser")
 
         # Ligne 4 : Sur 2 colonnes
         col3, col4 = st.columns(2)
