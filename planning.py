@@ -71,6 +71,7 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
+    # Barre d'outils sur deux colonnes
     col_ret, col_actu = st.columns([0.6, 0.4]) 
     with col_ret:
         if st.button("⬅️ Accueil", use_container_width=True):
@@ -91,8 +92,8 @@ def afficher():
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
-    # Retour au tiret unique sélectionné par défaut
-    options = ["-"] + sorted(noms_recettes + st.session_state.plats_rapides)
+    # On garde les 3 tirets comme tu les avais au départ
+    options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
@@ -124,13 +125,22 @@ def afficher():
 
         is_today = (d_j == aujourdhui)
         bg_jour = "#e1f5fe" if is_today else "#f8f9fa"
-        st.markdown(f"<div style='background:{bg_jour}; padding:10px; border-radius:10px; border:1px solid #eee;'><b>{nom} {d_j.strftime('%d/%m/%y')}</b></div>", unsafe_allow_html=True)
+        border_jour = "2px solid #0288d1" if is_today else "1px solid #eee"
+        
+        st.markdown(f"""
+            <div style='background:{bg_jour}; padding:10px; border-radius:10px 10px 0 0; border:{border_jour}; border-bottom:none;'>
+                <span style='color:#555; font-size:0.8em;'>{nom}</span><br>
+                <b style='font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
+            </div>
+        """, unsafe_allow_html=True)
 
         col_m, col_s = st.columns(2)
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
-                st.caption(rep.upper())
+                st.markdown(f"<div style='background:{'#ffe0b2' if rep == 'midi' else '#c5cae9'}; padding:2px; border-radius:5px; font-size:0.7em; font-weight:bold; text-align:center;'>{rep.upper()}</div>", unsafe_allow_html=True)
                 plats = temp[d_str].get(rep, [])
+                if isinstance(plats, dict): plats = [] 
+                
                 for idx, p_nom in enumerate(plats):
                     est_recette = any(r['nom'].upper() == p_nom.upper() for r in st.session_state.index_complet)
                     c_txt, c_eye = st.columns([4, 1])
@@ -147,26 +157,26 @@ def afficher():
 
                 if len(plats) < 3:
                     with st.popover("➕", use_container_width=True):
-                        choix = st.selectbox("Choisir", options, key=f"sel_{d_str}{rep}{len(plats)}")
-                        if choix != "-": # On vérifie bien le tiret unique
+                        choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
+                        if choix != "---":
                             plats.append(choix)
                             temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
-        st.write("")
+        st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
     st.divider()
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
         if sauvegarder_github("data/planning.json", st.session_state.planning_data):
-            st.success("Enregistré ! 💾")
+            st.success("Planning enregistré ! 💾")
             time.sleep(1)
             st.rerun()
 
     st.subheader("🍴 Plats rapides")
     if st.session_state.plats_rapides:
-        plat_sel = st.selectbox("Gérer mes plats", ["-"] + sorted(st.session_state.plats_rapides), key="sel_rapide_manage")
-        if plat_sel != "-":
+        plat_sel = st.selectbox("Gérer mes plats", ["---"] + sorted(st.session_state.plats_rapides), key="sel_rapide_manage")
+        if plat_sel != "---":
             if st.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
@@ -177,5 +187,5 @@ def afficher():
         if nouveau_plat not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau_plat)
             sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-            st.session_state["input_plat"] = "" 
+            st.session_state["input_plat"] = "" # Reset du champ
             st.rerun()
