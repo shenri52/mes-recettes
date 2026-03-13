@@ -131,7 +131,7 @@ def afficher():
                     st.rerun()
 
     # --- SECTION 2 : REPARER L'INDEX INGREDIENT (ÉTAPE MANUELLE) ---
-    if st.button("🧹 Réparer l'index ingredient", use_container_width=True):
+    if st.button("🧹 Réparer l'index des ingredients", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs = []
         index_nettoye = []
