@@ -76,8 +76,9 @@ def afficher():
                 st.caption(f"Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
                     
-                    # Histo hors formulaire pour la réactivité
-                    choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=f"hist_{idx_actuelle}", label_visibility="collapsed")
+                    # On utilise la session_state pour pouvoir réinitialiser le selectbox
+                    key_histo = f"hist_{idx_actuelle}"
+                    choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_histo, label_visibility="collapsed")
                     
                     with st.form(key=f"form_{idx_actuelle}", clear_on_submit=True):
                         nom_initial = "" if choix == "---" else choix
@@ -85,8 +86,6 @@ def afficher():
                         
                         col_q, col_z = st.columns([1, 1.2])
                         qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
-                        
-                        # Le n° zone est forcé sur la zone actuelle grâce au clear_on_submit du formulaire
                         n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
                         
                         if st.form_submit_button("➕", use_container_width=True):
@@ -98,7 +97,10 @@ def afficher():
                                 dest_idx = idx_actuelle
 
                             if final_nom:
-                                # 1. Si changement de zone, on nettoie l'ancien catalogue
+                                # Réinitialisation forcée de la liste Histo pour vider le champ Nom au prochain tour
+                                st.session_state[key_histo] = "---"
+
+                                # 1. Transfert de zone si besoin
                                 if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
                                     case["catalogue"].remove(final_nom)
 
