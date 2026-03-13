@@ -1,27 +1,15 @@
 {
     "2026-03-06": {
-        "midi": [
-            "Gratin de champignons au jambon et fromage"
-        ],
-        "soir": [
-            "Gratin de ravioles aux champignons, comté et poireaux"
-        ]
+        "midi": [],
+        "soir": []
     },
     "2026-03-07": {
-        "midi": [
-            "Blanquette de poireaux au poiré"
-        ],
-        "soir": [
-            "Boeuf Stroganoff"
-        ]
+        "midi": [],
+        "soir": []
     },
     "2026-03-08": {
-        "midi": [
-            "Filet mignon de porc au chorizo"
-        ],
-        "soir": [
-            "Jambon de porc à l'ananas"
-        ]
+        "midi": [],
+        "soir": []
     },
     "2026-03-09": {
         "midi": [],
@@ -57,10 +45,11 @@
     },
     "2026-03-16": {
         "midi": [
-            "Boeuf Stroganoff",
-            "Salade Lentilles, carottes rapées, raisins secs, noisettes"
+            "Boeuf Stroganoff"
         ],
-        "soir": []
+        "soir": [
+            "Salade Lentilles, carottes rapées, raisins secs, noisettes"
+        ]
     },
     "2026-03-17": {
         "midi": [],
