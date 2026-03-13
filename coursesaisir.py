@@ -19,7 +19,7 @@ def afficher():
         
         /* Transformation du texte souligné en onglets visuels */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 1px;
+            gap: 2px;
             border-bottom: none;
         }
         .stTabs [data-baseweb="tab"] {
@@ -91,7 +91,7 @@ def afficher():
     st.subheader("📝 Préparer les courses")
 
     # --- LES 12 ONGLETS (Retour à Z1, Z2... avec style bouton) ---
-    onglets = st.tabs([f"Z{i+1}" for i in range(12)])
+    onglets = st.tabs([f"{i+1}" for i in range(12)])
 
     for i in range(12):
         with onglets[i]: 
