@@ -5,16 +5,40 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS ---
+    # --- STYLE CSS OPTIMISÉ MOBILE ---
     st.markdown("""
         <style>
-        .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
+        /* Optimisation de l'espace global */
+        .block-container { padding: 0.5rem 0.5rem !important; max-width: 100% !important; }
         header { visibility: hidden; } 
+        
+        /* Boutons plus tactiles */
         .stButton>button { 
-            width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
-            font-size: 14px;
+            width: 100%; border-radius: 8px; padding: 8px; height: 3em; 
+            font-size: 15px !important; font-weight: 500;
+            margin-bottom: 4px;
         }
-        div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
+        
+        /* Champs de saisie optimisés pour le pouce et le zoom */
+        div[data-testid="stTextInput"] input { 
+            padding: 8px; height: 2.5em; 
+            font-size: 16px !important; /* Évite le zoom auto sur iPhone */
+        }
+        
+        /* Réduction de l'espace entre les éléments du formulaire */
+        .stVerticalBlock { gap: 0.4rem !important; }
+        
+        /* Style du label "Zone" miniature */
+        .label-mini { 
+            text-align: center; padding-top: 10px; 
+            font-size: 12px; color: #666; font-weight: bold;
+        }
+        
+        /* Container de zone plus compact */
+        div[data-testid="stExpander"], div.stContainer {
+            border-radius: 10px !important;
+            padding: 5px !important;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -30,6 +54,7 @@ def afficher():
     FILE_PATH = "courses/data_a5.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
+    # Fonctions de données (inchangées pour la stabilité)
     def get_github_data(path):
         t = int(time.time())
         url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}?t={t}"
@@ -76,7 +101,7 @@ def afficher():
             idx_actuelle = str(i + j)
             case = st.session_state.data_a5[idx_actuelle]
             with cols[j]:
-                st.caption(f"Zone {int(idx_actuelle)+1}")
+                st.caption(f"📍 Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
                     
                     key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
@@ -84,23 +109,16 @@ def afficher():
                     
                     with st.form(key=f"form_{idx_actuelle}_{st.session_state.reset_count}", clear_on_submit=True):
                         nom_initial = "" if choix == "---" else choix
-                        nom = st.text_input("Nom", value=nom_initial, placeholder="Produit", label_visibility="collapsed")
+                        nom = st.text_input("Produit", value=nom_initial, placeholder="Nom", label_visibility="collapsed")
                         
                         col_q, col_txt, col_z = st.columns([1, 0.6, 1])
-
-                        # 1. La Quantité
-                        qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
+                        qte_f = col_q.text_input("Qté", placeholder="1", label_visibility="collapsed")
+                        col_txt.markdown("<p class='label-mini'>ZONE</p>", unsafe_allow_html=True)
+                        n_zone = col_z.text_input("Z", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
                         
-                        # 2. Le label statique (on utilise markdown pour l'aligner verticalement)
-                        col_txt.markdown("<p style='text-align:center; padding-top:5px;'>Zone :</p>", unsafe_allow_html=True)
-                        
-                        # 3. Le numéro de zone (pur, sans le mot "Zone" dedans pour faciliter la saisie)
-                        n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
-                        
-                        if st.form_submit_button("➕", use_container_width=True):
+                        if st.form_submit_button("➕ AJOUTER", use_container_width=True):
                             final_nom = nom.strip().capitalize()
                             try:
-                                # On ne garde que les chiffres pour trouver la destination
                                 num_extrait = "".join(filter(str.isdigit, n_zone))
                                 dest_idx = str(int(num_extrait) - 1)
                                 if not (0 <= int(dest_idx) <= 11): dest_idx = idx_actuelle
@@ -109,16 +127,12 @@ def afficher():
 
                             if final_nom:
                                 st.session_state.reset_count += 1
-                                
-                                # Si changement de zone, on retire du catalogue actuel
                                 if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
                                     case["catalogue"].remove(final_nom)
 
-                                # Update Index
                                 st.session_state.index_zones[final_nom] = dest_idx
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                                 
-                                # Ajout panier destination
                                 cible = st.session_state.data_a5[dest_idx]
                                 trouve = False
                                 for p in cible["panier"]:
@@ -129,7 +143,6 @@ def afficher():
                                 if not trouve:
                                     cible["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                                 
-                                # Catalogue destination
                                 if final_nom not in cible["catalogue"]:
                                     cible["catalogue"].append(final_nom)
                                     cible["catalogue"].sort()
@@ -137,15 +150,15 @@ def afficher():
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
-                    # Liste des produits
+                    # Liste des produits (boutons plus hauts pour le tactile)
                     for p_idx, p in enumerate(case["panier"]):
-                        if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
+                        if st.button(f"🗑️ {p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                             case["panier"].pop(p_idx)
                             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                             st.rerun()
 
     st.divider()
-    if st.button("🗑️ Vider tout le panier", use_container_width=True):
+    if st.button("🗑️ VIDER TOUT LE PANIER", use_container_width=True):
         for k in range(12): 
             st.session_state.data_a5[str(k)]["panier"] = []
         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
