@@ -207,14 +207,15 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_plat")
-    if st.button("➕ Ajouter aux rapides", use_container_width=True):
-        if nouveau_plat:
-            if nouveau_plat not in st.session_state.plats_rapides:
-                st.session_state.plats_rapides.append(nouveau_plat)
-                sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-                
-                # Pour éviter l'erreur, on vide la clé du state AVANT le rerun
-                # Mais pour que Streamlit l'accepte, on utilise .pop()
-                st.session_state.pop("input_plat") 
-                st.rerun()
+    # 1. On utilise une clé spécifique pour le champ de saisie
+    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
+    
+    if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
+        if nouveau_plat not in st.session_state.plats_rapides:
+            st.session_state.plats_rapides.append(nouveau_plat)
+            if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
+                # 2. ICI : On vide le champ dans le session_state
+                st.session_state["input_nouveau_plat"] = ""
+                st.success(f"'{nouveau_plat}' ajouté !")
+                time.sleep(1)
+                st.rerun() # Le rerun rafraîchit l'affichage avec le champ vide
