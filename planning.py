@@ -33,6 +33,9 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
     if sha: data["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
 
+def reset_input_plat():
+    st.session_state["input_plat"] = ""
+    
 # --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
@@ -205,13 +208,13 @@ def afficher():
                 st.rerun()
 
     nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_plat")
-    if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
-        if nouveau_plat not in st.session_state.plats_rapides:
-            st.session_state.plats_rapides.append(nouveau_plat)
-            sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-            
-            # --- LA CORRECTION EST ICI ---
-            st.session_state["input_plat"] = ""  # On vide manuellement le champ
-            # ------------------------------
-            
-            st.rerun()
+    if st.button("➕ Ajouter aux rapides", use_container_width=True):
+        if nouveau_plat:
+            if nouveau_plat not in st.session_state.plats_rapides:
+                st.session_state.plats_rapides.append(nouveau_plat)
+                sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+                
+                # Pour éviter l'erreur, on vide la clé du state AVANT le rerun
+                # Mais pour que Streamlit l'accepte, on utilise .pop()
+                st.session_state.pop("input_plat") 
+                st.rerun()
