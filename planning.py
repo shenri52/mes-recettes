@@ -221,5 +221,5 @@ def afficher():
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
     
     # 3. Le bouton appelle la fonction ci-dessus
-    if st.button("➕ Ajouter aux rapides", use_container_width=True, on_click=ajouter_et_nettoyer):
+    if st.button("➕", use_container_width=True, on_click=ajouter_et_nettoyer):
         st.rerun()
