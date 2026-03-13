@@ -101,7 +101,7 @@ def afficher():
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
-    options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
+    options = sorted(noms_recettes + st.session_state.plats_rapides)
 
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
