@@ -173,12 +173,12 @@ def afficher():
         
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
 
-        if st.button("💾 Enregistrer Planning", use_container_width=True):
-        st.session_state.planning_data.update(temp)
-        if sauvegarder_github("data/planning.json", st.session_state.planning_data):
-            st.success("Planning enregistré ! 💾")
-            time.sleep(1)
-            st.rerun()
+   if st.button("💾 Enregistrer Planning", use_container_width=True):
+       st.session_state.planning_data.update(temp)
+       if sauvegarder_github("data/planning.json", st.session_state.planning_data):
+           st.success("Planning enregistré ! 💾")
+           time.sleep(1)
+           st.rerun()
 
     st.divider()
     # Gestion des plats rapides (inchangée)
