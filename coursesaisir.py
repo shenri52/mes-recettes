@@ -64,7 +64,6 @@ def afficher():
         st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
         if st.session_state.index_zones is None: st.session_state.index_zones = {}
 
-    # Compteur pour forcer la réinitialisation des widgets
     if "reset_count" not in st.session_state:
         st.session_state.reset_count = 0
 
@@ -80,7 +79,6 @@ def afficher():
                 st.caption(f"Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
                     
-                    # On change la clé avec reset_count pour tout vider après un ajout
                     key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
                     choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_hist, label_visibility="collapsed")
                     
@@ -90,29 +88,31 @@ def afficher():
                         
                         col_q, col_z = st.columns([1, 1.2])
                         qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
+                        # Affichage avec "Zone X"
                         n_zone = col_z.text_input("Zone", value=f"Zone {int(idx_actuelle)+1}", label_visibility="collapsed")
                         
                         if st.form_submit_button("➕", use_container_width=True):
                             final_nom = nom.strip().capitalize()
                             try:
-                                dest_idx = str(int(n_zone) - 1)
+                                # On ne garde que les chiffres pour trouver la destination
+                                num_extrait = "".join(filter(str.isdigit, n_zone))
+                                dest_idx = str(int(num_extrait) - 1)
                                 if not (0 <= int(dest_idx) <= 11): dest_idx = idx_actuelle
                             except:
                                 dest_idx = idx_actuelle
 
                             if final_nom:
-                                # 1. On change le compteur de reset pour vider les champs au prochain rerun
                                 st.session_state.reset_count += 1
-
-                                # 2. Transfert de catalogue si changement de zone
+                                
+                                # Si changement de zone, on retire du catalogue actuel
                                 if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
                                     case["catalogue"].remove(final_nom)
 
-                                # 3. Update Index Global
+                                # Update Index
                                 st.session_state.index_zones[final_nom] = dest_idx
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                                 
-                                # 4. Ajout panier destination
+                                # Ajout panier destination
                                 cible = st.session_state.data_a5[dest_idx]
                                 trouve = False
                                 for p in cible["panier"]:
@@ -123,7 +123,7 @@ def afficher():
                                 if not trouve:
                                     cible["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                                 
-                                # 5. Ajout catalogue destination
+                                # Catalogue destination
                                 if final_nom not in cible["catalogue"]:
                                     cible["catalogue"].append(final_nom)
                                     cible["catalogue"].sort()
