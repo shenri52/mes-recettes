@@ -85,7 +85,6 @@ def afficher():
                     del st.session_state[key]
             st.rerun()
 
-    st.header("📅 Mon planning")
     # ... reste du code
     if st.button("⬅️ Retour à l'accueil", use_container_width=True):
         st.session_state.page = 'accueil'
