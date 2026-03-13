@@ -207,15 +207,19 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    # 1. On utilise une clé spécifique pour le champ de saisie
-    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
-    
-    if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
-        if nouveau_plat not in st.session_state.plats_rapides:
-            st.session_state.plats_rapides.append(nouveau_plat)
+   # 1. On crée une petite fonction de nettoyage (callback)
+    def ajouter_et_nettoyer():
+        nouveau = st.session_state["input_nouveau_plat"]
+        if nouveau and nouveau not in st.session_state.plats_rapides:
+            st.session_state.plats_rapides.append(nouveau)
             if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
-                # 2. ICI : On vide le champ dans le session_state
+                # C'est ici qu'on vide le champ SANS erreur
                 st.session_state["input_nouveau_plat"] = ""
-                st.success(f"'{nouveau_plat}' ajouté !")
-                time.sleep(1)
-                st.rerun() # Le rerun rafraîchit l'affichage avec le champ vide
+                st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
+    
+    # 2. Le champ de saisie reste le même
+    st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
+    
+    # 3. Le bouton appelle la fonction ci-dessus
+    if st.button("➕ Ajouter aux rapides", use_container_width=True, on_click=ajouter_et_nettoyer):
+        st.rerun()
