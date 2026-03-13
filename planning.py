@@ -37,18 +37,21 @@ def sauvegarder_github(chemin, contenu_dict_ou_liste):
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
     info = next((r for r in st.session_state.index_complet if r['nom'].upper() == nom_plat.upper()), None)
+    
     if info:
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
         res = requests.get(url_full)
         if res.status_code == 200:
             recette = res.json()
             tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
+            
             with tab1:
                 st.subheader(recette.get('nom', '').upper())
                 st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                
             with tab2:
                 images = recette.get('images', [])
                 if images:
@@ -71,19 +74,10 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
-    # Barre d'outils sur deux colonnes
-    col_ret, col_actu = st.columns([0.6, 0.4]) 
-    with col_ret:
-        if st.button("⬅️ Accueil", use_container_width=True):
-            st.session_state.page = 'accueil'
-            st.rerun()
-    with col_actu:
-        if st.button("🔄 Actualiser Recettes", use_container_width=True):
-            keys_to_del = ['index_complet', 'planning_data', 'plats_rapides']
-            for key in keys_to_del:
-                if key in st.session_state: del st.session_state[key]
-            st.rerun()
-
+    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
+        st.session_state.page = 'accueil'
+        st.rerun()
+        
     st.header("📅 Mon planning")
     
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
@@ -92,7 +86,6 @@ def afficher():
     if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
-    # On garde les 3 tirets comme tu les avais au départ
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
 
     aujourdhui = datetime.date.today()
@@ -100,6 +93,7 @@ def afficher():
     fin = debut + datetime.timedelta(days=6)
     date_range_str = f"{debut.strftime('%d/%m/%y')} au {fin.strftime('%d/%m/%y')}"
 
+    # Navigation semaines
     c1, c2, c3 = st.columns([1, 3, 1])
     with c1:
         if st.button("⬅️", key="prev_sem", use_container_width=True): 
@@ -116,12 +110,15 @@ def afficher():
 
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
+    
     st.divider()
 
     for i, nom in enumerate(jours):
         d_j = debut + datetime.timedelta(days=i)
         d_str = d_j.isoformat()
-        if d_str not in temp: temp[d_str] = {"midi": [], "soir": []}
+        
+        if d_str not in temp: 
+            temp[d_str] = {"midi": [], "soir": []}
 
         is_today = (d_j == aujourdhui)
         bg_jour = "#e1f5fe" if is_today else "#f8f9fa"
@@ -135,26 +132,37 @@ def afficher():
         """, unsafe_allow_html=True)
 
         col_m, col_s = st.columns(2)
+        
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
-                st.markdown(f"<div style='background:{'#ffe0b2' if rep == 'midi' else '#c5cae9'}; padding:2px; border-radius:5px; font-size:0.7em; font-weight:bold; text-align:center;'>{rep.upper()}</div>", unsafe_allow_html=True)
+                bg_rep = "#ffe0b2" if rep == "midi" else "#c5cae9"
+                txt_rep = "#e65100" if rep == "midi" else "#1a237e"
+                st.markdown(f"""
+                    <div style='background:{bg_rep}; color:{txt_rep}; padding:2px; border-radius:5px; font-size:0.7em; font-weight:bold; margin-bottom:5px; text-transform:uppercase; text-align:center;'>
+                        {rep}
+                    </div>
+                """, unsafe_allow_html=True)
+
                 plats = temp[d_str].get(rep, [])
                 if isinstance(plats, dict): plats = [] 
                 
                 for idx, p_nom in enumerate(plats):
                     est_recette = any(r['nom'].upper() == p_nom.upper() for r in st.session_state.index_complet)
+                    icon = "📖" if est_recette else "⚡"
+                    
                     c_txt, c_eye = st.columns([4, 1])
                     with c_txt:
-                        if st.button(f"{'📖' if est_recette else '⚡'} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
+                        if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
                             plats.pop(idx)
                             temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
                     with c_eye:
-                        if est_recette and st.button("👁️", key=f"view_{d_str}{rep}{idx}"):
-                            st.session_state.img_idx = 0
-                            ouvrir_fiche(p_nom)
-
+                        if est_recette:
+                            if st.button("👁️", key=f"view_{d_str}{rep}{idx}", use_container_width=True):
+                                st.session_state.img_idx = 0
+                                ouvrir_fiche(p_nom)
+                
                 if len(plats) < 3:
                     with st.popover("➕", use_container_width=True):
                         choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
@@ -163,29 +171,33 @@ def afficher():
                             temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
+        
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
-
+        
     st.divider()
+       
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
+        # On enregistre la totalité des données sans filtre de date
         if sauvegarder_github("data/planning.json", st.session_state.planning_data):
             st.success("Planning enregistré ! 💾")
             time.sleep(1)
             st.rerun()
-
+    
     st.subheader("🍴 Plats rapides")
-    if st.session_state.plats_rapides:
-        plat_sel = st.selectbox("Gérer mes plats", ["---"] + sorted(st.session_state.plats_rapides), key="sel_rapide_manage")
+    plats_rapides = sorted(st.session_state.plats_rapides)
+    if plats_rapides:
+        plat_sel = st.selectbox("Gérer mes plats", ["---"] + plats_rapides, key="sel_rapide_manage")
         if plat_sel != "---":
-            if st.button("🗑️ Supprimer", use_container_width=True):
+            c_ren, c_del = st.columns(2)
+            if c_del.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_plat")
+    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...")
     if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
         if nouveau_plat not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau_plat)
             sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
-            st.session_state["input_plat"] = "" # Reset du champ
             st.rerun()
