@@ -52,6 +52,7 @@ def afficher():
     
     st.divider()
 
+    # INITIALISATION : Nettoyage si on change de page
     if "bouton_analyse_clique" not in st.session_state:
         if "a_reparer" in st.session_state:
             del st.session_state.a_reparer
@@ -67,7 +68,7 @@ def afficher():
         if res.status_code == 200:
             tree = res.json().get('tree', [])
             
-            # --- FILTRAGE STRICT DES RECETTES (On exclut les fichiers système) ---
+            # Exclusion des fichiers système pour éviter les erreurs d'indexation
             fichiers_exclus = [
                 'data/index_recettes.json', 
                 'data/index_produits_zones.json', 
@@ -97,33 +98,6 @@ def afficher():
                 st.session_state.a_reparer = manquantes
             else:
                 st.success("✅ Félicitations ! Votre index est parfaitement synchronisé.")
-                
-                # --- NETTOYAGE DES DOUBLONS DANS LES INGRÉDIENTS ---
-                modifie = False
-                for recette in index_actuel:
-                    if "ingredients" in recette and recette["ingredients"]:
-                        liste_brute = recette["ingredients"]
-                        vus = set()
-                        liste_propre = []
-                        for ing in liste_brute:
-                            if ing:
-                                cle = ing.strip().lower()
-                                if cle not in vus:
-                                    vus.add(cle)
-                                    liste_propre.append(ing.strip())
-                        
-                        if len(liste_propre) != len(liste_brute):
-                            recette["ingredients"] = liste_propre
-                            modifie = True
-                
-                if modifie:
-                    st.info("🧹 Doublons d'ingrédients détectés. Nettoyage...")
-                    if envoyer_vers_github("data/index_recettes.json", 
-                                           json.dumps(index_actuel, indent=4, ensure_ascii=False), 
-                                           "🧹 Nettoyage des doublons d'ingrédients"):
-                        st.success("✨ Index nettoyé et sauvegardé !")
-                        st.rerun()
-
                 if "a_reparer" in st.session_state:
                     del st.session_state.a_reparer
             
@@ -163,7 +137,44 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-    # --- SECTION 2 : COMPRESSION DES IMAGES ---
+    # --- SECTION 2 : REPARER L'INDEX INGREDIENT (Ajouté) ---
+    if st.button("🧹 Reparer l'index ingredient", use_container_width=True):
+        with st.spinner("Analyse et nettoyage des doublons..."):
+            index_actuel = charger_index_local()
+            modifie = False
+            recettes_corrigees = 0
+            
+            for recette in index_actuel:
+                if "ingredients" in recette and recette["ingredients"]:
+                    liste_brute = recette["ingredients"]
+                    vus = set()
+                    liste_propre = []
+                    
+                    for ing in liste_brute:
+                        if ing:
+                            # Nettoyage : pas d'espaces inutiles, insensible à la casse
+                            cle = ing.strip().lower()
+                            if cle not in vus:
+                                vus.add(cle)
+                                liste_propre.append(ing.strip())
+                    
+                    # Si la taille a changé, on a trouvé des doublons
+                    if len(liste_propre) != len(liste_brute):
+                        recette["ingredients"] = liste_propre
+                        modifie = True
+                        recettes_corrigees += 1
+            
+            if modifie:
+                if envoyer_vers_github("data/index_recettes.json", 
+                                       json.dumps(index_actuel, indent=4, ensure_ascii=False), 
+                                       "🧹 Nettoyage des doublons d'ingrédients"):
+                    st.success(f"✨ Nettoyage terminé ! {recettes_corrigees} recette(s) mise(s) à jour.")
+                    time.sleep(1)
+                    st.rerun()
+            else:
+                st.success("✅ Aucun doublon trouvé dans les ingrédients de l'index.")
+
+    # --- SECTION 3 : COMPRESSION DES IMAGES ---
     if st.button("🖼️ Optimisation des Images", use_container_width=True):
         conf = config_github()
         url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
