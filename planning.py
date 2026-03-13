@@ -80,7 +80,7 @@ def afficher():
     # Barre d'outils sur deux colonnes
     col_ret, col_actu = st.columns([0.6, 0.4]) 
     with col_ret:
-        if st.button("⬅️ Accueil", use_container_width=True):
+        if st.button("⬅️ Retour à l'accueil", use_container_width=True):
             st.session_state.page = 'accueil'
             st.rerun()
     with col_actu:
