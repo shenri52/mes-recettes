@@ -89,6 +89,33 @@ def afficher():
                 st.session_state.a_reparer = manquantes
             else:
                 st.success("✅ Félicitations ! Votre index est parfaitement synchronisé.")
+                
+                # --- BLOC DE NETTOYAGE DES DOUBLONS D'INGRÉDIENTS ---
+                modifie = False
+                for recette in index_actuel:
+                    if "ingredients" in recette:
+                        liste_brute = recette["ingredients"]
+                        vus = set()
+                        liste_propre = []
+                        for ing in liste_brute:
+                            if ing:
+                                cle = ing.strip().lower()
+                                if cle not in vus:
+                                    vus.add(cle)
+                                    liste_propre.append(ing.strip())
+                        
+                        if len(liste_propre) != len(liste_brute):
+                            recette["ingredients"] = liste_propre
+                            modifie = True
+                
+                if modifie:
+                    st.info("🧹 Doublons d'ingrédients détectés. Nettoyage...")
+                    if envoyer_vers_github("data/index_recettes.json", 
+                                           json.dumps(index_actuel, indent=4, ensure_ascii=False), 
+                                           "🧹 Nettoyage des doublons d'ingrédients"):
+                        st.success("✨ Index nettoyé et sauvegardé !")
+                        st.rerun()
+
                 if "a_reparer" in st.session_state:
                     del st.session_state.a_reparer
             
