@@ -51,7 +51,6 @@ def ouvrir_fiche(nom_plat):
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                # Instructions supprimées selon ta demande ✂️
                 
             with tab2:
                 images = recette.get('images', [])
@@ -117,7 +116,6 @@ def afficher():
         if d_str not in temp: 
             temp[d_str] = {"midi": [], "soir": []}
 
-        # Header du jour stylisé
         is_today = (d_j == aujourdhui)
         bg_jour = "#e1f5fe" if is_today else "#f8f9fa"
         border_jour = "2px solid #0288d1" if is_today else "1px solid #eee"
@@ -133,7 +131,6 @@ def afficher():
         
         for rep, col in zip(["midi", "soir"], [col_m, col_s]):
             with col:
-                # Bandeaux de distinction Midi/Soir
                 bg_rep = "#ffe0b2" if rep == "midi" else "#c5cae9"
                 txt_rep = "#e65100" if rep == "midi" else "#1a237e"
                 st.markdown(f"""
@@ -175,14 +172,13 @@ def afficher():
         
     st.divider()
     
-   if st.button("💾 Enregistrer Planning", use_container_width=True):
-       st.session_state.planning_data.update(temp)
-       if sauvegarder_github("data/planning.json", st.session_state.planning_data):
-           st.success("Planning enregistré ! 💾")
-           time.sleep(1)
-           st.rerun()
+    if st.button("💾 Enregistrer Planning", use_container_width=True):
+        st.session_state.planning_data.update(temp)
+        if sauvegarder_github("data/planning.json", st.session_state.planning_data):
+            st.success("Planning enregistré ! 💾")
+            time.sleep(1)
+            st.rerun()
     
-    # Gestion des plats rapides (inchangée)
     st.subheader("🍴 Plats rapides")
     plats_rapides = sorted(st.session_state.plats_rapides)
     if plats_rapides:
