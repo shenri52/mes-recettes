@@ -209,4 +209,9 @@ def afficher():
         if nouveau_plat not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau_plat)
             sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
+            
+            # --- LA CORRECTION EST ICI ---
+            st.session_state["input_plat"] = ""  # On vide manuellement le champ
+            # ------------------------------
+            
             st.rerun()
