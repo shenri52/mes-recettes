@@ -52,13 +52,7 @@
     ]
   },
   "10": {
-    "panier": [
-      {
-        "nom": "Eau",
-        "qte": "6",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Eau"
     ]
