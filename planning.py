@@ -74,9 +74,18 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
-    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
-        st.session_state.page = 'accueil'
-        st.rerun()
+    # Barre d'outils sur deux colonnes
+    col_ret, col_actu = st.columns([0.6, 0.4]) 
+    with col_ret:
+        if st.button("⬅️ Accueil", use_container_width=True):
+            st.session_state.page = 'accueil'
+            st.rerun()
+    with col_actu:
+        if st.button("🔄 Actualiser Recettes", use_container_width=True):
+            keys_to_del = ['index_complet', 'planning_data', 'plats_rapides']
+            for key in keys_to_del:
+                if key in st.session_state: del st.session_state[key]
+            st.rerun()
         
     st.header("📅 Mon planning")
     
