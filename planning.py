@@ -175,9 +175,10 @@ def afficher():
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
         
     st.divider()
-    
+       
     if st.button("💾 Enregistrer Planning", use_container_width=True):
         st.session_state.planning_data.update(temp)
+        # On enregistre la totalité des données sans filtre de date
         if sauvegarder_github("data/planning.json", st.session_state.planning_data):
             st.success("Planning enregistré ! 💾")
             time.sleep(1)
