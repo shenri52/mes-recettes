@@ -24,7 +24,7 @@ def afficher():
         }
         .stTabs [data-baseweb="tab"] {
             background-color: #f0f2f6; /* Fond gris clair */
-            border-radius: 3px 3px 0 0;
+            border-radius: 4px 3px 0 0;
             padding: 4px 4px !important;
             height: 30px;
             font-size: 11px;
