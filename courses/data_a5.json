@@ -62,7 +62,15 @@
     "catalogue": []
   },
   "11": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Champignons",
+        "qte": "500gr",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Champignons"
+    ]
   }
 }
