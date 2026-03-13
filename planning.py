@@ -204,7 +204,7 @@ def afficher():
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
 
-    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...")
+    nouveau_plat = st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_plat")
     if st.button("➕ Ajouter aux rapides", use_container_width=True) and nouveau_plat:
         if nouveau_plat not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau_plat)
