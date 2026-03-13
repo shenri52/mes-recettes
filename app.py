@@ -74,7 +74,7 @@ if verifier_mot_de_passe():
         if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
          if st.button("📝 Préparer les courses", use_container_width=True):
-             changer_page("coursesaisir")
+            changer_page("coursesaisir")
         # --- if st.button("👁️ Visualiser les courses", use_container_width=True):
         # ---     changer_page("coursevisualiser")
 
