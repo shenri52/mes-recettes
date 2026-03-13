@@ -52,7 +52,6 @@ def afficher():
     
     st.divider()
 
-    # INITIALISATION : Nettoyage si on change de page
     if "bouton_analyse_clique" not in st.session_state:
         if "a_reparer" in st.session_state:
             del st.session_state.a_reparer
@@ -67,11 +66,20 @@ def afficher():
         
         if res.status_code == 200:
             tree = res.json().get('tree', [])
+            
+            # --- FILTRAGE STRICT DES RECETTES (On exclut les fichiers système) ---
+            fichiers_exclus = [
+                'data/index_recettes.json', 
+                'data/index_produits_zones.json', 
+                'data/planning.json', 
+                'data/plats_rapides.json'
+            ]
+            
             fichiers_physiques = [
                 item['path'] for item in tree 
                 if item['path'].startswith('data/') 
                 and item['path'].endswith('.json') 
-                and item['path'] != 'data/index_recettes.json'
+                and item['path'] not in fichiers_exclus
             ]
             
             index_actuel = charger_index_local()
@@ -90,10 +98,10 @@ def afficher():
             else:
                 st.success("✅ Félicitations ! Votre index est parfaitement synchronisé.")
                 
-                # --- BLOC DE NETTOYAGE DES DOUBLONS D'INGRÉDIENTS ---
+                # --- NETTOYAGE DES DOUBLONS DANS LES INGRÉDIENTS ---
                 modifie = False
                 for recette in index_actuel:
-                    if "ingredients" in recette:
+                    if "ingredients" in recette and recette["ingredients"]:
                         liste_brute = recette["ingredients"]
                         vus = set()
                         liste_propre = []
