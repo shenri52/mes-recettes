@@ -1,0 +1,23 @@
+{
+    "nom": "Eau de cannelle ",
+    "categorie": "",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Cannelle ",
+            "Quantité": "1 bâton "
+        },
+        {
+            "Ingrédient": "Eau",
+            "Quantité": "500 ml"
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": "Quelques gouttes "
+        }
+    ],
+    "etapes": "Faites bouillir l’eau puis ajoutez le bâton de cannelle.\nLaissez frémir 5 à 10 minutes, puis retirez du feu.\nLaissez infuser 15 minutes supplémentaires à couvert.\nDégustez tiède ou réservez au réfrigérateur pour une version rafraîchissante.\nAstuce : buvez un verre le matin à jeun pour stimuler la digestion, et un autre après le dîner pour un effet apaisant avant le som",
+    "images": []
+}
