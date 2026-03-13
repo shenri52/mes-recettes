@@ -70,24 +70,28 @@ def afficher():
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
-            idx = str(i + j)
-            case = st.session_state.data_a5[idx]
+            idx_zone = str(i + j)
+            case = st.session_state.data_a5[idx_zone]
             with cols[j]:
-                st.caption(f"Zone {int(idx)+1}")
+                st.caption(f"Zone {int(idx_zone)+1}")
                 with st.container(border=True):
-                    # Formulaire d'ajout : rien ne se passe avant le clic sur "+"
-                    with st.form(key=f"form_{idx}", clear_on_submit=True):
-                        choix = st.selectbox("Histo", ["-- Nouveau --"] + case["catalogue"], label_visibility="collapsed")
+                    # Formulaire d'ajout
+                    with st.form(key=f"form_{idx_zone}", clear_on_submit=True):
+                        # Modification : "---" au lieu de "Nouveau"
+                        choix = st.selectbox("Histo", ["---"] + case["catalogue"], label_visibility="collapsed")
                         nom = st.text_input("Nom", placeholder="Produit", label_visibility="collapsed")
                         qte_f = st.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
                         
-                        # Transformation du bouton en "+"
-                        if st.form_submit_button("+", use_container_width=True):
-                            final_nom = nom.strip().capitalize() if choix == "-- Nouveau --" else choix
+                        # Modification : émoji "➕" au lieu de "+"
+                        if st.form_submit_button("➕", use_container_width=True):
+                            final_nom = nom.strip().capitalize() if choix == "---" else choix
+                            
                             if final_nom:
-                                st.session_state.index_zones[final_nom] = idx
+                                # Mise à jour de l'index : le produit appartient désormais à cette zone
+                                st.session_state.index_zones[final_nom] = idx_zone
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                                 
+                                # Ajout au panier local
                                 trouve = False
                                 for p in case["panier"]:
                                     if p["nom"].lower() == final_nom.lower():
@@ -97,6 +101,7 @@ def afficher():
                                 if not trouve:
                                     case["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                                 
+                                # Ajout au catalogue de la zone
                                 if final_nom not in case["catalogue"]:
                                     case["catalogue"].append(final_nom)
                                     case["catalogue"].sort()
@@ -104,9 +109,9 @@ def afficher():
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
-                    # Liste des produits cliquables pour suppression
+                    # Liste des produits de la zone
                     for p_idx, p in enumerate(case["panier"]):
-                        if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx}_{p_idx}"):
+                        if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_zone}_{p_idx}"):
                             case["panier"].pop(p_idx)
                             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                             st.rerun()
