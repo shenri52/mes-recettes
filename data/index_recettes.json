@@ -566,5 +566,16 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "Eau de cannelle ",
+        "categorie": "",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Cannelle ",
+            "Eau",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260313_142212_eau_de_cannelle_.json"
     }
 ]
