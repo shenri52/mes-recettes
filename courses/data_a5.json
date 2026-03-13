@@ -52,8 +52,16 @@
     ]
   },
   "10": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Eau",
+        "qte": "6",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Eau"
+    ]
   },
   "11": {
     "panier": [],
