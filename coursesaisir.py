@@ -70,48 +70,63 @@ def afficher():
     for i in range(0, 12, 2):
         cols = st.columns(2)
         for j in range(2):
-            idx_zone = str(i + j)
-            case = st.session_state.data_a5[idx_zone]
+            idx_actuelle = str(i + j)
+            case = st.session_state.data_a5[idx_actuelle]
             with cols[j]:
-                st.caption(f"Zone {int(idx_zone)+1}")
+                st.caption(f"📍 Zone {int(idx_actuelle)+1}")
                 with st.container(border=True):
-                    # Formulaire d'ajout
-                    with st.form(key=f"form_{idx_zone}", clear_on_submit=True):
-                        # Modification : "---" au lieu de "Nouveau"
-                        choix = st.selectbox("Histo", ["---"] + case["catalogue"], label_visibility="collapsed")
-                        nom = st.text_input("Nom", placeholder="Produit", label_visibility="collapsed")
-                        qte_f = st.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
+                    
+                    choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=f"hist_{idx_actuelle}", label_visibility="collapsed")
+                    
+                    with st.form(key=f"form_{idx_actuelle}", clear_on_submit=True):
+                        nom_initial = "" if choix == "---" else choix
+                        nom = st.text_input("Nom", value=nom_initial, placeholder="Produit", label_visibility="collapsed")
                         
-                        # Modification : émoji "➕" au lieu de "+"
+                        col_q, col_z = st.columns([1, 1.2])
+                        qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
+                        # Affiche par défaut le numéro de la zone en cours
+                        n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
+                        
                         if st.form_submit_button("➕", use_container_width=True):
-                            final_nom = nom.strip().capitalize() if choix == "---" else choix
-                            
+                            final_nom = nom.strip().capitalize()
+                            try:
+                                # On calcule la zone de destination choisie (ex: saisie "5" -> index "4")
+                                dest_idx = str(int(n_zone) - 1)
+                                if not (0 <= int(dest_idx) <= 11): dest_idx = idx_actuelle
+                            except:
+                                dest_idx = idx_actuelle
+
                             if final_nom:
-                                # Mise à jour de l'index : le produit appartient désormais à cette zone
-                                st.session_state.index_zones[final_nom] = idx_zone
+                                # 1. Si la zone change, on nettoie l'ancien catalogue
+                                if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
+                                    case["catalogue"].remove(final_nom)
+
+                                # 2. Mise à jour de l'index global
+                                st.session_state.index_zones[final_nom] = dest_idx
                                 save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                                 
-                                # Ajout au panier local
+                                # 3. Ajout au panier de destination
+                                cible = st.session_state.data_a5[dest_idx]
                                 trouve = False
-                                for p in case["panier"]:
+                                for p in cible["panier"]:
                                     if p["nom"].lower() == final_nom.lower():
                                         p["qte"] = qte_f.strip() or "1"
                                         trouve = True
                                         break
                                 if not trouve:
-                                    case["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
+                                    cible["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                                 
-                                # Ajout au catalogue de la zone
-                                if final_nom not in case["catalogue"]:
-                                    case["catalogue"].append(final_nom)
-                                    case["catalogue"].sort()
+                                # 4. Ajout au catalogue de destination
+                                if final_nom not in cible["catalogue"]:
+                                    cible["catalogue"].append(final_nom)
+                                    cible["catalogue"].sort()
                                 
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
                                     
-                    # Liste des produits de la zone
+                    # Liste des produits
                     for p_idx, p in enumerate(case["panier"]):
-                        if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_zone}_{p_idx}"):
+                        if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                             case["panier"].pop(p_idx)
                             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                             st.rerun()
