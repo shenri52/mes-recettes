@@ -90,7 +90,7 @@ def afficher():
                         
                         col_q, col_z = st.columns([1, 1.2])
                         qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
-                        n_zone = col_z.text_input("Zone", value=str(int(idx_actuelle)+1), label_visibility="collapsed")
+                        n_zone = col_z.text_input("Zone", value=f"Zone {int(idx_actuelle)+1}", label_visibility="collapsed")
                         
                         if st.form_submit_button("➕", use_container_width=True):
                             final_nom = nom.strip().capitalize()
