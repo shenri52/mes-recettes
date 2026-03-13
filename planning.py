@@ -73,22 +73,25 @@ def ouvrir_fiche(nom_plat):
             st.error("Erreur de chargement.")
 
 # --- INTERFACE PLANNING ---
+
 def afficher():
-    col_ret, col_actu = st.columns([0.85, 0.15]) # On sépare le haut en deux
-              
+    # 1. Barre d'outils sur deux colonnes
+    col_ret, col_actu = st.columns([0.6, 0.4]) 
+    
+    with col_ret:
+        if st.button("⬅️ Accueil", use_container_width=True):
+            st.session_state.page = 'accueil'
+            st.rerun()
+            
     with col_actu:
-        if st.button("🔄"):
+        # Titre du bouton mis à jour comme demandé
+        if st.button("🔄 Actualiser Recettes", use_container_width=True):
             # On supprime les données en mémoire pour forcer le rechargement
             keys_to_del = ['index_complet', 'planning_data', 'plats_rapides']
             for key in keys_to_del:
                 if key in st.session_state:
                     del st.session_state[key]
             st.rerun()
-
-    # ... reste du code
-    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
-        st.session_state.page = 'accueil'
-        st.rerun()
         
     st.header("📅 Mon planning")
     
