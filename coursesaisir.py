@@ -15,8 +15,16 @@ def afficher():
             font-size: 14px;
         }
         div[data-testid="stTextInput"] input { padding: 5px; height: 2.2em; }
-        /* Style pour rendre les onglets plus compacts sur mobile */
-        button[data-baseweb="tab"] { padding: 0px 10px !important; }
+        
+        /* Style pour rendre les onglets plus visibles et espacés */
+        .stTabs [data-baseweb="tab-list"] { gap: 8px; }
+        .stTabs [data-baseweb="tab"] {
+            background-color: #f0f2f6;
+            border-radius: 5px 5px 0px 0px;
+            padding: 8px 12px;
+            font-weight: bold;
+        }
+        .stTabs [aria-selected="true"] { background-color: #e1e4e8 !important; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -71,7 +79,8 @@ def afficher():
 
     st.subheader("📝 Préparer les courses")
 
-    # --- CRÉATION DES ONGLETS (TABS) ---
+    # --- CRÉATION DES 12 ONGLETS ---
+    # On crée une liste de titres pour les onglets
     titres_onglets = [f"Z{i+1}" for i in range(12)]
     onglets = st.tabs(titres_onglets)
 
@@ -79,9 +88,9 @@ def afficher():
         idx_actuelle = str(i)
         case = st.session_state.data_a5[idx_actuelle]
         
-        with onglets[i]:
+        with onglets[i]: # Chaque zone est dans son onglet
+            st.caption(f"📍 Zone {i+1}")
             with st.container(border=True):
-                st.caption(f"📍 Zone {i+1}")
                 
                 key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
                 choix = st.selectbox("Histo", ["---"] + case["catalogue"], key=key_hist, label_visibility="collapsed")
@@ -90,7 +99,7 @@ def afficher():
                     nom_initial = "" if choix == "---" else choix
                     nom = st.text_input("Nom", value=nom_initial, placeholder="Produit", label_visibility="collapsed")
                     
-                    col_q, col_txt, col_z = st.columns([1, 0.7, 1])
+                    col_q, col_txt, col_z = st.columns([1, 0.6, 1])
                     qte_f = col_q.text_input("Qté", placeholder="Qté", label_visibility="collapsed")
                     col_txt.markdown("<p style='text-align:center; padding-top:5px;'>Zone :</p>", unsafe_allow_html=True)
                     n_zone = col_z.text_input("Zone", value=str(i+1), label_visibility="collapsed")
@@ -128,10 +137,10 @@ def afficher():
                             
                             save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                             st.rerun()
-                                
-                # Liste des produits de la zone
+                                    
+                # Liste des produits du panier pour cette zone
                 for p_idx, p in enumerate(case["panier"]):
-                    if st.button(f"🗑️ {p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
+                    if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                         case["panier"].pop(p_idx)
                         save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                         st.rerun()
