@@ -1,7 +1,15 @@
 {
   "0": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Eau",
+        "qte": "1",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Eau"
+    ]
   },
   "1": {
     "panier": [
@@ -53,9 +61,7 @@
   },
   "10": {
     "panier": [],
-    "catalogue": [
-      "Eau"
-    ]
+    "catalogue": []
   },
   "11": {
     "panier": [],
