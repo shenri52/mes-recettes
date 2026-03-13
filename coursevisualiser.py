@@ -5,7 +5,7 @@ import base64
 import time
 
 def afficher():
-    # --- STYLE CSS (STRICTEMENT TON ORIGINAL) ---
+    # --- STYLE CSS (TON ORIGINAL + STYLE ONGLETS) ---
     st.markdown("""
         <style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; margin: auto; }
@@ -13,6 +13,15 @@ def afficher():
         .stButton>button { 
             width: 100%; border-radius: 6px; padding: 5px; height: 2.8em; 
             font-size: 14px;
+        }
+        /* Style pour rendre les onglets plus tactiles sur mobile */
+        .stTabs [data-baseweb="tab-list"] { gap: 2px; }
+        .stTabs [data-baseweb="tab"] {
+            background-color: #f0f2f6; border-radius: 4px 4px 0 0;
+            padding: 8px 12px !important; font-size: 14px;
+        }
+        .stTabs [aria-selected="true"] {
+            background-color: #007bff !important; color: white !important;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -56,34 +65,40 @@ def afficher():
         if st.session_state.data_a5 is None:
             st.session_state.data_a5 = {str(i): {"panier": []} for i in range(12)}
 
-    # --- AFFICHAGE DES 12 ZONES (2 PAR LIGNE) ---
-    for i in range(0, 12, 2):
-        cols_zones = st.columns(2)
-        for j in range(2):
-            idx = str(i + j)
+    # --- REMPLACEMENT DES COLONNES PAR DES ONGLETS ---
+    onglets = st.tabs([f"Zone {i+1}" for i in range(12)])
+
+    for i in range(12):
+        with onglets[i]:
+            idx = str(i)
             if idx in st.session_state.data_a5:
                 case = st.session_state.data_a5[idx]
-                with cols_zones[j]:
-                    st.caption(f"Zone {int(idx)+1}")
-                    with st.container(border=True):
-                        panier = case.get("panier", [])
-                        # --- INGRÉDIENTS SUR 2 COLONNES À L'INTÉRIEUR DE LA ZONE ---
-                        for p_idx in range(0, len(panier), 2):
-                            sub_cols = st.columns(2)
-                            
-                            # Ingrédient gauche
-                            p1 = panier[p_idx]
-                            label1 = f"~~{p1['nom']} ({p1['qte']})~~" if p1.get("checked") else f"{p1['nom']} ({p1['qte']})"
-                            if sub_cols[0].button(label1, key=f"vis_{idx}_{p_idx}"):
-                                p1["checked"] = not p1.get("checked", False)
+                # On garde ton container avec bordure
+                with st.container(border=True):
+                    panier = case.get("panier", [])
+                    if not panier:
+                        st.info("Cette zone est vide 🛒")
+                    
+                    # --- INGRÉDIENTS SUR 2 COLONNES ---
+                    for p_idx in range(0, len(panier), 2):
+                        sub_cols = st.columns(2)
+                        
+                        # Ingrédient gauche
+                        p1 = panier[p_idx]
+                        label1 = f"~~{p1['nom']} ({p1['qte']})~~" if p1.get("checked") else f"{p1['nom']} ({p1['qte']})"
+                        if sub_cols[0].button(label1, key=f"vis_{idx}_{p_idx}"):
+                            p1["checked"] = not p1.get("checked", False)
+                            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                            st.rerun()
+                        
+                        # Ingrédient droit
+                        if p_idx + 1 < len(panier):
+                            p2 = panier[p_idx + 1]
+                            label2 = f"~~{p2['nom']} ({p2['qte']})~~" if p2.get("checked") else f"{p2['nom']} ({p2['qte']})"
+                            if sub_cols[1].button(label2, key=f"vis_{idx}_{p_idx+1}"):
+                                p2["checked"] = not p2.get("checked", False)
                                 save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
                                 st.rerun()
-                            
-                            # Ingrédient droit
-                            if p_idx + 1 < len(panier):
-                                p2 = panier[p_idx + 1]
-                                label2 = f"~~{p2['nom']} ({p2['qte']})~~" if p2.get("checked") else f"{p2['nom']} ({p2['qte']})"
-                                if sub_cols[1].button(label2, key=f"vis_{idx}_{p_idx+1}"):
-                                    p2["checked"] = not p2.get("checked", False)
-                                    save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
-                                    st.rerun()
+
+if __name__ == "__main__":
+    afficher()
