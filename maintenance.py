@@ -137,9 +137,9 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-    # --- SECTION 2 : REPARER L'INDEX INGREDIENT (Ajouté) ---
+# --- SECTION 2 : REPARER L'INDEX INGREDIENT (Version Nettoyage Strict) ---
     if st.button("🧹 Reparer l'index ingredient", use_container_width=True):
-        with st.spinner("Analyse et nettoyage des doublons..."):
+        with st.spinner("Analyse et nettoyage des ingrédients..."):
             index_actuel = charger_index_local()
             modifie = False
             recettes_corrigees = 0
@@ -152,14 +152,19 @@ def afficher():
                     
                     for ing in liste_brute:
                         if ing:
-                            # Nettoyage : pas d'espaces inutiles, insensible à la casse
-                            cle = ing.strip().lower()
-                            if cle not in vus:
-                                vus.add(cle)
-                                liste_propre.append(ing.strip())
+                            # 1. On enlève les espaces au début et à la fin (.strip())
+                            # 2. On réduit les doubles espaces intérieurs (.replace)
+                            # 3. On passe en minuscule pour la comparaison (.lower())
+                            nom_nettoye = " ".join(ing.split()) 
+                            cle_comparaison = nom_nettoye.lower()
+                            
+                            if cle_comparaison not in vus:
+                                vus.add(cle_comparaison)
+                                # On garde la version propre (sans espace à la fin)
+                                liste_propre.append(nom_nettoye)
                     
-                    # Si la taille a changé, on a trouvé des doublons
-                    if len(liste_propre) != len(liste_brute):
+                    # Si la liste a changé (doublon ou espace supprimé)
+                    if len(liste_propre) != len(liste_brute) or any(i != j for i, j in zip(liste_brute, liste_propre)):
                         recette["ingredients"] = liste_propre
                         modifie = True
                         recettes_corrigees += 1
@@ -167,12 +172,12 @@ def afficher():
             if modifie:
                 if envoyer_vers_github("data/index_recettes.json", 
                                        json.dumps(index_actuel, indent=4, ensure_ascii=False), 
-                                       "🧹 Nettoyage des doublons d'ingrédients"):
-                    st.success(f"✨ Nettoyage terminé ! {recettes_corrigees} recette(s) mise(s) à jour.")
+                                       "🧹 Nettoyage strict des espaces et doublons"):
+                    st.success(f"✨ Nettoyage terminé ! {recettes_corrigees} recette(s) corrigée(s).")
                     time.sleep(1)
                     st.rerun()
             else:
-                st.success("✅ Aucun doublon trouvé dans les ingrédients de l'index.")
+                st.success("✅ Aucun espace inutile ou doublon détecté.")
 
     # --- SECTION 3 : COMPRESSION DES IMAGES ---
     if st.button("🖼️ Optimisation des Images", use_container_width=True):
