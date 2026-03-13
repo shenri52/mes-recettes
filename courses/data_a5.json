@@ -4,7 +4,13 @@
     "catalogue": []
   },
   "1": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Bière blonde",
+        "qte": "2",
+        "checked": false
+      }
+    ],
     "catalogue": [
       "Bière blonde",
       "Jus d'orange",
