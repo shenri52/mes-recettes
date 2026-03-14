@@ -8,7 +8,7 @@
       {
         "nom": "Bière blonde",
         "qte": "2",
-        "checked": true
+        "checked": false
       },
       {
         "nom": "Eau",
