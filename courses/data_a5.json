@@ -13,7 +13,7 @@
       {
         "nom": "Pepsi",
         "qte": "2",
-        "checked": false
+        "checked": true
       }
     ],
     "catalogue": [
