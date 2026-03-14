@@ -9,11 +9,6 @@
         "nom": "Bière blonde",
         "qte": "2",
         "checked": false
-      },
-      {
-        "nom": "Eau",
-        "qte": "2",
-        "checked": false
       }
     ],
     "catalogue": [
