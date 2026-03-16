@@ -6,20 +6,16 @@
     "temps_cuisson": "",
     "ingredients": [
         {
-            "Ingrédient": "Ananas en boite",
-            "Quantité": "f"
-        },
-        {
             "Ingrédient": "Amandes Effillées",
             "Quantité": "hhh"
         },
         {
-            "Ingrédient": "Assaisonnement ranch",
-            "Quantité": "hh"
+            "Ingrédient": "Ail",
+            "Quantité": "ff"
         },
         {
-            "Ingrédient": "Avocat",
-            "Quantité": "h"
+            "Ingrédient": "Ail",
+            "Quantité": "ff"
         }
     ],
     "etapes": "",
