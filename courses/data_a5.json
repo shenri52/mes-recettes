@@ -149,12 +149,18 @@
         "nom": "Rossignol",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Jambon",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Compote",
       "Coulommiers",
       "Fromage",
+      "Jambon",
       "Rossignol"
     ]
   },
