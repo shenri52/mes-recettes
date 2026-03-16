@@ -136,17 +136,39 @@ def afficher():
             for idx, item in enumerate(st.session_state[state_key]):
                 col_q, col_n, col_del = st.columns([1, 2, 0.5])
                 
-                # On lie la valeur à l'objet dans la liste via l'ID unique
+                # 1. Quantité
                 st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
                     "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
                 )
                 
-                opts = sorted(list(set(liste_ingredients_unique + ([item["Ingrédient"]] if item["Ingrédient"] else []))))
-                st.session_state[state_key][idx]["Ingrédient"] = col_n.selectbox(
-                    "Nom", options=opts, index=opts.index(item["Ingrédient"]) if item["Ingrédient"] in opts else 0,
-                    key=f"n_{item['id']}", label_visibility="collapsed"
-                )
+                # 2. Préparation des options : Liste existante + Option spécial nouveau
+                # On s'assure que l'ingrédient actuel est dans la liste s'il existe déjà
+                base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
+                opts = base_opts + sorted(list(set(liste_ingredients_unique)))
                 
+                # On détermine l'index actuel
+                current_ing = item["Ingrédient"]
+                default_index = opts.index(current_ing) if current_ing in opts else 0
+                
+                choix_sel = col_n.selectbox(
+                    "Nom", options=opts, index=default_index,
+                    key=f"sel_{item['id']}", label_visibility="collapsed"
+                )
+
+                # Si on choisit "Nouvel ingrédient", on affiche un champ texte
+                if choix_sel == "➕ NOUVEL INGRÉDIENT":
+                    # On affiche le champ texte juste en dessous dans la même colonne
+                    nouveau_nom = col_n.text_input(
+                        "Nom de l'ingrédient", 
+                        value=current_ing if current_ing not in opts else "", 
+                        key=f"new_{item['id']}",
+                        placeholder="Nom de l'ingrédient..."
+                    )
+                    st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
+                else:
+                    st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
+                
+                # 3. Suppression
                 if col_del.button("🗑️", key=f"del_{item['id']}"):
                     rows_to_delete.append(idx)
 
