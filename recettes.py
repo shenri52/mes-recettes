@@ -45,7 +45,7 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
-# --- 2. TRAITEMENT IMAGE (UNIQUEMENT POUR LES NOUVEAUX UPLOADS) ---
+# --- 2. TRAITEMENT IMAGE ---
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
@@ -58,12 +58,10 @@ def compresser_image(upload_file):
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
-        # On passe par l'API GitHub pour contourner le cache du contenu RAW
         url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
         res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
         
         if res.status_code == 200:
-            # L'API renvoie du Base64, on doit le décoder
             content_b64 = res.json()['content']
             content_json = base64.b64decode(content_b64).decode('utf-8')
             st.session_state.index_recettes = json.loads(content_json)
@@ -78,7 +76,7 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 4. CONSULTATION ---
+# --- 4. CONSULTATION ET MODIFICATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -133,32 +131,44 @@ def afficher():
 
         if st.session_state[m_edit]:
             # --- MODE MODIFICATION ---
+            st.subheader("✍️ Modification")
+            state_key = f"ings_edit_{info['chemin']}"
+            if state_key not in st.session_state:
+                st.session_state[state_key] = recette.get('ingredients', [{"Ingrédient": "", "Quantité": ""}])
+
+            # Formulaire pour les champs texte
             with st.form(key=f"f_edit_{info['chemin']}"):
-                st.subheader("✍️ Modification")
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
 
                 st.write("**Ingrédients**")
-                state_key = f"ings_edit_{info['chemin']}"
-                if state_key not in st.session_state:
-                    st.session_state[state_key] = recette.get('ingredients', [{"Ingrédient": "", "Quantité": ""}])
-
+                
                 new_ingredients = []
+                # On utilise une liste temporaire pour collecter les modifications
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
+                    
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
+                    
                     ing_nom = ing.get('Ingrédient', '')
                     opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
+                    if not ing_nom and opts: ing_nom = opts[0]
+                    
                     n = col_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
-                    if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
+                    # Bouton supprimer spécifique à la ligne
+                    if col_del.is_printed == False: # Sécurité Streamlit
+                        pass
+                    
+                    if col_del.form_submit_button("🗑️"):
                         st.session_state[state_key].pop(idx)
                         st.rerun()
-                        
+                    
                     new_ingredients.append({"Ingrédient": n, "Quantité": q})
 
-                if st.form_submit_button("➕ Ajouter un ingrédient"):
+                c_add, c_empty = st.columns([1, 2])
+                if c_add.form_submit_button("➕ Ajouter"):
                     st.session_state[state_key] = new_ingredients
                     st.session_state[state_key].append({"Ingrédient": liste_ingredients_unique[0] if liste_ingredients_unique else "", "Quantité": ""})
                     st.rerun()
@@ -170,7 +180,6 @@ def afficher():
                 photos_a_garder = []
                 
                 if photos_actuelles:
-                    st.info("Décochez pour supprimer une photo du serveur")
                     for p_path in photos_actuelles:
                         img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{p_path.strip('/')}"
                         col_img, col_check = st.columns([1, 4])
@@ -178,10 +187,12 @@ def afficher():
                         if col_check.checkbox(f"Garder {p_path.split('/')[-1]}", value=True, key=f"kp_{p_path}"):
                             photos_a_garder.append(p_path)
 
-                nouvelles_photos = st.file_uploader("Ajouter de nouvelles photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
+                nouvelles_photos = st.file_uploader("Ajouter des photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
 
                 c_save, c_cancel = st.columns(2)
+                
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
+                    # Suppression des photos décochées
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder:
                             supprimer_fichier_github(p_path)
@@ -193,7 +204,9 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
+                    # Nettoyage des ingrédients vides
                     ings_final = [i for i in new_ingredients if i['Ingrédient'].strip()]
+                    
                     recette_maj = recette.copy()
                     recette_maj.update({
                         "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
@@ -207,6 +220,8 @@ def afficher():
                         sauvegarder_index_global(index)
                         if state_key in st.session_state: del st.session_state[state_key]
                         st.session_state[m_edit] = False
+                        st.success("Recette enregistrée ! ✅")
+                        time.sleep(1)
                         st.rerun()
                 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
@@ -214,6 +229,7 @@ def afficher():
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
+            # --- MODE AFFICHAGE ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -244,13 +260,13 @@ def afficher():
 
             st.divider()
             b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer", use_container_width=True):
+            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
                 if supprimer_fichier_github(info['chemin']):
                     for p in recette.get('images', []): supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                     sauvegarder_index_global(nouvel_index)
                     st.rerun()
-            if b2.button("✍️ Modifier", use_container_width=True):
+            if b2.button("✍️ Modifier la recette", use_container_width=True):
                 st.session_state[m_edit] = True
                 st.rerun()
 
