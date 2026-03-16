@@ -139,6 +139,11 @@
         "nom": "Compote",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Coulommiers",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
