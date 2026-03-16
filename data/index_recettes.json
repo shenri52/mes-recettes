@@ -263,6 +263,17 @@
         "chemin": "data/recettes/20260307_100255_orzo_crémeux_aux_épinards_et_champignons.json"
     },
     {
+        "nom": "Paradisio",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Limencello ",
+            "Sirop de pamplemousse ",
+            "Procesco "
+        ],
+        "chemin": "data/recettes/20260316_084731_paradisio.json"
+    },
+    {
         "nom": "Patates douces, pois chiches, épinards et tomates",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -564,6 +575,18 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
+        "nom": "test",
+        "categorie": "",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ananas en boite",
+            "Amandes Effillées",
+            "Assaisonnement ranch",
+            "Avocat"
+        ],
+        "chemin": "data/recettes/20260316_132547_test.json"
+    },
+    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -576,26 +599,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "Paradisio",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Limencello ",
-            "Sirop de pamplemousse ",
-            "Procesco "
-        ],
-        "chemin": "data/recettes/20260316_084731_paradisio.json"
-    },
-    {
-        "nom": "test",
-        "categorie": "",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ananas en boite",
-            "Basilic"
-        ],
-        "chemin": "data/recettes/20260316_132547_test.json"
     }
 ]
