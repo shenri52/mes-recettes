@@ -67,9 +67,15 @@
         "nom": "Tomates pelées",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Pois chiche",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Pois chiche",
       "Tomates pelées"
     ]
   },
