@@ -1,0 +1,25 @@
+{
+    "nom": "Paradisio",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Limencello ",
+            "Quantité": "4cl"
+        },
+        {
+            "Ingrédient": "Sirop de pamplemousse ",
+            "Quantité": "1.5cl"
+        },
+        {
+            "Ingrédient": "Procesco ",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Dans un verre, mettre une dizaine de glaçons \nAjouter le sirop de pamplemousse et le limoncello.\nAjouter du procesco ",
+    "images": [
+        "data/images/20260316_084731_paradisio_0.jpg"
+    ]
+}
