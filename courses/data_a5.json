@@ -31,13 +31,7 @@
     "catalogue": []
   },
   "4": {
-    "panier": [
-      {
-        "nom": "Céréales",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Cappuccino",
       "Céréales",
