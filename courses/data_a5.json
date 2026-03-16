@@ -25,11 +25,17 @@
         "nom": "Graines de lin",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Graines de courges",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Amandes",
       "Graines de chia",
+      "Graines de courges",
       "Graines de lin",
       "Noisettes",
       "Raisins secs"
