@@ -6,11 +6,6 @@
   "1": {
     "panier": [
       {
-        "nom": "Bière blonde",
-        "qte": "2",
-        "checked": true
-      },
-      {
         "nom": "Pepsi",
         "qte": "2",
         "checked": true
