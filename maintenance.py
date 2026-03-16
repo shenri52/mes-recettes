@@ -173,10 +173,17 @@ def afficher():
             
         if erreurs:
             st.warning(f"⚠️ {len(erreurs)} recette(s) ont des ingrédients mal formatés ou en double.")
+            # --- LOGIQUE DE SUPPRESSION AVEC CORBEILLE ---
             for e in erreurs:
                 with st.expander(f"📍 {e['nom']}"):
                     st.write("**Original :**", e["avant"])
                     st.write("**Nettoyé :**", e["apres"])
+                    
+                    # Chaque bouton de suppression utilise une clé unique basée sur le nom de la recette
+                    if st.button("🗑️ Supprimer de la liste de réparation", key=f"del_{e['nom']}"):
+                        erreurs.remove(e)
+                        st.rerun()
+            
             st.session_state.index_a_sauvegarder = index_nettoye
         else:
             st.success("✅ Les ingrédients sont tous propres !")
