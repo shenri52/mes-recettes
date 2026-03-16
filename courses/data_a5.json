@@ -185,9 +185,15 @@
         "nom": "Poireaux",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Ail",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Ail",
       "Champignons",
       "Courgettes",
       "Epinards",
