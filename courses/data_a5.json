@@ -181,7 +181,7 @@
       {
         "nom": "Champignons",
         "qte": "500gr",
-        "checked": false
+        "checked": true
       },
       {
         "nom": "Courgettes",
