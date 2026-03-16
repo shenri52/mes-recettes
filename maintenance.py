@@ -139,64 +139,78 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
 
-    # --- SECTION 2 : REPARER L'INDEX INGREDIENT (ÉTAPE MANUELLE) ---
-    if st.button("🧹 Réparer l'index des ingredients", use_container_width=True):
+    # --- SECTION 2 : REPARER L'INDEX INGREDIENT (LOGIQUE DOUBLE) ---
+    if st.button("🧹 Réparer l'index et les fichiers recettes", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs = []
         index_nettoye = []
+        fichiers_a_modifier = [] # Liste pour stocker les fichiers de recettes à mettre à jour
         
         for recette in index_actuel:
-            liste_brute = recette.get("ingredients", [])
-            vus = set()
-            liste_propre = []
-            a_modifie = False
+            # On récupère le contenu complet de la recette pour vérifier l'intérieur du fichier
+            url_raw = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{recette['chemin']}?t={int(time.time())}"
+            res_rec = requests.get(url_raw)
             
-            for ing in liste_brute:
-                if ing:
-                    # Nettoyage strict : espaces inutiles et doubles espaces
-                    nom_nettoye = " ".join(ing.split())
-                    cle = nom_nettoye.lower()
-                    if cle not in vus:
-                        vus.add(cle)
-                        liste_propre.append(nom_nettoye)
-                        if nom_nettoye != ing:
-                            a_modifie = True
-                    else:
-                        a_modifie = True # Doublon
-            
-            if a_modifie:
-                erreurs.append({"nom": recette["nom"], "avant": liste_brute, "apres": liste_propre})
-            
-            recette_nettoyee = recette.copy()
-            recette_nettoyee["ingredients"] = liste_propre
-            index_nettoye.append(recette_nettoyee)
+            if res_rec.status_code == 200:
+                data_complete = res_rec.json()
+                liste_details = data_complete.get("ingredients", []) # Liste d'objets {"Ingrédient": "...", "Quantité": "..."}
+                
+                a_modifie_fichier = False
+                nouveaux_details = []
+                noms_pour_index = []
+
+                for item in liste_details:
+                    nom_brut = item.get("Ingrédient", "")
+                    if nom_brut:
+                        # Nettoyage
+                        nom_nettoye = " ".join(nom_brut.split())
+                        nouveaux_details.append({
+                            "Ingrédient": nom_nettoye,
+                            "Quantité": item.get("Quantité", "")
+                        })
+                        noms_pour_index.append(nom_nettoye)
+                        if nom_nettoye != nom_brut:
+                            a_modifie_fichier = True
+
+                if a_modifie_fichier:
+                    erreurs.append({"nom": recette["nom"], "chemin": recette["chemin"]})
+                    # On prépare la version mise à jour du fichier complet
+                    data_complete["ingredients"] = nouveaux_details
+                    fichiers_a_modifier.append({
+                        "chemin": recette["chemin"],
+                        "contenu": data_complete
+                    })
+                
+                # Mise à jour de l'index (liste simple de noms)
+                recette_nettoyee = recette.copy()
+                recette_nettoyee["ingredients"] = noms_pour_index
+                index_nettoye.append(recette_nettoyee)
             
         if erreurs:
-            st.warning(f"⚠️ {len(erreurs)} recette(s) ont des ingrédients mal formatés ou en double.")
-            # --- LOGIQUE DE SUPPRESSION AVEC CORBEILLE ---
-            for e in erreurs:
-                with st.expander(f"📍 {e['nom']}"):
-                    st.write("**Original :**", e["avant"])
-                    st.write("**Nettoyé :**", e["apres"])
-                    
-                    # Chaque bouton de suppression utilise une clé unique basée sur le nom de la recette
-                    if st.button("🗑️ Supprimer de la liste de réparation", key=f"del_{e['nom']}"):
-                        erreurs.remove(e)
-                        st.rerun()
-            
+            st.warning(f"⚠️ {len(erreurs)} recette(s) à synchroniser.")
             st.session_state.index_a_sauvegarder = index_nettoye
+            st.session_state.fichiers_a_sauvegarder = fichiers_a_modifier
         else:
-            st.success("✅ Les ingrédients sont tous propres !")
+            st.success("✅ Tout est déjà parfaitement propre !")
 
     if "index_a_sauvegarder" in st.session_state:
-        if st.button("🚀 Appliquer le nettoyage des ingrédients", use_container_width=True):
-            if envoyer_vers_github("data/index_recettes.json", 
-                                   json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), 
-                                   "🧹 Nettoyage manuel des ingrédients"):
-                st.success("✨ Index ingredient réparé !")
-                del st.session_state.index_a_sauvegarder
-                time.sleep(1)
-                st.rerun()
+        if st.button("🚀 Appliquer la réparation globale", use_container_width=True):
+            with st.spinner("Mise à jour des fichiers..."):
+                # 1. On répare chaque fichier de recette
+                for f in st.session_state.fichiers_a_sauvegarder:
+                    envoyer_vers_github(f['chemin'], 
+                                       json.dumps(f['contenu'], indent=4, ensure_ascii=False), 
+                                       f"🧹 Nettoyage ingrédient : {f['chemin']}")
+                
+                # 2. On répare l'index global
+                if envoyer_vers_github("data/index_recettes.json", 
+                                       json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), 
+                                       "🧹 Nettoyage global de l'index"):
+                    st.success("✨ Réparation terminée sur tous les fichiers !")
+                    del st.session_state.index_a_sauvegarder
+                    del st.session_state.fichiers_a_sauvegarder
+                    time.sleep(2) # On laisse un peu de temps à GitHub
+                    st.rerun()
 
     # --- SECTION 3 : COMPRESSION DES IMAGES ---
     if st.button("🖼️ Optimisation des Images", use_container_width=True):
