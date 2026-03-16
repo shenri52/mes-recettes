@@ -144,6 +144,11 @@
         "nom": "Coulommiers",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Rossignol",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
