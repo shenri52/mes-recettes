@@ -24,7 +24,9 @@ def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
         url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
         res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
         sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+        
         contenu_b64 = base64.b64encode(contenu if est_binaire else contenu.encode('utf-8')).decode('utf-8')
+        
         data = {"message": message, "content": contenu_b64, "branch": "main"}
         if sha: data["sha"] = sha
         res = requests.put(url, headers=conf['headers'], json=data)
@@ -43,6 +45,7 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
+# --- 2. TRAITEMENT IMAGE ---
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
@@ -51,11 +54,13 @@ def compresser_image(upload_file):
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
 
+# --- 3. GESTION DE L'INDEX ---
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
         url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
         res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+        
         if res.status_code == 200:
             content_b64 = res.json()['content']
             content_json = base64.b64decode(content_b64).decode('utf-8')
@@ -71,22 +76,28 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
+# --- 4. CONSULTATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
 
+    # FILTRES
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
-    f_cat = c2.selectbox("Catégorie", ["Tous"] + cats_existantes)
-    f_app = c3.selectbox("Appareil", ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index))))
+    cats = ["Tous"] + cats_existantes
+    apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
     tous_ings_bruts = []
     for r in index: 
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
-    f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
+    ings_filtre = ["Tous"] + liste_ingredients_unique
+
+    f_cat = c2.selectbox("Catégorie", cats)
+    f_app = c3.selectbox("Appareil", apps)
+    f_ing = c4.selectbox("Ingrédient", ings_filtre)
 
     resultats = [
         r for r in index 
@@ -103,7 +114,7 @@ def afficher():
     with col_liste:
         choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, label_visibility="collapsed")
     with col_btn:
-        if st.button("🔄"):
+        if st.button("🔄", help="Actualiser"):
             if 'index_recettes' in st.session_state: del st.session_state.index_recettes
             st.rerun()
 
@@ -118,7 +129,7 @@ def afficher():
         if m_edit not in st.session_state: st.session_state[m_edit] = False
 
         if st.session_state[m_edit]:
-            # --- MODE MODIFICATION (BASÉ SUR CODE 1) ---
+            # --- MODE MODIFICATION ---
             with st.form(key=f"f_edit_{info['chemin']}"):
                 st.subheader("✍️ Modification")
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
@@ -131,27 +142,36 @@ def afficher():
                     st.session_state[state_key] = recette.get('ingredients', [{"Ingrédient": "", "Quantité": ""}])
 
                 new_ingredients = []
+                options_base = ["---"] + liste_ingredients_unique + ["➕ Nouvel ingrédient..."]
+
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
-                    # Saisie libre ici
-                    n = col_n.text_input(f"Nom", value=ing.get('Ingrédient', ''), key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
-                    # Correction de l'erreur Duplicate Key ici avec une clé unique
-                    if col_del.form_submit_button("🗑️", key=f"btn_del_{idx}_{info['chemin']}"):
+                    nom_actuel = ing.get('Ingrédient', '')
+                    options_finales = options_base if nom_actuel in options_base or not nom_actuel else options_base + [nom_actuel]
+                    idx_sel = options_finales.index(nom_actuel) if nom_actuel in options_finales else 0
+                    
+                    n_sel = col_n.selectbox(f"Nom", options=options_finales, index=idx_sel, key=f"n_sel_{idx}_{info['chemin']}", label_visibility="collapsed")
+                    
+                    n_final = n_sel
+                    if n_sel == "➕ Nouvel ingrédient...":
+                        n_final = st.text_input("Préciser l'ingrédient", key=f"new_ing_{idx}_{info['chemin']}", label_visibility="collapsed")
+
+                    if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
                         st.session_state[state_key].pop(idx)
                         st.rerun()
                         
-                    new_ingredients.append({"Ingrédient": n, "Quantité": q})
+                    new_ingredients.append({"Ingrédient": n_final, "Quantité": q})
 
                 if st.form_submit_button("➕ Ajouter un ingrédient"):
                     st.session_state[state_key] = new_ingredients
-                    st.session_state[state_key].append({"Ingrédient": "", "Quantité": ""})
+                    st.session_state[state_key].append({"Ingrédient": "---", "Quantité": ""})
                     st.rerun()
 
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
 
-                # Gestion Photos
+                st.write("**Photos**")
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
                 if photos_actuelles:
@@ -159,7 +179,7 @@ def afficher():
                         img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{p_path.strip('/')}"
                         col_img, col_check = st.columns([1, 4])
                         col_img.image(img_url, width=60)
-                        if col_check.checkbox(f"Garder {p_path.split('/')[-1]}", value=True, key=f"kp_{p_path}"):
+                        if col_check.checkbox(f"Garder", value=True, key=f"kp_{p_path}"):
                             photos_a_garder.append(p_path)
 
                 nouvelles_photos = st.file_uploader("Ajouter des photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
@@ -167,7 +187,8 @@ def afficher():
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
                     for p_path in photos_actuelles:
-                        if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
+                        if p_path not in photos_a_garder:
+                            supprimer_fichier_github(p_path)
 
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
@@ -176,7 +197,7 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
-                    ings_final = [i for i in new_ingredients if i['Ingrédient'].strip()]
+                    ings_final = [i for i in new_ingredients if i['Ingrédient'] and i['Ingrédient'] != "---"]
                     recette_maj = recette.copy()
                     recette_maj.update({
                         "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
@@ -228,7 +249,7 @@ def afficher():
 
             st.divider()
             b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer la recette complète", use_container_width=True):
+            if b1.button("🗑️ Supprimer", use_container_width=True):
                 if supprimer_fichier_github(info['chemin']):
                     for p in recette.get('images', []): supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
