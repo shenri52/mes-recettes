@@ -71,6 +71,7 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
+# --- 4. CONSULTATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -121,40 +122,17 @@ def afficher():
         if m_edit not in st.session_state: st.session_state[m_edit] = False
 
         if st.session_state[m_edit]:
+            # --- MODE MODIFICATION ---
             st.subheader("✍️ Modification")
-            
-            # Utilisation d'un conteneur hors formulaire pour les ingrédients pour que les boutons fonctionnent
             e_nom = st.text_input("Nom", value=recette.get('nom', ''))
             e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
             e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
 
-            st.write("**Ingrédients**")
-            state_key = f"ings_edit_{info['chemin']}"
-            if state_key not in st.session_state:
-                st.session_state[state_key] = recette.get('ingredients', [])
-
-            # --- LOGIQUE DE SUPPRESSION RÉPARÉE ---
-            temp_ings = []
-            for idx, ing in enumerate(st.session_state[state_key]):
-                c_q, c_n, c_d = st.columns([1, 2, 0.5])
-                q = c_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}", label_visibility="collapsed")
-                
-                ing_nom = ing.get('Ingrédient', '')
-                opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
-                n = c_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}", label_visibility="collapsed")
-                
-                if c_d.button("🗑️", key=f"btn_del_{idx}"):
-                    st.session_state[state_key].pop(idx)
-                    st.rerun()
-                
-                temp_ings.append({"Ingrédient": n, "Quantité": q})
-            
-            # Mise à jour du state avec les saisies actuelles
-            st.session_state[state_key] = temp_ings
-
-            if st.button("➕ Ajouter un ingrédient"):
-                st.session_state[state_key].append({"Ingrédient": liste_ingredients_unique[0] if liste_ingredients_unique else "", "Quantité": ""})
-                st.rerun()
+            # Remplacement par une Zone de Texte pour les ingrédients
+            st.write("**Ingrédients (un par ligne : 'Quantité Ingrédient')**")
+            # On formate les ingrédients existants en texte : "200g Farine"
+            liste_init = "\n".join([f"{i.get('Quantité', '')} {i.get('Ingrédient', '')}".strip() for i in recette.get('ingredients', [])])
+            e_ingredients_txt = st.text_area("Liste des ingrédients", value=liste_init, height=150, label_visibility="collapsed")
 
             e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
 
@@ -173,6 +151,16 @@ def afficher():
 
             c_save, c_cancel = st.columns(2)
             if c_save.button("💾 Enregistrer", use_container_width=True):
+                # Traitement du texte des ingrédients pour redevenir une liste d'objets
+                ings_final = []
+                for ligne in e_ingredients_txt.split('\n'):
+                    if ligne.strip():
+                        parts = ligne.split(' ', 1)
+                        if len(parts) > 1:
+                            ings_final.append({"Ingrédient": parts[1].strip(), "Quantité": parts[0].strip()})
+                        else:
+                            ings_final.append({"Ingrédient": parts[0].strip(), "Quantité": ""})
+
                 # Nettoyage photos
                 for p_path in photos_actuelles:
                     if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
@@ -184,7 +172,6 @@ def afficher():
                     if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                         final_photos.append(nom_img)
 
-                ings_final = [i for i in st.session_state[state_key] if i['Ingrédient'].strip()]
                 recette_maj = recette.copy()
                 recette_maj.update({
                     "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
@@ -196,17 +183,15 @@ def afficher():
                         if item['chemin'] == info['chemin']:
                             item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_final]})
                     sauvegarder_index_global(index)
-                    if state_key in st.session_state: del st.session_state[state_key]
                     st.session_state[m_edit] = False
                     st.rerun()
             
             if c_cancel.button("❌ Annuler", use_container_width=True):
-                if state_key in st.session_state: del st.session_state[state_key]
                 st.session_state[m_edit] = False
                 st.rerun()
 
         else:
-            # --- AFFICHAGE LECTURE ---
+            # --- MODE LECTURE ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -237,13 +222,13 @@ def afficher():
 
             st.divider()
             b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+            if b1.button("🗑️ Supprimer", use_container_width=True):
                 if supprimer_fichier_github(info['chemin']):
                     for p in recette.get('images', []): supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                     sauvegarder_index_global(nouvel_index)
                     st.rerun()
-            if b2.button("✍️ Modifier la recette", use_container_width=True):
+            if b2.button("✍️ Modifier", use_container_width=True):
                 st.session_state[m_edit] = True
                 st.rerun()
 
