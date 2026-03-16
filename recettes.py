@@ -191,7 +191,7 @@ def afficher():
                     
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
-                        nom_img = f"images/{int(time.time())}_{f.name}"
+                        nom_img = f"data/images/{int(time.time())}_{f.name}"
                         img_data = compresser_image(f)
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
