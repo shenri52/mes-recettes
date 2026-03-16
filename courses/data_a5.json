@@ -94,9 +94,15 @@
         "nom": "Céréales lion",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Cappuccino",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Cappuccino",
       "Céréales lion",
       "Flocons d'avoines"
     ]
@@ -114,7 +120,6 @@
       }
     ],
     "catalogue": [
-      "Cappuccino",
       "Sirop d'érable"
     ]
   },
