@@ -1,37 +1,6 @@
 {
   "0": {
-    "panier": [
-      {
-        "nom": "Noisettes",
-        "qte": "50gr",
-        "checked": true
-      },
-      {
-        "nom": "Raisins secs",
-        "qte": "50gr",
-        "checked": true
-      },
-      {
-        "nom": "Amandes",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Graines de chia",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Graines de lin",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Graines de courges",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Amandes",
       "Graines de chia",
@@ -42,18 +11,7 @@
     ]
   },
   "1": {
-    "panier": [
-      {
-        "nom": "Pepsi",
-        "qte": "2",
-        "checked": true
-      },
-      {
-        "nom": "Jus d'orange",
-        "qte": "1",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Bière blonde",
       "Eau",
@@ -62,18 +20,7 @@
     ]
   },
   "2": {
-    "panier": [
-      {
-        "nom": "Tomates pelées",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Pois chiche",
-        "qte": "1",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Pois chiche",
       "Tomates pelées"
@@ -84,23 +31,7 @@
     "catalogue": []
   },
   "4": {
-    "panier": [
-      {
-        "nom": "Flocons d'avoines",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Céréales lion",
-        "qte": "1",
-        "checked": true
-      },
-      {
-        "nom": "Cappuccino",
-        "qte": "1",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Cappuccino",
       "Céréales lion",
@@ -112,25 +43,13 @@
     "catalogue": []
   },
   "6": {
-    "panier": [
-      {
-        "nom": "Sirop d'érable",
-        "qte": "1",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Sirop d'érable"
     ]
   },
   "7": {
-    "panier": [
-      {
-        "nom": "Yaourt",
-        "qte": "3",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Yaourt"
     ]
@@ -140,33 +59,7 @@
     "catalogue": []
   },
   "9": {
-    "panier": [
-      {
-        "nom": "Compote",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Coulommiers",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Rossignol",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Jambon",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Beurre tendre",
-        "qte": "1",
-        "checked": true
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Beurre tendre",
       "Compote",
@@ -177,53 +70,7 @@
     ]
   },
   "10": {
-    "panier": [
-      {
-        "nom": "Champignons",
-        "qte": "500gr",
-        "checked": true
-      },
-      {
-        "nom": "Courgettes",
-        "qte": "1 filets",
-        "checked": false
-      },
-      {
-        "nom": "Epinards",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Poireaux",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Ail",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Citron vert",
-        "qte": "1",
-        "checked": false
-      },
-      {
-        "nom": "Patates douce",
-        "qte": "4",
-        "checked": false
-      },
-      {
-        "nom": "Oranges",
-        "qte": "1 filet",
-        "checked": false
-      },
-      {
-        "nom": "Kiwi",
-        "qte": "1",
-        "checked": false
-      }
-    ],
+    "panier": [],
     "catalogue": [
       "Ail",
       "Champignons",
