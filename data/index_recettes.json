@@ -587,5 +587,15 @@
             "Procesco "
         ],
         "chemin": "data/recettes/20260316_084731_paradisio.json"
+    },
+    {
+        "nom": "test",
+        "categorie": "",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ananas en boite",
+            "Basilic"
+        ],
+        "chemin": "data/recettes/20260316_132547_test.json"
     }
 ]
