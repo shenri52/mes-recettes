@@ -71,7 +71,6 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 4. CONSULTATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -83,15 +82,14 @@ def afficher():
     cats = ["Tous"] + cats_existantes
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
+    f_cat = c2.selectbox("Catégorie", cats)
+    f_app = c3.selectbox("Appareil", apps)
+    
     tous_ings_bruts = []
     for r in index: 
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
-    ings_filtre = ["Tous"] + liste_ingredients_unique
-
-    f_cat = c2.selectbox("Catégorie", cats)
-    f_app = c3.selectbox("Appareil", apps)
-    f_ing = c4.selectbox("Ingrédient", ings_filtre)
+    f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
 
     resultats = [
         r for r in index 
@@ -122,17 +120,35 @@ def afficher():
         if m_edit not in st.session_state: st.session_state[m_edit] = False
 
         if st.session_state[m_edit]:
-            # --- MODE MODIFICATION ---
             st.subheader("✍️ Modification")
             e_nom = st.text_input("Nom", value=recette.get('nom', ''))
             e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
             e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
 
-            # Remplacement par une Zone de Texte pour les ingrédients
-            st.write("**Ingrédients (un par ligne : 'Quantité Ingrédient')**")
-            # On formate les ingrédients existants en texte : "200g Farine"
-            liste_init = "\n".join([f"{i.get('Quantité', '')} {i.get('Ingrédient', '')}".strip() for i in recette.get('ingredients', [])])
-            e_ingredients_txt = st.text_area("Liste des ingrédients", value=liste_init, height=150, label_visibility="collapsed")
+            st.write("**Ingrédients**")
+            state_key = f"ings_edit_{info['chemin']}"
+            if state_key not in st.session_state:
+                st.session_state[state_key] = recette.get('ingredients', [])
+
+            # --- GESTION PAR ZONES DE TEXTE ---
+            temp_ings = []
+            for idx, ing in enumerate(st.session_state[state_key]):
+                c_q, c_n, c_d = st.columns([1, 2, 0.5])
+                # REMPLACEMENT DES SELECTBOX PAR DES TEXT_INPUT
+                q = c_q.text_input(f"Qté_{idx}", value=ing.get('Quantité', ''), key=f"q_edit_{idx}", label_visibility="collapsed")
+                n = c_n.text_input(f"Nom_{idx}", value=ing.get('Ingrédient', ''), key=f"n_edit_{idx}", label_visibility="collapsed")
+                
+                if c_d.button("🗑️", key=f"btn_del_{idx}"):
+                    st.session_state[state_key].pop(idx)
+                    st.rerun()
+                
+                temp_ings.append({"Ingrédient": n, "Quantité": q})
+            
+            st.session_state[state_key] = temp_ings
+
+            if st.button("➕ Ajouter un ingrédient"):
+                st.session_state[state_key].append({"Ingrédient": "", "Quantité": ""})
+                st.rerun()
 
             e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
 
@@ -151,17 +167,6 @@ def afficher():
 
             c_save, c_cancel = st.columns(2)
             if c_save.button("💾 Enregistrer", use_container_width=True):
-                # Traitement du texte des ingrédients pour redevenir une liste d'objets
-                ings_final = []
-                for ligne in e_ingredients_txt.split('\n'):
-                    if ligne.strip():
-                        parts = ligne.split(' ', 1)
-                        if len(parts) > 1:
-                            ings_final.append({"Ingrédient": parts[1].strip(), "Quantité": parts[0].strip()})
-                        else:
-                            ings_final.append({"Ingrédient": parts[0].strip(), "Quantité": ""})
-
-                # Nettoyage photos
                 for p_path in photos_actuelles:
                     if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
 
@@ -172,6 +177,7 @@ def afficher():
                     if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                         final_photos.append(nom_img)
 
+                ings_final = [i for i in st.session_state[state_key] if i['Ingrédient'].strip()]
                 recette_maj = recette.copy()
                 recette_maj.update({
                     "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
@@ -183,10 +189,12 @@ def afficher():
                         if item['chemin'] == info['chemin']:
                             item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_final]})
                     sauvegarder_index_global(index)
+                    if state_key in st.session_state: del st.session_state[state_key]
                     st.session_state[m_edit] = False
                     st.rerun()
             
             if c_cancel.button("❌ Annuler", use_container_width=True):
+                if state_key in st.session_state: del st.session_state[state_key]
                 st.session_state[m_edit] = False
                 st.rerun()
 
