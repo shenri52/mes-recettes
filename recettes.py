@@ -144,19 +144,29 @@ def afficher():
                 if state_key not in st.session_state:
                     st.session_state[state_key] = recette.get('ingredients', [{"Ingrédient": "", "Quantité": ""}])
 
+                # --- REMPLACER LE BLOC INGRÉDIENTS PAR CELUI-CI ---
                 new_ingredients = []
+                indice_a_supprimer = None
+
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
+                    
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
+                    
                     ing_nom = ing.get('Ingrédient', '')
                     opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
                     n = col_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
+                    # On vérifie si ce bouton précis a été cliqué
                     if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
-                        st.session_state[state_key].pop(idx)
-                        st.rerun()
-                        
+                        indice_a_supprimer = idx
+                    
                     new_ingredients.append({"Ingrédient": n, "Quantité": q})
+
+                # Application de la suppression si un bouton a été activé
+                if indice_a_supprimer is not None:
+                    st.session_state[state_key].pop(indice_a_supprimer)
+                    st.rerun()
 
                 if st.form_submit_button("➕ Ajouter un ingrédient"):
                     st.session_state[state_key] = new_ingredients
