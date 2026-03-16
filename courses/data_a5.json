@@ -200,6 +200,11 @@
         "nom": "Patates douce",
         "qte": "4",
         "checked": false
+      },
+      {
+        "nom": "Oranges",
+        "qte": "1 filet",
+        "checked": false
       }
     ],
     "catalogue": [
@@ -208,6 +213,7 @@
       "Citron vert",
       "Courgettes",
       "Epinards",
+      "Oranges",
       "Patates douce",
       "Poireaux"
     ]
