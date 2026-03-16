@@ -9,6 +9,11 @@
         "nom": "Pepsi",
         "qte": "2",
         "checked": true
+      },
+      {
+        "nom": "Jus d'orange",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
