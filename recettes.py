@@ -3,6 +3,7 @@ import requests
 import json
 import base64
 import time
+import uuid
 from PIL import Image
 import io
 
@@ -73,14 +74,7 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 4. CALLBACKS DE SUPPRESSION ET AJOUT ---
-def supprimer_ingredient(state_key, index_a_supprimer):
-    st.session_state[state_key].pop(index_a_supprimer)
-
-def ajouter_ingredient(state_key):
-    st.session_state[state_key].append({"Ingrédient": "", "Quantité": ""})
-
-# --- 5. CONSULTATION ET MODIFICATION ---
+# --- 4. LOGIQUE DE MODIFICATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -122,50 +116,53 @@ def afficher():
 
         if st.session_state[m_edit]:
             st.subheader("✍️ Modification")
-            state_key = f"ings_edit_{info['chemin']}"
+            state_key = f"ings_list_{info['chemin']}"
             
+            # Initialisation avec ID unique pour chaque ligne
             if state_key not in st.session_state:
-                st.session_state[state_key] = recette.get('ingredients', [])
+                st.session_state[state_key] = [
+                    {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
+                    for i in recette.get('ingredients', [])
+                ]
 
-            # --- SECTION INGRÉDIENTS ---
             st.write("**Ingrédients**")
             
-            # On affiche les ingrédients
-            for idx in range(len(st.session_state[state_key])):
-                # On utilise des colonnes bien alignées
+            # --- AFFICHAGE DES LIGNES ---
+            rows_to_delete = []
+            for idx, item in enumerate(st.session_state[state_key]):
                 col_q, col_n, col_del = st.columns([1, 2, 0.5])
                 
-                # Update direct du session state via le paramètre 'key'
-                col_q.text_input("Qté", 
-                                key=f"{state_key}_q_{idx}", 
-                                value=st.session_state[state_key][idx].get('Quantité', ''),
-                                label_visibility="collapsed")
+                # On lie la valeur à l'objet dans la liste via l'ID unique
+                st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
+                    "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
+                )
                 
-                ing_nom = st.session_state[state_key][idx].get('Ingrédient', '')
-                opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
+                opts = sorted(list(set(liste_ingredients_unique + ([item["Ingrédient"]] if item["Ingrédient"] else []))))
+                st.session_state[state_key][idx]["Ingrédient"] = col_n.selectbox(
+                    "Nom", options=opts, index=opts.index(item["Ingrédient"]) if item["Ingrédient"] in opts else 0,
+                    key=f"n_{item['id']}", label_visibility="collapsed"
+                )
                 
-                col_n.selectbox("Nom", 
-                               options=opts, 
-                               index=opts.index(ing_nom) if ing_nom in opts else 0,
-                               key=f"{state_key}_n_{idx}",
-                               label_visibility="collapsed")
-                
-                # Le bouton de suppression appelle le callback
-                col_del.button("🗑️", 
-                             key=f"del_{info['chemin']}_{idx}", 
-                             on_click=supprimer_ingredient, 
-                             args=(state_key, idx))
+                if col_del.button("🗑️", key=f"del_{item['id']}"):
+                    rows_to_delete.append(idx)
 
-            st.button("➕ Ajouter un ingrédient", on_click=ajouter_ingredient, args=(state_key,))
+            # Suppression réelle
+            if rows_to_delete:
+                for r_idx in reversed(rows_to_delete):
+                    st.session_state[state_key].pop(r_idx)
+                st.rerun()
 
-            # --- FORMULAIRE POUR LE RESTE ---
+            if st.button("➕ Ajouter un ingrédient"):
+                st.session_state[state_key].append({"id": str(uuid.uuid4()), "Ingrédient": "", "Quantité": ""})
+                st.rerun()
+
+            # --- FORMULAIRE FINAL ---
             with st.form(f"form_meta_{info['chemin']}"):
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
                 
-                st.write("**Photos**")
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
                 for p_path in photos_actuelles:
@@ -179,20 +176,11 @@ def afficher():
 
                 c_save, c_cancel = st.columns(2)
                 
-                if c_save.form_submit_button("💾 Enregistrer tout", use_container_width=True):
-                    # 1. On synchronise les ingrédients depuis les clés dynamiques avant de sauvegarder
-                    ings_finalized = []
-                    for i in range(len(st.session_state[state_key])):
-                        q_val = st.session_state[f"{state_key}_q_{i}"]
-                        n_val = st.session_state[f"{state_key}_n_{i}"]
-                        if n_val.strip():
-                            ings_finalized.append({"Ingrédient": n_val, "Quantité": q_val})
-
-                    # 2. Nettoyage photos
+                if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
+                    # Nettoyage photos
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
                     
-                    # 3. Upload nouvelles photos
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
                         nom_img = f"images/{int(time.time())}_{f.name}"
@@ -200,32 +188,27 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
-                    # 4. Envoi GitHub
+                    # Conversion pour GitHub (on retire les ID techniques)
+                    ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
+                    
                     recette_maj = recette.copy()
-                    recette_maj.update({
-                        "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
-                        "ingredients": ings_finalized, "etapes": e_etapes, "images": final_photos
-                    })
+                    recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos})
                     
                     if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
                         for item in index:
                             if item['chemin'] == info['chemin']:
-                                item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_finalized]})
+                                item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
                         sauvegarder_index_global(index)
-                        
-                        # Reset des champs de saisie (Nettoyage session_state)
-                        for k in list(st.session_state.keys()):
-                            if k.startswith(state_key): del st.session_state[k]
+                        if state_key in st.session_state: del st.session_state[state_key]
                         st.session_state[m_edit] = False
                         st.rerun()
 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
-                    for k in list(st.session_state.keys()):
-                        if k.startswith(state_key): del st.session_state[k]
+                    if state_key in st.session_state: del st.session_state[state_key]
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
-            # --- MODE AFFICHAGE ---
+            # --- AFFICHAGE CLASSIQUE ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -244,15 +227,6 @@ def afficher():
                         st.session_state.last_recette = choix
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                     st.image(img_url, use_container_width=True)
-                    if len(images) > 1:
-                        nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
-                        if nb_col1.button("⬅️"):
-                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
-                            st.rerun()
-                        nb_col2.write(f"{st.session_state.img_idx + 1}/{len(images)}")
-                        if nb_col3.button("➡️"):
-                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                            st.rerun()
 
             st.divider()
             b1, b2 = st.columns(2)
