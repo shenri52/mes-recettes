@@ -104,7 +104,7 @@ def afficher():
     noms_filtres = [r['nom'].upper() for r in resultats]
     choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key="select_recette")
 
-    # --- CORRECTION : RESET DU MODE MODIF SI CHANGEMENT DE RECETTE ---
+    # RESET DU MODE MODIF SI CHANGEMENT DE RECETTE
     if "dernier_choix" not in st.session_state:
         st.session_state.dernier_choix = choix
 
@@ -128,7 +128,6 @@ def afficher():
             state_key = f"ings_list_{info['chemin']}"
             init_flag = f"init_done_{info['chemin']}"
             
-            # --- INITIALISATION SÉCURISÉE ---
             if init_flag not in st.session_state or state_key not in st.session_state:
                 st.session_state[state_key] = [
                     {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
@@ -137,33 +136,21 @@ def afficher():
                 st.session_state[init_flag] = True
 
             st.write("**Ingrédients**")
-            
             rows_to_delete = []
             if state_key in st.session_state:
                 for idx, item in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
-                    
-                    st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
-                        "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
-                    )
+                    st.session_state[state_key][idx]["Quantité"] = col_q.text_input("Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed")
                     
                     base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
                     opts = base_opts + sorted(list(set(liste_ingredients_unique)))
                     current_ing = item["Ingrédient"]
                     default_index = opts.index(current_ing) if current_ing in opts else 0
                     
-                    choix_sel = col_n.selectbox(
-                        "Nom", options=opts, index=default_index,
-                        key=f"sel_{item['id']}", label_visibility="collapsed"
-                    )
+                    choix_sel = col_n.selectbox("Nom", options=opts, index=default_index, key=f"sel_{item['id']}", label_visibility="collapsed")
 
                     if choix_sel == "➕ NOUVEL INGRÉDIENT":
-                        nouveau_nom = col_n.text_input(
-                            "Nom", 
-                            value=current_ing if current_ing not in opts else "", 
-                            key=f"new_{item['id']}",
-                            placeholder="Nom..."
-                        )
+                        nouveau_nom = col_n.text_input("Nom", value=current_ing if current_ing not in opts else "", key=f"new_{item['id']}", placeholder="Nom...")
                         st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
                     else:
                         st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
@@ -198,7 +185,6 @@ def afficher():
                 nouvelles_photos = st.file_uploader("Ajouter des photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
 
                 c_save, c_cancel = st.columns(2)
-                
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
@@ -211,7 +197,6 @@ def afficher():
                             final_photos.append(nom_img)
 
                     ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
-                    
                     recette_maj = recette.copy()
                     recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos})
                     
@@ -220,8 +205,6 @@ def afficher():
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
                         sauvegarder_index_global(index)
-                        
-                        # Nettoyage complet
                         if state_key in st.session_state: del st.session_state[state_key]
                         if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
@@ -233,7 +216,7 @@ def afficher():
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
-            # --- AFFICHAGE CLASSIQUE ---
+            # --- AFFICHAGE CLASSIQUE AVEC NAVIGATION PHOTO ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -250,8 +233,20 @@ def afficher():
                     if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                         st.session_state.img_idx = 0
                         st.session_state.last_recette = choix
+                    
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
+                    
+                    # Boutons de navigation si plusieurs images
+                    if len(images) > 1:
+                        nb1, nb2, nb3 = st.columns([1, 2, 1])
+                        if nb1.button("◀️", use_container_width=True):
+                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                            st.rerun()
+                        nb2.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
+                        if nb3.button("▶️", use_container_width=True):
+                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                            st.rerun()
 
             st.divider()
             b1, b2 = st.columns(2)
