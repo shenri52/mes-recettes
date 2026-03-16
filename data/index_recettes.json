@@ -579,10 +579,9 @@
         "categorie": "",
         "appareil": "Aucun",
         "ingredients": [
-            "Ananas en boite",
             "Amandes Effillées",
-            "Assaisonnement ranch",
-            "Avocat"
+            "Ail",
+            "Ail"
         ],
         "chemin": "data/recettes/20260316_132547_test.json"
     },
