@@ -70,8 +70,16 @@
     "catalogue": []
   },
   "4": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Flocons d'avoines",
+        "qte": "1",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Flocons d'avoines"
+    ]
   },
   "5": {
     "panier": [],
