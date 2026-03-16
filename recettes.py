@@ -55,11 +55,8 @@ def compresser_image(upload_file):
 
 # --- 3. GESTION DE L'INDEX ---
 def charger_index():
-    # On ajoute un paramètre de temps à l'URL pour tromper le cache
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
-    
-    # On force la requête à chaque exécution si on veut être sûr
     res = requests.get(url, headers=conf['headers'])
     
     if res.status_code == 200:
@@ -84,7 +81,6 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    # FILTRES
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
@@ -112,7 +108,8 @@ def afficher():
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
-        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
+        # --- CORRECTION 1 : ANTI-CACHE SUR LE FICHIER RECETTE ---
+        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
         recette = requests.get(url_full).json()
 
         m_edit = f"edit_{info['chemin']}"
@@ -122,7 +119,6 @@ def afficher():
             st.subheader("✍️ Modification")
             state_key = f"ings_list_{info['chemin']}"
             
-            # Initialisation avec ID unique pour chaque ligne
             if state_key not in st.session_state:
                 st.session_state[state_key] = [
                     {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
@@ -131,22 +127,17 @@ def afficher():
 
             st.write("**Ingrédients**")
             
-            # --- AFFICHAGE DES LIGNES ---
             rows_to_delete = []
             for idx, item in enumerate(st.session_state[state_key]):
                 col_q, col_n, col_del = st.columns([1, 2, 0.5])
                 
-                # 1. Quantité
                 st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
                     "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
                 )
                 
-                # 2. Préparation des options : Liste existante + Option spécial nouveau
-                # On s'assure que l'ingrédient actuel est dans la liste s'il existe déjà
                 base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
                 opts = base_opts + sorted(list(set(liste_ingredients_unique)))
                 
-                # On détermine l'index actuel
                 current_ing = item["Ingrédient"]
                 default_index = opts.index(current_ing) if current_ing in opts else 0
                 
@@ -155,9 +146,7 @@ def afficher():
                     key=f"sel_{item['id']}", label_visibility="collapsed"
                 )
 
-                # Si on choisit "Nouvel ingrédient", on affiche un champ texte
                 if choix_sel == "➕ NOUVEL INGRÉDIENT":
-                    # On affiche le champ texte juste en dessous dans la même colonne
                     nouveau_nom = col_n.text_input(
                         "Nom de l'ingrédient", 
                         value=current_ing if current_ing not in opts else "", 
@@ -168,11 +157,9 @@ def afficher():
                 else:
                     st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
                 
-                # 3. Suppression
                 if col_del.button("🗑️", key=f"del_{item['id']}"):
                     rows_to_delete.append(idx)
 
-            # Suppression réelle
             if rows_to_delete:
                 for r_idx in reversed(rows_to_delete):
                     st.session_state[state_key].pop(r_idx)
@@ -182,7 +169,6 @@ def afficher():
                 st.session_state[state_key].append({"id": str(uuid.uuid4()), "Ingrédient": "", "Quantité": ""})
                 st.rerun()
 
-            # --- FORMULAIRE FINAL ---
             with st.form(f"form_meta_{info['chemin']}"):
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
@@ -203,7 +189,6 @@ def afficher():
                 c_save, c_cancel = st.columns(2)
                 
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
-                    # Nettoyage photos
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
                     
@@ -214,7 +199,6 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
-                    # Conversion pour GitHub (on retire les ID techniques)
                     ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
                     
                     recette_maj = recette.copy()
@@ -234,7 +218,6 @@ def afficher():
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
-            # --- AFFICHAGE CLASSIQUE ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -251,7 +234,8 @@ def afficher():
                     if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                         st.session_state.img_idx = 0
                         st.session_state.last_recette = choix
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
+                    # --- CORRECTION 2 : ANTI-CACHE SUR L'IMAGE ---
+                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
 
             st.divider()
