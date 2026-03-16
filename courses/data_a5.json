@@ -139,11 +139,17 @@
         "nom": "Compote",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Rossignol",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Compote",
-      "Fromage"
+      "Fromage",
+      "Rossignol"
     ]
   },
   "10": {
