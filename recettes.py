@@ -127,30 +127,30 @@ def afficher():
             if state_key not in st.session_state:
                 st.session_state[state_key] = recette.get('ingredients', [])
 
-            # --- GESTION ROBUSTE DE LA SUPPRESSION ---
-            new_ings_list = []
-            # On utilise une liste d'indices pour éviter les décalages pendant la boucle
-            indices_to_delete = []
+            # --- GESTION DE LA LISTE ---
+            temp_ings = []
+            a_supprimer = None
 
             for idx, ing in enumerate(st.session_state[state_key]):
-                c_q, c_n, c_d = st.columns([1, 2, 0.5])
-                # Zones de texte simples
-                q_val = c_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
-                n_val = c_n.text_input(f"Nom", value=ing.get('Ingrédient', ''), key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
+                col_q, col_n, col_d = st.columns([1, 2, 0.5])
                 
-                if c_d.button("🗑️", key=f"del_{idx}_{info['chemin']}"):
-                    indices_to_delete.append(idx)
+                # Zone Quantité
+                new_q = col_q.text_input("Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
+                # Zone Nom Ingrédient (Libre)
+                new_n = col_n.text_input("Ingrédient", value=ing.get('Ingrédient', ''), key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                 
-                new_ings_list.append({"Ingrédient": n_val, "Quantité": q_val})
+                # On stocke les valeurs modifiées en direct
+                temp_ings.append({"Ingrédient": new_n, "Quantité": new_q})
+                
+                if col_d.button("🗑️", key=f"del_{idx}_{info['chemin']}"):
+                    a_supprimer = idx
 
-            # Si on a cliqué sur une corbeille, on retire l'élément et on rerun
-            if indices_to_delete:
-                for i in sorted(indices_to_delete, reverse=True):
-                    st.session_state[state_key].pop(i)
+            # On met à jour le state AVANT toute suppression pour ne pas perdre les textes saisis
+            st.session_state[state_key] = temp_ings
+
+            if a_supprimer is not None:
+                st.session_state[state_key].pop(a_supprimer)
                 st.rerun()
-
-            # Mise à jour du state avec les saisies actuelles (pour ne pas perdre ce qu'on écrit)
-            st.session_state[state_key] = new_ings_list
 
             if st.button("➕ Ajouter un ingrédient"):
                 st.session_state[state_key].append({"Ingrédient": "", "Quantité": ""})
@@ -173,7 +173,6 @@ def afficher():
 
             c_save, c_cancel = st.columns(2)
             if c_save.button("💾 Enregistrer", use_container_width=True):
-                # Nettoyage fichiers
                 for p_path in photos_actuelles:
                     if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
 
@@ -184,9 +183,8 @@ def afficher():
                     if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                         final_photos.append(nom_img)
 
-                # On ne garde que les ingrédients qui ont un nom
+                # Finalisation
                 ings_final = [i for i in st.session_state[state_key] if i['Ingrédient'].strip()]
-                
                 recette_maj = recette.copy()
                 recette_maj.update({
                     "nom": e_nom, "categorie": e_cat, "appareil": e_app, 
@@ -228,26 +226,4 @@ def afficher():
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                     st.image(img_url, use_container_width=True)
                     if len(images) > 1:
-                        nb_col1, nb_col2, nb_col3 = st.columns([1, 2, 1])
-                        if nb_col1.button("⬅️"):
-                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
-                            st.rerun()
-                        nb_col2.write(f"{st.session_state.img_idx + 1}/{len(images)}")
-                        if nb_col3.button("➡️"):
-                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                            st.rerun()
-
-            st.divider()
-            b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                if supprimer_fichier_github(info['chemin']):
-                    for p in recette.get('images', []): supprimer_fichier_github(p)
-                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    sauvegarder_index_global(nouvel_index)
-                    st.rerun()
-            if b2.button("✍️ Modifier la recette", use_container_width=True):
-                st.session_state[m_edit] = True
-                st.rerun()
-
-if __name__ == "__main__":
-    afficher()
+                        nb_col1, nb_col2,
