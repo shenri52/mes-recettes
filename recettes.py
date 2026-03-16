@@ -58,14 +58,12 @@ def charger_index():
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
     res = requests.get(url, headers=conf['headers'])
-    
     if res.status_code == 200:
         content_b64 = res.json()['content']
         content_json = base64.b64decode(content_b64).decode('utf-8')
         st.session_state.index_recettes = json.loads(content_json)
     elif 'index_recettes' not in st.session_state:
         st.session_state.index_recettes = []
-        
     return st.session_state.index_recettes
 
 def sauvegarder_index_global(index_maj):
@@ -108,7 +106,6 @@ def afficher():
 
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
-        # --- CORRECTION 1 : ANTI-CACHE SUR LE FICHIER RECETTE ---
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
         recette = requests.get(url_full).json()
 
@@ -118,53 +115,52 @@ def afficher():
         if st.session_state[m_edit]:
             st.subheader("✍️ Modification")
             state_key = f"ings_list_{info['chemin']}"
-            
-            # --- LA CORRECTION RADICALE ---
-            # Si on vient d'entrer en mode édition (le flag 'init_done' n'existe pas encore)
             init_flag = f"init_done_{info['chemin']}"
             
-            if init_flag not in st.session_state:
-                # On FORCE la lecture depuis le JSON et on écrase TOUT ce qui existait en mémoire
+            # --- INITIALISATION SÉCURISÉE (Correction KeyError) ---
+            if init_flag not in st.session_state or state_key not in st.session_state:
                 st.session_state[state_key] = [
                     {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
                     for i in recette.get('ingredients', [])
                 ]
-                # On marque l'initialisation comme faite
                 st.session_state[init_flag] = True
+
             st.write("**Ingrédients**")
             
             rows_to_delete = []
-            for idx, item in enumerate(st.session_state[state_key]):
-                col_q, col_n, col_del = st.columns([1, 2, 0.5])
-                
-                st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
-                    "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
-                )
-                
-                base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
-                opts = base_opts + sorted(list(set(liste_ingredients_unique)))
-                
-                current_ing = item["Ingrédient"]
-                default_index = opts.index(current_ing) if current_ing in opts else 0
-                
-                choix_sel = col_n.selectbox(
-                    "Nom", options=opts, index=default_index,
-                    key=f"sel_{item['id']}", label_visibility="collapsed"
-                )
-
-                if choix_sel == "➕ NOUVEL INGRÉDIENT":
-                    nouveau_nom = col_n.text_input(
-                        "Nom de l'ingrédient", 
-                        value=current_ing if current_ing not in opts else "", 
-                        key=f"new_{item['id']}",
-                        placeholder="Nom de l'ingrédient..."
+            # On boucle seulement si la clé existe (double sécurité)
+            if state_key in st.session_state:
+                for idx, item in enumerate(st.session_state[state_key]):
+                    col_q, col_n, col_del = st.columns([1, 2, 0.5])
+                    
+                    st.session_state[state_key][idx]["Quantité"] = col_q.text_input(
+                        "Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed"
                     )
-                    st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
-                else:
-                    st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
-                
-                if col_del.button("🗑️", key=f"del_{item['id']}"):
-                    rows_to_delete.append(idx)
+                    
+                    base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
+                    opts = base_opts + sorted(list(set(liste_ingredients_unique)))
+                    
+                    current_ing = item["Ingrédient"]
+                    default_index = opts.index(current_ing) if current_ing in opts else 0
+                    
+                    choix_sel = col_n.selectbox(
+                        "Nom", options=opts, index=default_index,
+                        key=f"sel_{item['id']}", label_visibility="collapsed"
+                    )
+
+                    if choix_sel == "➕ NOUVEL INGRÉDIENT":
+                        nouveau_nom = col_n.text_input(
+                            "Nom", 
+                            value=current_ing if current_ing not in opts else "", 
+                            key=f"new_{item['id']}",
+                            placeholder="Nom..."
+                        )
+                        st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
+                    else:
+                        st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
+                    
+                    if col_del.button("🗑️", key=f"del_{item['id']}"):
+                        rows_to_delete.append(idx)
 
             if rows_to_delete:
                 for r_idx in reversed(rows_to_delete):
@@ -215,12 +211,16 @@ def afficher():
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
                         sauvegarder_index_global(index)
+                        
+                        # Nettoyage mémoire
                         if state_key in st.session_state: del st.session_state[state_key]
+                        if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
                         st.rerun()
 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
                     if state_key in st.session_state: del st.session_state[state_key]
+                    if init_flag in st.session_state: del st.session_state[init_flag]
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
@@ -240,7 +240,6 @@ def afficher():
                     if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
                         st.session_state.img_idx = 0
                         st.session_state.last_recette = choix
-                    # --- CORRECTION 2 : ANTI-CACHE SUR L'IMAGE ---
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
 
