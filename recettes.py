@@ -24,9 +24,7 @@ def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
         url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
         res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
         sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-        
         contenu_b64 = base64.b64encode(contenu if est_binaire else contenu.encode('utf-8')).decode('utf-8')
-        
         data = {"message": message, "content": contenu_b64, "branch": "main"}
         if sha: data["sha"] = sha
         res = requests.put(url, headers=conf['headers'], json=data)
@@ -45,7 +43,6 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
-# --- 2. TRAITEMENT IMAGE ---
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"): img = img.convert("RGB")
@@ -54,7 +51,6 @@ def compresser_image(upload_file):
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
 
-# --- 3. GESTION DE L'INDEX ---
 def charger_index():
     if 'index_recettes' not in st.session_state:
         conf = config_github()
@@ -75,7 +71,6 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 4. CONSULTATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -123,7 +118,7 @@ def afficher():
         if m_edit not in st.session_state: st.session_state[m_edit] = False
 
         if st.session_state[m_edit]:
-            # --- MODE MODIFICATION ---
+            # --- MODE MODIFICATION (BASÉ SUR CODE 1) ---
             with st.form(key=f"f_edit_{info['chemin']}"):
                 st.subheader("✍️ Modification")
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
@@ -139,10 +134,11 @@ def afficher():
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
                     q = col_q.text_input(f"Qté", value=ing.get('Quantité', ''), key=f"q_{idx}_{info['chemin']}", label_visibility="collapsed")
-                    # CHANGEMENT ICI : text_input au lieu de selectbox pour permettre la saisie libre
+                    # Saisie libre ici
                     n = col_n.text_input(f"Nom", value=ing.get('Ingrédient', ''), key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
-                    if col_del.form_submit_button("🗑️"):
+                    # Correction de l'erreur Duplicate Key ici avec une clé unique
+                    if col_del.form_submit_button("🗑️", key=f"btn_del_{idx}_{info['chemin']}"):
                         st.session_state[state_key].pop(idx)
                         st.rerun()
                         
@@ -155,7 +151,7 @@ def afficher():
 
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
 
-                st.write("**Photos**")
+                # Gestion Photos
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
                 if photos_actuelles:
@@ -166,7 +162,7 @@ def afficher():
                         if col_check.checkbox(f"Garder {p_path.split('/')[-1]}", value=True, key=f"kp_{p_path}"):
                             photos_a_garder.append(p_path)
 
-                nouvelles_photos = st.file_uploader("Ajouter de nouvelles photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
+                nouvelles_photos = st.file_uploader("Ajouter des photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
@@ -232,7 +228,7 @@ def afficher():
 
             st.divider()
             b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer", use_container_width=True):
+            if b1.button("🗑️ Supprimer la recette complète", use_container_width=True):
                 if supprimer_fichier_github(info['chemin']):
                     for p in recette.get('images', []): supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
