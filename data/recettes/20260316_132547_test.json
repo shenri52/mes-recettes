@@ -10,8 +10,16 @@
             "Quantité": "f"
         },
         {
-            "Ingrédient": "Basilic",
-            "Quantité": "ui"
+            "Ingrédient": "Amandes Effillées",
+            "Quantité": "hhh"
+        },
+        {
+            "Ingrédient": "Assaisonnement ranch",
+            "Quantité": "hh"
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": "h"
         }
     ],
     "etapes": "",
