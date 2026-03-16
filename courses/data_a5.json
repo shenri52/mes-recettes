@@ -75,9 +75,15 @@
         "nom": "Flocons d'avoines",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Céréales lion",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Céréales lion",
       "Flocons d'avoines"
     ]
   },
