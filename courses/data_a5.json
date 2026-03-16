@@ -93,7 +93,7 @@
       {
         "nom": "Céréales lion",
         "qte": "1",
-        "checked": false
+        "checked": true
       },
       {
         "nom": "Cappuccino",
