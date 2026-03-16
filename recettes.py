@@ -73,7 +73,7 @@ def sauvegarder_index_global(index_maj):
         return True
     return False
 
-# --- 4. LOGIQUE DE MODIFICATION ---
+# --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
     index = charger_index()
     st.header("📚 Mes recettes")
@@ -104,6 +104,17 @@ def afficher():
     noms_filtres = [r['nom'].upper() for r in resultats]
     choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key="select_recette")
 
+    # --- CORRECTION : RESET DU MODE MODIF SI CHANGEMENT DE RECETTE ---
+    if "dernier_choix" not in st.session_state:
+        st.session_state.dernier_choix = choix
+
+    if st.session_state.dernier_choix != choix:
+        for key in list(st.session_state.keys()):
+            if key.startswith("edit_") or key.startswith("init_done_") or key.startswith("ings_list_"):
+                del st.session_state[key]
+        st.session_state.dernier_choix = choix
+        st.rerun()
+
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
@@ -117,7 +128,7 @@ def afficher():
             state_key = f"ings_list_{info['chemin']}"
             init_flag = f"init_done_{info['chemin']}"
             
-            # --- INITIALISATION SÉCURISÉE (Correction KeyError) ---
+            # --- INITIALISATION SÉCURISÉE ---
             if init_flag not in st.session_state or state_key not in st.session_state:
                 st.session_state[state_key] = [
                     {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
@@ -128,7 +139,6 @@ def afficher():
             st.write("**Ingrédients**")
             
             rows_to_delete = []
-            # On boucle seulement si la clé existe (double sécurité)
             if state_key in st.session_state:
                 for idx, item in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
@@ -139,7 +149,6 @@ def afficher():
                     
                     base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
                     opts = base_opts + sorted(list(set(liste_ingredients_unique)))
-                    
                     current_ing = item["Ingrédient"]
                     default_index = opts.index(current_ing) if current_ing in opts else 0
                     
@@ -212,7 +221,7 @@ def afficher():
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
                         sauvegarder_index_global(index)
                         
-                        # Nettoyage mémoire
+                        # Nettoyage complet
                         if state_key in st.session_state: del st.session_state[state_key]
                         if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
@@ -224,6 +233,7 @@ def afficher():
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
+            # --- AFFICHAGE CLASSIQUE ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
