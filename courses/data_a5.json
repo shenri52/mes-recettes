@@ -128,7 +128,7 @@
       {
         "nom": "Yaourt",
         "qte": "3",
-        "checked": false
+        "checked": true
       }
     ],
     "catalogue": [
