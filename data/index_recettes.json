@@ -576,5 +576,16 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "Paradisio",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Limencello ",
+            "Sirop de pamplemousse ",
+            "Procesco "
+        ],
+        "chemin": "data/recettes/20260316_084731_paradisio.json"
     }
 ]
