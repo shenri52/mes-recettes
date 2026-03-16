@@ -98,7 +98,7 @@
       {
         "nom": "Cappuccino",
         "qte": "1",
-        "checked": false
+        "checked": true
       }
     ],
     "catalogue": [
