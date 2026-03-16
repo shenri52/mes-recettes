@@ -10,9 +10,15 @@
         "nom": "Raisins secs",
         "qte": "50gr",
         "checked": false
+      },
+      {
+        "nom": "Amandes",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Amandes",
       "Noisettes",
       "Raisins secs"
     ]
