@@ -330,3 +330,5 @@ def afficher():
                     st.warning(f"🗑️ {prod_sel} supprimé.")
                     time.sleep(1)
                     st.rerun()
+                
+                maintenance_produits()
