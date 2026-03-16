@@ -1,7 +1,15 @@
 {
   "0": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Noisettes",
+        "qte": "50gr",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Noisettes"
+    ]
   },
   "1": {
     "panier": [
