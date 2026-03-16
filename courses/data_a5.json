@@ -134,8 +134,15 @@
     "catalogue": []
   },
   "9": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Compote",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": [
+      "Compote",
       "Fromage"
     ]
   },
