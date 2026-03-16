@@ -205,6 +205,11 @@
         "nom": "Oranges",
         "qte": "1 filet",
         "checked": false
+      },
+      {
+        "nom": "Kiwi",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
@@ -213,6 +218,7 @@
       "Citron vert",
       "Courgettes",
       "Epinards",
+      "Kiwi",
       "Oranges",
       "Patates douce",
       "Poireaux"
