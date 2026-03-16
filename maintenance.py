@@ -250,3 +250,83 @@ def afficher():
             st.success("Toutes les images ont été traitées.")
 
     st.divider()
+
+    # --- SECTION 4 : GESTION PRODUIT ---
+    def maintenance_produits():
+        st.subheader("🛠️ Modification du Catalogue")
+    
+        # On récupère l'index des produits pour savoir quoi modifier
+        index_zones = st.session_state.get("index_zones", {})
+        tous_produits = sorted(list(index_zones.keys()))
+    
+        if not tous_produits:
+            st.info("Le catalogue est vide.")
+            return
+    
+        # Sélecteur du produit
+        prod_sel = st.selectbox("Choisir un produit à corriger", ["---"] + tous_produits)
+    
+        if prod_sel != "---":
+            zone_actuelle = int(index_zones.get(prod_sel, 0)) + 1
+            
+            with st.form("form_maintenance"):
+                col1, col2 = st.columns([2, 1])
+                nouveau_nom = col1.text_input("Nom du produit", value=prod_sel)
+                nouvelle_zone = col2.text_input("Zone", value=str(zone_actuelle))
+                
+                c_save, c_del = st.columns(2)
+                btn_save = c_save.form_submit_button("💾 ENREGISTRER", use_container_width=True)
+                btn_del = c_del.form_submit_button("🗑️ SUPPRIMER", use_container_width=True)
+    
+                if btn_save:
+                    final_nom = nouveau_nom.strip().capitalize()
+                    try:
+                        num_extrait = "".join(filter(str.isdigit, nouvelle_zone))
+                        dest_idx = str(int(num_extrait) - 1)
+                    except:
+                        dest_idx = str(zone_actuelle - 1)
+    
+                    # 1. Mise à jour de l'index des zones
+                    if prod_sel in st.session_state.index_zones:
+                        del st.session_state.index_zones[prod_sel]
+                    st.session_state.index_zones[final_nom] = dest_idx
+                    
+                    # 2. Mise à jour dans data_a5 (Catalogue et Panier)
+                    for k in range(12):
+                        # Correction du catalogue
+                        if prod_sel in st.session_state.data_a5[str(k)]["catalogue"]:
+                            st.session_state.data_a5[str(k)]["catalogue"].remove(prod_sel)
+                        
+                        # Mise à jour du nom dans le panier si déjà présent
+                        for p in st.session_state.data_a5[str(k)]["panier"]:
+                            if p["nom"].lower() == prod_sel.lower():
+                                p["nom"] = final_nom
+    
+                    # Ajout du nouveau nom dans le catalogue de la zone de destination
+                    if final_nom not in st.session_state.data_a5[dest_idx]["catalogue"]:
+                        st.session_state.data_a5[dest_idx]["catalogue"].append(final_nom)
+                        st.session_state.data_a5[dest_idx]["catalogue"].sort()
+    
+                    # Sauvegardes GitHub
+                    save_github_data("data/index_produits_zones.json", st.session_state.index_zones, st.session_state.sha_index)
+                    save_github_data("courses/data_a5.json", st.session_state.data_a5, st.session_state.sha_a5)
+                    
+                    st.success(f"✅ {final_nom} mis à jour !")
+                    time.sleep(1)
+                    st.rerun()
+    
+                if btn_del:
+                    # Suppression totale
+                    if prod_sel in st.session_state.index_zones:
+                        del st.session_state.index_zones[prod_sel]
+                    
+                    for k in range(12):
+                        if prod_sel in st.session_state.data_a5[str(k)]["catalogue"]:
+                            st.session_state.data_a5[str(k)]["catalogue"].remove(prod_sel)
+                    
+                    save_github_data("data/index_produits_zones.json", st.session_state.index_zones, st.session_state.sha_index)
+                    save_github_data("courses/data_a5.json", st.session_state.data_a5, st.session_state.sha_a5)
+                    
+                    st.warning(f"🗑️ {prod_sel} supprimé.")
+                    time.sleep(1)
+                    st.rerun()
