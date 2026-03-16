@@ -38,7 +38,7 @@ if verifier_mot_de_passe():
     PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
 
     if st.session_state.page in PAGES_CUISINE:
-        mode_cuisine = st.checkbox("🚫 Garder l'écran allumé", value=False)
+        mode_cuisine = st.checkbox("🚫 Garder lapplication connectée", value=False)
         if mode_cuisine:
             components.html(
                 """
