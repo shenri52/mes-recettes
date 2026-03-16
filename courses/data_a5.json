@@ -62,8 +62,16 @@
     ]
   },
   "2": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Tomates pelées",
+        "qte": "1",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Tomates pelées"
+    ]
   },
   "3": {
     "panier": [],
