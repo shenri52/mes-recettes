@@ -180,12 +180,18 @@
         "nom": "Epinards",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Poireaux",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Champignons",
       "Courgettes",
-      "Epinards"
+      "Epinards",
+      "Poireaux"
     ]
   },
   "11": {
