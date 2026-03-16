@@ -111,9 +111,15 @@
         "nom": "Sirop d'érable",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Cappuccino",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Cappuccino",
       "Sirop d'érable"
     ]
   },
