@@ -118,8 +118,16 @@
     ]
   },
   "7": {
-    "panier": [],
-    "catalogue": []
+    "panier": [
+      {
+        "nom": "Yaourt",
+        "qte": "3",
+        "checked": false
+      }
+    ],
+    "catalogue": [
+      "Yaourt"
+    ]
   },
   "8": {
     "panier": [],
