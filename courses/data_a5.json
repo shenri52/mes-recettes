@@ -15,10 +15,16 @@
         "nom": "Amandes",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Graines de chia",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Amandes",
+      "Graines de chia",
       "Noisettes",
       "Raisins secs"
     ]
