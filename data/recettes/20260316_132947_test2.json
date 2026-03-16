@@ -1,0 +1,23 @@
+{
+    "nom": "test2",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Assaisonnement ranch",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Beurre de cacahuètes",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "",
+    "images": []
+}
