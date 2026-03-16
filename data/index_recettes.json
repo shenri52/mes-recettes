@@ -69,7 +69,7 @@
         "categorie": "",
         "appareil": "Aucun",
         "ingredients": [
-            "Cannelle ",
+            "Cannelle",
             "Eau",
             "Jus de citron"
         ],
@@ -267,9 +267,9 @@
         "categorie": "Cocktail",
         "appareil": "Aucun",
         "ingredients": [
-            "Limencello ",
-            "Sirop de pamplemousse ",
-            "Procesco "
+            "Limencello",
+            "Sirop de pamplemousse",
+            "Procesco"
         ],
         "chemin": "data/recettes/20260316_084731_paradisio.json"
     },
