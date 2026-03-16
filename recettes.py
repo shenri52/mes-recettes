@@ -55,16 +55,20 @@ def compresser_image(upload_file):
 
 # --- 3. GESTION DE L'INDEX ---
 def charger_index():
-    if 'index_recettes' not in st.session_state:
-        conf = config_github()
-        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
-        res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-        if res.status_code == 200:
-            content_b64 = res.json()['content']
-            content_json = base64.b64decode(content_b64).decode('utf-8')
-            st.session_state.index_recettes = json.loads(content_json)
-        else:
-            st.session_state.index_recettes = []
+    # On ajoute un paramètre de temps à l'URL pour tromper le cache
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
+    
+    # On force la requête à chaque exécution si on veut être sûr
+    res = requests.get(url, headers=conf['headers'])
+    
+    if res.status_code == 200:
+        content_b64 = res.json()['content']
+        content_json = base64.b64decode(content_b64).decode('utf-8')
+        st.session_state.index_recettes = json.loads(content_json)
+    elif 'index_recettes' not in st.session_state:
+        st.session_state.index_recettes = []
+        
     return st.session_state.index_recettes
 
 def sauvegarder_index_global(index_maj):
