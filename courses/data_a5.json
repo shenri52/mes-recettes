@@ -71,7 +71,7 @@
       {
         "nom": "Pois chiche",
         "qte": "1",
-        "checked": false
+        "checked": true
       }
     ],
     "catalogue": [
