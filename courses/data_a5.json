@@ -154,9 +154,15 @@
         "nom": "Jambon",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Beurre tendre",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
+      "Beurre tendre",
       "Compote",
       "Coulommiers",
       "Fromage",
