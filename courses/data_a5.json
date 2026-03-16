@@ -31,9 +31,16 @@
     "catalogue": []
   },
   "4": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Céréales",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": [
       "Cappuccino",
+      "Céréales",
       "Céréales lion",
       "Flocons d'avoines"
     ]
