@@ -119,16 +119,18 @@ def afficher():
             st.subheader("✍️ Modification")
             state_key = f"ings_list_{info['chemin']}"
             
-            # --- FORCE LA RÉINITIALISATION DEPUIS LE JSON SI ON VIENT D'OUVRIR ---
-            # On vérifie si on doit forcer le rechargement pour éviter les fantômes
-            if state_key not in st.session_state or st.session_state.get(f"last_loaded_{info['chemin']}") != info['chemin']:
+            # --- LA CORRECTION RADICALE ---
+            # Si on vient d'entrer en mode édition (le flag 'init_done' n'existe pas encore)
+            init_flag = f"init_done_{info['chemin']}"
+            
+            if init_flag not in st.session_state:
+                # On FORCE la lecture depuis le JSON et on écrase TOUT ce qui existait en mémoire
                 st.session_state[state_key] = [
                     {"id": str(uuid.uuid4()), "Ingrédient": i.get("Ingrédient", ""), "Quantité": i.get("Quantité", "")}
                     for i in recette.get('ingredients', [])
                 ]
-                # On marque cette recette comme "chargée" pour ne pas boucler
-                st.session_state[f"last_loaded_{info['chemin']}"] = info['chemin']
-
+                # On marque l'initialisation comme faite
+                st.session_state[init_flag] = True
             st.write("**Ingrédients**")
             
             rows_to_delete = []
