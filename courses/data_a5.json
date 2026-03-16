@@ -46,7 +46,7 @@
       {
         "nom": "Pepsi",
         "qte": "2",
-        "checked": false
+        "checked": true
       },
       {
         "nom": "Jus d'orange",
