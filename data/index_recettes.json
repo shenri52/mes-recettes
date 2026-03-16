@@ -575,6 +575,18 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
+        "nom": "test",
+        "categorie": "",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ananas en boite",
+            "Amandes Effillées",
+            "Assaisonnement ranch",
+            "Avocat"
+        ],
+        "chemin": "data/recettes/20260316_132547_test.json"
+    },
+    {
         "nom": "test2",
         "categorie": "Cocktail",
         "appareil": "Aucun",
