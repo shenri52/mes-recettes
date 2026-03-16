@@ -190,11 +190,17 @@
         "nom": "Ail",
         "qte": "1",
         "checked": false
+      },
+      {
+        "nom": "Citron vert",
+        "qte": "1",
+        "checked": false
       }
     ],
     "catalogue": [
       "Ail",
       "Champignons",
+      "Citron vert",
       "Courgettes",
       "Epinards",
       "Poireaux"
