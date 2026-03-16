@@ -170,10 +170,16 @@
         "nom": "Champignons",
         "qte": "500gr",
         "checked": false
+      },
+      {
+        "nom": "Courgettes",
+        "qte": "1 filets",
+        "checked": false
       }
     ],
     "catalogue": [
-      "Champignons"
+      "Champignons",
+      "Courgettes"
     ]
   },
   "11": {
