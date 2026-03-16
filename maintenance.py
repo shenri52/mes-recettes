@@ -58,34 +58,32 @@ def afficher():
             del st.session_state.a_reparer
         if "index_a_sauvegarder" in st.session_state:
             del st.session_state.index_a_sauvegarder
-    
-        # --- SECTION 1 : RÉPARER L'INDEX ---
-        if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
-            st.session_state.bouton_analyse_clique = True
-            conf = config_github()
-            
-            url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1&t={int(time.time())}"
-            res = requests.get(url_tree, headers=conf['headers'])
-            
-            if res.status_code == 200:
-                tree = res.json().get('tree', [])
-                
-                # 1. On définit la liste des fichiers à ignorer 🚫
-                fichiers_exclus = [
-                    'data/index_recettes.json',
-                    'data/index_produits_zones.json',
-                    'data/planning.json',
-                    'data/plats_rapides.json'
-                ]
-            
-        # 2. On filtre les fichiers physiques
-        fichiers_physiques = [
-            item['path'] for item in tree 
-            if item['path'].startswith('data/') 
-            and item['path'].endswith('.json') 
-            and item['path'] not in fichiers_exclus # 🔥 Condition de filtrage
-        ]
+
+    # --- SECTION 1 : RÉPARER L'INDEX ---
+    if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
+        st.session_state.bouton_analyse_clique = True
+        conf = config_github()
         
+        url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1&t={int(time.time())}"
+        res = requests.get(url_tree, headers=conf['headers'])
+        
+        if res.status_code == 200:
+            tree = res.json().get('tree', [])
+            
+            # Exclusion des fichiers de données spécifiques 🚫
+            fichiers_exclus = [
+                'data/index_recettes.json',
+                'data/index_produits_zones.json',
+                'data/planning.json',
+                'data/plats_rapides.json'
+            ]
+            
+            fichiers_physiques = [
+                item['path'] for item in tree 
+                if item['path'].startswith('data/') 
+                and item['path'].endswith('.json') 
+                and item['path'] not in fichiers_exclus
+            ]
             
             index_actuel = charger_index_local()
             chemins_index = [r['chemin'] for r in index_actuel]
