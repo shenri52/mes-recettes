@@ -51,7 +51,7 @@
       {
         "nom": "Jus d'orange",
         "qte": "1",
-        "checked": false
+        "checked": true
       }
     ],
     "catalogue": [
