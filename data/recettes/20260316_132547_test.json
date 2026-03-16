@@ -6,12 +6,20 @@
     "temps_cuisson": "",
     "ingredients": [
         {
+            "Ingrédient": "Amandes Effillées",
+            "Quantité": "hhh"
+        },
+        {
             "Ingrédient": "Ail",
             "Quantité": "ff"
         },
         {
             "Ingrédient": "Assaisonnement ranch",
             "Quantité": "ff"
+        },
+        {
+            "Ingrédient": "Guacamole",
+            "Quantité": "1"
         }
     ],
     "etapes": "",
