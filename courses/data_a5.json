@@ -5,10 +5,16 @@
         "nom": "Noisettes",
         "qte": "50gr",
         "checked": false
+      },
+      {
+        "nom": "Raisins secs",
+        "qte": "50gr",
+        "checked": false
       }
     ],
     "catalogue": [
-      "Noisettes"
+      "Noisettes",
+      "Raisins secs"
     ]
   },
   "1": {
