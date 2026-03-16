@@ -144,10 +144,10 @@ def afficher():
                 if state_key not in st.session_state:
                     st.session_state[state_key] = recette.get('ingredients', [{"Ingrédient": "", "Quantité": ""}])
 
-                # --- REMPLACER LE BLOC INGRÉDIENTS PAR CELUI-CI ---
+                # --- CODE CORRIGÉ ---
                 new_ingredients = []
-                indice_a_supprimer = None
-
+                
+                # On utilise une copie pour itérer sans conflit
                 for idx, ing in enumerate(st.session_state[state_key]):
                     col_q, col_n, col_del = st.columns([1, 2, 0.5])
                     
@@ -157,16 +157,16 @@ def afficher():
                     opts = sorted(list(set(liste_ingredients_unique + ([ing_nom] if ing_nom else []))))
                     n = col_n.selectbox(f"Nom", options=opts, index=opts.index(ing_nom) if ing_nom in opts else 0, key=f"n_{idx}_{info['chemin']}", label_visibility="collapsed")
                     
-                    # On vérifie si ce bouton précis a été cliqué
-                    if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
-                        indice_a_supprimer = idx
+                    # Mise à jour immédiate des valeurs saisies dans le session_state
+                    st.session_state[state_key][idx] = {"Ingrédient": n, "Quantité": q}
                     
-                    new_ingredients.append({"Ingrédient": n, "Quantité": q})
-
-                # Application de la suppression si un bouton a été activé
-                if indice_a_supprimer is not None:
-                    st.session_state[state_key].pop(indice_a_supprimer)
-                    st.rerun()
+                    if col_del.form_submit_button("🗑️", key=f"del_{idx}_{info['chemin']}"):
+                        st.session_state[state_key].pop(idx) # Supprime précisément cet index
+                        st.rerun()
+                
+                # On synchronise new_ingredients pour la suite du formulaire (enregistrement)
+                new_ingredients = st.session_state[state_key]
+                # --------------------
 
                 if st.form_submit_button("➕ Ajouter un ingrédient"):
                     st.session_state[state_key] = new_ingredients
