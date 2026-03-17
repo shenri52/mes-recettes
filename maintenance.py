@@ -99,7 +99,7 @@ def afficher():
                     del st.session_state.a_reparer
                     st.rerun()
 
-    # --- SECTION 2 : NETTOYAGE NOMS ---
+# --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs, index_nettoye, fichiers_maj = [], [], []
@@ -111,24 +111,36 @@ def afficher():
                 i_clean, noms_i, modif = [], [], False
                 for item in data.get("ingredients", []):
                     n_orig = item.get("Ingrédient", "")
-                    n_propre = " ".join(n_orig.split()).capitalize() # Supprime espaces doubles et normalise
+                    # Nettoyage : supprime espaces inutiles et met une majuscule au début
+                    n_propre = " ".join(n_orig.split()).capitalize() 
                     i_clean.append({"Ingrédient": n_propre, "Quantité": item.get("Quantité", "")})
                     noms_i.append(n_propre)
                     if n_propre != n_orig: modif = True
                 
                 if modif:
-                    erreurs.append(recette["nom"])
+                    erreurs.append({"nom": recette["nom"], "chemin": recette["chemin"]})
                     data["ingredients"] = i_clean
                     fichiers_maj.append({"chemin": recette["chemin"], "contenu": data})
+                
+                # Mise à jour de l'index même si pas de modif fichier (pour cohérence)
                 recette["ingredients"] = noms_i
                 index_nettoye.append(recette)
 
         if erreurs:
             st.session_state.index_a_sauvegarder = index_nettoye
             st.session_state.fichiers_a_sauvegarder = fichiers_maj
-            st.warning(f"⚠️ {len(erreurs)} recettes à corriger.")
+            
+            # --- LE BLOC DE VISIBILITÉ QUE NOUS AVONS RAJOUTÉ ---
+            st.warning(f"⚠️ {len(erreurs)} recette(s) à corriger :")
+            for err in erreurs:
+                st.write(f"- {err['nom']} `({err['chemin']})`")
+            # --------------------------------------------------
         else:
             st.success("✅ Ingrédients déjà propres.")
+
+    # Ce bouton n'apparaît QUE si des erreurs ont été listées au-dessus
+    if st.session_state.get("index_a_sauvegarder"):
+        if st.button("🚀 Lancer la réparation de ces fichiers", use_container_width=True):
 
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
