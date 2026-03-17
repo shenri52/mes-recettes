@@ -71,36 +71,28 @@ def ouvrir_fiche(nom_plat):
                 st.subheader(recette.get('nom', '').upper())
                 
                 # --- Ligne d'infos clés ---
-                c1, c2 = st.columns(2)
-                with c1:
-                    st.write(f"📁 **Catégorie :** {recette.get('categorie', 'Non classé')}")
-                    st.write(f"🤖 **Appareil :** {recette.get('appareil', 'Aucun')}")
-                with c2:
-                    st.write(f"⏳ **Préparation :** {recette.get('temps_prep', '0')} min")
-                    st.write(f"🔥 **Cuisson :** {recette.get('temps_cuisson', '0')} min")
+                st.write(f"📁 **Catégorie :** {recette.get('categorie', 'Non classé')}")
+                st.write(f"🤖 **Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write(f"⏳ **Temps de préparation :** {recette.get('temps_prep', '0')} min")
+                st.write(f"🔥 **Temps de cuisson :** {recette.get('temps_cuisson', '0')} min")
                 
                 st.divider()
-
-                # --- Ingrédients et Étapes ---
-                col_ing, col_inst = st.columns([1, 1.2])
                 
-                with col_ing:
-                    st.markdown("### 🛒 Ingrédients")
-                    ingredients = recette.get('ingredients', [])
-                    if ingredients:
-                        for i in ingredients:
-                            st.markdown(f"- **{i.get('Quantité', '')}** {i.get('Ingrédient', '')}")
-                    else:
-                        st.write("Aucun ingrédient.")
+                st.markdown("### 🛒 Ingrédients")
+                ingredients = recette.get('ingredients', [])
+                if ingredients:
+                    for i in ingredients:
+                        st.markdown(f"- **{i.get('Quantité', '')}** {i.get('Ingrédient', '')}")
+                else:
+                    st.write("Aucun ingrédient.")
                 
-                with col_inst:
-                    st.markdown("### 👨‍🍳 Étapes")
-                    etapes = recette.get('etapes', '')
-                    if etapes:
-                        # On utilise markdown pour garder les sauts de ligne
-                        st.info(etapes)
-                    else:
-                        st.write("Pas d'instructions saisies.")
+                st.markdown("### 👨‍🍳 Étapes")
+                etapes = recette.get('etapes', '')
+                if etapes:
+                    # On utilise markdown pour garder les sauts de ligne
+                    st.info(etapes)
+                else:
+                    st.write("Pas d'instructions saisies.")
                 
             with tab2:
                 images = recette.get('images', [])
