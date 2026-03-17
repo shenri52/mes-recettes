@@ -50,6 +50,8 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
 def afficher():
     st.header("📥 Importer une recette")
 
+    st.divider()
+    
     if 'form_count_img' not in st.session_state: st.session_state.form_count_img = 0
     if 'ingredients_img' not in st.session_state: st.session_state.ingredients_img = []
     if 'liste_choix_img' not in st.session_state: st.session_state.liste_choix_img = [""]
