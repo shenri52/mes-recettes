@@ -14,14 +14,28 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"]:
         st.markdown("<h1 style='text-align: center;'>🔒 Accès réservé</h1>", unsafe_allow_html=True)
-        # Saisie sécurisée sans afficher le MDP en clair dans le code source
-        mdp_saisi = st.text_input("Veuillez saisir le mot de passe :", type="password")
-        if st.button("Se connecter", use_container_width=True):
-            if mdp_saisi == st.secrets["APP_PASSWORD"]:
+        
+        # 1. On crée une fonction de validation interne
+        def valider():
+            if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
                 st.session_state["authentifie"] = True
-                st.rerun() # Recharge l'application pour accéder au menu
             else:
-                st.error("Mot de passe incorrect")
+                st.error("Mot de passe incorrect ❌")
+
+        # 2. On ajoute 'on_change' et un 'key' pour capturer la touche Entrée
+        st.text_input(
+            "Veuillez saisir le mot de passe :", 
+            type="password", 
+            key="mdp_temp", 
+            on_change=valider
+        )
+        
+        # 3. Le bouton appelle aussi la validation
+        if st.button("Se connecter", use_container_width=True):
+            valider()
+            if st.session_state["authentifie"]:
+                st.rerun()
+        
         return False
     return True
 
