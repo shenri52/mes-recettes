@@ -7,35 +7,54 @@ import base64
 
 # --- FONCTIONS TECHNIQUES ---
 def config_github():
+    """Centralise la config et les headers pour GitHub."""
     return {
-        "token": st.secrets["GITHUB_TOKEN"],
         "owner": st.secrets["REPO_OWNER"],
         "repo": st.secrets["REPO_NAME"],
-        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"}
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
     }
 
 def charger_donnees(chemin):
+    """Charge les données avec anti-cache et gestion d'erreurs."""
     conf = config_github()
+    # Le paramètre ?t= force GitHub à ignorer le cache et donner le fichier réel
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"
-    res = requests.get(url)
-    if res.status_code == 200:
-        return res.json()
+    try:
+        res = requests.get(url)
+        if res.status_code == 200:
+            return res.json()
+    except Exception:
+        pass
+    # Retourne une liste pour les plats, sinon un dictionnaire vide
     return [] if "plats_rapides" in chemin else {}
 
-def sauvegarder_github(chemin, contenu_dict_ou_liste):
+def sauvegarder_github(chemin, contenu):
+    """Sauvegarde propre avec gestion du SHA pour éviter les conflits."""
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    
+    # 1. Récupérer le SHA du fichier existant (obligatoire pour modifier sur GitHub)
     res_get = requests.get(url, headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    contenu_json = json.dumps(contenu_dict_ou_liste, indent=4, ensure_ascii=False)
-    contenu_b64 = base64.b64encode(contenu_json.encode('utf-8')).decode('utf-8')
-    data = {"message": f"MAJ {chemin}", "content": contenu_b64, "branch": "main"}
-    if sha: data["sha"] = sha
-    return requests.put(url, headers=conf['headers'], json=data).status_code in [200, 201]
-
-def reset_input_plat():
-    st.session_state["input_plat"] = ""
     
+    # 2. Préparation du JSON et encodage base64
+    contenu_json = json.dumps(contenu, indent=4, ensure_ascii=False)
+    contenu_b64 = base64.b64encode(contenu_json.encode('utf-8')).decode('utf-8')
+    
+    payload = {
+        "message": f"Mise à jour automatique : {chemin}",
+        "content": contenu_b64,
+        "branch": "main"
+    }
+    if sha: payload["sha"] = sha # On ajoute le SHA si le fichier existe déjà
+    
+    # 3. Envoi vers l'API GitHub
+    r = requests.put(url, headers=conf['headers'], json=payload)
+    return r.status_code in [200, 201]
+   
 # --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
@@ -77,18 +96,21 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
-    # Barre d'outils sur deux colonnes
-    col_ret, col_actu = st.columns([0.6, 0.4]) 
-    with col_ret:
-        if st.button("⬅️ Retour à l'accueil", use_container_width=True):
-            st.session_state.page = 'accueil'
-            st.rerun()
-    with col_actu:
-        if st.button("🔄 Actualiser Recettes", use_container_width=True):
-            keys_to_del = ['index_complet', 'planning_data', 'plats_rapides']
-            for key in keys_to_del:
-                if key in st.session_state: del st.session_state[key]
-            st.rerun()
+
+    # 1. On crée une petite fonction de nettoyage (callback)
+    def ajouter_et_nettoyer():
+        nouveau = st.session_state["input_nouveau_plat"]
+        if nouveau and nouveau not in st.session_state.plats_rapides:
+            st.session_state.plats_rapides.append(nouveau)
+            if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
+                # C'est ici qu'on vide le champ SANS erreur
+                st.session_state["input_nouveau_plat"] = ""
+                st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
+                
+    # Bouton retour
+    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
+        st.session_state.page = 'accueil'
+        st.rerun()
         
     st.header("📅 Mon planning")
     
@@ -206,17 +228,7 @@ def afficher():
                 st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
-
-   # 1. On crée une petite fonction de nettoyage (callback)
-    def ajouter_et_nettoyer():
-        nouveau = st.session_state["input_nouveau_plat"]
-        if nouveau and nouveau not in st.session_state.plats_rapides:
-            st.session_state.plats_rapides.append(nouveau)
-            if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
-                # C'est ici qu'on vide le champ SANS erreur
-                st.session_state["input_nouveau_plat"] = ""
-                st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
-    
+  
     # 2. Le champ de saisie reste le même
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
     
