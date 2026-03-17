@@ -125,4 +125,4 @@ if verifier_mot_de_passe():
         # Bouton retour (masqué sur le planning)
         st.write("") 
         
-        st.button("⬅️ Retour accueil", , use_container_width=True; on_click=aller_accueil)
+        st.button("⬅️ Retour accueil", use_container_width=True; on_click=aller_accueil)
