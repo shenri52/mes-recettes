@@ -71,8 +71,8 @@ def ouvrir_fiche(nom_plat):
                 st.subheader(recette.get('nom', '').upper())
                 st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
                 st.write("**Ingrédients :**")
-                for i in recette.get('ingredients', []):
-                    st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+                ing_list = "\n".join([f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}" for i in recette.get('ingredients', [])])
+                st.markdown(ing_list)
                 
             with tab2:
                 images = recette.get('images', [])
@@ -116,10 +116,13 @@ def afficher():
 
     st.divider()
     
-    if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
-    if 'planning_data' not in st.session_state: st.session_state.planning_data = charger_donnees("data/planning.json")
-    if 'plats_rapides' not in st.session_state: st.session_state.plats_rapides = charger_donnees("data/plats_rapides.json")
-    if 'offset_semaine' not in st.session_state: st.session_state.offset_semaine = 0
+    for key, default in {
+        'index_complet': charger_donnees("data/index_recettes.json"),
+        'planning_data': charger_donnees("data/planning.json"),
+        'plats_rapides': charger_donnees("data/plats_rapides.json"),
+        'offset_semaine': 0
+    }.items():
+        if key not in st.session_state: st.session_state[key] = default
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
