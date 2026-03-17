@@ -39,6 +39,10 @@ def verifier_mot_de_passe():
         return False
     return True
 
+def afficher():
+    def aller_accueil():
+        st.session_state.page = 'accueil'
+
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
     # Initialisation de la page d'accueil si aucune page n'est définie
@@ -121,6 +125,5 @@ if verifier_mot_de_passe():
 
         # Bouton retour (masqué sur le planning)
         st.write("") 
-        if st.session_state.page != "planning":
-            if st.button("⬅️ Retour à l'accueil", use_container_width=True):
-                changer_page('accueil')
+        
+        st.button("⬅️ Retour", on_click=aller_accueil)
