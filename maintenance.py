@@ -158,7 +158,7 @@ def afficher():
             st.rerun()
 
 # --- SECTION 3 : OPTIMISATION IMAGES ---
-    if st.button("🖼️ Scanner le poids des images", use_container_width=True):
+    if st.button("🖼️ Optimiser le poids des images", use_container_width=True):
         conf = config_github()
         res = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1", headers=conf['headers'])
         if res.status_code == 200:
@@ -187,6 +187,7 @@ def afficher():
                 if r.status_code == 200:
                     # Conversion RGB pour le JPEG (Indispensable)
                     img_p = Image.open(io.BytesIO(r.content)).convert("RGB")
+                    img_p.thumbnail((1200, 1200))
                     buf = io.BytesIO()
                     img_p.save(buf, format="JPEG", quality=75, optimize=True)
                     envoyer_donnees(img['path'], buf.getvalue(), "📸 Opti Image", est_image=True)
