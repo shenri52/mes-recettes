@@ -10,26 +10,26 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 
 ## ✨ Fonctionnalités
 
-* **✍️ Saisie Manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
-* **📥 Import Rapide** : Idéal pour scanner une recette papier via photo.
-* **📚 Consultation Dynamique** : 
+* **✍️ Saisie manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
+* **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
+* **📚 Consultation** : 
     * Recherche par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
     * Galerie photo avec navigation fluide (Précédent/Suivant).
     * Mode modification pour corriger vos fiches à la volée.
-* **📚 Planing Dynamique** : 
+* **📚 Planing** : 
     * Organisation de la semaine (Midi & Soir).
     * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
     * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
 * **📚 Gestion des courses** : 
-    * Sasir la liste des courses (orgainsation actuel selon mon parcours du magasin)
+    * Sasir la liste des courses (orgainsation actuelle selon mon parcours du magasin)
     * Module de visualisation optimisé pour faire ses courses sur mobile
 * **🛠️ Maintenance** : 
     * Réparer l'index des recettes
     * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
     * Optimiser les images sans perte de qualité
     * Modifier les ingrédients de la liste des courses et leur emplacement
-* **🚫 Mode Cuisine :
-   * Option "Appli connecté" pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone pendant la lecture
+* **🚫 Mode "Appli connecté" :
+   * Option pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone
 * **📊 Statistiques :
    * Nombre de recette
    * Stockage
@@ -68,9 +68,12 @@ REPO_NAME = "nom_de_votre_depot"
 ├── stats.py              # Statistiques d'utilisation
 ├── maintenance.py        # Outils de corrections et de contrôles
 ├── requirements.txt      # Liste des bibliothèques nécessaires
+└── courses/
+    
 └── data/
     ├── recettes/               # Dossier contenant les fichiers .json des recettes
     └── images/                 # Dossier contenant les photos et PDF
+    ├── index_courses/          # Index des produits utilisés pour les courses
     ├── index_recettes.json     # Index pour recherche rapide
     ├── planning.json           # Données du planning
     ├── plats_rapides.json      # Liste des plats sans recette
