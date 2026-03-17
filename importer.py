@@ -79,7 +79,7 @@ def afficher():
             st.rerun()
 
     for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
-    photos_fb = st.file_uploader("Fichiers", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
+    photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer", use_container_width=True) and nom_plat:
         with st.spinner("Enregistrement..."):
