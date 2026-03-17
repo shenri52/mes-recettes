@@ -67,7 +67,7 @@ def ouvrir_fiche(nom_plat):
             recette = res.json()
             tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
             
-with tab1:
+            with tab1:
                 st.subheader(recette.get('nom', '').upper())
                 
                 # --- Ligne d'infos clés ---
