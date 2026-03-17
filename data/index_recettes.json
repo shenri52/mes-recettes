@@ -79,7 +79,7 @@
         "categorie": "Cocktail",
         "appareil": "Aucun",
         "ingredients": [
-            "Graines de Chia",
+            "Graines de chia",
             "Jus de citron"
         ],
         "chemin": "data/recettes/20260307_171548_eau_de_chia.json"
@@ -213,7 +213,7 @@
         "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [
-            "Saucisse de Toulouse",
+            "Saucisse de toulouse",
             "Petit pois",
             "Eau",
             "Fond de veau",
@@ -266,7 +266,7 @@
         "categorie": "Cocktail",
         "appareil": "Aucun",
         "ingredients": [
-            "Limencello",
+            "Limoncello",
             "Sirop de pamplemousse",
             "Procesco"
         ],
@@ -423,7 +423,7 @@
             "Chocolat noir",
             "Beurre",
             "Corn flakes",
-            "Amandes Effillées",
+            "Amandes effillées",
             "Sucre glace",
             "Sel"
         ],
@@ -564,6 +564,7 @@
         "categorie": "Tartines de pain",
         "appareil": "Aucun",
         "ingredients": [
+            "Avocat",
             "Avocat",
             "Tartines de pain",
             "Tomates cerises",
