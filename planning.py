@@ -110,6 +110,7 @@ def afficher():
     if st.button("⬅️ Retour à l'accueil", use_container_width=True):
         st.session_state.page = 'accueil'
         st.rerun()
+        
     st.header("📅 Mon planning")
     
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
@@ -144,6 +145,7 @@ def afficher():
     temp = st.session_state.planning_data.copy()
     
     st.divider()
+    
     for i, nom in enumerate(jours):
         d_j = debut + datetime.timedelta(days=i)
         d_str = d_j.isoformat()
