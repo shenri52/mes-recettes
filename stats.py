@@ -52,8 +52,6 @@ def afficher():
         tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
         st.table(tab_app)
 
-    st.divider()
-
     # --- 3. POIDS ET STOCKAGE ---
     st.subheader("💾 Stockage")
     conf = config_github()
