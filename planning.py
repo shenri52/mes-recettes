@@ -113,6 +113,8 @@ def afficher():
         st.rerun()
         
     st.header("📅 Mon planning")
+
+    st.divider()
     
     if 'index_complet' not in st.session_state: st.session_state.index_complet = charger_donnees("data/index_recettes.json")
     if 'planning_data' not in st.session_state: st.session_state.planning_data = charger_donnees("data/planning.json")
@@ -144,8 +146,6 @@ def afficher():
 
     jours = ["Vendredi", "Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"]
     temp = st.session_state.planning_data.copy()
-    
-    st.divider()
 
     for i, nom in enumerate(jours):
         d_j = debut + datetime.timedelta(days=i)
