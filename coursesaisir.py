@@ -32,7 +32,7 @@ def afficher():
         }
         /* Onglet sélectionné */
         .stTabs [aria-selected="true"] {
-            background-color: #87CEEB  !important; /* Bleu */
+            background-color: #87CEEB !important; /* Bleu */
             color: white !important;
             border-color: #0056b3;
         }
