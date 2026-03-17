@@ -47,13 +47,13 @@ def afficher():
     # Nettoyage automatique des états temporaires au chargement
     if "bouton_analyse_clique" not in st.session_state:
         for key in ["a_reparer", "index_a_sauvegarder"]:
-            if key in st.session_state: del st.session_state[key]
+            if key in st.session_state: 
+                del st.session_state[key]
 
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         conf = config_github()
-        # Scan complet de l'arborescence GitHub
         url_tree = f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1"
         res = requests.get(url_tree, headers=conf['headers'])
         
@@ -61,10 +61,9 @@ def afficher():
             tree = res.json().get('tree', [])
             exclus = ['data/index_recettes.json', 'data/index_produits_zones.json', 'data/planning.json', 'data/plats_rapides.json']
             
-            # On liste les fichiers JSON physiques vs ceux déclarés dans l'index
             physiques = [i['path'] for i in tree if i['path'].startswith('data/') and i['path'].endswith('.json') and i['path'] not in exclus]
             index_actuel = charger_index_local()
-            chemins_index = {r['chemin'] for r in index_actuel} # Utilisation d'un SET pour la rapidité
+            chemins_index = {r['chemin'] for r in index_actuel}
             manquantes = [f for f in physiques if f not in chemins_index]
 
             st.columns(2)[0].metric("Fichiers /data", len(physiques))
@@ -76,7 +75,6 @@ def afficher():
             else:
                 st.success("✅ Index à jour.")
 
-    # Application de la réparation (si fichiers trouvés)
     if st.session_state.get("a_reparer"):
         if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
             with st.spinner("Analyse des contenus..."):
@@ -99,7 +97,7 @@ def afficher():
                     del st.session_state.a_reparer
                     st.rerun()
 
-# --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
+    # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs, index_nettoye, fichiers_maj = [], [], []
@@ -111,7 +109,6 @@ def afficher():
                 i_clean, noms_i, modif = [], [], False
                 for item in data.get("ingredients", []):
                     n_orig = item.get("Ingrédient", "")
-                    # Nettoyage : supprime espaces inutiles et met une majuscule au début
                     n_propre = " ".join(n_orig.split()).capitalize() 
                     i_clean.append({"Ingrédient": n_propre, "Quantité": item.get("Quantité", "")})
                     noms_i.append(n_propre)
@@ -122,25 +119,18 @@ def afficher():
                     data["ingredients"] = i_clean
                     fichiers_maj.append({"chemin": recette["chemin"], "contenu": data})
                 
-                # Mise à jour de l'index même si pas de modif fichier (pour cohérence)
-                recette["ingredients"] = noms_i
-                index_nettoye.append(recette)
+                recette_copie = recette.copy()
+                recette_copie["ingredients"] = noms_i
+                index_nettoye.append(recette_copie)
 
         if erreurs:
             st.session_state.index_a_sauvegarder = index_nettoye
             st.session_state.fichiers_a_sauvegarder = fichiers_maj
-            
-            # --- LE BLOC DE VISIBILITÉ QUE NOUS AVONS RAJOUTÉ ---
             st.warning(f"⚠️ {len(erreurs)} recette(s) à corriger :")
             for err in erreurs:
                 st.write(f"- {err['nom']} `({err['chemin']})`")
-            # --------------------------------------------------
         else:
             st.success("✅ Ingrédients déjà propres.")
-
-    # Ce bouton n'apparaît QUE si des erreurs ont été listées au-dessus
-    if st.session_state.get("index_a_sauvegarder"):
-        if st.button("🚀 Lancer la réparation de ces fichiers", use_container_width=True):
 
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
@@ -167,7 +157,6 @@ def afficher():
             for idx, img in enumerate(st.session_state.images_a_compresser):
                 r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{img['path']}")
                 if r.status_code == 200:
-                    # Conversion en RGB pour éviter les erreurs de transparence lors de la sauvegarde JPEG
                     img_p = Image.open(io.BytesIO(r.content)).convert("RGB")
                     buf = io.BytesIO()
                     img_p.save(buf, format="JPEG", quality=75, optimize=True)
@@ -202,12 +191,11 @@ def afficher():
                     try: d_idx = str(int("".join(filter(str.isdigit, n_zone))) - 1)
                     except: d_idx = str(z_act - 1)
                     
-                    # Mise à jour des données locales avant envoi
-                    if sel in st.session_state.index_zones: del st.session_state.index_zones[sel]
+                    if sel in st.session_state.index_zones: 
+                        del st.session_state.index_zones[sel]
                     st.session_state.index_zones[f_nom] = d_idx
                     
                     for k in range(12):
-                        # Nettoyage de l'ancien nom et ajout du nouveau dans le catalogue
                         cat = st.session_state.data_a5[str(k)]["catalogue"]
                         if sel in cat: cat.remove(sel)
                         for p in st.session_state.data_a5[str(k)]["panier"]:
@@ -225,13 +213,13 @@ def afficher():
                     st.rerun()
 
                 if b_d:
-                    # Suppression totale du produit
-                    if sel in st.session_state.index_zones: del st.session_state.index_zones[sel]
+                    if sel in st.session_state.index_zones: 
+                        del st.session_state.index_zones[sel]
                     for k in range(12):
-                        if sel in st.session_state.data_a5[str(k)]["catalogue"]: st.session_state.data_a5[str(k)]["catalogue"].remove(sel)
+                        if sel in st.session_state.data_a5[str(k)]["catalogue"]: 
+                            st.session_state.data_a5[str(k)]["catalogue"].remove(sel)
                     envoyer_donnees("data/index_produits_zones.json", json.dumps(st.session_state.index_zones, indent=2, ensure_ascii=False), "🗑️ Suppression")
                     envoyer_donnees("courses/index_courses.json", json.dumps(st.session_state.data_a5, indent=2, ensure_ascii=False), "🗑️ Suppression")
                     st.rerun()
-        
 
     st.divider()
