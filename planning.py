@@ -190,9 +190,7 @@ def afficher():
                     c_txt, c_eye = st.columns([4, 1])
                     with c_txt:
                         if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
-                            plats.pop(idx)
-                            temp[d_str][rep] = plats
-                            st.session_state.planning_data.update(temp)
+                            temp[d_str][rep].pop(idx) # On agit directement sur la source
                             st.rerun()
                     with c_eye:
                         if est_recette:
@@ -236,5 +234,4 @@ def afficher():
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
     
     # 3. Le bouton appelle la fonction ci-dessus
-    if st.button("➕", use_container_width=True, on_click=ajouter_et_nettoyer):
-        st.rerun()
+    st.button("➕", use_container_width=True, on_click=ajouter_et_nettoyer)
