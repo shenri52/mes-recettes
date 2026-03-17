@@ -97,7 +97,7 @@ def afficher():
                     del st.session_state.a_reparer
                     st.rerun()
 
-    # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
+# --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs, index_nettoye, fichiers_maj = [], [], []
@@ -107,15 +107,25 @@ def afficher():
             if r.status_code == 200:
                 data = r.json()
                 i_clean, noms_i, modif = [], [], False
+                details_erreurs = [] # Pour stocker les changements précis
+                
                 for item in data.get("ingredients", []):
                     n_orig = item.get("Ingrédient", "")
+                    # Nettoyage
                     n_propre = " ".join(n_orig.split()).capitalize() 
                     i_clean.append({"Ingrédient": n_propre, "Quantité": item.get("Quantité", "")})
                     noms_i.append(n_propre)
-                    if n_propre != n_orig: modif = True
+                    
+                    if n_propre != n_orig:
+                        modif = True
+                        details_erreurs.append(f"  ❌ `{n_orig}` ➡️ ✅ `{n_propre}`")
                 
                 if modif:
-                    erreurs.append({"nom": recette["nom"], "chemin": recette["chemin"]})
+                    erreurs.append({
+                        "nom": recette["nom"], 
+                        "chemin": recette["chemin"],
+                        "details": details_erreurs
+                    })
                     data["ingredients"] = i_clean
                     fichiers_maj.append({"chemin": recette["chemin"], "contenu": data})
                 
@@ -126,11 +136,18 @@ def afficher():
         if erreurs:
             st.session_state.index_a_sauvegarder = index_nettoye
             st.session_state.fichiers_a_sauvegarder = fichiers_maj
+            
             st.warning(f"⚠️ {len(erreurs)} recette(s) à corriger :")
+            
             for err in erreurs:
-                st.write(f"- {err['nom']} `({err['chemin']})`")
+                # Affichage du nom de la recette en gras
+                st.markdown(f"**📍 {err['nom']}**")
+                # Affichage de chaque ingrédient corrigé en dessous
+                for d in err['details']:
+                    st.write(d)
+                st.divider()
         else:
-            st.success("✅ Ingrédients déjà propres.")
+            st.success("✅ Tous les ingrédients sont déjà parfaitement propres !")
 
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
