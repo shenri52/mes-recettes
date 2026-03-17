@@ -75,6 +75,14 @@ def sauvegarder_index_global(index_maj):
 
 # --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
+    def nettoyer_modif():
+        """Supprime les données temporaires d'édition quand on change de recette."""
+        if "img_idx" in st.session_state:
+            st.session_state.img_idx = 0
+        for key in list(st.session_state.keys()):
+            if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
+                del st.session_state[key]
+                
     index = charger_index()
     st.header("📚 Mes recettes")
     st.write("---")
@@ -102,19 +110,14 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
-    choix = st.selectbox("📖 Sélectionner une recette", ["---"] + noms_filtres, key="select_recette")
 
-    # RESET DU MODE MODIF SI CHANGEMENT DE RECETTE
-    if "dernier_choix" not in st.session_state:
-        st.session_state.dernier_choix = choix
-
-    if st.session_state.dernier_choix != choix:
-        for key in list(st.session_state.keys()):
-            if key.startswith("edit_") or key.startswith("init_done_") or key.startswith("ings_list_"):
-                del st.session_state[key]
-        st.session_state.dernier_choix = choix
-        st.rerun()
-
+    choix = st.selectbox(
+        "📖 Sélectionner une recette", 
+        ["---"] + noms_filtres, 
+        key="select_recette",
+        on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
+    )
+    
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
@@ -230,23 +233,27 @@ def afficher():
             with col_i:
                 images = recette.get('images', [])
                 if images:
-                    if "img_idx" not in st.session_state or st.session_state.get("last_recette") != choix:
+                    # Si img_idx a été supprimé par le nettoyage, on le recrée à 0
+                    if "img_idx" not in st.session_state:
                         st.session_state.img_idx = 0
-                        st.session_state.last_recette = choix
                     
+                    # On récupère l'URL de l'image actuelle (basée sur l'index en cours)
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
                     
-                    # Boutons de navigation si plusieurs images
+                    # --- NAVIGATION ENTRE LES PHOTOS ---
                     if len(images) > 1:
                         nb1, nb2, nb3 = st.columns([1, 2, 1])
+                        
                         if nb1.button("◀️", use_container_width=True):
                             st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
                             st.rerun()
-                        nb2.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
-                        if nb3.button("▶️", use_container_width=True):
-                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                            st.rerun()
+                        
+                    nb2.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
+                    
+                    if nb3.button("▶️", use_container_width=True):
+                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                        st.rerun()
 
             st.divider()
             b1, b2 = st.columns(2)
