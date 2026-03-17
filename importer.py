@@ -55,7 +55,7 @@ def afficher():
     with col_cat:
         opts_cat = sorted(st.session_state.liste_categories_img) + ["➕ Ajouter une nouvelle..."]
         choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
-        cat_finale = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+        cat_finale = st.text_input("Nom de la catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
     with col_btn_cat:
         st.write(" "); st.write(" ")
         if st.button("Ajouter", key=f"bcat_{f_id}") and cat_finale:
@@ -70,7 +70,7 @@ def afficher():
     with col_ing:
         opts_ing = sorted(st.session_state.liste_choix_img) + ["➕ Ajouter un nouveau..."]
         choix = st.selectbox("Ingrédient", options=opts_ing, key=f"si_{f_id}")
-        ing_final = st.text_input("Nom", key=f"nwi_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
+        ing_final = st.text_input("Nom de l'ingrédient", key=f"nwi_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
     with col_btn_add:
         st.write(" "); st.write(" ")
         if st.button("Ajouter", key=f"bi_{f_id}") and ing_final:
