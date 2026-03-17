@@ -39,9 +39,8 @@ def verifier_mot_de_passe():
         return False
     return True
 
-def afficher():
-    def aller_accueil():
-        st.session_state.page = 'accueil'
+def aller_accueil():
+    st.session_state.page = 'accueil'
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
