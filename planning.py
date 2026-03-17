@@ -241,7 +241,7 @@ def afficher():
         
     st.divider()
        
-    if st.button("💾 Enregistrer Planning", use_container_width=True):
+    if st.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
         # On enregistre la totalité des données sans filtre de date
         if sauvegarder_github("data/planning.json", st.session_state.planning_data):
