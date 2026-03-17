@@ -167,7 +167,7 @@ def afficher():
 
     # --- SECTION 4 : GESTION PRODUITS ---
     def maintenance_produits():
-        st.subheader("🛒 Modification du Catalogue")
+        st.subheader("🛒 Modification des noms et zone des courses")
         idx_z = st.session_state.get("index_zones", {})
         tous_p = sorted(list(idx_z.keys()))
         if not tous_p:
