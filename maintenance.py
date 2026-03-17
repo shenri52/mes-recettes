@@ -51,8 +51,8 @@ def afficher():
             index_actuel = charger_index_local()
             chemins_index = {r['chemin'] for r in index_actuel}
             manquantes = [f for f in physiques if f not in chemins_index]
-            st.columns(2)[0].metric("Fichiers /data", len(physiques))
-            st.columns(2)[1].metric("Index", len(index_actuel))
+            st.write(f"📁 **Fichiers /data :** {len(physiques)}")
+            st.write(f"🗂️ **Index des recettes :** {len(index_actuel)}")
             if manquantes:
                 st.warning(f"⚠️ {len(manquantes)} fichiers hors index.")
                 st.session_state.a_reparer = manquantes
