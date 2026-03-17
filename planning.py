@@ -108,10 +108,12 @@ def afficher():
                 st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
                 
     # Bouton retour
-    if st.button("⬅️ Retour à l'accueil", use_container_width=True):
+    def aller_accueil():
         st.session_state.page = 'accueil'
-        st.rerun()
-        
+
+    # Bouton retour simplifié
+    st.button("⬅️ Retour à l'accueil", use_container_width=True, on_click=aller_accueil)
+
     st.header("📅 Mon planning")
 
     st.divider()
