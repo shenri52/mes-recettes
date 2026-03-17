@@ -14,12 +14,13 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 * **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
 * **📚 Consultation** : 
     * Recherche par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
-    * Galerie photo avec navigation fluide (Précédent/Suivant).
-    * Mode modification pour corriger vos fiches à la volée.
+    * Galerie photo avec navigation fluide.
+    * Mode modification des fiches.
 * **📚 Planing** : 
     * Organisation de la semaine (Midi & Soir).
     * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
     * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
+    * Visualisation des informations de la recette (catégorie, étapes, images...)
 * **📚 Gestion des courses** : 
     * Sasir la liste des courses (orgainsation actuelle selon mon parcours du magasin)
     * Module de visualisation optimisé pour faire ses courses sur mobile
