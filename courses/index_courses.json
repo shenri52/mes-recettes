@@ -49,7 +49,13 @@
     "catalogue": []
   },
   "6": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Sirop d'érable",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": [
       "Sirop d'érable"
     ]
