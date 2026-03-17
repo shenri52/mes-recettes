@@ -1,23 +1,25 @@
 import streamlit as st
 import streamlit.components.v1 as components
+# Importation des modules (chaque fichier contient une fonction afficher())
 import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
-# Configuration
+# Configuration de l'onglet du navigateur
 st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
+    """Vérifie l'identité via le mot de passe stocké dans les secrets."""
     if "authentifie" not in st.session_state:
         st.session_state["authentifie"] = False
 
     if not st.session_state["authentifie"]:
         st.markdown("<h1 style='text-align: center;'>🔒 Accès réservé</h1>", unsafe_allow_html=True)
-        # On utilise st.secrets pour ne pas afficher le MDP dans le code public
+        # Saisie sécurisée sans afficher le MDP en clair dans le code source
         mdp_saisi = st.text_input("Veuillez saisir le mot de passe :", type="password")
         if st.button("Se connecter", use_container_width=True):
             if mdp_saisi == st.secrets["APP_PASSWORD"]:
                 st.session_state["authentifie"] = True
-                st.rerun()
+                st.rerun() # Recharge l'application pour accéder au menu
             else:
                 st.error("Mot de passe incorrect")
         return False
@@ -25,21 +27,23 @@ def verifier_mot_de_passe():
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
-    # --- Initialisation et Fonction ---
+    # Initialisation de la page d'accueil si aucune page n'est définie
     if 'page' not in st.session_state:
         st.session_state.page = 'accueil'
 
     def changer_page(nom):
+        """Change la page active dans le session_state et rafraîchit l'affichage."""
         st.session_state.page = nom
         st.rerun()
 
     # --- BLOC ANTI-VEILLE (Centralisé) ---
-    # Liste précise des pages où l'on veut l'option
+    # Pages sur lesquelles on active l'option de maintien de connexion
     PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
 
     if st.session_state.page in PAGES_CUISINE:
         mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
         if mode_cuisine:
+            # Astuce HTML : une vidéo invisible force le navigateur à rester actif
             components.html(
                 """
                 <div style="display:none;">
@@ -51,34 +55,30 @@ if verifier_mot_de_passe():
                 height=0
             )
 
-    # --- 2. Menu d'accueil ---
+    # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
         st.markdown("<h1 style='text-align: center;'>🍳 Mes recettes</h1>", unsafe_allow_html=True)
-
         st.divider()
 
-        # Ligne 1 : Bouton principal
+        # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
         
-        # Ligne 2 : Sur 2 colonnes
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📥 Importer une recette", use_container_width=True):
                 changer_page("importer")
         with col2:
-            if st.button("✍️ Saisir une recette", use_container_width=True):
+            if st.button("✍️ Créer une recette", use_container_width=True):
                 changer_page("ajouter")
 
-        # Ligne 3 : Planning
         if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
-        if st.button("📝 Préparer les courses", use_container_width=True):
+        if st.button("📝 Liste des courses", use_container_width=True):
             changer_page("coursesaisir")
-        if st.button("👁️ Visualiser les courses", use_container_width=True):
+        if st.button("🛒 Mode magasin", use_container_width=True):
             changer_page("coursevisualiser")
 
-        # Ligne 4 : Sur 2 colonnes
         col3, col4 = st.columns(2)
         with col3:
             if st.button("📊 Statistiques", use_container_width=True):
@@ -87,28 +87,26 @@ if verifier_mot_de_passe():
             if st.button("🛠️ Maintenance", use_container_width=True):
                 changer_page("maintenance")
 
-    # --- 3. Routage (Contenu de la page) ---
+    # --- ROUTAGE (Contenu de la page) ---
     else:
-        if st.session_state.page == "importer":
-            importer.afficher()
-        elif st.session_state.page == "ajouter":
-            saisir.afficher()
-        elif st.session_state.page == "recettes":
-            recettes.afficher()
-        elif st.session_state.page == "coursesaisir":
-            coursesaisir.afficher()
-        elif st.session_state.page == "coursevisualiser":
-            coursevisualiser.afficher()
-        elif st.session_state.page == "stats":
-            stats.afficher()
-        elif st.session_state.page == "planning":
-            planning.afficher()
-        elif st.session_state.page == "maintenance":
-            maintenance.afficher()
+        # Utilisation d'un dictionnaire pour simplifier et accélérer le routage
+        pages = {
+            "importer": importer.afficher,
+            "ajouter": saisir.afficher,
+            "recettes": recettes.afficher,
+            "coursesaisir": coursesaisir.afficher,
+            "coursevisualiser": coursevisualiser.afficher,
+            "stats": stats.afficher,
+            "planning": planning.afficher,
+            "maintenance": maintenance.afficher
+        }
+        
+        # Appel de la fonction afficher() correspondante
+        if st.session_state.page in pages:
+            pages[st.session_state.page]()
 
-    # --- 4. BOUTON RETOUR ---
+        # Bouton retour (masqué sur le planning)
         st.write("") 
-        # On n'affiche le bouton du bas QUE si on n'est pas sur le planning
         if st.session_state.page != "planning":
             if st.button("⬅️ Retour à l'accueil", use_container_width=True):
                 changer_page('accueil')
