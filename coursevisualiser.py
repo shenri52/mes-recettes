@@ -23,32 +23,32 @@ def save_data(data, sha):
     return r.ok
 
 def afficher():
-st.markdown("""<style>
-        .block-container { padding-top: 1rem !important; max-width: 800px !important; }
-        header { visibility: hidden; }
-        .stButton>button { width: 100%; border-radius: 3px; font-size: 14px; height: 2.8em; }
-
-        /* RÉDUIRE L'ESPACE ENTRE LES ONGLETS */
-        .stTabs [data-baseweb="tab-list"] { gap: 2px !important; } 
-
-        /* LARGEUR ET STYLE DES ONGLETS */
-        .stTabs [data-baseweb="tab"] { 
-            background-color: #f0f2f6; 
-            border: 1px solid #ddd; 
-            border-radius: 4px 3px 0 0; 
-            padding: 4px 20px !important; /* Augmente 20px pour plus de largeur */
-            height: 35px;
-        }
-
-        /* TEXTE NOIR ET GRAS */
-        .stTabs [data-baseweb="tab"] p { 
-            color: black !important; 
-            font-weight: bold !important; 
-        }
-
-        /* BLEU CLAIR ACTIF */
-        .stTabs [aria-selected="true"] { background-color: #87CEEB !important; }
-    </style>""", unsafe_allow_html=True)
+    st.markdown("""<style>
+            .block-container { padding-top: 1rem !important; max-width: 800px !important; }
+            header { visibility: hidden; }
+            .stButton>button { width: 100%; border-radius: 3px; font-size: 14px; height: 2.8em; }
+    
+            /* RÉDUIRE L'ESPACE ENTRE LES ONGLETS */
+            .stTabs [data-baseweb="tab-list"] { gap: 2px !important; } 
+    
+            /* LARGEUR ET STYLE DES ONGLETS */
+            .stTabs [data-baseweb="tab"] { 
+                background-color: #f0f2f6; 
+                border: 1px solid #ddd; 
+                border-radius: 4px 3px 0 0; 
+                padding: 4px 20px !important; /* Augmente 20px pour plus de largeur */
+                height: 35px;
+            }
+    
+            /* TEXTE NOIR ET GRAS */
+            .stTabs [data-baseweb="tab"] p { 
+                color: black !important; 
+                font-weight: bold !important; 
+            }
+    
+            /* BLEU CLAIR ACTIF */
+            .stTabs [aria-selected="true"] { background-color: #87CEEB !important; }
+        </style>""", unsafe_allow_html=True)
 
     if "index_courses" not in st.session_state:
         st.session_state.index_courses, st.session_state.sha_a5 = get_data()
