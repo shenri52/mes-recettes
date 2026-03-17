@@ -94,8 +94,20 @@ def ouvrir_fiche(nom_plat):
         else:
             st.error("Erreur de chargement.")
 
+
+
 # --- INTERFACE PLANNING ---
 def afficher():
+    # 1. On crée une petite fonction de nettoyage (callback)
+    def ajouter_et_nettoyer():
+        nouveau = st.session_state["input_nouveau_plat"]
+        if nouveau and nouveau not in st.session_state.plats_rapides:
+            st.session_state.plats_rapides.append(nouveau)
+            if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
+                # C'est ici qu'on vide le champ SANS erreur
+                st.session_state["input_nouveau_plat"] = ""
+                st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
+            
     # Bouton retour seul
     if st.button("⬅️ Retour à l'accueil", use_container_width=True):
         st.session_state.page = 'accueil'
@@ -212,22 +224,11 @@ def afficher():
     if plats_rapides:
         plat_sel = st.selectbox("Gérer mes plats", ["---"] + plats_rapides, key="sel_rapide_manage")
         if plat_sel != "---":
-            c_ren, c_del = st.columns(2)
             if c_del.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
-
-   # 1. On crée une petite fonction de nettoyage (callback)
-    def ajouter_et_nettoyer():
-        nouveau = st.session_state["input_nouveau_plat"]
-        if nouveau and nouveau not in st.session_state.plats_rapides:
-            st.session_state.plats_rapides.append(nouveau)
-            if sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides):
-                # C'est ici qu'on vide le champ SANS erreur
-                st.session_state["input_nouveau_plat"] = ""
-                st.toast(f"'{nouveau}' ajouté ! ✅") # Petit message discret
-    
+   
     # 2. Le champ de saisie reste le même
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
     
