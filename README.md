@@ -51,7 +51,7 @@ Vous devez disposer d'un compte GitHub et d'un jeton d'accès personnel (*** Fin
 Dans votre interface Streamlit Cloud, allez dans **Settings** > **Secrets** et collez ceci en remplaçant par vos infos :
 
 ```toml
-- APP_PASSWORD = "votre_mot_de_passe"
+APP_PASSWORD = "votre_mot_de_passe"
 GITHUB_TOKEN = "votre_token_ici"
 REPO_OWNER = "votre_nom_utilisateur"
 REPO_NAME = "nom_de_votre_depot"
