@@ -2,9 +2,11 @@ import streamlit as st
 import requests
 import json
 import time
+from collections import Counter
 
-# --- CONFIGURATION TECHNIQUE (Récupération des secrets) ---
+# --- CONFIGURATION TECHNIQUE ---
 def config_github():
+    """Récupère les identifiants GitHub depuis les secrets Streamlit."""
     return {
         "token": st.secrets["GITHUB_TOKEN"],
         "owner": st.secrets["REPO_OWNER"],
@@ -15,69 +17,52 @@ def config_github():
         }
     }
 
-# --- CHARGEMENT DE L'INDEX ---
 def charger_index():
+    """Charge l'index des recettes avec un timestamp pour éviter le cache navigateur."""
     conf = config_github()
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
     res = requests.get(url)
-    if res.status_code == 200:
-        return res.json()
-    return []
+    return res.json() if res.status_code == 200 else []
 
-# --- FONCTION PILOTE APPELÉE PAR APP.PY ---
 def afficher():
     st.header("📊 Statistiques")
-
     st.divider()
     
     index = charger_index()
-    
     if not index:
         st.warning("Aucune donnée disponible pour établir des statistiques.")
         return
 
     # --- 1. CHIFFRES CLÉS ---
-    total_recettes = len(index)
-    st.info(f"📊 **Nombre total de recettes :** {total_recettes}")
+    st.info(f"📊 **Nombre total de recettes :** {len(index)}")
     
-    # --- 2. RÉPARTITION PAR CATÉGORIE ET APPAREIL (TABLEAUX) ---
+    # --- 2. RÉPARTITION (CATÉGORIE & APPAREIL) ---
     col1, col2 = st.columns(2)
     
+    # Utilisation de Counter pour compter et trier en 2 lignes au lieu de 10
     with col1:
         st.subheader("📁 Par Catégorie")
-        stats_cat = {}
-        for r in index:
-            cat = r.get('categorie', 'Non classé')
-            stats_cat[cat] = stats_cat.get(cat, 0) + 1
-        
-        # Transformation du dictionnaire en liste pour le tableau
+        stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
         tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
         st.table(tab_cat)
 
     with col2:
         st.subheader("🔌 Par Appareil")
-        stats_app = {}
-        for r in index:
-            app = r.get('appareil', 'Aucun')
-            stats_app[app] = stats_app.get(app, 0) + 1
-        
-        # Transformation du dictionnaire en liste pour le tableau
+        stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
         tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
         st.table(tab_app)
 
     st.divider()
 
-    # --- 3. POIDS ET TYPES DE FICHIERS ---
+    # --- 3. POIDS ET STOCKAGE ---
     st.subheader("💾 Stockage")
     conf = config_github()
-    
+    # Récupération de l'arborescence complète du dépôt
     url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
     res = requests.get(url_tree, headers=conf['headers'])
     
     if res.status_code == 200:
         tree = res.json().get('tree', [])
-        
-        poids_total = 0
         stats_fichiers = {
             "JSON (Recettes)": {"nombre": 0, "poids": 0},
             "Images (Photos)": {"nombre": 0, "poids": 0},
@@ -86,29 +71,25 @@ def afficher():
         
         for item in tree:
             size = item.get('size', 0)
-            poids_total += size
-            ext = item['path'].lower()
+            path = item['path'].lower()
             
-            if ext.endswith('.json'):
-                key = "JSON (Recettes)"
-            elif ext.endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                key = "Images (Photos)"
-            else:
-                key = "Système/Autres"
+            # Classification par extension
+            if path.endswith('.json'): key = "JSON (Recettes)"
+            elif path.endswith(('.png', '.jpg', '.jpeg', '.webp')): key = "Images (Photos)"
+            else: key = "Système/Autres"
             
             stats_fichiers[key]["nombre"] += 1
             stats_fichiers[key]["poids"] += size
 
-        st.info(f"**Poids total du dépôt :** {poids_total / 1024 / 1024:.2f} Mo")
+        poids_total_mo = sum(f["poids"] for f in stats_fichiers.values()) / (1024 * 1024)
+        st.info(f"**Poids total du dépôt :** {poids_total_mo:.2f} Mo")
         
-        donnees_tableau = []
-        for type_f, info in stats_fichiers.items():
-            poids_mo = info["poids"] / (1024 * 1024)
-            donnees_tableau.append({
-                "Type de fichier": type_f,
-                "Nombre": info["nombre"],
-                "Poids (Mo)": f"{poids_mo:.2f}"
-            })
+        # Préparation du tableau final Mo par Mo
+        donnees_tableau = [{
+            "Type de fichier": t,
+            "Nombre": i["nombre"],
+            "Poids (Mo)": f"{i['poids']/(1024*1024):.2f}"
+        } for t, i in stats_fichiers.items()]
             
         st.write("**Détail des ressources :**")
         st.table(donnees_tableau)
