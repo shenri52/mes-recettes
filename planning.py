@@ -224,7 +224,7 @@ def afficher():
     if plats_rapides:
         plat_sel = st.selectbox("Gérer mes plats", ["---"] + plats_rapides, key="sel_rapide_manage")
         if plat_sel != "---":
-            if c_del.button("🗑️ Supprimer", use_container_width=True):
+            if st.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.plats_rapides.remove(plat_sel)
                 sauvegarder_github("data/plats_rapides.json", st.session_state.plats_rapides)
                 st.rerun()
