@@ -101,7 +101,7 @@ def afficher():
                     st.rerun()
 
     # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
-    if st.button("🧹 Réparer l'index et les fichiers recettes", use_container_width=True):
+    if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
         index_actuel = charger_index_local()
         erreurs, index_nettoye, fichiers_a_modifier = [], [], []
         for recette in index_actuel:
