@@ -157,16 +157,27 @@ def afficher():
             del st.session_state.index_a_sauvegarder
             st.rerun()
 
-    # --- SECTION 3 : OPTIMISATION IMAGES ---
-    if st.button("🖼️ Optimiser les images", use_container_width=True):
+# --- SECTION 3 : OPTIMISATION IMAGES ---
+    if st.button("🖼️ Scanner le poids des images", use_container_width=True):
         conf = config_github()
         res = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1", headers=conf['headers'])
         if res.status_code == 200:
-            lourdes = [i for i in res.json().get('tree', []) if i['path'].lower().endswith(('.jpg', '.jpeg', '.png')) and i.get('size', 0) > 500 * 1024]
+            tree = res.json().get('tree', [])
+            
+            # FILTRAGE STRICT (Identique à l'origine)
+            lourdes = [i for i in tree if i['path'].lower().endswith(('.jpg', '.jpeg', '.png')) and i.get('size', 0) > 500 * 1024]
+            
             if lourdes:
                 st.session_state.images_a_compresser = lourdes
-                st.warning(f"⚠️ {len(lourdes)} images lourdes trouvées.")
-            else: st.success("Toutes les images sont légères.")
+                st.warning(f"⚠️ {len(lourdes)} image(s) lourde(s) trouvée(s) :")
+                
+                # RÉTABLISSEMENT DE L'AFFICHAGE D'ORIGINE
+                for img in lourdes:
+                    st.code(img['path'])
+                    st.write(f"Taille : {img['size'] / 1024:.0f} Ko")
+                    st.divider() # Petit trait de séparation entre chaque image
+            else:
+                st.success("Toutes les images sont légères. ✅")
 
     if st.session_state.get("images_a_compresser"):
         if st.button("⚡ Compresser les images", use_container_width=True):
@@ -174,12 +185,16 @@ def afficher():
             for idx, img in enumerate(st.session_state.images_a_compresser):
                 r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{img['path']}")
                 if r.status_code == 200:
+                    # Conversion RGB pour le JPEG (Indispensable)
                     img_p = Image.open(io.BytesIO(r.content)).convert("RGB")
                     buf = io.BytesIO()
                     img_p.save(buf, format="JPEG", quality=75, optimize=True)
                     envoyer_donnees(img['path'], buf.getvalue(), "📸 Opti Image", est_image=True)
                 barre.progress((idx + 1) / len(st.session_state.images_a_compresser))
+            
+            # Nettoyage et rafraîchissement
             del st.session_state.images_a_compresser
+            st.success("Compression terminée ! 🚀")
             st.rerun()
 
     st.divider()
