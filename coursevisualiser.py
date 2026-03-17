@@ -81,3 +81,5 @@ def afficher():
 
 if __name__ == "__main__":
     afficher()
+
+st.divider()
