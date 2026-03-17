@@ -36,7 +36,7 @@ def afficher():
                 background-color: #f0f2f6; 
                 border: 1px solid #ddd; 
                 border-radius: 4px 3px 0 0; 
-                padding: 4px 20px !important; /* Augmente 20px pour plus de largeur */
+                padding: 4px 8px !important; /* Augmente 20px pour plus de largeur */
                 height: 35px;
             }
     
