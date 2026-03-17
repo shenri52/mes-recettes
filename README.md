@@ -21,9 +21,15 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
     * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
     * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
 * **📚 Gestion des courses** : 
-    * Génération automatique de la liste basée sur votre planning
-    * Module de visualisation optimisé pour faire ses courses sur mobile..
-* **🚫 Mode Cuisine : Option "Écran allumé" pour empêcher la mise en veille du téléphone pendant la lecture.
+    * Sasir la liste des courses (orgainsation actuel selon mon parcours du magasin)
+    * Module de visualisation optimisé pour faire ses courses sur mobile
+* **🛠️ Maintenance** : 
+    * Réparer l'index des recettes
+    * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
+    * Optimiser les images sans perte de qualité
+    * Modifier les ingrédients de la liste des courses et leur emplacement
+* **🚫 Mode Cuisine :
+   * Option "Appli connecté" pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone pendant la lecture.
 
 ## 🛠️ Technologies utilisées
 
