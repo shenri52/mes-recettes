@@ -48,7 +48,7 @@ def afficher():
         st.error("⚠️ Secrets GitHub manquants.")
         st.stop()
 
-    FILE_PATH = "courses/data_a5.json"
+    FILE_PATH = "courses/index_courses.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
     def get_github_data(path):
@@ -76,10 +76,10 @@ def afficher():
         return False
 
     # --- INITIALISATION ---
-    if "data_a5" not in st.session_state:
-        st.session_state.data_a5, st.session_state.sha_a5 = get_github_data(FILE_PATH)
-        if st.session_state.data_a5 is None:
-            st.session_state.data_a5 = {str(i): {"panier": [], "catalogue": []} for i in range(12)}
+    if "index_courses" not in st.session_state:
+        st.session_state.index_courses, st.session_state.sha_a5 = get_github_data(FILE_PATH)
+        if st.session_state.index_courses is None:
+            st.session_state.index_courses = {str(i): {"panier": [], "catalogue": []} for i in range(12)}
 
     if "index_zones" not in st.session_state:
         st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
@@ -96,7 +96,7 @@ def afficher():
     for i in range(12):
         with onglets[i]: 
             idx_actuelle = str(i)
-            case = st.session_state.data_a5[idx_actuelle]
+            case = st.session_state.index_courses[idx_actuelle]
             
             with st.container(border=True):
                 key_hist = f"hist_{idx_actuelle}_{st.session_state.reset_count}"
@@ -128,7 +128,7 @@ def afficher():
                             st.session_state.index_zones[final_nom] = dest_idx
                             save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                             
-                            cible = st.session_state.data_a5[dest_idx]
+                            cible = st.session_state.index_courses[dest_idx]
                             trouve = False
                             for p in cible["panier"]:
                                 if p["nom"].lower() == final_nom.lower():
@@ -142,19 +142,19 @@ def afficher():
                                 cible["catalogue"].append(final_nom)
                                 cible["catalogue"].sort()
                             
-                            save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                            save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
                             st.rerun()
                                     
                 for p_idx, p in enumerate(case["panier"]):
                     if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                         case["panier"].pop(p_idx)
-                        save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+                        save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
                         st.rerun()
 
     if st.button("🗑️ Vider tout le panier", use_container_width=True):
         for k in range(12): 
-            st.session_state.data_a5[str(k)]["panier"] = []
-        save_github_data(FILE_PATH, st.session_state.data_a5, st.session_state.sha_a5)
+            st.session_state.index_courses[str(k)]["panier"] = []
+        save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
         st.rerun()
 
     st.write("---")
