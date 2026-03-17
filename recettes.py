@@ -233,27 +233,36 @@ def afficher():
             with col_i:
                 images = recette.get('images', [])
                 if images:
-                    # Si img_idx a été supprimé par le nettoyage, on le recrée à 0
+                    # 1. Initialisation de l'index
                     if "img_idx" not in st.session_state:
                         st.session_state.img_idx = 0
                     
-                    # On récupère l'URL de l'image actuelle (basée sur l'index en cours)
+                    # Sécurité : on s'assure que l'index ne dépasse pas le nombre d'images
+                    if st.session_state.img_idx >= len(images):
+                        st.session_state.img_idx = 0
+                    
+                    # 2. Affichage de la photo actuelle
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
                     
-                    # --- NAVIGATION ENTRE LES PHOTOS ---
+                    # 3. NAVIGATION (Uniquement si plus d'une photo existe)
                     if len(images) > 1:
                         nb1, nb2, nb3 = st.columns([1, 2, 1])
                         
-                        if nb1.button("◀️", use_container_width=True):
-                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
-                            st.rerun()
+                        with nb1:
+                            if st.button("◀️", use_container_width=True, key="prev"):
+                                st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                                st.rerun()
                         
-                    nb2.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
-                    
-                    if nb3.button("▶️", use_container_width=True):
-                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                        st.rerun()
+                        with nb2:
+                            st.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
+                        
+                        with nb3:
+                            if st.button("▶️", use_container_width=True, key="next"):
+                                st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                                st.rerun()
+                else:
+                    st.info("📷 Aucune photo pour cette recette.")
 
             st.divider()
             b1, b2 = st.columns(2)
