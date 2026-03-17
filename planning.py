@@ -71,10 +71,10 @@ def ouvrir_fiche(nom_plat):
                 st.subheader(recette.get('nom', '').upper())
                 
                 # --- Ligne d'infos clés ---
-                st.write(f"📁 **Catégorie :** {recette.get('categorie', 'Non classé')}")
-                st.write(f"🤖 **Appareil :** {recette.get('appareil', 'Aucun')}")
-                st.write(f"⏳ **Temps de préparation :** {recette.get('temps_prep', '0')} min")
-                st.write(f"🔥 **Temps de cuisson :** {recette.get('temps_cuisson', '0')} min")
+                st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
+                st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write(f"**Temps de préparation :** {recette.get('temps_prep', '0')} min")
+                st.write(f"**Temps de cuisson :** {recette.get('temps_cuisson', '0')} min")
                 
                 st.divider()
                 
@@ -82,7 +82,15 @@ def ouvrir_fiche(nom_plat):
                 ingredients = recette.get('ingredients', [])
                 if ingredients:
                     for i in ingredients:
-                        st.markdown(f"- **{i.get('Quantité', '')}** {i.get('Ingrédient', '')}")
+                        # On récupère les textes et on enlève les étoiles parasites s'il y en a
+                        qte = i.get('Quantité', '').replace('*', '').strip()
+                        nom = i.get('Ingrédient', '').replace('*', '').strip()
+                        
+                        # Affichage propre : si pas de quantité, on affiche juste le nom
+                        if qte:
+                            st.write(f"{qte} {nom}")
+                        else:
+                            st.write(f"{nom}")
                 else:
                     st.write("Aucun ingrédient.")
                 
