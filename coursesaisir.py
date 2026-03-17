@@ -32,9 +32,15 @@ def afficher():
         }
         /* Onglet sélectionné */
         .stTabs [aria-selected="true"] {
-            background-color: #007bff !important; /* Bleu */
+            background-color: #87CEEB  !important; /* Bleu */
             color: white !important;
             border-color: #0056b3;
+        }
+        
+        /* TEXTE NOIR ET GRAS */
+        .stTabs [data-baseweb="tab"] p { 
+            color: black !important; 
+            font-weight: bold !important; 
         }
         </style>
     """, unsafe_allow_html=True)
