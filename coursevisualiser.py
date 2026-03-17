@@ -32,15 +32,15 @@ def afficher():
         .stTabs [data-baseweb="tab"] p { color: black !important; font-weight: bold; } /* Force le texte en noir */
     </style>""", unsafe_allow_html=True)
 
-    if "data_a5" not in st.session_state:
-        st.session_state.data_a5, st.session_state.sha_a5 = get_data()
+    if "index_courses" not in st.session_state:
+        st.session_state.index_courses, st.session_state.sha_a5 = get_data()
 
-    data = st.session_state.data_a5
+    data = st.session_state.index_courses
     # --- FILTRE : On ne garde que les zones qui ont des produits ---
     zones_actives = [i for i in range(12) if data.get(str(i), {}).get("panier")]
 
     if not zones_actives:
-        st.info("🛒 Tous les paniers sont vides.")
+        st.info("Tous les paniers sont vides.")
         return
 
     # Création des onglets uniquement pour les zones avec produits
