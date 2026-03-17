@@ -81,7 +81,7 @@ def afficher():
     for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
     photos_fb = st.file_uploader("Fichiers", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
-    if st.button("💾 Enregistrer l'import", use_container_width=True) and nom_plat:
+    if st.button("💾 Enregistrer", use_container_width=True) and nom_plat:
         with st.spinner("Enregistrement..."):
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
