@@ -3,7 +3,7 @@ import json, requests, base64, time
 
 def config():
     return {"headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}"},
-            "url": f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/courses/index_courses.json"}
+            "url": f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/data/index_courses.json"}
 
 def get_data():
     conf = config()
