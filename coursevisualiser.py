@@ -26,7 +26,7 @@ def afficher():
     st.markdown("""<style>
         .block-container { padding-top: 1rem !important; max-width: 800px !important; }
         header { visibility: hidden; }
-        .stButton>button { width: 100%; border: 1px solid #ddd; border-radius: 4px 3px 0 0; padding: 4px 6px !important; font-size: 14px; height: 2.8em; gap: 2px;}
+        .stButton>button { width: 100%; border: 1px solid #ddd; border-radius: 4px 3px 0 0; padding: 4px 8px !important; font-size: 14px; height: 2em; gap: 2px;}
         .stTabs [data-baseweb="tab"] { background-color: #f0f2f6; border: 2px solid #ddd; height: 35px; color: black !important; }
         .stTabs [aria-selected="true"] { background-color: #87CEEB !important; color: white !important; }
         .stTabs [data-baseweb="tab"] p { color: black !important; font-weight: bold; } /* Force le texte en noir */
