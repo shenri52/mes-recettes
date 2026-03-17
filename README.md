@@ -29,7 +29,10 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
     * Optimiser les images sans perte de qualité
     * Modifier les ingrédients de la liste des courses et leur emplacement
 * **🚫 Mode Cuisine :
-   * Option "Appli connecté" pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone pendant la lecture.
+   * Option "Appli connecté" pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone pendant la lecture
+* **📊 Statistiques :
+   * Nombre de recette
+   * Stockage
 
 ## 🛠️ Technologies utilisées
 
