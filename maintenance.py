@@ -41,7 +41,7 @@ def charger_index_local():
 
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
-    st.header("🛠️ Diagnostic et réparation")
+    st.header("🛠️ Réparation et optimisation")
     st.divider()
 
     # Nettoyage automatique des états temporaires au chargement
