@@ -54,7 +54,7 @@ def afficher():
         st.error("⚠️ Secrets GitHub manquants.")
         st.stop()
 
-    FILE_PATH = "courses/index_courses.json"
+    FILE_PATH = "data/index_courses.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
     def get_github_data(path):
