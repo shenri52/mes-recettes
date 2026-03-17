@@ -102,14 +102,6 @@ def ouvrir_fiche(nom_plat):
                 else:
                     st.write("Pas d'instructions saisies.")
                 
-                st.markdown("### 👨‍🍳 Étapes")
-                etapes = recette.get('etapes', '')
-                if etapes:
-                    # On utilise markdown pour garder les sauts de ligne
-                    st.info(etapes)
-                else:
-                    st.write("Pas d'instructions saisies.")
-                
             with tab2:
                 images = recette.get('images', [])
                 if images:
