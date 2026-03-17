@@ -117,3 +117,5 @@ def afficher():
                 st.session_state.ingredients_img, st.session_state.cat_selectionnee = [], ""
                 st.session_state.form_count_img += 1
                 st.rerun()
+
+    st.divider()
