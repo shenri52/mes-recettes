@@ -83,9 +83,9 @@ def afficher():
         for i in st.session_state.ingredients_recette: st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
         etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{f_id}")
-        photos_fb = st.file_uploader("Médias", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{f_id}", accept_multiple_files=True)
+        photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{f_id}", accept_multiple_files=True)
 
-    if st.button("💾 Enregistrer la recette", use_container_width=True) and nom_plat:
+    if st.button("💾 Enregistrer", use_container_width=True) and nom_plat:
         with st.spinner("Enregistrement..."):
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             nom_fic, liste_medias, img_ok = nom_plat.replace(" ", "_").lower(), [], True
