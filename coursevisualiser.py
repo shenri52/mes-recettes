@@ -28,7 +28,7 @@ def afficher():
         header { visibility: hidden; }
         .stButton>button { width: 100%; border-radius: 3px; font-size: 14px; height: 2.8em; }
         .stTabs [data-baseweb="tab"] { background-color: #f0f2f6; border: 2px solid #ddd; height: 35px; color: black !important; }
-        .stTabs [aria-selected="true"] { background-color: #007bff !important; color: white !important; }
+        .stTabs [aria-selected="true"] { background-color: #87CEEB !important; color: white !important; }
         .stTabs [data-baseweb="tab"] p { color: black !important; font-weight: bold; } /* Force le texte en noir */
     </style>""", unsafe_allow_html=True)
 
@@ -44,7 +44,7 @@ def afficher():
         return
 
     # Création des onglets uniquement pour les zones avec produits
-    tabs = st.tabs([f"Zone {i+1}" for i in zones_actives])
+    tabs = st.tabs([f"{i+1}" for i in zones_actives])
 
     for idx_tab, zone_idx in enumerate(zones_actives):
         with tabs[idx_tab]:
