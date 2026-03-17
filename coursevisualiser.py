@@ -79,7 +79,7 @@ def afficher():
                                 p["checked"] = not p.get("checked", False)
                                 if save_data(data, st.session_state.sha_a5): st.rerun()
 
-st.divider()
+    st.divider()
 
 if __name__ == "__main__":
     afficher()
