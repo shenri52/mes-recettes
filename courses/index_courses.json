@@ -1,6 +1,12 @@
 {
   "0": {
-    "panier": [],
+    "panier": [
+      {
+        "nom": "Amandes",
+        "qte": "1",
+        "checked": false
+      }
+    ],
     "catalogue": [
       "Amandes",
       "Graines de chia",
