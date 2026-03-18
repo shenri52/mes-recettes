@@ -148,7 +148,7 @@ if verifier_mot_de_passe():
                 aller_accueil()
 
         # Bouton retour (masqué sur le planning)
-        st.write("") 
+        st.divider()
 
         if st.session_state.page != "planning":
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
