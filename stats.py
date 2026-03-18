@@ -149,14 +149,15 @@ def afficher():
                     st.rerun()
         
         st.write("**Répartition par type de ressources :**")
+
         details_propres = []
         for d in data_s['details']:
             ligne = {}
             for k, v in d.items():
-                # Si c'est la colonne "Mo", on force le format texte avec 2 décimales
+                # Si c'est la colonne Mo, on formate ET on décale à droite (rjust)
                 if k == "Mo" and isinstance(v, (float, int)):
-                    ligne[k] = f"{v:.2f}" 
-                    ligne[k] = texte_poids.rjust(12)
+                    # On fait tout en une seule fois : formatage à 2 décimales + décalage
+                    ligne[k] = f"{v:.2f}".rjust(12) 
                 else:
                     ligne[k] = v
             details_propres.append(ligne)
