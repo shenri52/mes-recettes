@@ -268,7 +268,6 @@ def afficher():
         # --- SECTION ACTIONS (MODIFIER / SUPPRIMER) ---
         # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
-            st.divider()
             b1, b2 = st.columns(2)
             
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
@@ -284,7 +283,8 @@ def afficher():
                 # Ton mode édition
                 st.session_state[m_edit] = True
                 st.rerun()
-                st.divider()
+        
+        st.divider()
 
 if __name__ == "__main__":
     afficher()
