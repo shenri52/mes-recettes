@@ -14,30 +14,30 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
     * Recherche des recettes par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
 <br><br>
 * **🔑 Mode administration (Connecté)** :  
-* **📚 Consultation des recettes** : 
-    * Toutes les fonctions du mode public.
-    * Modification et suppressions des recettes.
-* **✍️ Saisie manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
-* **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
-
-* **📚 Planing** : 
-    * Organisation de la semaine (Midi & Soir).
-    * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
-    * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
-    * Visualisation des informations de la recette (catégorie, étapes, images...)
-* **📚 Gestion des courses** : 
-    * Sasir la liste des courses (orgainsation actuelle selon mon parcours du magasin)
-    * Module de visualisation optimisé pour faire ses courses sur mobile
-* **🛠️ Maintenance** : 
-    * Réparer l'index des recettes
-    * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
-    * Optimiser les images sans perte de qualité
-    * Modifier les ingrédients de la liste des courses et leur emplacement
-* **🚫 Mode "Appli connecté" :
-   * Option pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone
-* **📊 Statistiques :
-   * Nombre de recette
-   * Stockage
+   * **📚 Consultation des recettes** : 
+       * Toutes les fonctions du mode public.
+       * Modification et suppressions des recettes.
+   * **✍️ Saisie manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
+   * **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
+   
+   * **📚 Planing** : 
+       * Organisation de la semaine (Midi & Soir).
+       * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
+       * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
+       * Visualisation des informations de la recette (catégorie, étapes, images...)
+   * **📚 Gestion des courses** : 
+       * Sasir la liste des courses (orgainsation actuelle selon mon parcours du magasin)
+       * Module de visualisation optimisé pour faire ses courses sur mobile
+   * **🛠️ Maintenance** : 
+       * Réparer l'index des recettes
+       * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
+       * Optimiser les images sans perte de qualité
+       * Modifier les ingrédients de la liste des courses et leur emplacement
+   * **🚫 Mode "Appli connecté" :
+      * Option pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone
+   * **📊 Statistiques :
+      * Nombre de recette
+      * Stockage
 
 
 ## 🛠️ Technologies utilisées
