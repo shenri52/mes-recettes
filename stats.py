@@ -159,9 +159,7 @@ def afficher():
                 "Mo": float(d.get("Mo", 0))
             } for d in data_s['details']
         ]
-        
-        st.write("**Répartition par type de ressources :**")
-        
+              
         # 2. Affichage avec configuration de colonnes
         st.dataframe(
             details_data,
