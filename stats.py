@@ -175,8 +175,7 @@ def afficher():
             },
             hide_index=True, # Enlève la colonne 0, 1, 2 à gauche
             use_container_width=True # Prend toute la largeur
-        )
-        
+        )        
     else:
         st.warning("⚠️ Aucun relevé de stockage trouvé.")
         if st.button("🚀 Créer le premier relevé"):
