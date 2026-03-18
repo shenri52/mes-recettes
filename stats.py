@@ -109,19 +109,41 @@ def afficher():
 
     st.info(f"📊 **Nombre total de recettes :** {len(index)}")
     
+    # --- SECTION RÉPARTITION PAR CATÉGORIE & APPAREIL ---
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("📁 Par Catégorie")
         stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
+        # On prépare la liste de dictionnaires
         tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
-        st.table(tab_cat)
+        
+        # Affichage en DataFrame pour un rendu propre
+        st.dataframe(
+            tab_cat,
+            column_config={
+                "Catégorie": st.column_config.TextColumn("Catégorie"),
+                "Nombre": st.column_config.NumberColumn("Nombre", format="%d")
+            },
+            hide_index=True,
+            use_container_width=True
+        )
 
     with col2:
         st.subheader("🔌 Par Appareil")
         stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
         tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
-        st.table(tab_app)
+        
+        # Affichage en DataFrame
+        st.dataframe(
+            tab_app,
+            column_config={
+                "Appareil": st.column_config.TextColumn("Appareil"),
+                "Nombre": st.column_config.NumberColumn("Nombre", format="%d")
+            },
+            hide_index=True,
+            use_container_width=True
+        )
 
     st.divider()
 
