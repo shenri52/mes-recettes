@@ -154,7 +154,7 @@ def afficher():
             {k: (round(v, 2) if isinstance(v, float) else v) for k, v in d.items()} 
             for d in data_s['details']
         ]
-        st.table(data_s['details'])
+        st.table(data_s['details_propres'])
         
     else:
         st.warning("⚠️ Aucun relevé de stockage trouvé.")
