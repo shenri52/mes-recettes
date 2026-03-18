@@ -156,7 +156,7 @@ def afficher():
                 # Si c'est la colonne "Mo", on force le format texte avec 2 décimales
                 if k == "Mo" and isinstance(v, (float, int)):
                     ligne[k] = f"{v:.2f}" 
-                    ligne[k] = texte_poids.rjust(10)
+                    ligne[k] = texte_poids.rjust(12)
                 else:
                     ligne[k] = v
             details_propres.append(ligne)
