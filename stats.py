@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import requests
 import json
 import time
@@ -150,18 +150,32 @@ def afficher():
         
         st.write("**Répartition par type de ressources :**")
 
-        details_propres = []
-        for d in data_s['details']:
-            ligne = {}
-            for k, v in d.items():
-                # Si c'est la colonne Mo, on formate ET on décale à droite (rjust)
-                if k == "Mo" and isinstance(v, (float, int)):
-                    # On fait tout en une seule fois : formatage à 2 décimales + décalage
-                    ligne[k] = f"{v:.2f}".rjust(12) 
-                else:
-                    ligne[k] = v
-            details_propres.append(ligne)
-        st.table(details_propres)
+        # --- SECTION RÉPARTITION (ALIGNEE & PROPRE) ---
+        # 1. On s'assure que les données sont numériques pour l'alignement automatique
+        details_data = [
+            {
+                "Type": d.get("Type"),
+                "Nombre": int(d.get("Nombre", 0)),
+                "Mo": float(d.get("Mo", 0))
+            } for d in data_s['details']
+        ]
+        
+        st.write("**Répartition par type de ressources :**")
+        
+        # 2. Affichage avec configuration de colonnes
+        st.dataframe(
+            details_data,
+            column_config={
+                "Type": st.column_config.TextColumn("Type"),
+                "Nombre": st.column_config.NumberColumn("Nombre", format="%d"),
+                "Mo": st.column_config.NumberColumn(
+                    "Taille (Mo)", 
+                    format="%.2f", # Force 2 décimales
+                )
+            },
+            hide_index=True, # Enlève la colonne 0, 1, 2 à gauche
+            use_container_width=True # Prend toute la largeur
+        )
         
     else:
         st.warning("⚠️ Aucun relevé de stockage trouvé.")
