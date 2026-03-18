@@ -12,7 +12,7 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 
 * **🔒 Mode Consultation (Public)** : 
     * Recherche des recettes par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
-      
+<br><br>
 * **🔑 Mode administration (Connecté)** :  
 * **📚 Consultation des recettes** : 
     * Toutes les fonctions du mode public.
