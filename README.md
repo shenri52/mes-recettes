@@ -10,12 +10,16 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 
 ## ✨ Fonctionnalités
 
+* **🔒 Mode Consultation (Public)** : 
+    * Recherche des recettes par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
+
+* **🔑 Mode administration (Connecté)** :
+* **📚 Consultation des recettes** : 
+    * Toutes les fonctions du mode public.
+    * Modification et suppressions des recettes.
 * **✍️ Saisie manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
 * **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
-* **📚 Consultation** : 
-    * Recherche par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
-    * Galerie photo avec navigation fluide.
-    * Mode modification des fiches.
+
 * **📚 Planing** : 
     * Organisation de la semaine (Midi & Soir).
     * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
@@ -34,6 +38,7 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 * **📊 Statistiques :
    * Nombre de recette
    * Stockage
+
 
 ## 🛠️ Technologies utilisées
 
@@ -72,10 +77,12 @@ REPO_NAME = "nom_de_votre_depot"
 └── courses/
     
 └── data/
-    ├── recettes/               # Dossier contenant les fichiers .json des recettes
-    └── images/                 # Dossier contenant les photos et PDF
-    ├── index_courses.json      # Index des produits utilisés pour les courses
-    ├── index_recettes.json     # Index pour recherche rapide
-    ├── planning.json           # Données du planning
-    ├── plats_rapides.json      # Liste des plats sans recette
+    ├── recettes/                   # Dossier contenant les fichiers .json des recettes
+    └── images/                     # Dossier contenant les photos et PDF
+    ├── data_stockage.json          # Statistiques du dépôt
+    ├── index_courses.json          # Index des produits utilisés pour les courses
+    ├── index_produits_zones.json   # Index du classement des produits utilisés pour les courses
+    ├── index_recettes.json         # Index pour recherche rapide
+    ├── planning.json               # Données du planning
+    ├── plats_rapides.json          # Liste des plats sans recette
 ```
