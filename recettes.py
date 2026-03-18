@@ -264,12 +264,12 @@ def afficher():
                 else:
                     st.info("📷 Aucune photo pour cette recette.")
 
-            st.divider()
+            
         # --- SECTION ACTIONS (MODIFIER / SUPPRIMER) ---
         # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
-            
+            st.divider()
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
                 # Ta logique de suppression complète (Fichier + Images + Index)
                 if supprimer_fichier_github(info['chemin']):
