@@ -47,7 +47,7 @@ def afficher():
         return res_put.status_code in [200, 201]
     
     def actualiser_donnees_stockage():
-        """Scan complet du dépôt GitHub et enregistrement du résultat."""
+        """Scan complet du dépôt avec catégories détaillées et arrondis précis."""
         conf = config_github()
         with st.spinner("Analyse du dépôt en cours... 🔍"):
             url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
@@ -55,17 +55,45 @@ def afficher():
             
             if res.status_code == 200:
                 tree = res.json().get('tree', [])
-                p_json = sum(i.get('size', 0) for i in tree if i['path'].lower().endswith('.json'))
-                p_img = sum(i.get('size', 0) for i in tree if i['path'].lower().endswith(('.png', '.jpg', '.jpeg', '.webp')))
                 
+                # Initialisation des compteurs
+                stats_comptage = {
+                    "Recettes (JSON)": {"nb": 0, "poids": 0},
+                    "Photos (Images)": {"nb": 0, "poids": 0},
+                    "Fichiers Système & Apps": {"nb": 0, "poids": 0}
+                }
+                
+                for item in tree:
+                    if item.get('type') == 'blob':  # On ne compte que les fichiers, pas les dossiers
+                        size = item.get('size', 0)
+                        path = item['path'].lower()
+                        
+                        if path.endswith('.json'):
+                            key = "Recettes (JSON)"
+                        elif path.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                            key = "Photos (Images)"
+                        else:
+                            key = "Fichiers Système & Apps"
+                        
+                        stats_comptage[key]["nb"] += 1
+                        stats_comptage[key]["poids"] += size
+                
+                poids_total = sum(d["poids"] for d in stats_comptage.values())
+                
+                # Construction du dictionnaire final
                 stats_neuves = {
                     "derniere_maj": datetime.datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "poids_total_mo": round((p_json + p_img) / (1024 * 1024), 2),
+                    # Arrondi à 2 chiffres : round(valeur, 2)
+                    "poids_total_mo": round(poids_total / (1024 * 1024), 2),
                     "details": [
-                        {"Type": "Recettes (JSON)", "Mo": round(p_json/(1024*1024), 2)},
-                        {"Type": "Photos (Images)", "Mo": round(p_img/(1024*1024), 2)}
+                        {
+                            "Type": k, 
+                            "Nombre": v["nb"], 
+                            "Mo": round(v["poids"] / (1024 * 1024), 2)
+                        } for k, v in stats_comptage.items()
                     ]
                 }
+                
                 if sauvegarder_fichier_github("data/data_stockage.json", stats_neuves):
                     return stats_neuves
         return None
@@ -104,13 +132,15 @@ def afficher():
     url_s = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/data_stockage.json?t={int(time.time())}"
     res_s = requests.get(url_s)
     data_s = res_s.json() if res_s.status_code == 200 else None
-
+    
     if data_s:
-        c_info, c_btn = st.columns([3, 1])
-        with c_info:
+        col_info, col_btn = st.columns([3, 1])
+        with col_info:
             st.info(f"**Poids total du dépôt :** {data_s['poids_total_mo']} Mo")
             st.caption(f"🕒 Dernière actualisation : **{data_s['derniere_maj']}**")
-        with c_btn:
+        
+        # Le bouton actualiser utilisera la nouvelle fonction avec les 3 catégories
+        with col_btn:
             st.write("") 
             if st.button("🔄 Actualiser"):
                 if actualiser_donnees_stockage():
@@ -118,7 +148,8 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
         
-        st.write("**Répartition :**")
+        st.write("**Répartition par type de ressources :**")
+        # st.table affichera : Type | Nombre | Mo
         st.table(data_s['details'])
         
     else:
