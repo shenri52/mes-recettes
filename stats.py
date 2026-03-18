@@ -149,11 +149,16 @@ def afficher():
                     st.rerun()
         
         st.write("**Répartition par type de ressources :**")
-        # st.table affichera : Type | Nombre | Mo
-        details_propres = [
-            {k: (round(v, 2) if isinstance(v, float) else v) for k, v in d.items()} 
-            for d in data_s['details']
-        ]
+        details_propres = []
+        for d in data_s['details']:
+            ligne = {}
+            for k, v in d.items():
+                # Si c'est la colonne "Mo", on force le format texte avec 2 décimales
+                if k == "Mo" and isinstance(v, (float, int)):
+                    ligne[k] = f"{v:.2f}" 
+                else:
+                    ligne[k] = v
+            details_propres.append(ligne)
         st.table(details_propres)
         
     else:
