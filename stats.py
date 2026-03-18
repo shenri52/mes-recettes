@@ -150,6 +150,10 @@ def afficher():
         
         st.write("**Répartition par type de ressources :**")
         # st.table affichera : Type | Nombre | Mo
+        details_propres = [
+            {k: (round(v, 2) if isinstance(v, float) else v) for k, v in d.items()} 
+            for d in data_s['details']
+        ]
         st.table(data_s['details'])
         
     else:
