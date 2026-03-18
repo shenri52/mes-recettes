@@ -284,6 +284,7 @@ def afficher():
                 # Ton mode édition
                 st.session_state[m_edit] = True
                 st.rerun()
+                st.divider()
 
 if __name__ == "__main__":
     afficher()
