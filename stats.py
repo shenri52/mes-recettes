@@ -107,7 +107,7 @@ def afficher():
         st.warning("Aucune donnée disponible pour établir des statistiques.")
         return
 
-    st.info(f"📊 **Nombre total de recettes :** {len(index)}")
+    st.info(f"**Nombre total de recettes :** {len(index)}")
     
     # --- SECTION RÉPARTITION PAR CATÉGORIE & APPAREIL ---
     col1, col2 = st.columns(2)
