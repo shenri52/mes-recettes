@@ -113,7 +113,6 @@ def afficher():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📁 Par Catégorie")
         stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
         # On prépare la liste de dictionnaires
         tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
@@ -130,7 +129,6 @@ def afficher():
         )
 
     with col2:
-        st.subheader("🔌 Par Appareil")
         stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
         tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
         
