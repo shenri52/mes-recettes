@@ -170,8 +170,6 @@ def afficher():
                     time.sleep(1)
                     st.rerun()
         
-        st.write("**Répartition par type de ressources :**")
-
         # --- SECTION RÉPARTITION (ALIGNEE & PROPRE) ---
         # 1. On s'assure que les données sont numériques pour l'alignement automatique
         details_data = [
