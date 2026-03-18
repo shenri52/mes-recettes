@@ -265,7 +265,7 @@ def afficher():
                     st.info("📷 Aucune photo pour cette recette.")
 
             st.divider()
-# --- SECTION ACTIONS (MODIFIER / SUPPRIMER) ---
+        # --- SECTION ACTIONS (MODIFIER / SUPPRIMER) ---
         # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
             st.divider()
@@ -284,8 +284,6 @@ def afficher():
                 # Ton mode édition
                 st.session_state[m_edit] = True
                 st.rerun()
-
-    st.divider()
 
 if __name__ == "__main__":
     afficher()
