@@ -128,3 +128,4 @@ def afficher():
                 st.success("Premier relevé créé !")
                 time.sleep(1)
                 st.rerun()
+    st.divide()
