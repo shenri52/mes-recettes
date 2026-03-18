@@ -74,63 +74,63 @@ def afficher():
                     return stats
         return None
     
-    st.header("📊 Statistiques")
-    st.divider()
+        st.header("📊 Statistiques")
+        st.divider()
+        
+        index = charger_index()
+        if not index:
+            st.warning("Aucune donnée disponible pour établir des statistiques.")
+            return
     
-    index = charger_index()
-    if not index:
-        st.warning("Aucune donnée disponible pour établir des statistiques.")
-        return
-
-    # --- 1. CHIFFRES CLÉS ---
-    st.info(f"📊 **Nombre total de recettes :** {len(index)}")
+        # --- 1. CHIFFRES CLÉS ---
+        st.info(f"📊 **Nombre total de recettes :** {len(index)}")
+        
+        # --- 2. RÉPARTITION (CATÉGORIE & APPAREIL) ---
+        col1, col2 = st.columns(2)
+        
+        # Utilisation de Counter pour compter et trier en 2 lignes au lieu de 10
+        with col1:
+            st.subheader("📁 Par Catégorie")
+            stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
+            tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
+            st.table(tab_cat)
     
-    # --- 2. RÉPARTITION (CATÉGORIE & APPAREIL) ---
-    col1, col2 = st.columns(2)
+        with col2:
+            st.subheader("🔌 Par Appareil")
+            stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
+            tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
+            st.table(tab_app)
     
-    # Utilisation de Counter pour compter et trier en 2 lignes au lieu de 10
-    with col1:
-        st.subheader("📁 Par Catégorie")
-        stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
-        tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
-        st.table(tab_cat)
-
-    with col2:
-        st.subheader("🔌 Par Appareil")
-        stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
-        tab_app = [{"Appareil": k, "Nombre": v} for k, v in sorted(stats_app.items())]
-        st.table(tab_app)
-
-    # --- 3. POIDS ET STOCKAGE ---
-st.subheader("💾 Stockage")
+        # --- 3. POIDS ET STOCKAGE ---
+    st.subheader("💾 Stockage")
+        
+        # 1. Tentative de lecture du fichier pré-calculé
+        conf = config_github()
+        url_s = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/data_stockage.json?t={int(time.time())}"
+        res_s = requests.get(url_s)
+        data_s = res_s.json() if res_s.status_code == 200 else None
     
-    # 1. Tentative de lecture du fichier pré-calculé
-    conf = config_github()
-    url_s = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/data_stockage.json?t={int(time.time())}"
-    res_s = requests.get(url_s)
-    data_s = res_s.json() if res_s.status_code == 200 else None
-
-    # 2. Si le fichier existe, on l'affiche simplement (très rapide)
-    if data_s:
-        col_info, col_btn = st.columns([3, 1])
-        with col_info:
-            st.info(f"**Poids total du dépôt :** {data_s['poids_total_mo']} Mo")
-            st.caption(f"🕒 Dernière actualisation : **{data_s['derniere_maj']}**")
-        with col_btn:
-            st.write("") # Calage
-            if st.button("🔄 Actualiser"):
+        # 2. Si le fichier existe, on l'affiche simplement (très rapide)
+        if data_s:
+            col_info, col_btn = st.columns([3, 1])
+            with col_info:
+                st.info(f"**Poids total du dépôt :** {data_s['poids_total_mo']} Mo")
+                st.caption(f"🕒 Dernière actualisation : **{data_s['derniere_maj']}**")
+            with col_btn:
+                st.write("") # Calage
+                if st.button("🔄 Actualiser"):
+                    if actualiser_donnees_stockage():
+                        st.success("Données mises à jour !")
+                        time.sleep(1)
+                        st.rerun()
+            
+            st.write("**Répartition :**")
+            st.table(data_s['details'])
+            
+        else:
+            # 3. Si le fichier n'existe pas encore (première utilisation)
+            st.warning("⚠️ Aucun relevé de stockage trouvé.")
+            if st.button("🚀 Créer le premier relevé"):
                 if actualiser_donnees_stockage():
-                    st.success("Données mises à jour !")
-                    time.sleep(1)
                     st.rerun()
-        
-        st.write("**Répartition :**")
-        st.table(data_s['details'])
-        
-    else:
-        # 3. Si le fichier n'existe pas encore (première utilisation)
-        st.warning("⚠️ Aucun relevé de stockage trouvé.")
-        if st.button("🚀 Créer le premier relevé"):
-            if actualiser_donnees_stockage():
-                st.rerun()
-    st.divider()
+        st.divider()
