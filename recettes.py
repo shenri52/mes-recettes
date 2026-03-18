@@ -264,8 +264,6 @@ def afficher():
                 else:
                     st.info("📷 Aucune photo pour cette recette.")
 
-        st.divider()            
-
         # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
