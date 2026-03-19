@@ -5,7 +5,7 @@ import base64
 import time
 import datetime
 
-# --- 1. CONFIGURATION ---
+# --- CONFIGURATION GITHUB ---
 def get_github_config():
     """Centralise les secrets GitHub pour éviter de les répéter partout."""
     return {
