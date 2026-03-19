@@ -1,10 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-# Importation des modules (chaque fichier contient une fonction afficher())
 import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
-
-# Configuration de l'onglet du navigateur
-st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
@@ -15,6 +11,8 @@ def verifier_mot_de_passe():
         st.session_state["mode_public"] = False
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
+        st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
+        st.divider()
         st.markdown("<h1 style='text-align: center;'>🔒 Accès réservé</h1>", unsafe_allow_html=True)
         
         def valider():
@@ -81,9 +79,6 @@ if verifier_mot_de_passe():
 
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
-        st.markdown("<h1 style='text-align: center;'>🍳 Mes recettes</h1>", unsafe_allow_html=True)
-        st.divider()
-
         # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
