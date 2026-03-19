@@ -4,11 +4,9 @@ import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, c
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
-    """Vérifie l'identité via le mot de passe ou autorise l'accès public restreint."""
-    if "authentifie" not in st.session_state:
-        st.session_state["authentifie"] = False
-    if "mode_public" not in st.session_state:
-        st.session_state["mode_public"] = False
+    for cle in ["authentifie", "mode_public"]:
+        if cle not in st.session_state:
+            st.session_state[cle] = False
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -48,7 +46,7 @@ def verifier_mot_de_passe():
 def aller_accueil():
     # On remet la page sur accueil
     st.session_state.page = 'accueil'
-    # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
+    # On désactive le mode public pour revenir à l'écran de verrouillage 
     st.session_state["mode_public"] = False
 
 # --- EXÉCUTION DE L'APPLICATION ---
@@ -64,84 +62,47 @@ if verifier_mot_de_passe():
     # --- BLOC ANTI-VEILLE ---
     PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
 
-    if st.session_state.page in PAGES_CUISINE:
-        mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
-        if mode_cuisine:
-            components.html(
-                """
-                <div style="display:none;">
-                    <video autoplay loop muted playsinline style="width:1px; height:1px;">
-                        <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4">
-                    </video>
-                </div>
-                """,
-                height=0
-            )
+    if st.session_state.page in PAGES_CUISINE and st.checkbox("🚫 Garder l'écran allumé", value=False):
+        video_url = "https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3"
+        components.html(f'<video autoplay loop muted playsinline style="display:none;"><source src="{video_url}" type="video/mp4"></video>', height=0)
 
     # --- MENU D'ACCUEIL ---
-    if st.session_state.page == 'accueil':
-        # Navigation via boutons principaux
-        if st.button("📚 Mes recettes", use_container_width=True):
-            changer_page("recettes")
+    if st.session_state["authentifie"]:
+        # Liste des boutons (Texte, Cible)
+        actions = [
+            ("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter"),
+            ("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"),
+            ("🛒 Mode magasin", "coursevisualiser"), ("📊 Statistiques", "stats"),
+            ("🛠️ Maintenance", "maintenance")
+        ]
         
-        # Affichage des options réservées à l'administrateur
-        if st.session_state["authentifie"]:
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("📥 Importer une recette", use_container_width=True):
-                    changer_page("importer")
-            with col2:
-                if st.button("✍️ Créer une recette", use_container_width=True):
-                    changer_page("ajouter")
-
-            if st.button("📅 Mon planning", use_container_width=True):
-                changer_page("planning")
-            if st.button("📝 Liste des courses", use_container_width=True):
-                changer_page("coursesaisir")
-            if st.button("🛒 Mode magasin", use_container_width=True):
-                changer_page("coursevisualiser")
-
-            col3, col4 = st.columns(2)
-            with col3:
-                if st.button("📊 Statistiques", use_container_width=True):
-                    changer_page("stats")
-            with col4:
-                if st.button("🛠️ Maintenance", use_container_width=True):
-                    changer_page("maintenance")
-        else:
-            st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
-
-    # --- ROUTAGE (Contenu de la page) ---
+        # Affichage auto sur 2 colonnes
+        cols = st.columns(2)
+        for i, (label, page) in enumerate(actions):
+            if cols[i % 2].button(label, use_container_width=True):
+                changer_page(page)
     else:
-        # Dictionnaire des pages autorisées en mode public
-        pages_publiques = {
-            "recettes": recettes.afficher
-        }
-        
-        # Dictionnaire des pages réservées (admin)
-        pages_admin = {
-            "importer": importer.afficher,
-            "ajouter": saisir.afficher,
-            "coursesaisir": coursesaisir.afficher,
-            "coursevisualiser": coursevisualiser.afficher,
-            "stats": stats.afficher,
-            "planning": planning.afficher,
-            "maintenance": maintenance.afficher
-        }
-        
-        # Sélection du dictionnaire selon le statut
-        if st.session_state["authentifie"]:
-            pages_disponibles = {**pages_publiques, **pages_admin}
-        else:
-            pages_disponibles = pages_publiques
+        st.info("💡 Mode consultation actif. Connectez-vous pour l'administration.")
 
-        # Appel de la fonction afficher() si autorisée
-        if st.session_state.page in pages_disponibles:
-            pages_disponibles[st.session_state.page]()
+    # --- ROUTAGE 
+else:
+        # Pages accessibles à tous
+        pages = {"recettes": recettes.afficher}
+        
+        # Ajout des pages admin si connecté
+        if st.session_state["authentifie"]:
+            pages.update({
+                "importer": importer.afficher, "ajouter": saisir.afficher,
+                "coursesaisir": coursesaisir.afficher, "coursevisualiser": coursevisualiser.afficher,
+                "stats": stats.afficher, "planning": planning.afficher, "maintenance": maintenance.afficher
+            })
+
+        # Exécution ou message d'erreur
+        if st.session_state.page in pages:
+            pages[st.session_state.page]()
         else:
-            st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
-            if st.button("Retour à l'accueil", use_container_width=True):
-                aller_accueil()
+            st.error("🚫 Accès restreint.")
+            st.button("Retour", on_click=aller_accueil)
 
         # Bouton retour (masqué sur le planning)
         st.divider()
