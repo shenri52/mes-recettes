@@ -3,7 +3,10 @@ import requests
 import json
 import base64
 import time
-import datetime
+import io
+
+from datetime import datetime
+from PIL import Image
 
 # --- CONFIGURATION GITHUB ---
 def get_github_config():
