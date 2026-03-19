@@ -51,18 +51,15 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-        # --- CATÉGORIE ---
+# --- LOGIQUE CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
             nouvelle_cat = st.session_state[f"ncat_{f_id}"]
             if nouvelle_cat and nouvelle_cat != "---":
-                st.session_state.cat_fixee = nouvelle_cat
+                st.session_state.cat_fixee = nouvelle_cat # Pour la sélection auto
                 if nouvelle_cat not in st.session_state.liste_categories:
                     st.session_state.liste_categories.append(nouvelle_cat)
-                # VIDAGE DU CHAMP
-                st.session_state[f"ncat_{f_id}"] = ""
-                st.toast(f"Catégorie '{nouvelle_cat}' fixée ! ✅")
+                st.session_state[f"ncat_{f_id}"] = "" # Vide le texte
 
-        # --- AFFICHAGE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
             opts_cat = st.session_state.liste_categories[:1] + ["➕ Ajouter une nouvelle..."] + st.session_state.liste_categories[1:]
@@ -71,38 +68,37 @@ def afficher():
             
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
-        
+            else:
+                st.session_state.cat_fixee = choix_cat
+
         with col_btn_cat:
             st.write(" "); st.write(" ")
+            # Le bouton n'apparaît que si on est en mode "Ajout"
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_add_{f_id}", on_click=ajouter_cat_et_nettoyer)
-                
-       # ---  INGRÉDIENTS ---
+
+        # --- LOGIQUE INGRÉDIENTS ---
         def ajouter_ing_et_nettoyer():
-            # On récupère les valeurs via les clés du session_state
             nom_nouveau = st.session_state.get(f"new_ing_{f_id}", "")
-            # Si selectbox != "Ajouter", on prend la valeur du selectbox
-            ing_final = nom_nouveau if st.session_state[f"sel_{f_id}"] == "➕ Ajouter un nouveau..." else st.session_state[f"sel_{f_id}"]
-            qte_val = st.session_state[f"qte_{f_id}"]
+            # On détermine l'ingrédient final
+            ing_f = nom_nouveau if st.session_state[f"sel_{f_id}"] == "➕ Ajouter un nouveau..." else st.session_state[f"sel_{f_id}"]
+            qte_v = st.session_state[f"qte_{f_id}"]
 
-            if ing_final and ing_final != "---":
-                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte_val})
-                if ing_final not in st.session_state.liste_choix:
-                    st.session_state.liste_choix.append(ing_final)
+            if ing_f and ing_f != "---":
+                st.session_state.ingredients_recette.append({"Ingrédient": ing_f, "Quantité": qte_v})
+                if ing_f not in st.session_state.liste_choix:
+                    st.session_state.liste_choix.append(ing_f)
                 
-                # VIDAGE DES CHAMPS
-                if f"new_ing_{f_id}" in st.session_state:
-                    st.session_state[f"new_ing_{f_id}"] = ""
+                # Reset complet pour l'ingrédient suivant
+                if f"new_ing_{f_id}" in st.session_state: st.session_state[f"new_ing_{f_id}"] = ""
                 st.session_state[f"qte_{f_id}"] = ""
-                # On remet le selectbox sur "---"
-                st.session_state[f"sel_{f_id}"] = st.session_state.liste_choix[0]
+                st.session_state[f"sel_{f_id}"] = "---" # Revient au tiret
 
-        # --- AFFICHAGE ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         with col_ing:
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
-            choix = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
-            if choix == "➕ Ajouter un nouveau...":
+            choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
+            if choix_i == "➕ Ajouter un nouveau...":
                 st.text_input("Nom nouveau", key=f"new_ing_{f_id}")
         
         with col_qte:
@@ -110,14 +106,9 @@ def afficher():
         
         with col_btn_add:
             st.write(" "); st.write(" ")
-            st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
-
-        # Affichage de la liste (mise à jour du nom de variable)
-        if 'ingredients_recette' in st.session_state:
-            for i in st.session_state.ingredients_recette: st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
-
-        etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{f_id}")
-        photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{f_id}", accept_multiple_files=True)
+            # Le bouton n'apparaît que si un choix est fait (different de "---")
+            if choix_i != "---":
+                st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
     # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
     if st.button("💾 Enregistrer", use_container_width=True):
