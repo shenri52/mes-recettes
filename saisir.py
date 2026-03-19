@@ -54,20 +54,19 @@ def afficher():
 # --- SECTION CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
-            # On place "Ajouter" en deuxième position (index 1)
             opts_cat = st.session_state.liste_categories[:1] + ["➕ Ajouter une nouvelle..."] + st.session_state.liste_categories[1:]
-            choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
+            # On définit l'index par défaut sur la catégorie fixée si elle existe
+            idx_cat = opts_cat.index(st.session_state.cat_fixee) if st.session_state.cat_fixee in opts_cat else 0
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
             cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+        
         with col_btn_cat:
             st.write(" "); st.write(" ")
             if st.button("Ajouter", key=f"bcat_{f_id}") and cat_input:
                 st.session_state.cat_fixee = cat_input
                 if cat_input not in st.session_state.liste_categories: 
                     st.session_state.liste_categories.append(cat_input)
-                st.toast(f"Catégorie : {cat_input}")
-                st.rerun() # Vidage de la zone de texte
-
-        if st.session_state.cat_fixee: st.info(f"📂 Sélection : **{st.session_state.cat_fixee}**")
+                st.rerun() # Relance : le champ texte disparaît et la liste affiche la sélection
 
         # --- SECTION INGRÉDIENTS ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
