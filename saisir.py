@@ -77,23 +77,36 @@ def afficher():
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_add_{f_id}", on_click=ajouter_cat_et_nettoyer)
 
-        # --- LOGIQUE INGRÉDIENTS ---
+        # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
         def ajouter_ing_et_nettoyer():
+            # 1. Récupération des saisies
             nom_nouveau = st.session_state.get(f"new_ing_{f_id}", "")
-            # On détermine l'ingrédient final
-            ing_f = nom_nouveau if st.session_state[f"sel_{f_id}"] == "➕ Ajouter un nouveau..." else st.session_state[f"sel_{f_id}"]
-            qte_v = st.session_state[f"qte_{f_id}"]
+            choix_actuel = st.session_state[f"sel_{f_id}"]
+            
+            # Déterminer le nom final de l'ingrédient
+            ing_final = nom_nouveau if choix_actuel == "➕ Ajouter un nouveau..." else choix_actuel
+            qte_val = st.session_state[f"qte_{f_id}"]
 
-            if ing_f and ing_f != "---":
-                st.session_state.ingredients_recette.append({"Ingrédient": ing_f, "Quantité": qte_v})
-                if ing_f not in st.session_state.liste_choix:
-                    st.session_state.liste_choix.append(ing_f)
+            if ing_final and ing_final != "---":
+                # AJOUE BIEN À LA RECETTE EN COURS (C'est ce qui sera sauvé sur GitHub)
+                st.session_state.ingredients_recette.append({
+                    "Ingrédient": ing_final, 
+                    "Quantité": qte_val
+                })
                 
-                # Reset complet pour l'ingrédient suivant
-                if f"new_ing_{f_id}" in st.session_state: st.session_state[f"new_ing_{f_id}"] = ""
+                # AJOUTE À LA LISTE DE CHOIX (Pour la mémoire du menu déroulant)
+                if ing_final not in st.session_state.liste_choix:
+                    st.session_state.liste_choix.append(ing_final)
+                
+                # NETTOYAGE DES CHAMPS
+                if f"new_ing_{f_id}" in st.session_state: 
+                    st.session_state[f"new_ing_{f_id}"] = ""
                 st.session_state[f"qte_{f_id}"] = ""
-                st.session_state[f"sel_{f_id}"] = "---" # Revient au tiret
+                
+                # ON REVIENT SUR LE TIRET (Index 0)
+                st.session_state[f"sel_{f_id}"] = "---"
 
+        # --- INTERFACE ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         with col_ing:
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
@@ -106,10 +119,13 @@ def afficher():
         
         with col_btn_add:
             st.write(" "); st.write(" ")
-            # Le bouton n'apparaît que si un choix est fait (different de "---")
+            # Le bouton n'apparaît QUE si on n'est pas sur le tiret "---"
             if choix_i != "---":
                 st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
+        # Affichage visuel de ce qui est déjà dans la recette
+        for i in st.session_state.ingredients_recette:
+            st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
     # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. On détermine la catégorie finale avant de vérifier
