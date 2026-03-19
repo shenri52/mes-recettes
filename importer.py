@@ -99,19 +99,17 @@ def afficher():
     # --- BOUTON ENREGISTRER (CORRIGÉ) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. ON DÉFINIT LA VARIABLE D'ABORD
-        f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
-        
+        f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale 
         # 2. ENSUITE ON FAIT LES TESTS
         if not nom_plat:
             st.error("⚠️ Le nom de la recette est obligatoire.")
         elif not f_cat or f_cat == "---":
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
-            # 3. LE RESTE DU CODE (Enregistrement...)
-            with st.spinner("Enregistrement..."):
-            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-            nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
-            f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
+                with st.spinner("Enregistrement..."):
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
+                f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
             
             if photos_fb:
                 for idx, f in enumerate(photos_fb):
