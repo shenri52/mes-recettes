@@ -101,7 +101,7 @@ def afficher():
     # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. On détermine la catégorie finale avant de vérifier
-        f_cat = st.session_state.cat_fixee if st.session_state.cat_fixee else cat_finale 
+        f_cat = st.session_state.cat_fixee if st.session_state.cat_fixee else cat_input
         
         # 2. LES VÉRIFICATIONS (Indispensables pour voir les messages d'erreur)
         if not nom_plat or nom_plat.strip() == "":
