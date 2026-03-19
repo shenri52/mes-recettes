@@ -18,9 +18,10 @@ def recuperer_donnees_index():
             idx = res.json()
             ing = {i for r in idx for i in r.get('ingredients', []) if i}
             cat = {r.get('categorie') for r in idx if r.get('categorie')}
-            return sorted(list(ing)), sorted(list(cat))
+            # On ajoute le "---" en début de liste
+            return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
     except: pass
-    return [""], [""]
+    return ["---"], ["---"]
 
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
     conf = config_github()
@@ -50,20 +51,32 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
 
-        # --- SECTION CATÉGORIE (Alignement préservé) ---
+        # --- SECTION CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
+        
+        # On définit d'abord le choix pour savoir s'il faut afficher le champ texte
+        opts_cat = sorted(st.session_state.liste_categories)
+        if "---" not in opts_cat: opts_cat = ["---"] + opts_cat
+        opts_cat = opts_cat + ["➕ Ajouter une nouvelle..."]
+        
         with col_cat:
-            opts_cat = sorted(st.session_state.liste_categories) + ["➕ Ajouter une nouvelle..."]
             choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
+            # Le champ texte n'apparaît que si on choisit "Ajouter"
             cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+        
         with col_btn_cat:
-            st.write(" "); st.write(" ")
-            if st.button("Ajouter", key=f"bcat_{f_id}") and cat_input:
-                st.session_state.cat_fixee = cat_input
-                if cat_input not in st.session_state.liste_categories: st.session_state.liste_categories.append(cat_input)
-                st.toast(f"Catégorie : {cat_input}")
+            st.write(" "); st.write(" ") # Alignement vertical avec le selectbox
+            if st.button("Ajouter", key=f"bcat_{f_id}"):
+                if not cat_input or cat_input == "---":
+                    st.warning("⚠️ Choix invalide")
+                else:
+                    st.session_state.cat_fixee = cat_input
+                    if cat_input not in st.session_state.liste_categories: 
+                        st.session_state.liste_categories.append(cat_input)
+                    st.toast(f"Catégorie fixée : {cat_input}")
 
-        if st.session_state.cat_fixee: st.info(f"📂 Sélection : **{st.session_state.cat_fixee}**")
+        if st.session_state.cat_fixee: 
+            st.info(f"📂 Sélection actuelle : **{st.session_state.cat_fixee}**")
 
         # --- SECTION INGRÉDIENTS (Alignement préservé) ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
@@ -121,4 +134,3 @@ def afficher():
                     if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                     st.session_state.form_count += 1
                     st.rerun()
-    st.divider()
