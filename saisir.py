@@ -51,43 +51,48 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-# --- SECTION CATÉGORIE (Version qui se repositionne toute seule) ---
+# --- SECTION CATÉGORIE (Version "Ajouter en haut" fonctionnelle) ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
-            # On construit la liste des options
-            opts_cat = sorted(st.session_state.liste_categories) + ["➕ Ajouter une nouvelle..."]
+            # 1. On place "Ajouter" en index 0, puis les catégories triées
+            opts_cat = ["➕ Ajouter une nouvelle..."] + sorted([c for c in st.session_state.liste_categories if c and c != "---"])
             
-            # 1. On définit l'index par défaut : soit la catégorie fixée, soit 0 (le premier de la liste)
-            try:
+            # 2. CALCUL DE L'INDEX DYNAMIQUE
+            # Si cat_fixee est vide, on reste sur l'index 0 (Ajouter)
+            # Si cat_fixee contient une valeur, on cherche sa position exacte
+            if st.session_state.get('cat_fixee') in opts_cat:
                 idx_cat = opts_cat.index(st.session_state.cat_fixee)
-            except:
+            else:
                 idx_cat = 0
 
             choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
             
-            # Affichage du champ texte si besoin
+            # Affichage du champ texte SI on est sur "Ajouter"
             if choix_cat == "➕ Ajouter une nouvelle...":
-                cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
+                # On utilise une variable temporaire pour ne pas écraser cat_fixee trop tôt
+                cat_temp = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
-                cat_input = choix_cat
-                st.session_state.cat_fixee = choix_cat # On garde à jour si on change manuellement
+                # Si on sélectionne manuellement une catégorie existante
+                st.session_state.cat_fixee = choix_cat
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # 2. Quand on clique sur "Ajouter"
-            if choix_cat == "➕ Ajouter une nouvelle..." and st.button("➕", key=f"bcat_{f_id}"):
-                if cat_input:
-                    # On l'ajoute à la liste globale
-                    if cat_input not in st.session_state.liste_categories:
-                        st.session_state.liste_categories.append(cat_input)
+            # 3. Le bouton de validation
+            if choix_cat == "➕ Ajouter une nouvelle...":
+                if st.button("➕", key=f"bcat_{f_id}"):
+                    # On récupère la saisie via la clé du session_state
+                    nouvelle_valeur = st.session_state.get(f"ncat_{f_id}", "").strip()
                     
-                    # ON FIXE LA SÉLECTION pour le prochain tour
-                    st.session_state.cat_fixee = cat_input
-                    
-                    # REBOOT pour que l'index idx_cat soit recalculé avec la nouvelle valeur
-                    st.rerun()
-
-        # Plus besoin du st.info, le selectbox sera déjà sur la bonne valeur ! ✅
+                    if nouvelle_valeur:
+                        # On l'ajoute à la base de données locale
+                        if nouvelle_valeur not in st.session_state.liste_categories:
+                            st.session_state.liste_categories.append(nouvelle_valeur)
+                        
+                        # ON FIXE LA SÉLECTION pour le prochain tour de rendu
+                        st.session_state.cat_fixee = nouvelle_valeur
+                        
+                        # REBOOT INDISPENSABLE pour mettre à jour l'index
+                        st.rerun()
 
         # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
         def ajouter_ing_et_nettoyer():
