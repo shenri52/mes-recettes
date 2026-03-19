@@ -97,7 +97,7 @@ def afficher():
         opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(liste_sans_tiret)
         choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
         if choix_i == "➕ Ajouter un nouveau...":
-            st.text_input("Nom nouveau", key=f"new_ing_{f_id}")
+            st.text_input("Nom de l'ingrédient", key=f"new_ing_{f_id}")
         
     with col_qte:
         st.text_input("Quantité", key=f"qte_{f_id}")
