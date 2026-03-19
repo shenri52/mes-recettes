@@ -53,27 +53,41 @@ def afficher():
         
 # --- LOGIQUE CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
-            nouvelle_cat = st.session_state[f"ncat_{f_id}"]
+            # 1. On récupère le texte saisi dans le champ
+            nouvelle_cat = st.session_state.get(f"ncat_{f_id}", "").strip()
+            
             if nouvelle_cat and nouvelle_cat != "---":
-                st.session_state.cat_fixee = nouvelle_cat # Pour la sélection auto
+                # 2. ON FIXE LA SÉLECTION : C'est cette ligne qui déplace le curseur du menu
+                st.session_state.cat_fixee = nouvelle_cat
+                
+                # 3. On l'ajoute à la liste globale si elle n'y est pas
                 if nouvelle_cat not in st.session_state.liste_categories:
                     st.session_state.liste_categories.append(nouvelle_cat)
-                st.session_state[f"ncat_{f_id}"] = "" # Vide le texte
+                
+                # 4. On vide le champ de saisie de texte
+                st.session_state[f"ncat_{f_id}"] = ""
 
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
+            # Construction de la liste avec "Ajouter" en 2ème position
             opts_cat = st.session_state.liste_categories[:1] + ["➕ Ajouter une nouvelle..."] + st.session_state.liste_categories[1:]
-            idx_cat = opts_cat.index(st.session_state.cat_fixee) if st.session_state.cat_fixee in opts_cat else 0
-            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
+            
+            # CALCUL DE L'INDEX : Si cat_fixee est "Dessert", on cherche son numéro dans opts_cat
+            if st.session_state.cat_fixee in opts_cat:
+                idx_selection = opts_cat.index(st.session_state.cat_fixee)
+            else:
+                idx_selection = 0 # Par défaut sur "---"
+
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_selection, key=f"scat_{f_id}")
             
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
+                # Si l'utilisateur change manuellement dans la liste, on met à jour cat_fixee
                 st.session_state.cat_fixee = choix_cat
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # Le bouton n'apparaît que si on est en mode "Ajout"
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_add_{f_id}", on_click=ajouter_cat_et_nettoyer)
 
