@@ -51,12 +51,14 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
 
-# --- SECTION CATÉGORIE ---
+        # --- SECTION CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
             opts_cat = st.session_state.liste_categories[:1] + ["➕ Ajouter une nouvelle..."] + st.session_state.liste_categories[1:]
-            # On définit l'index par défaut sur la catégorie fixée si elle existe
+            
+            # CHANGER L'INDEX : Si on a une catégorie fixée, on cherche son numéro dans la liste
             idx_cat = opts_cat.index(st.session_state.cat_fixee) if st.session_state.cat_fixee in opts_cat else 0
+            
             choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
             cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
         
@@ -66,31 +68,26 @@ def afficher():
                 st.session_state.cat_fixee = cat_input
                 if cat_input not in st.session_state.liste_categories: 
                     st.session_state.liste_categories.append(cat_input)
-                st.rerun() # Relance : le champ texte disparaît et la liste affiche la sélection
-
+                # On relance : l'index du selectbox va passer de "Ajouter..." à ta nouvelle catégorie
+                st.rerun()
         # --- SECTION INGRÉDIENTS ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
-        
-        ing_existants = [i for i in st.session_state.liste_choix if i not in ["---", ""]]
-        # On place "Ajouter" juste après le tiret
-        opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(ing_existants)
-        
         with col_ing:
-            choix = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
+            opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
+            # Pour les ingrédients, on veut revenir à "---" (index 0) après l'ajout
+            choix = st.selectbox("Ingrédient", options=opts_ing, index=0, key=f"sel_{f_id}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
-        
         with col_qte:
             qte = st.text_input("Quantité", key=f"qte_{f_id}")
-            
+        
         with col_btn_add:
             st.write(" "); st.write(" ")
-            if st.button("Ajouter", key=f"btn_add_{f_id}"):
-                if ing_final and ing_final != "---":
-                    # On garde TON nom de variable : ingredients_recette
-                    st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                    if ing_final not in st.session_state.liste_choix: 
-                        st.session_state.liste_choix.append(ing_final)
-                    st.rerun()
+            if st.button("Ajouter", key=f"btn_add_{f_id}") and ing_final:
+                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                if ing_final not in st.session_state.liste_choix: 
+                    st.session_state.liste_choix.append(ing_final)
+                # On relance : les champs texte disparaissent car le selectbox revient sur index 0
+                st.rerun()
 
         # Affichage de la liste (mise à jour du nom de variable)
         if 'ingredients_recette' in st.session_state:
