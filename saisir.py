@@ -51,43 +51,45 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-        # --- SECTION CATÉGORIE (Reset sur --- après ajout) ---
+# --- LOGIQUE CATÉGORIE (Identique aux Ingrédients) ---
+        def ajouter_cat_et_nettoyer():
+            # 1. On récupère le texte saisi
+            nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
+            if nom_nouveau:
+                # 2. On l'ajoute à la liste de choix si besoin
+                if nom_nouveau not in st.session_state.liste_categories:
+                    st.session_state.liste_categories.append(nom_nouveau)
+                
+                # 3. LE RESET : On force le menu à revenir sur "---"
+                # C'est ce qui fait disparaître le bouton et la zone de texte !
+                st.session_state[f"scat_{f_id}"] = "---"
+                
+                # 4. On vide le champ de saisie
+                st.session_state[f"ncat_{f_id}"] = ""
+
+        # --- INTERFACE CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
-        
         with col_cat:
-            # 1. On prépare la liste : --- en haut, les catégories au milieu, Ajouter en bas
+            # On trie et on prépare les options (Ajouter à la fin pour la stabilité)
             cats_existantes = sorted([c for c in st.session_state.liste_categories if c and c != "---"])
             opts_cat = ["---"] + cats_existantes + ["➕ Ajouter une nouvelle..."]
             
-            # 2. Gestion de l'index via une variable de contrôle
-            # Si cat_fixee n'existe pas ou n'est pas dans la liste, on met 0 (le "---")
-            valeur_actuelle = st.session_state.get('cat_fixee', "---")
-            idx_cat = opts_cat.index(valeur_actuelle) if valeur_actuelle in opts_cat else 0
-
-            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
+            # Le selectbox lié à sa clé
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
             
-            # 3. Champ texte uniquement si on a choisi "Ajouter..."
+            # On affiche le champ texte SEULEMENT si "Ajouter" est sélectionné
             if choix_cat == "➕ Ajouter une nouvelle...":
-                cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
+                st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
-                # On mémorise simplement le choix pour l'enregistrement final
+                # On mémorise le choix pour le bouton "Enregistrer" final
                 st.session_state.cat_fixee = choix_cat
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
+            # Le bouton "+" n'apparaît QUE si on est sur "Ajouter"
+            # Une fois cliqué, il déclenche la fonction et disparaît au rafraîchissement
             if choix_cat == "➕ Ajouter une nouvelle...":
-                if st.button("➕", key=f"bcat_add_{f_id}"):
-                    nom_saisi = st.session_state.get(f"ncat_{f_id}", "").strip()
-                    if nom_saisi:
-                        # AJOUT à la liste mémoire (pour qu'elle apparaisse au prochain coup)
-                        if nom_saisi not in st.session_state.liste_categories:
-                            st.session_state.liste_categories.append(nom_saisi)
-                        
-                        # LE RESET : On demande de revenir sur le tiret
-                        st.session_state.cat_fixee = "---"
-                        
-                        # On relance : le champ texte disparaît et le menu revient en haut
-                        st.rerun()
+                st.button("➕", key=f"bcat_valider_{f_id}", on_click=ajouter_cat_et_nettoyer)
 
         # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
         def ajouter_ing_et_nettoyer():
@@ -138,6 +140,7 @@ def afficher():
         # Affichage visuel de ce qui est déjà dans la recette
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
+            
     # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. On détermine la catégorie finale avant de vérifier
