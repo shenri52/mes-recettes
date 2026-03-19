@@ -7,6 +7,7 @@ import io
 
 from datetime import datetime
 from PIL import Image
+from collections import Counter
 
 # --- CONFIGURATION GITHUB ---
 def get_github_config():
