@@ -98,39 +98,71 @@ def afficher():
         etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{f_id}")
         photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{f_id}", accept_multiple_files=True)
 
-    if st.button("💾 Enregistrer", use_container_width=True) and nom_plat:
-        with st.spinner("Enregistrement..."):
-            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-            nom_fic, liste_medias, img_ok = nom_plat.replace(" ", "_").lower(), [], True
-            f_cat = st.session_state.cat_fixee or cat_input
-
-            if photos_fb:
-                for idx, f in enumerate(photos_fb):
-                    ext, cnt = f.name.lower().split('.')[-1], f.getvalue()
-                    if ext in ["jpg", "jpeg", "png"]:
-                        img = Image.open(f).convert("RGB")
-                        img.thumbnail((1200, 1200))
-                        buf = io.BytesIO()
-                        img.save(buf, format="JPEG", quality=80, optimize=True)
-                        cnt, ext = buf.getvalue(), "jpg"
-                    
-                    ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                    if envoyer_vers_github(ch_m, cnt, f"Media {idx}", True): liste_medias.append(ch_m)
-                    else: img_ok = False
-
-            if img_ok:
-                ch_j = f"data/recettes/{ts}_{nom_fic}.json"
-                rec_data = {"nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, "temps_preparation": tps_prep, "temps_cuisson": tps_cuis, "ingredients": st.session_state.ingredients_recette, "etapes": etapes, "images": liste_medias}
+    # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
+    if st.button("💾 Enregistrer", use_container_width=True):
+        # 1. On détermine la catégorie finale avant de vérifier
+        f_cat = st.session_state.cat_fixee if st.session_state.cat_fixee else cat_finale 
+        
+        # 2. LES VÉRIFICATIONS (Indispensables pour voir les messages d'erreur)
+        if not nom_plat or nom_plat.strip() == "":
+            st.error("⚠️ Le nom de la recette est obligatoire.")
+        elif not f_cat or f_cat == "---":
+            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+        else:
+            # 3. SI TOUT EST OK -> ON ENREGISTRE
+            with st.spinner("Enregistrement en cours..."):
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
                 
-                if envoyer_vers_github(ch_j, json.dumps(rec_data, indent=4, ensure_ascii=False), "Nouveau"):
-                    conf = config_github()
-                    res_idx = requests.get(f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json")
+                if photos_fb:
+                    for idx, f in enumerate(photos_fb):
+                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
+                        if ext in ["jpg", "jpeg", "png"]:
+                            img = Image.open(f).convert("RGB")
+                            img.thumbnail((1200, 1200))
+                            buf = io.BytesIO()
+                            img.save(buf, format="JPEG", quality=80, optimize=True)
+                            data_env, ext = buf.getvalue(), "jpg"
+                        
+                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
+                        if envoyer_vers_github(ch_m, data_env, "Media", True): 
+                            liste_medias.append(ch_m)
+
+                ch_r = f"data/recettes/{ts}_{nom_fic}.json"
+                rec_data = {
+                    "nom": nom_plat, 
+                    "categorie": f_cat, 
+                    "appareil": type_appareil, 
+                    "temps_preparation": tps_prep, 
+                    "temps_cuisson": tps_cuis, 
+                    "ingredients": st.session_state.ingredients_img, 
+                    "etapes": "Voir image jointe", 
+                    "images": liste_medias
+                }
+                
+                if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
+                    res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
                     idx_data = res_idx.json() if res_idx.status_code == 200 else []
-                    idx_data.append({"nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], "chemin": ch_j})
+                    idx_data.append({
+                        "nom": nom_plat, 
+                        "categorie": f_cat, 
+                        "appareil": type_appareil, 
+                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img], 
+                        "chemin": ch_r
+                    })
                     envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
 
-                    st.success("Enregistré !")
-                    st.session_state.ingredients_recette, st.session_state.cat_fixee = [], ""
-                    if 'index_recettes' in st.session_state: del st.session_state.index_recettes
-                    st.session_state.form_count += 1
+                    st.success("✅ Recette importée avec succès !")
+                    
+                    # --- RESET ---
+                    st.session_state.ingredients_img = []
+                    st.session_state.cat_fixee = ""
+                    st.session_state.cat_selectionnee = ""
+                    if 'index_recettes' in st.session_state: 
+                        del st.session_state.index_recettes
+                    
+                    st.session_state.form_count_img += 1
+                    
+                    # Petit délai pour laisser lire le succès avant le rerun
+                    time.sleep(1.5)
                     st.rerun()
