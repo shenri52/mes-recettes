@@ -51,44 +51,39 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-# --- SECTION CATÉGORIE (Version "Plat Rapide" avec ---) ---
+# --- LOGIQUE CATÉGORIE (Zéro Footprint / Direct Link) ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
+        
         with col_cat:
-            # 1. On construit la liste : Tiret en 1er, Ajouter en 2ème, puis le reste trié
-            categories_triees = sorted([c for c in st.session_state.liste_categories if c and c not in ["---", "➕ Ajouter une nouvelle..."]])
-            opts_cat = ["---", "➕ Ajouter une nouvelle..."] + categories_triees
+            # 1. Construction de la liste (Tiret en haut, Ajouter en bas)
+            categories_existantes = sorted([c for c in st.session_state.liste_categories if c and c != "---"])
+            opts_cat = ["---"] + categories_existantes + ["➕ Ajouter une nouvelle..."]
             
-            # 2. CALCUL DE L'INDEX DYNAMIQUE
-            # Si on vient d'ajouter une catégorie, elle est dans cat_fixee. On la cherche.
-            if st.session_state.get('cat_fixee') in opts_cat:
-                idx_cat = opts_cat.index(st.session_state.cat_fixee)
-            else:
-                idx_cat = 0 # Par défaut sur "---"
-
-            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
+            # 2. Le Selectbox (on ne gère plus l'index, on gère la KEY)
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
             
-            # Affichage du champ texte SI on veut ajouter
+            # 3. Champ texte uniquement si on a choisi "Ajouter..."
             if choix_cat == "➕ Ajouter une nouvelle...":
                 cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
-                # Si on choisit une catégorie existante, elle devient la sélection officielle
-                st.session_state.cat_fixee = choix_cat
+                st.session_state.cat_fixee = choix_cat # On mémorise le choix actuel
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # Le bouton n'apparaît que pour l'ajout
             if choix_cat == "➕ Ajouter une nouvelle...":
                 if st.button("➕", key=f"bcat_add_{f_id}"):
-                    nouvelle_val = st.session_state.get(f"ncat_{f_id}", "").strip()
-                    if nouvelle_val:
-                        # Ajout à la liste globale
-                        if nouvelle_val not in st.session_state.liste_categories:
-                            st.session_state.liste_categories.append(nouvelle_val)
+                    nom_saisi = st.session_state.get(f"ncat_{f_id}", "").strip()
+                    if nom_saisi:
+                        # AJOUT à la liste globale
+                        if nom_saisi not in st.session_state.liste_categories:
+                            st.session_state.liste_categories.append(nom_saisi)
                         
-                        # ON FIXE LA SÉLECTION pour que l'index saute dessus au prochain tour
-                        st.session_state.cat_fixee = nouvelle_val
+                        # LE LIEN DIRECT : On force la valeur de la selectbox
+                        # On écrit directement dans la clé du widget
+                        st.session_state[f"scat_{f_id}"] = nom_saisi
+                        st.session_state.cat_fixee = nom_saisi
                         
-                        # REBOOT pour mettre à jour l'affichage immédiatement
+                        # On relance pour que le widget lise sa nouvelle valeur
                         st.rerun()
 
         # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
