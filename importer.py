@@ -18,7 +18,9 @@ def recuperer_donnees_index():
             idx = res.json()
             ing = {i for r in idx for i in r.get('ingredients', []) if i}
             cat = {r.get('categorie') for r in idx if r.get('categorie')}
-            return sorted(list(ing)), sorted(list(cat))
+            ingredients = ["---"] + sorted(list(ing))
+            categories = ["---"] + sorted(list(cat))
+            return ingredients, categories
     except: pass
     return [""], [""]
 
@@ -65,23 +67,44 @@ def afficher():
 
     if st.session_state.cat_selectionnee: st.info(f"📂 Catégorie retenue : **{st.session_state.cat_selectionnee}**")
 
-    # --- SECTION INGRÉDIENTS (Structure conservée) ---
+    # --- SECTION INGRÉDIENTS ---
     col_ing, col_btn_add = st.columns([2, 0.5])
     with col_ing:
-        opts_ing = sorted(st.session_state.liste_choix_img) + ["➕ Ajouter un nouveau..."]
+        # 1. On récupère la liste SANS le "---" pour trier proprement
+        liste_sans_tiret = [i for i in st.session_state.liste_choix_img if i != "---"]
+        
+        # 2. On reconstruit l'ordre : Tiret en 1er, Ajouter en 2e, puis le reste trié
+        opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(liste_sans_tiret)
+        
         choix = st.selectbox("Ingrédient", options=opts_ing, key=f"si_{f_id}")
+        
+        # On gère l'input texte si nouveau
         ing_final = st.text_input("Nom de l'ingrédient", key=f"nwi_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
+    
     with col_btn_add:
         st.write(" "); st.write(" ")
-        if st.button("Ajouter", key=f"bi_{f_id}") and ing_final:
-            st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
-            if ing_final not in st.session_state.liste_choix_img: st.session_state.liste_choix_img.append(ing_final)
-            st.rerun()
+        # On vérifie qu'on n'ajoute pas les valeurs interdites
+        if st.button("Ajouter", key=f"bi_{f_id}"):
+            if ing_final in ["---", "➕ Ajouter un nouveau..."] or not ing_final:
+                st.warning("⚠️ Veuillez sélectionner un ingrédient valide.")
+            else:
+                st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
+                if ing_final not in st.session_state.liste_choix_img: 
+                    st.session_state.liste_choix_img.append(ing_final)
+                st.rerun()
 
     for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
-    if st.button("💾 Enregistrer", use_container_width=True) and nom_plat:
+    if st.button("💾 Enregistrer", use_container_width=True):
+    # On définit la catégorie finale avant le test
+    f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
+    
+    if not nom_plat:
+        st.error("⚠️ Le nom de la recette est obligatoire.")
+    elif not f_cat or f_cat == "---":
+        st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+    else:
         with st.spinner("Enregistrement..."):
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
