@@ -54,19 +54,17 @@ def afficher():
         # --- SECTION CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         
-        # On définit d'abord le choix pour savoir s'il faut afficher le champ texte
-        opts_cat = sorted(st.session_state.liste_categories)
-        if "---" not in opts_cat: opts_cat = ["---"] + opts_cat
-        opts_cat = opts_cat + ["➕ Ajouter une nouvelle..."]
+        cat_existantes = [c for c in st.session_state.liste_categories if c not in ["---", ""]]
+        # On place "Ajouter" juste après le tiret
+        opts_cat = ["---", "➕ Ajouter une nouvelle..."] + sorted(cat_existantes)
         
         with col_cat:
             choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
-            # Le champ texte n'apparaît que si on choisit "Ajouter"
             cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
         
         with col_btn_cat:
-            st.write(" "); st.write(" ") # Alignement vertical avec le selectbox
-            if st.button("Ajouter", key=f"bcat_{f_id}"):
+            st.write(" "); st.write(" ")
+            if st.button("Fixer", key=f"bcat_{f_id}"):
                 if not cat_input or cat_input == "---":
                     st.warning("⚠️ Choix invalide")
                 else:
@@ -75,25 +73,33 @@ def afficher():
                         st.session_state.liste_categories.append(cat_input)
                     st.toast(f"Catégorie fixée : {cat_input}")
 
-        if st.session_state.cat_fixee: 
-            st.info(f"📂 Sélection actuelle : **{st.session_state.cat_fixee}**")
-
-        # --- SECTION INGRÉDIENTS (Alignement préservé) ---
+        # --- SECTION INGRÉDIENTS ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
+        
+        ing_existants = [i for i in st.session_state.liste_choix if i not in ["---", ""]]
+        # On place "Ajouter" juste après le tiret
+        opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(ing_existants)
+        
         with col_ing:
-            opts_ing = sorted(st.session_state.liste_choix) + ["➕ Ajouter un nouveau..."]
             choix = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
             ing_final = st.text_input("Nom nouveau", key=f"new_ing_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
+        
         with col_qte:
             qte = st.text_input("Quantité", key=f"qte_{f_id}")
+            
         with col_btn_add:
             st.write(" "); st.write(" ")
-            if st.button("Ajouter", key=f"btn_add_{f_id}") and ing_final:
-                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                if ing_final not in st.session_state.liste_choix: st.session_state.liste_choix.append(ing_final)
-                st.rerun()
+            if st.button("Ajouter", key=f"btn_add_{f_id}"):
+                if ing_final and ing_final != "---":
+                    # On garde TON nom de variable : ingredients_recette
+                    st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                    if ing_final not in st.session_state.liste_choix: 
+                        st.session_state.liste_choix.append(ing_final)
+                    st.rerun()
 
-        for i in st.session_state.ingredients_recette: st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
+        # Affichage de la liste (mise à jour du nom de variable)
+        if 'ingredients_recette' in st.session_state:
+            for i in st.session_state.ingredients_recette: st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
         etapes = st.text_area("Étapes", height=150, key=f"et_saisir_{f_id}")
         photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"ph_{f_id}", accept_multiple_files=True)
@@ -135,7 +141,7 @@ def afficher():
                     "appareil": type_appareil, 
                     "temps_preparation": tps_prep, 
                     "temps_cuisson": tps_cuis, 
-                    "ingredients": st.session_state.ingredients_img, 
+                    "ingredients": st.session_state.ingredients_recette, 
                     "etapes": "Voir image jointe", 
                     "images": liste_medias
                 }
@@ -147,7 +153,7 @@ def afficher():
                         "nom": nom_plat, 
                         "categorie": f_cat, 
                         "appareil": type_appareil, 
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img], 
+                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], 
                         "chemin": ch_r
                     })
                     envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
@@ -155,13 +161,13 @@ def afficher():
                     st.success("✅ Recette importée avec succès !")
                     
                     # --- RESET ---
-                    st.session_state.ingredients_img = []
+                    st.session_state.ingredients_recette = []
                     st.session_state.cat_fixee = ""
                     st.session_state.cat_selectionnee = ""
                     if 'index_recettes' in st.session_state: 
                         del st.session_state.index_recettes
                     
-                    st.session_state.form_count_img += 1
+                    st.session_state.form_count += 1
                     
                     # Petit délai pour laisser lire le succès avant le rerun
                     time.sleep(1.5)
