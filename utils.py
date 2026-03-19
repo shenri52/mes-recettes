@@ -1,21 +1,14 @@
 import streamlit as st
-import requests
-import json
-import base64
-import time
-import io
 
-from datetime import datetime
-from PIL import Image
-from collections import Counter
-
-# --- CONFIGURATION GITHUB ---
 def get_github_config():
-    """Centralise les secrets GitHub pour éviter de les répéter partout."""
+    """
+    Centralise les identifiants et les headers pour l'API GitHub.
+    À utiliser dans tous les fichiers qui contactent le dépôt.
+    """
     return {
-        "token": st.secrets["GITHUB_TOKEN"],
         "owner": st.secrets["REPO_OWNER"],
         "repo": st.secrets["REPO_NAME"],
+        "token": st.secrets["GITHUB_TOKEN"],
         "headers": {
             "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
             "Accept": "application/vnd.github.v3+json"
