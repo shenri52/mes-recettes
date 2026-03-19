@@ -51,7 +51,7 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-# --- LOGIQUE CATÉGORIE (Identique aux Ingrédients) ---
+        # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
             # 1. On récupère le texte saisi
             nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
@@ -61,13 +61,11 @@ def afficher():
                     st.session_state.liste_categories.append(nom_nouveau)
                 
                 # 3. LE RESET : On force le menu à revenir sur "---"
-                # C'est ce qui fait disparaître le bouton et la zone de texte !
                 st.session_state[f"scat_{f_id}"] = "---"
                 
                 # 4. On vide le champ de saisie
                 st.session_state[f"ncat_{f_id}"] = ""
 
-        # --- INTERFACE CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
             # On trie et on prépare les options (Ajouter à la fin pour la stabilité)
@@ -91,7 +89,7 @@ def afficher():
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_valider_{f_id}", on_click=ajouter_cat_et_nettoyer)
 
-        # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
+        # ---  INGRÉDIENTS  ---
         def ajouter_ing_et_nettoyer():
             # 1. Récupération des saisies
             nom_nouveau = st.session_state.get(f"new_ing_{f_id}", "")
@@ -102,13 +100,13 @@ def afficher():
             qte_val = st.session_state[f"qte_{f_id}"]
 
             if ing_final and ing_final != "---":
-                # AJOUE BIEN À LA RECETTE EN COURS (C'est ce qui sera sauvé sur GitHub)
+                # Ajoute l'ingrédient à la rectte
                 st.session_state.ingredients_recette.append({
                     "Ingrédient": ing_final, 
                     "Quantité": qte_val
                 })
                 
-                # AJOUTE À LA LISTE DE CHOIX (Pour la mémoire du menu déroulant)
+                # Ajoute l'ingrédient à la liste
                 if ing_final not in st.session_state.liste_choix:
                     st.session_state.liste_choix.append(ing_final)
                 
@@ -120,7 +118,6 @@ def afficher():
                 # ON REVIENT SUR LE TIRET (Index 0)
                 st.session_state[f"sel_{f_id}"] = "---"
 
-        # --- INTERFACE ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         with col_ing:
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
@@ -141,16 +138,15 @@ def afficher():
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
-    # --- SECTION MÉDIAS (Identique à Importer) ---
-    st.subheader("📸 Photos de la recette")
+    # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader(
-        "Sélectionnez une ou plusieurs images", 
+        "📸 Photos de la recette", 
         type=["jpg", "png", "jpeg"], 
         key=f"fi_{f_id}", 
         accept_multiple_files=True
     )
     
-    # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
+    # --- BLOC BOUTON ENREGISTRER  ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. On détermine la catégorie finale avant de vérifier
         f_cat = st.session_state.cat_fixee
