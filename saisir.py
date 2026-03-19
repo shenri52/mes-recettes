@@ -1,6 +1,6 @@
 import streamlit as st
 
-from github_utils import charger_index, scanner_depot_stats
+from utils import get_github_config
 
 def recuperer_donnees_index():
     conf = config_github()
