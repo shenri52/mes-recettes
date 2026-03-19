@@ -1,6 +1,23 @@
 import streamlit as st
+import requests
+import json
+import time
+import datetime
+import base64
+from collections import Counter
 
-from utils import get_github_config
+# --- CONFIGURATION TECHNIQUE ---
+def config_github():
+    """Récupère les identifiants GitHub depuis les secrets Streamlit."""
+    return {
+        "token": st.secrets["GITHUB_TOKEN"],
+        "owner": st.secrets["REPO_OWNER"],
+        "repo": st.secrets["REPO_NAME"],
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+    }
 
 def charger_index():
     """Charge l'index des recettes avec un timestamp pour éviter le cache navigateur."""
@@ -182,3 +199,4 @@ def afficher():
                 st.success("Premier relevé créé !")
                 time.sleep(1)
                 st.rerun()
+    st.divider()
