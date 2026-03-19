@@ -107,9 +107,9 @@ def afficher():
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
                 with st.spinner("Enregistrement..."):
-                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
-                f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
+                    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
+                    f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
             
             if photos_fb:
                 for idx, f in enumerate(photos_fb):
