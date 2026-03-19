@@ -109,14 +109,6 @@ def afficher():
         else:
             # 3. LE RESTE DU CODE (Enregistrement...)
             with st.spinner("Enregistrement..."):
-                # ... la suite de ton code ...
-    
-    if not nom_plat:
-        st.error("⚠️ Le nom de la recette est obligatoire.")
-    elif not f_cat or f_cat == "---":
-        st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
-    else:
-        with st.spinner("Enregistrement..."):
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
             f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
