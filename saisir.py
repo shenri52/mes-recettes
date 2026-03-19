@@ -51,65 +51,43 @@ def afficher():
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
         
-# --- LOGIQUE CATÉGORIE ---
-        def ajouter_cat_et_nettoyer():
-            # 1. On récupère le texte saisi
-            nouvelle_cat = st.session_state.get(f"ncat_{f_id}", "").strip()
-            
-            if nouvelle_cat and nouvelle_cat != "---":
-                # 2. On l'ajoute à la liste si besoin
-                if nouvelle_cat not in st.session_state.liste_categories:
-                    st.session_state.liste_categories.append(nouvelle_cat)
-                
-                # 3. ON FORCE LA VALEUR DU WIDGET DIRECTEMENT
-                # On met à jour la clé du selectbox avec le nouveau nom
-                st.session_state[f"scat_{f_id}"] = nouvelle_cat
-                st.session_state.cat_fixee = nouvelle_cat
-                
-                # 4. On vide le champ texte
-                st.session_state[f"ncat_{f_id}"] = ""
-
+# --- SECTION CATÉGORIE (Version qui se repositionne toute seule) ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
-            # 1. On prépare la liste avec "Ajouter" tout en haut (index 0)
-            # On trie le reste de A à Z
-            opts_cat = ["➕ Ajouter une nouvelle..."] + sorted([c for c in st.session_state.liste_categories if c and c != "---"])
+            # On construit la liste des options
+            opts_cat = sorted(st.session_state.liste_categories) + ["➕ Ajouter une nouvelle..."]
             
-            # 2. CALCUL DE L'INDEX : 
-            # Si on vient d'ajouter quelque chose, cat_fixee contient le nom.
-            # On cherche sa place dans la liste pour que le menu saute dessus.
-            if st.session_state.cat_fixee in opts_cat:
-                idx_selection = opts_cat.index(st.session_state.cat_fixee)
-            else:
-                # Par défaut, on affiche "Ajouter" (index 0) si rien n'est fixé
-                idx_selection = 0
+            # 1. On définit l'index par défaut : soit la catégorie fixée, soit 0 (le premier de la liste)
+            try:
+                idx_cat = opts_cat.index(st.session_state.cat_fixee)
+            except:
+                idx_cat = 0
 
-            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_selection, key=f"scat_{f_id}")
+            choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
             
-            # Affichage du champ texte SI on est sur "Ajouter"
+            # Affichage du champ texte si besoin
             if choix_cat == "➕ Ajouter une nouvelle...":
                 cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
-                # Si on choisit une catégorie existante, elle devient la "fixée"
-                st.session_state.cat_fixee = choix_cat
+                cat_input = choix_cat
+                st.session_state.cat_fixee = choix_cat # On garde à jour si on change manuellement
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # Le bouton n'apparaît que si on est en mode "Ajout"
-            if choix_cat == "➕ Ajouter une nouvelle...":
-                if st.button("➕", key=f"bcat_add_{f_id}"):
-                    # On récupère ce qui est tapé dans le champ texte
-                    nom_saisi = st.session_state.get(f"ncat_{f_id}", "").strip()
-                    if nom_saisi:
-                        # On l'ajoute à la liste de mémoire
-                        if nom_saisi not in st.session_state.liste_categories:
-                            st.session_state.liste_categories.append(nom_saisi)
-                        
-                        # ON FIXE LA SÉLECTION pour que l'index saute dessus au reboot
-                        st.session_state.cat_fixee = nom_saisi
-                        
-                        # LE REBOOT CRUCIAL
-                        st.rerun()
+            # 2. Quand on clique sur "Ajouter"
+            if choix_cat == "➕ Ajouter une nouvelle..." and st.button("➕", key=f"bcat_{f_id}"):
+                if cat_input:
+                    # On l'ajoute à la liste globale
+                    if cat_input not in st.session_state.liste_categories:
+                        st.session_state.liste_categories.append(cat_input)
+                    
+                    # ON FIXE LA SÉLECTION pour le prochain tour
+                    st.session_state.cat_fixee = cat_input
+                    
+                    # REBOOT pour que l'index idx_cat soit recalculé avec la nouvelle valeur
+                    st.rerun()
+
+        # Plus besoin du st.info, le selectbox sera déjà sur la bonne valeur ! ✅
 
         # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
         def ajouter_ing_et_nettoyer():
