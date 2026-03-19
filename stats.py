@@ -1,6 +1,5 @@
 import streamlit as st
 
-from collections import Counter
 from utils import get_github_config
 
 def charger_index():
