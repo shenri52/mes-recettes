@@ -79,7 +79,7 @@ def afficher():
             
             # On affiche le champ texte SEULEMENT si "Ajouter" est sélectionné
             if choix_cat == "➕ Ajouter une nouvelle...":
-                st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
+                st.text_input("Nom de la catégorie", key=f"ncat_{f_id}")
             else:
                 # On mémorise le choix pour le bouton "Enregistrer" final
                 st.session_state.cat_fixee = choix_cat
@@ -126,7 +126,7 @@ def afficher():
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
             choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
             if choix_i == "➕ Ajouter un nouveau...":
-                st.text_input("Nom nouveau", key=f"new_ing_{f_id}")
+                st.text_input("Nom de l'ingrédients", key=f"new_ing_{f_id}")
         
         with col_qte:
             st.text_input("Quantité", key=f"qte_{f_id}")
@@ -140,11 +140,20 @@ def afficher():
         # Affichage visuel de ce qui est déjà dans la recette
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
-            
+
+    # --- SECTION MÉDIAS (Identique à Importer) ---
+    st.subheader("📸 Photos de la recette")
+    photos_fb = st.file_uploader(
+        "Sélectionnez une ou plusieurs images", 
+        type=["jpg", "png", "jpeg"], 
+        key=f"fi_{f_id}", 
+        accept_multiple_files=True
+    )
+    
     # --- BLOC BOUTON ENREGISTRER (LOGIQUE DE CONTRÔLE RÉPARÉE) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         # 1. On détermine la catégorie finale avant de vérifier
-        f_cat = st.session_state.cat_fixee if st.session_state.cat_fixee else cat_input
+        f_cat = st.session_state.cat_fixee
         
         # 2. LES VÉRIFICATIONS (Indispensables pour voir les messages d'erreur)
         if not nom_plat or nom_plat.strip() == "":
