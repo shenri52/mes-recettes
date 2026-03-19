@@ -50,44 +50,67 @@ def afficher():
         type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
+        
+        # --- CATÉGORIE ---
+        def ajouter_cat_et_nettoyer():
+            nouvelle_cat = st.session_state[f"ncat_{f_id}"]
+            if nouvelle_cat and nouvelle_cat != "---":
+                st.session_state.cat_fixee = nouvelle_cat
+                if nouvelle_cat not in st.session_state.liste_categories:
+                    st.session_state.liste_categories.append(nouvelle_cat)
+                # VIDAGE DU CHAMP
+                st.session_state[f"ncat_{f_id}"] = ""
+                st.toast(f"Catégorie '{nouvelle_cat}' fixée ! ✅")
 
-        # --- SECTION CATÉGORIE ---
+        # --- AFFICHAGE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
             opts_cat = st.session_state.liste_categories[:1] + ["➕ Ajouter une nouvelle..."] + st.session_state.liste_categories[1:]
-            
-            # CHANGER L'INDEX : Si on a une catégorie fixée, on cherche son numéro dans la liste
             idx_cat = opts_cat.index(st.session_state.cat_fixee) if st.session_state.cat_fixee in opts_cat else 0
-            
             choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_cat, key=f"scat_{f_id}")
-            cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+            
+            if choix_cat == "➕ Ajouter une nouvelle...":
+                st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
         
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            if st.button("Ajouter", key=f"bcat_{f_id}") and cat_input:
-                st.session_state.cat_fixee = cat_input
-                if cat_input not in st.session_state.liste_categories: 
-                    st.session_state.liste_categories.append(cat_input)
-                # On relance : l'index du selectbox va passer de "Ajouter..." à ta nouvelle catégorie
-                st.rerun()
-        # --- SECTION INGRÉDIENTS ---
+            if choix_cat == "➕ Ajouter une nouvelle...":
+                st.button("➕", key=f"bcat_add_{f_id}", on_click=ajouter_cat_et_nettoyer)
+                
+       # ---  INGRÉDIENTS ---
+        def ajouter_ing_et_nettoyer():
+            # On récupère les valeurs via les clés du session_state
+            nom_nouveau = st.session_state.get(f"new_ing_{f_id}", "")
+            # Si selectbox != "Ajouter", on prend la valeur du selectbox
+            ing_final = nom_nouveau if st.session_state[f"sel_{f_id}"] == "➕ Ajouter un nouveau..." else st.session_state[f"sel_{f_id}"]
+            qte_val = st.session_state[f"qte_{f_id}"]
+
+            if ing_final and ing_final != "---":
+                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte_val})
+                if ing_final not in st.session_state.liste_choix:
+                    st.session_state.liste_choix.append(ing_final)
+                
+                # VIDAGE DES CHAMPS
+                if f"new_ing_{f_id}" in st.session_state:
+                    st.session_state[f"new_ing_{f_id}"] = ""
+                st.session_state[f"qte_{f_id}"] = ""
+                # On remet le selectbox sur "---"
+                st.session_state[f"sel_{f_id}"] = st.session_state.liste_choix[0]
+
+        # --- AFFICHAGE ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         with col_ing:
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
-            # Pour les ingrédients, on veut revenir à "---" (index 0) après l'ajout
-            choix = st.selectbox("Ingrédient", options=opts_ing, index=0, key=f"sel_{f_id}")
-            ing_final = st.text_input("Nom nouveau", key=f"new_ing_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
+            choix = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
+            if choix == "➕ Ajouter un nouveau...":
+                st.text_input("Nom nouveau", key=f"new_ing_{f_id}")
+        
         with col_qte:
-            qte = st.text_input("Quantité", key=f"qte_{f_id}")
+            st.text_input("Quantité", key=f"qte_{f_id}")
         
         with col_btn_add:
             st.write(" "); st.write(" ")
-            if st.button("Ajouter", key=f"btn_add_{f_id}") and ing_final:
-                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
-                if ing_final not in st.session_state.liste_choix: 
-                    st.session_state.liste_choix.append(ing_final)
-                # On relance : les champs texte disparaissent car le selectbox revient sur index 0
-                st.rerun()
+            st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
         # Affichage de la liste (mise à jour du nom de variable)
         if 'ingredients_recette' in st.session_state:
