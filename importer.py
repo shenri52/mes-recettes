@@ -37,7 +37,7 @@ def afficher():
     st.header("📥 Importer une recette")
     st.divider()
     
-    # Initialisation session_state (On utilise ["---"] au lieu de [""])
+    # Initialisation session_state
     for k, v in {'form_count_img': 0, 'ingredients_img': [], 'liste_choix_img': ["---"], 'liste_categories_img': ["---"], 'cat_fixee': ""}.items():
         if k not in st.session_state: st.session_state[k] = v
 
@@ -52,7 +52,7 @@ def afficher():
     tps_prep = c_prep.text_input("Temps préparation", key=f"pri_{f_id}", placeholder="ex: 10 min")
     tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cui_{f_id}", placeholder="ex: 5 min")
 
-# --- LOGIQUE CALLBACKS ---
+    # --- LOGIQUE CALLBACKS ---
     def ajouter_cat_img_nettoyer():
         nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
         if nom_nouveau:
@@ -74,7 +74,7 @@ def afficher():
             st.session_state[f"new_ing_{f_id}"] = ""
             st.session_state[f"sel_{f_id}"] = "---"
 
-    # --- SECTION CATÉGORIE ---
+    # --- CATÉGORIE ---
     col_cat, col_btn_cat = st.columns([2, 0.5])
     with col_cat:
         cat_sans_tiret = [c for c in st.session_state.liste_categories_img if c != "---"]
@@ -90,7 +90,7 @@ def afficher():
         if choix_cat == "➕ Ajouter une nouvelle...":
             st.button("➕", key=f"bcat_{f_id}", on_click=ajouter_cat_img_nettoyer)
 
-    # --- SECTION INGRÉDIENTS ---
+    # --- INGRÉDIENTS ---
     col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
     with col_ing:
         liste_sans_tiret = [i for i in st.session_state.liste_choix_img if i != "---"]    
