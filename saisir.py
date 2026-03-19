@@ -53,25 +53,22 @@ def afficher():
 
         # --- SECTION CATÉGORIE ---
         col_cat, col_btn_cat = st.columns([2, 0.5])
-        
-        cat_existantes = [c for c in st.session_state.liste_categories if c not in ["---", ""]]
-        # On place "Ajouter" juste après le tiret
-        opts_cat = ["---", "➕ Ajouter une nouvelle..."] + sorted(cat_existantes)
-        
         with col_cat:
+            opts_cat = ["---"] + sorted(st.session_state.liste_categories) + ["➕ Ajouter une nouvelle..."]
             choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
             cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
-        
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            if st.button("Fixer", key=f"bcat_{f_id}"):
-                if not cat_input or cat_input == "---":
-                    st.warning("⚠️ Choix invalide")
-                else:
-                    st.session_state.cat_fixee = cat_input
-                    if cat_input not in st.session_state.liste_categories: 
-                        st.session_state.liste_categories.append(cat_input)
-                    st.toast(f"Catégorie fixée : {cat_input}")
+            if st.button("Ajouter", key=f"bcat_{f_id}") and cat_input:
+                st.session_state.cat_fixee = cat_input
+                if cat_input not in st.session_state.liste_categories: 
+                    st.session_state.liste_categories.append(cat_input)
+                st.toast(f"Catégorie : {cat_input}")
+                # AJOUT : On relance pour vider la zone de texte
+                st.rerun()
+
+        if st.session_state.cat_fixee: 
+            st.info(f"📂 Sélection : **{st.session_state.cat_fixee}**")
 
         # --- SECTION INGRÉDIENTS ---
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
