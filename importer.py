@@ -96,15 +96,17 @@ def afficher():
     for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
-    # --- BLOC BOUTON ENREGISTRER (CORRECTION SYNTAXE) ---
+    # --- BLOC BOUTON ENREGISTRER (CORRIGÉ) ---
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale 
         
+        # On vérifie d'abord si les champs sont vides
         if not nom_plat:
             st.error("⚠️ Le nom de la recette est obligatoire.")
         elif not f_cat or f_cat == "---":
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
+            # Si tout est OK, on procède
             with st.spinner("Enregistrement..."):
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
@@ -126,6 +128,7 @@ def afficher():
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {"nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, "temps_preparation": tps_prep, "temps_cuisson": tps_cuis, "ingredients": st.session_state.ingredients_img, "etapes": "Voir image jointe", "images": liste_medias}
                 
+                # Envoi de la recette et mise à jour de l'index
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
                     res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
                     idx_data = res_idx.json() if res_idx.status_code == 200 else []
@@ -133,9 +136,11 @@ def afficher():
                     envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
 
                     st.success("Importé !")
-                    # Reset pour vider le formulaire après succès
-                    st.session_state.ingredients_img, st.session_state.cat_selectionnee = [], ""
-                    if 'index_recettes' in st.session_state: del st.session_state.index_recettes
+                    # Le nettoyage se fait ICI
+                    st.session_state.ingredients_img = []
+                    st.session_state.cat_selectionnee = ""
+                    if 'index_recettes' in st.session_state: 
+                        del st.session_state.index_recettes
                     st.session_state.form_count_img += 1
                     st.rerun()
     st.divider()
