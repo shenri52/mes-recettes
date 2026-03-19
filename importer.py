@@ -97,43 +97,28 @@ def afficher():
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     # --- BOUTON ENREGISTRER (CORRIGÉ) ---
-    if st.button("💾 Enregistrer", use_container_width=True):
-        # 1. ON DÉFINIT LA VARIABLE D'ABORD
-        f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale 
-        # 2. ENSUITE ON FAIT LES TESTS
-        if not nom_plat:
-            st.error("⚠️ Le nom de la recette est obligatoire.")
-        elif not f_cat or f_cat == "---":
-            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
-        else:
+else:
             with st.spinner("Enregistrement..."):
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
                 f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
-            
+                
+                # ICI : Recule 'if photos_fb' pour l'aligner sous 'ts'
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
-                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
-                        if ext in ["jpg", "jpeg", "png"]:
-                            img = Image.open(f).convert("RGB")
-                            img.thumbnail((1200, 1200)) # Gain de place automatique
-                            buf = io.BytesIO()
-                            img.save(buf, format="JPEG", quality=80, optimize=True)
-                            data_env, ext = buf.getvalue(), "jpg"
-                            
+                        # ... (ton code de traitement d'image)
                         ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_vers_github(ch_m, data_env, "Media", True): liste_medias.append(ch_m)
+                        if envoyer_vers_github(ch_m, data_env, "Media", True): 
+                            liste_medias.append(ch_m)
 
+                # ICI AUSSI : Recule 'ch_r' pour l'aligner sous 'ts'
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {"nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, "temps_preparation": tps_prep, "temps_cuisson": tps_cuis, "ingredients": st.session_state.ingredients_img, "etapes": "Voir image jointe", "images": liste_medias}
-            
+                
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
-                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
-                    idx_data.append({"nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img], "chemin": ch_r})
-                    envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
-        
+                    # ... (ton code de mise à jour d'index)
                     st.success("Importé !")
+                    # Reset (tes lignes de vidage sont parfaites ici)
                     st.session_state.ingredients_img, st.session_state.cat_selectionnee = [], ""
                     if 'index_recettes' in st.session_state: del st.session_state.index_recettes
                     st.session_state.form_count_img += 1
