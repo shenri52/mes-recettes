@@ -55,7 +55,6 @@ if verifier_mot_de_passe():
         st.session_state.page = 'accueil'
 
     def changer_page(nom):
-        """Change la page active dans le session_state et rafraîchit l'affichage."""
         st.session_state.page = nom
         st.rerun()
 
@@ -67,14 +66,15 @@ if verifier_mot_de_passe():
         components.html(f'<video autoplay loop muted playsinline style="display:none;"><source src="{video_url}" type="video/mp4"></video>', height=0)
 
     # --- MENU D'ACCUEIL ---
-    if st.session_state["authentifie"]:
-        # Liste des boutons (Texte, Cible)
-        actions = [
-            ("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter"),
-            ("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"),
-            ("🛒 Mode magasin", "coursevisualiser"), ("📊 Statistiques", "stats"),
-            ("🛠️ Maintenance", "maintenance")
-        ]
+    if st.session_state.page == 'accueil':
+        if st.session_state["authentifie"]:
+            # Liste des boutons (Texte, Cible)
+            actions = [
+                ("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter"),
+                ("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"),
+                ("🛒 Mode magasin", "coursevisualiser"), ("📊 Statistiques", "stats"),
+                ("🛠️ Maintenance", "maintenance")
+            ]
         
         # Affichage auto sur 2 colonnes
         cols = st.columns(2)
