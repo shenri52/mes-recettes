@@ -97,8 +97,8 @@ def afficher():
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer", use_container_width=True):
-    # On définit la catégorie finale avant le test
-    f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
+        # On définit la catégorie finale avant le test
+        f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
     
     if not nom_plat:
         st.error("⚠️ Le nom de la recette est obligatoire.")
