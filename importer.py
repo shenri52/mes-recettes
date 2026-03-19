@@ -96,9 +96,20 @@ def afficher():
     for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
+    # --- BOUTON ENREGISTRER (CORRIGÉ) ---
     if st.button("💾 Enregistrer", use_container_width=True):
-        # On définit la catégorie finale avant le test
+        # 1. ON DÉFINIT LA VARIABLE D'ABORD
         f_cat = st.session_state.cat_selectionnee if st.session_state.cat_selectionnee else cat_finale
+        
+        # 2. ENSUITE ON FAIT LES TESTS
+        if not nom_plat:
+            st.error("⚠️ Le nom de la recette est obligatoire.")
+        elif not f_cat or f_cat == "---":
+            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+        else:
+            # 3. LE RESTE DU CODE (Enregistrement...)
+            with st.spinner("Enregistrement..."):
+                # ... la suite de ton code ...
     
     if not nom_plat:
         st.error("⚠️ Le nom de la recette est obligatoire.")
