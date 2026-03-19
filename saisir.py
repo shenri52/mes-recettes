@@ -71,36 +71,45 @@ def afficher():
 
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
-            # On prépare la liste
-            opts_cat = sorted(st.session_state.liste_categories) + ["➕ Ajouter une nouvelle..."]
+            # 1. On prépare la liste avec "Ajouter" tout en haut (index 0)
+            # On trie le reste de A à Z
+            opts_cat = ["➕ Ajouter une nouvelle..."] + sorted([c for c in st.session_state.liste_categories if c and c != "---"])
             
-            # On calcule l'index pour que le menu se positionne sur la catégorie fixée
-            try:
+            # 2. CALCUL DE L'INDEX : 
+            # Si on vient d'ajouter quelque chose, cat_fixee contient le nom.
+            # On cherche sa place dans la liste pour que le menu saute dessus.
+            if st.session_state.cat_fixee in opts_cat:
                 idx_selection = opts_cat.index(st.session_state.cat_fixee)
-            except:
+            else:
+                # Par défaut, on affiche "Ajouter" (index 0) si rien n'est fixé
                 idx_selection = 0
 
             choix_cat = st.selectbox("Catégorie", options=opts_cat, index=idx_selection, key=f"scat_{f_id}")
             
-            # Affichage du champ texte seulement si "Ajouter" est sélectionné
+            # Affichage du champ texte SI on est sur "Ajouter"
             if choix_cat == "➕ Ajouter une nouvelle...":
                 cat_input = st.text_input("Nom nouvelle catégorie", key=f"ncat_{f_id}")
             else:
-                cat_input = choix_cat
+                # Si on choisit une catégorie existante, elle devient la "fixée"
                 st.session_state.cat_fixee = choix_cat
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # Le bouton qui déclenche tout
+            # Le bouton n'apparaît que si on est en mode "Ajout"
             if choix_cat == "➕ Ajouter une nouvelle...":
-                if st.button("➕", key=f"bcat_add_{f_id}") and cat_input:
-                    # 1. On mémorise la nouvelle catégorie
-                    st.session_state.cat_fixee = cat_input
-                    # 2. On l'ajoute à la liste globale
-                    if cat_input not in st.session_state.liste_categories:
-                        st.session_state.liste_categories.append(cat_input)
-                    # 3. ON REBOOT : C'est ça qui fait sauter le menu sur le nouveau nom
-                    st.rerun()
+                if st.button("➕", key=f"bcat_add_{f_id}"):
+                    # On récupère ce qui est tapé dans le champ texte
+                    nom_saisi = st.session_state.get(f"ncat_{f_id}", "").strip()
+                    if nom_saisi:
+                        # On l'ajoute à la liste de mémoire
+                        if nom_saisi not in st.session_state.liste_categories:
+                            st.session_state.liste_categories.append(nom_saisi)
+                        
+                        # ON FIXE LA SÉLECTION pour que l'index saute dessus au reboot
+                        st.session_state.cat_fixee = nom_saisi
+                        
+                        # LE REBOOT CRUCIAL
+                        st.rerun()
 
         # --- LOGIQUE INGRÉDIENTS CORRIGÉE ---
         def ajouter_ing_et_nettoyer():
