@@ -1,7 +1,7 @@
 import streamlit as st
 
 from collections import Counter
-from github_utils import charger_index, scanner_depot_stats
+from utils import get_github_config
 
 def charger_index():
     """Charge l'index des recettes avec un timestamp pour éviter le cache navigateur."""
