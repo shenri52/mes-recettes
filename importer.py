@@ -52,48 +52,63 @@ def afficher():
     tps_prep = c_prep.text_input("Temps préparation", key=f"pri_{f_id}", placeholder="ex: 10 min")
     tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cui_{f_id}", placeholder="ex: 5 min")
 
-    # --- SECTION CATÉGORIE (Structure conservée) ---
+    # --- SECTION CATÉGORIE  ---
     col_cat, col_btn_cat = st.columns([2, 0.5])
     with col_cat:
-        opts_cat = sorted(st.session_state.liste_categories_img) + ["➕ Ajouter une nouvelle..."]
-        choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
-        cat_finale = st.text_input("Nom de la catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
-    with col_btn_cat:
-        st.write(" "); st.write(" ")
-        if st.button("Ajouter", key=f"bcat_{f_id}") and cat_finale:
-            st.session_state.cat_selectionnee = cat_finale
-            if cat_finale not in st.session_state.liste_categories_img: st.session_state.liste_categories_img.append(cat_finale)
-            st.toast(f"Catégorie fixée : {cat_finale}")
-
-    if st.session_state.cat_selectionnee: st.info(f"📂 Catégorie retenue : **{st.session_state.cat_selectionnee}**")
-
-    # --- SECTION INGRÉDIENTS ---
-    col_ing, col_btn_add = st.columns([2, 0.5])
-    with col_ing:
         # 1. On récupère la liste SANS le "---" pour trier proprement
-        liste_sans_tiret = [i for i in st.session_state.liste_choix_img if i != "---"]
+        cat_sans_tiret = [c for c in st.session_state.liste_categories if c != "---"]
         
         # 2. On reconstruit l'ordre : Tiret en 1er, Ajouter en 2e, puis le reste trié
-        opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(liste_sans_tiret)
+        opts_cat = ["---", "➕ Ajouter une nouvelle..."] + sorted(cat_sans_tiret)
         
-        choix = st.selectbox("Ingrédient", options=opts_ing, key=f"si_{f_id}")
+        choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
         
-        # On gère l'input texte si nouveau
-        ing_final = st.text_input("Nom de l'ingrédient", key=f"nwi_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
-    
-    with col_btn_add:
+        # On gère l'input texte si "Ajouter" est sélectionné
+        cat_finale = st.text_input("Nom de la catégorie", key=f"ncat_{f_id}") if choix_cat == "➕ Ajouter une nouvelle..." else choix_cat
+
+    with col_btn_cat:
         st.write(" "); st.write(" ")
         # On vérifie qu'on n'ajoute pas les valeurs interdites
-        if st.button("Ajouter", key=f"bi_{f_id}"):
+        if st.button("Ajouter", key=f"bcat_{f_id}"):
+            if cat_finale in ["---", "➕ Ajouter une nouvelle..."] or not cat_finale:
+                st.warning("⚠️ Veuillez sélectionner une catégorie valide.")
+            else:
+                st.session_state.cat_fixee = cat_finale
+                if cat_finale not in st.session_state.liste_categories: 
+                    st.session_state.liste_categories.append(cat_finale)
+                st.toast(f"Catégorie fixée : {cat_finale}")
+
+    if st.session_state.cat_fixee: 
+        st.info(f"📂 Sélection actuelle : **{st.session_state.cat_fixee}**")
+
+    # --- SECTION INGRÉDIENTS (BOUTON EN HAUT ET TRI PROPRE) ---
+    col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
+    with col_ing:
+        # 1. On récupère la liste SANS le "---" pour trier proprement
+        liste_sans_tiret = [i for i in st.session_state.liste_choix if i != "---"]    
+         # 2. On reconstruit l'ordre : Tiret en 1er, Ajouter en 2e, puis le reste trié
+        opts_ing = ["---", "➕ Ajouter un nouveau..."] + sorted(liste_sans_tiret)
+        choix = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
+        # On gère l'input texte si nouveau
+        ing_final = st.text_input("Nom nouveau", key=f"new_ing_{f_id}") if choix == "➕ Ajouter un nouveau..." else choix
+        
+    with col_qte:
+        qte = st.text_input("Quantité", key=f"qte_{f_id}")
+            
+    with col_btn_add:
+        st.write(" "); st.write(" ") # Alignement avec le selectbox
+        if st.button("Ajouter", key=f"btn_add_{f_id}"):
+            # SÉCURITÉ : On vérifie les valeurs interdites
             if ing_final in ["---", "➕ Ajouter un nouveau..."] or not ing_final:
                 st.warning("⚠️ Veuillez sélectionner un ingrédient valide.")
-            else:
-                st.session_state.ingredients_img.append({"Ingrédient": ing_final, "Quantité": ""})
-                if ing_final not in st.session_state.liste_choix_img: 
-                    st.session_state.liste_choix_img.append(ing_final)
+             else:
+                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte})
+                if ing_final not in st.session_state.liste_choix: 
+                    st.session_state.liste_choix.append(ing_final)
                 st.rerun()
 
-    for i in st.session_state.ingredients_img: st.write(f"✅ {i['Ingrédient']}")
+    for i in st.session_state.ingredients_recette: 
+        st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
     photos_fb = st.file_uploader("Images", type=["jpg", "png", "jpeg", "pdf"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     # --- BLOC BOUTON ENREGISTRER (CORRIGÉ) ---
