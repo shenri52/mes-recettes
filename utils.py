@@ -148,3 +148,27 @@ def deconnexion():
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
     # On garde 'authentifie' tel quel ou on peut le passer à False si on veut une déconnexion totale
+
+def mettre_a_jour_resume_stats():
+    """Calcule le résumé des recettes et le sauvegarde sur GitHub."""
+    from collections import Counter
+    from datetime import datetime
+    
+    index = charger_json_github("data/index_recettes.json")
+    if not index:
+        return None
+
+    # Calculs
+    stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
+    stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
+
+    resume = {
+        "derniere_maj": datetime.now().strftime("%d/%m/%Y à %H:%M"),
+        "total_recettes": len(index),
+        "categories": dict(sorted(stats_cat.items())),
+        "appareils": dict(sorted(stats_app.items()))
+    }
+
+    if sauvegarder_json_github("data/stats_recettes.json", resume, "📊 MAJ Résumé Stats"):
+        return resume
+    return None
