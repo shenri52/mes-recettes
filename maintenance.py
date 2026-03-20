@@ -68,44 +68,43 @@ def afficher():
                     del st.session_state.a_reparer
                     st.rerun()
 
-    # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
+# --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
-        index_actuel = charger_json_github("data/index_recettes.json")
+        index_actuel = charger_json_github("data/index_recettes.json") or []
         conf = get_github_config()
         erreurs, index_nettoye, fichiers_maj = [], [], []
         
-        for recette in index_actuel:
-            url_raw = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{recette['chemin']}?t={int(time.time())}"
-            r = requests.get(url_raw)
-            if r.status_code == 200:
-                data, i_clean, noms_i, modif, details = r.json(), [], [], False, []
-                for item in data.get("ingredients", []):
-                    n_orig = item.get("Ingrédient", "")
-                    n_propre = " ".join(n_orig.split()).capitalize()
-                    i_clean.append({"Ingrédient": n_propre, "Quantité": item.get("Quantité", "")})
-                    noms_i.append(n_propre)
-                    if n_propre != n_orig:
-                        modif = True
-                        details.append(f"  ❌ `{n_orig}` ➡️ ✅ `{n_propre}`")
-                
-                if modif:
-                    erreurs.append({"nom": recette["nom"], "chemin": recette["chemin"], "details": details})
-                    data["ingredients"] = i_clean
+        barre = st.progress(0)
+        
+        for i, recette in enumerate(index_actuel):
+            # Logique invisible : on compare en mémoire d'abord
+            n_idx = recette.get("ingredients", [])
+            n_propres = [" ".join(n.split()).capitalize() for n in n_idx]
+            
+            if n_propres != n_idx:
+                # On ne télécharge QUE si nécessaire
+                r = requests.get(f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{recette['chemin']}")
+                if r.status_code == 200:
+                    data = r.json()
+                    for item in data.get("ingredients", []):
+                        item["Ingrédient"] = " ".join(item["Ingrédient"].split()).capitalize()
                     fichiers_maj.append({"chemin": recette["chemin"], "contenu": data})
-                
-                recette_copie = recette.copy()
-                recette_copie["ingredients"] = noms_i
-                index_nettoye.append(recette_copie)
+                    erreurs.append(recette["nom"])
+            
+            recette_clean = recette.copy()
+            recette_clean["ingredients"] = n_propres
+            index_nettoye.append(recette_clean)
+            barre.progress((i + 1) / len(index_actuel))
         
         if erreurs:
             st.session_state.index_a_sauvegarder, st.session_state.fichiers_a_sauvegarder = index_nettoye, fichiers_maj
             st.warning(f"⚠️ {len(erreurs)} recette(s) à corriger :")
-            for err in erreurs:
-                st.markdown(f"**📍 {err['nom']}**")
-                for d in err['details']: st.write(d)
-                st.divider()
-        else: st.success("✅ Tous les ingrédients sont propres !")
-
+            for nom in erreurs:
+                st.write(f"📍 {nom}")
+        else:
+            sauvegarder_json_github("data/index_recettes.json", index_nettoye, "🧹 Nettoyage Index")
+            st.success("✅ Tous les ingrédients sont propres !")
+            
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
             for f in st.session_state.fichiers_a_sauvegarder: 
