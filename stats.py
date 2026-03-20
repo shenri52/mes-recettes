@@ -5,7 +5,7 @@ from datetime import datetime
 from collections import Counter
 
 # Importation des fonctions centralisées
-from utils import get_github_config, charger_json_github, sauvegarder_json_github
+from utils import get_github_config, charger_json_github, sauvegarder_json_github, scanner_depot_complet
 
 def afficher():
     # --- FONCTIONS INTERNES DÉDIÉES AUX STATS ---
@@ -13,8 +13,7 @@ def afficher():
         """Scan complet du dépôt avec catégories détaillées et arrondis précis."""
         conf = get_github_config()
         with st.spinner("Analyse du dépôt en cours... 🔍"):
-            url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
-            res = requests.get(url_tree, headers=conf['headers'])
+            url_tree = scanner_depot_complet()
             
             if res.status_code == 200:
                 tree = res.json().get('tree', [])
