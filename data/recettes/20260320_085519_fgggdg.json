@@ -1,0 +1,22 @@
+{
+    "nom": "fgggdg",
+    "categorie": "Goûter",
+    "appareil": "Cookeo",
+    "temps_preparation": "10",
+    "temps_cuisson": "10",
+    "ingredients": [
+        {
+            "Ingrédient": "ttttt",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Amandes effillées",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260320_085519_fgggdg_0.jpg",
+        "data/images/20260320_085519_fgggdg_1.jpg"
+    ]
+}
