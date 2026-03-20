@@ -73,9 +73,8 @@ REPO_NAME = "nom_de_votre_depot"
 ├── coursevisualiser.py   # Mode "Magasin" pour les courses
 ├── stats.py              # Statistiques d'utilisation
 ├── maintenance.py        # Outils de corrections et de contrôles
+├── utils.py              # Module contenant les fonctions
 ├── requirements.txt      # Liste des bibliothèques nécessaires
-└── courses/
-    
 └── data/
     ├── recettes/                   # Dossier contenant les fichiers .json des recettes
     └── images/                     # Dossier contenant les photos et PDF
@@ -85,4 +84,5 @@ REPO_NAME = "nom_de_votre_depot"
     ├── index_recettes.json         # Index pour recherche rapide
     ├── planning.json               # Données du planning
     ├── plats_rapides.json          # Liste des plats sans recette
+    ├── stats_recettes.json         # Statistiques
 ```
