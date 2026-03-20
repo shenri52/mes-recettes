@@ -35,8 +35,8 @@ def afficher():
                         else:
                             key = "Fichiers Système & Apps"
                         
-                    stats_comptage[key]["nb"] += 1
-                    stats_comptage[key]["poids"] += size
+                        stats_comptage[key]["nb"] += 1
+                        stats_comptage[key]["poids"] += size
                 
                 poids_total = sum(d["poids"] for d in stats_comptage.values())
                 
