@@ -24,7 +24,7 @@ def afficher():
         st.session_state.bouton_analyse_clique = True
         tree = scanner_depot_complet()
         
-        exclus = ['data/index_recettes.json', 'data/index_produits_zones.json', 'data/planning.json', 'data/plats_rapides.json']
+        exclus = ['data/data_stockage.json', 'data/index_courses.json', 'data/index_recettes.json', 'data/index_produits_zones.json', 'data/planning.json', 'data/plats_rapides.json']
         physiques = [i['path'] for i in tree if i['path'].startswith('data/') and i['path'].endswith('.json') and i['path'] not in exclus]
         
         index_actuel = charger_json_github("data/index_recettes.json")
