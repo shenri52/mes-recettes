@@ -128,3 +128,23 @@ def charger_recette_specifique(url_raw):
         return res.json() if res.status_code == 200 else {}
     except:
         return {}
+
+def initialiser_session():
+    """Initialise les variables globales de l'application."""
+    if "authentifie" not in st.session_state:
+        st.session_state["authentifie"] = False
+    if "mode_public" not in st.session_state:
+        st.session_state["mode_public"] = False
+    if 'page' not in st.session_state:
+        st.session_state.page = 'accueil'
+
+def naviguer_vers(nom_page):
+    """Change la page active et force le rafraîchissement."""
+    st.session_state.page = nom_page
+    st.rerun()
+
+def deconnexion():
+    """Réinitialise l'accès et retourne à l'accueil."""
+    st.session_state.page = 'accueil'
+    st.session_state["mode_public"] = False
+    # On garde 'authentifie' tel quel ou on peut le passer à False si on veut une déconnexion totale
