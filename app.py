@@ -55,22 +55,12 @@ if verifier_mot_de_passe():
         utils.naviguer_vers(nom)
 
     # --- BLOC ANTI-VEILLE ---
-    PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
-
-    if st.session_state.page in PAGES_CUISINE:
+    # S'affiche sur toutes les pages sauf l'accueil et la maintenance
+    if st.session_state.page not in ['accueil', 'maintenance']:
         mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
         if mode_cuisine:
-            components.html(
-                """
-                <div style="display:none;">
-                    <video autoplay loop muted playsinline style="width:1px; height:1px;">
-                        <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4">
-                    </video>
-                </div>
-                """,
-                height=0
-            )
-
+            components.html("""<div style="display:none;"><video autoplay loop muted playsinline style="width:1px; height:1px;"><source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4"></video></div>""", height=0)
+            
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
         if st.button("📚 Mes recettes", use_container_width=True):
@@ -100,37 +90,25 @@ if verifier_mot_de_passe():
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
-        # Dictionnaire des pages autorisées en mode public
-        pages_publiques = {
-            "recettes": recettes.afficher
+        # 1. Centralisation de toutes les pages
+        toutes_pages = {
+            "recettes": recettes.afficher, "importer": importer.afficher,
+            "ajouter": saisir.afficher, "coursesaisir": coursesaisir.afficher,
+            "coursevisualiser": coursevisualiser.afficher, "stats": stats.afficher,
+            "planning": planning.afficher, "maintenance": maintenance.afficher
         }
         
-        # Dictionnaire des pages réservées (admin)
-        pages_admin = {
-            "importer": importer.afficher,
-            "ajouter": saisir.afficher,
-            "coursesaisir": coursesaisir.afficher,
-            "coursevisualiser": coursevisualiser.afficher,
-            "stats": stats.afficher,
-            "planning": planning.afficher,
-            "maintenance": maintenance.afficher
-        }
-        
-        # Sélection du dictionnaire selon le statut
-        if st.session_state["authentifie"]:
-            pages_disponibles = {**pages_publiques, **pages_admin}
-        else:
-            pages_disponibles = pages_publiques
+        # 2. Vérification des droits (Seul 'recettes' est public)
+        p_actuelle = st.session_state.page
+        autorise = st.session_state["authentifie"] or p_actuelle == "recettes"
 
-        # Appel de la fonction afficher() si autorisée
-        if st.session_state.page in pages_disponibles:
-            pages_disponibles[st.session_state.page]()
+        if autorise and p_actuelle in toutes_pages:
+            toutes_pages[p_actuelle]()
         else:
-            st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
-            if st.button("Retour à l'accueil", use_container_width=True):
-                aller_accueil()
+            st.error("🚫 Accès restreint. Veuillez vous connecter.")
+            if st.button("Retour à l'accueil", use_container_width=True): aller_accueil()
 
-        # Bouton retour (masqué sur le planning)
-        if st.session_state.page != "planning":
+        # 3. Bouton retour automatique (Sauf sur planning)
+        if p_actuelle != "planning":
             st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
