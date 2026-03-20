@@ -194,5 +194,3 @@ def afficher():
                     envoyer_donnees_github("data/index_produits_zones.json", json.dumps(st.session_state.index_zones, indent=2, ensure_ascii=False), "🗑️ Suppression")
                     envoyer_donnees_github("courses/index_courses.json", json.dumps(st.session_state.data_a5, indent=2, ensure_ascii=False), "🗑️ Suppression")
                     st.rerun()
-
-    st.divider()
