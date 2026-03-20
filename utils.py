@@ -17,12 +17,16 @@ def get_github_config():
         }
     }
 
+@st.cache_data(ttl=600)  # Expire après 10 min d'inactivité ou après st.cache_data.clear()
 def charger_json_github(chemin_fichier):
     """Charge un fichier JSON depuis GitHub avec anti-cache."""
     conf = get_github_config()
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin_fichier}?t={int(time.time())}"
-    res = requests.get(url)
-    return res.json() if res.status_code == 200 else []
+    try:
+        res = requests.get(url)
+        return res.json() if res.status_code == 200 else []
+    except:
+        return []
 
 def sauvegarder_json_github(chemin_fichier, donnees, message_commit="Mise à jour"):
     """Gère la sauvegarde vers GitHub avec gestion du SHA."""
@@ -40,4 +44,11 @@ def sauvegarder_json_github(chemin_fichier, donnees, message_commit="Mise à jou
         payload["sha"] = sha
 
     res_put = requests.put(url, json=payload, headers=conf['headers'])
-    return res_put.status_code in [200, 201]
+    
+    if res_put.status_code in [200, 201]:
+        # On ne vide le cache que si la sauvegarde a réussi
+        st.cache_data.clear() 
+        return True
+    
+    return False
+    
