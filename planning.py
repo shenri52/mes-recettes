@@ -188,8 +188,6 @@ def afficher():
                             st.rerun()
         
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
-        
-    st.divider()
        
     if st.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
