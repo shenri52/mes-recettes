@@ -23,11 +23,16 @@ def afficher():
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         tree = scanner_depot_complet()
-        
-        exclus = ['data/data_stockage.json', 'data/index_courses.json', 'data/index_recettes.json', 'data/index_produits_zones.json', 'data/planning.json', 'data/plats_rapides.json']
-        physiques = [i['path'] for i in tree if i['path'].startswith('data/') and i['path'].endswith('.json') and i['path'] not in exclus]
+
+        physiques = [
+            i['path'] for i in tree 
+            if i['path'].startswith('data/recettes/') and i['path'].endswith('.json')
+        ]
         
         index_actuel = charger_json_github("data/index_recettes.json")
+        
+        if index_actuel is None: index_actuel = []
+            
         chemins_index = {r['chemin'] for r in index_actuel}
         manquantes = [f for f in physiques if f not in chemins_index]
         
