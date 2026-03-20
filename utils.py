@@ -4,6 +4,8 @@ import json
 import time
 import base64
 from datetime import datetime
+from PIL import Image
+import io
 
 def get_github_config():
     """Récupère les identifiants GitHub depuis les secrets Streamlit."""
@@ -81,3 +83,26 @@ def scanner_depot_complet():
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
     res = requests.get(url, headers=conf['headers'])
     return res.json().get('tree', []) if res.status_code == 200 else []
+
+def get_index_options():
+    """1. Récupère les ingrédients et catégories uniques pour les menus déroulants."""
+    idx = charger_json_github("data/index_recettes.json")
+    if idx:
+        ing = {i for r in idx for i in r.get('ingredients', []) if i}
+        cat = {r.get('categorie') for r in idx if r.get('categorie')}
+        return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
+    return ["---"], ["---"]
+
+def traiter_et_compresser_image(file):
+    """2. Compresse l'image à 75% et limite la taille à 1200px."""
+    img = Image.open(file).convert("RGB")
+    img.thumbnail((1200, 1200))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=75, optimize=True)
+    return buf.getvalue(), "jpg"
+
+def mettre_a_jour_index(nouvelle_recette_index):
+    """3. Télécharge l'index, ajoute la ligne et renvoie sur GitHub."""
+    idx_data = charger_json_github("data/index_recettes.json") or []
+    idx_data.append(nouvelle_recette_index)
+    return envoyer_donnees_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "📈 MAJ Index")
