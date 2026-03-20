@@ -18,7 +18,7 @@ def verifier_mot_de_passe():
                 st.session_state["authentifie"] = True
             else:
                 st.error("Mot de passe incorrect ❌")
-
+        
         st.text_input(
             "Veuillez saisir le mot de passe :", 
             type="password", 
