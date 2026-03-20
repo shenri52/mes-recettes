@@ -1,10 +1,9 @@
 import streamlit as st
 import requests
 import time
+
 from datetime import datetime
 from collections import Counter
-
-# Importation des fonctions centralisées
 from utils import get_github_config, charger_json_github, sauvegarder_json_github, scanner_depot_complet
 
 def afficher():
@@ -24,24 +23,23 @@ def afficher():
                 }
                 
                 for item in tree:
-                    if item.get('type') == 'blob':
-                        size = item.get('size', 0)
-                        path = item['path'].lower()
+                    if item.get('type') != 'blob':
+                        continue
+                        
+                    size = item.get('size', 0)
+                    path = item['path'].lower()
 
-                        # 1. Dossier RECETTES
-                        if path.startswith('data/recettes/'):
-                            key = "Recettes (JSON)"
+                    # Identification
+                    if path.startswith('data/recettes/'):
+                        key = "Recettes (JSON)"
+                    elif path.startswith('data/images/'):
+                        key = "Photos (Images)"
+                    else:
+                        key = "Fichiers Système & Apps"
                         
-                        # 2. Dossier IMAGES
-                        elif path.startswith('data/images/'):
-                            key = "Photos (Images)"
-                        
-                        # 3. TOUT LE RESTE
-                        else:
-                            key = "Fichiers Système & Apps"
-                        
-                        stats_comptage[key]["nb"] += 1
-                        stats_comptage[key]["poids"] += size
+                    ref = stats_comptage[key]
+                    ref["nb"] += 1 
+                    stats_comptage[key]["poids"] += size
                 
                 poids_total = sum(d["poids"] for d in stats_comptage.values())
                 
@@ -79,7 +77,7 @@ def afficher():
     
     with col1:
         stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
-        tab_cat = [{"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items())]
+        tab_cat = ({"Catégorie": k, "Nombre": v} for k, v in sorted(stats_cat.items()))
         
         st.dataframe(
             tab_cat,
@@ -121,15 +119,15 @@ def afficher():
         
         with col_btn:
             st.write("") 
-            if st.button("🔄 Actualiser"):
+            if st.button("🔄 Actualiser", use_container_width=True):
                 if actualiser_donnees_stockage():
                     st.success("Mise à jour réussie !")
-                    time.sleep(1)
+                    time.sleep(0.5)
                     st.rerun()
         
         details_data = [
             {
-                "Type": d.get("Type"),
+                "Type": d.get("Type", "Inconnu"),
                 "Nombre": int(d.get("Nombre", 0)),
                 "Mo": float(d.get("Mo", 0))
             } for d in data_s['details']
