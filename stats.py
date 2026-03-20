@@ -13,11 +13,10 @@ def afficher():
         """Scan complet du dépôt avec catégories détaillées et arrondis précis."""
         conf = get_github_config()
         with st.spinner("Analyse du dépôt en cours... 🔍"):
-            url_tree = scanner_depot_complet()
+            tree = scanner_depot_complet()
             
-            if res.status_code == 200:
-                tree = res.json().get('tree', [])
-                
+            # On vérifie si le scan a réussi
+            if tree:
                 stats_comptage = {
                     "Recettes (JSON)": {"nb": 0, "poids": 0},
                     "Photos (Images)": {"nb": 0, "poids": 0},
@@ -28,7 +27,7 @@ def afficher():
                     if item.get('type') == 'blob':
                         size = item.get('size', 0)
                         path = item['path'].lower()
-                        
+                            
                         if path.endswith('.json'):
                             key = "Recettes (JSON)"
                         elif path.endswith(('.png', '.jpg', '.jpeg', '.webp')):
@@ -36,8 +35,8 @@ def afficher():
                         else:
                             key = "Fichiers Système & Apps"
                         
-                        stats_comptage[key]["nb"] += 1
-                        stats_comptage[key]["poids"] += size
+                    stats_comptage[key]["nb"] += 1
+                    stats_comptage[key]["poids"] += size
                 
                 poids_total = sum(d["poids"] for d in stats_comptage.values())
                 
