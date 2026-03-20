@@ -1,37 +1,8 @@
 import streamlit as st
-import json, base64, requests, time, io
+import json, time
+
 from datetime import datetime
-from PIL import Image
-
-def config_github():
-    return {
-        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"},
-        "owner": st.secrets["REPO_OWNER"], "repo": st.secrets["REPO_NAME"]
-    }
-
-def recuperer_donnees_index():
-    conf = config_github()
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
-    try:
-        res = requests.get(url)
-        if res.status_code == 200:
-            idx = res.json()
-            ing = {i for r in idx for i in r.get('ingredients', []) if i}
-            cat = {r.get('categorie') for r in idx if r.get('categorie')}
-            ingredients = ["---"] + sorted(list(ing))
-            categories = ["---"] + sorted(list(cat))
-            return ingredients, categories
-    except: pass
-    return [""], [""]
-
-def envoyer_vers_github(chemin, contenu, message, binaire=False):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    res_get = requests.get(url, headers=conf['headers'])
-    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    cnt = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
-    payload = {"message": message, "content": cnt, "branch": "main", "sha": sha} if sha else {"message": message, "content": cnt, "branch": "main"}
-    return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
+from utils import envoyer_donnees_github, charger_json_github, get_index_options, traiter_et_compresser_image, mettre_a_jour_index
 
 def afficher():
     st.header("📥 Importer une recette")
@@ -42,8 +13,9 @@ def afficher():
         if k not in st.session_state: st.session_state[k] = v
 
     if len(st.session_state.liste_choix_img) <= 1:
-        st.session_state.liste_choix_img, st.session_state.liste_categories_img = recuperer_donnees_index()
-
+        with st.spinner("📦 Synchronisation..."):
+            st.session_state.liste_choix_img, st.session_state.liste_categories_img = get_index_options()
+        
     f_id = st.session_state.form_count_img
     nom_plat = st.text_input("Nom de la recette", key=f"ni_{f_id}")
     
@@ -125,20 +97,11 @@ def afficher():
                 
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
-                        # Traitement de l'image (optimisation)
-                        ext = f.name.lower().split('.')[-1]
-                        data_env = f.getvalue()
-                        if ext in ["jpg", "jpeg", "png"]:
-                            img = Image.open(f).convert("RGB")
-                            img.thumbnail((1200, 1200))
-                            buf = io.BytesIO()
-                            img.save(buf, format="JPEG", quality=80, optimize=True)
-                            data_env, ext = buf.getvalue(), "jpg"
-                        
+                        data_img, ext = traiter_et_compresser_image(f) 
                         ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_vers_github(ch_m, data_env, "Media", True): 
+                        if envoyer_donnees_github(ch_m, data_img, "📸 Media", True): 
                             liste_medias.append(ch_m)
-
+            
                 # Création du JSON de la recette
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
@@ -153,13 +116,8 @@ def afficher():
                 }
                 
                 # Envoi Recette + Mise à jour Index
-                if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    conf = config_github()
-                    url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
-                    res_idx = requests.get(url_idx)
-                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
-                    
-                    idx_data.append({
+                if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "📥 Import"):
+                    mettre_a_jour_index({
                         "nom": nom_plat, 
                         "categorie": f_cat, 
                         "appareil": type_appareil, 
@@ -167,18 +125,12 @@ def afficher():
                         "chemin": ch_r
                     })
                     
-                    envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
-
                     st.success("✅ Recette importée avec succès !")
                     
-                    # --- RESET COMPLET ---
+                    # Nettoyage
                     st.session_state.ingredients_img = []
                     st.session_state.cat_fixee = ""
-                    # On force le changement d'ID de formulaire pour vider les widgets natifs
-                    st.session_state.form_count_img += 1
-                    
-                    if 'index_recettes' in st.session_state: 
-                        del st.session_state.index_recettes
+                    st.session_state.form_count_img += 1 # Le compteur qui reset tout
                     
                     time.sleep(1)
                     st.rerun()
