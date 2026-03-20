@@ -27,11 +27,16 @@ def afficher():
                     if item.get('type') == 'blob':
                         size = item.get('size', 0)
                         path = item['path'].lower()
-                            
-                        if path.endswith('.json'):
+
+                        # 1. Dossier RECETTES
+                        if path.startswith('data/recettes/'):
                             key = "Recettes (JSON)"
-                        elif path.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                        
+                        # 2. Dossier IMAGES
+                        elif path.startswith('data/images/'):
                             key = "Photos (Images)"
+                        
+                        # 3. TOUT LE RESTE
                         else:
                             key = "Fichiers Système & Apps"
                         
