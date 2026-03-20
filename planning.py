@@ -58,8 +58,8 @@ def ouvrir_fiche(nom_plat):
                 images = recette.get('images', [])
                 if images:
                     if "img_idx" not in st.session_state: st.session_state.img_idx = 0
-                     img_path = images[st.session_state.img_idx].strip('/')
-                     img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path}"
+                    img_path = images[st.session_state.img_idx].strip('/')
+                    img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path}"
                     st.image(img_url, use_container_width=True)
                     if len(images) > 1:
                         c1, c2, c3 = st.columns([1, 2, 1])
