@@ -58,7 +58,8 @@ def ouvrir_fiche(nom_plat):
                 images = recette.get('images', [])
                 if images:
                     if "img_idx" not in st.session_state: st.session_state.img_idx = 0
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
+                     img_path = images[st.session_state.img_idx].strip('/')
+                     img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{img_path}"
                     st.image(img_url, use_container_width=True)
                     if len(images) > 1:
                         c1, c2, c3 = st.columns([1, 2, 1])
@@ -76,7 +77,6 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
-
     # 1. On crée une petite fonction de nettoyage (callback)
     def ajouter_et_nettoyer():
         nouveau = st.session_state["input_nouveau_plat"]
@@ -96,13 +96,10 @@ def afficher():
 
     st.divider()
     
-    for key, default in {
-            'index_complet': charger_json_github("data/index_recettes.json"),
-            'planning_data': charger_json_github("data/planning.json"),
-            'plats_rapides': charger_json_github("data/plats_rapides.json"),
-            'offset_semaine': 0
-    }.items():
-      if key not in st.session_state: st.session_state[key] = default
+    if 'index_complet' not in st.session_state:
+         st.session_state.index_complet = charger_json_github("data/index_recettes.json") or []
+    if 'planning_data' not in st.session_state:
+         st.session_state.planning_data = charger_json_github("data/planning.json") or {}
 
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
     options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
@@ -189,10 +186,10 @@ def afficher():
         
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
        
-    if st.button("💾 Enregistrer", use_container_width=True):
-        st.session_state.planning_data.update(temp)
-        if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
-            st.success("Planning enregistré ! 💾")
+        if st.button("💾 Enregistrer", use_container_width=True):
+            st.session_state.planning_data.update(temp)
+            if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
+                st.success("Planning enregistré ! 💾")
     
     st.subheader("🍴 Plats rapides")
     plats_rapides = sorted(st.session_state.plats_rapides)
@@ -200,13 +197,29 @@ def afficher():
         plat_sel = st.selectbox("Gérer mes plats", ["---"] + plats_rapides, key="sel_rapide_manage")
         if plat_sel != "---":
             c_ren, c_del = st.columns(2)
-            if c_del.button("🗑️ Supprimer", use_container_width=True):
-                st.session_state.plats_rapides.remove(plat_sel)
-                envoyer_donnees_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "🗑️ Suppression plat rapide")
-                st.rerun()
-  
-    # 2. Le champ de saisie reste le même
+            
+            with c_ren:
+                if st.button("📝 Renommer", use_container_width=True):
+                    st.session_state.edit_mode = plat_sel 
+
+            with c_del:
+                if st.button("🗑️ Supprimer", use_container_width=True):
+                    st.session_state.plats_rapides.remove(plat_sel)
+                    envoyer_donnees_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "🗑️ Suppression")
+                    st.rerun()
+
+            # --- BLOC RENOMMER  ---
+            if st.session_state.get('edit_mode') == plat_sel:
+                nouveau_nom = st.text_input("Nouveau nom :", value=plat_sel, key="edit_input")
+                if st.button("✅ Valider le changement", use_container_width=True):
+                    idx = st.session_state.plats_rapides.index(plat_sel)
+                    st.session_state.plats_rapides[idx] = nouveau_nom
+                    envoyer_donnees_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "📝 Plat renommé")
+                    st.session_state.edit_mode = None 
+                    st.rerun()
+
+    st.divider() 
+
+    # --- BLOC AJOUT ---
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
-    
-    # 3. Le bouton appelle la fonction ci-dessus
-    st.button("➕", use_container_width=True, on_click=ajouter_et_nettoyer)
+    st.button("➕ Ajouter au catalogue", use_container_width=True, on_click=ajouter_et_nettoyer)
