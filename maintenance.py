@@ -31,8 +31,8 @@ def afficher():
         chemins_index = {r['chemin'] for r in index_actuel}
         manquantes = [f for f in physiques if f not in chemins_index]
         
-        st.write(f"📁 **Fichiers /data :** {len(physiques)}")
-        st.write(f"🗂️ **Index des recettes :** {len(index_actuel)}")
+        st.write(f"📁 **Fichiers détectés dans /data :** {len(physiques)}")
+        st.write(f"🗂️ **Recettes actuellement dans l'index :** {len(index_actuel)}")
         
         if manquantes:
             st.warning(f"⚠️ {len(manquantes)} fichiers hors index.")
