@@ -3,6 +3,7 @@ import requests
 import json
 import time
 import base64
+import pytz
 from datetime import datetime
 from PIL import Image
 import io
@@ -153,10 +154,13 @@ def actualiser_toutes_les_stats():
     """Lance la mise à jour des recettes ET du stockage en une seule fois."""
     from collections import Counter
     from datetime import datetime
+    import pytz
     
     success_recettes = False
     success_stockage = False
-    now = datetime.now().strftime("%d/%m/%Y à %H:%M")
+    
+    tz_paris = pytz.timezone('Europe/Paris')
+    now = datetime.now(tz_paris).strftime("%d/%m/%Y à %H:%M")
 
     # --- PARTIE 1 : RECETTES ---
     index = charger_json_github("data/index_recettes.json")
