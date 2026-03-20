@@ -1,14 +1,10 @@
 import streamlit as st
 import requests
-import json
 import time
-import io
-import base64
 from PIL import Image
-from datetime import datetime
 
 # Importations depuis utils
-from utils import get_github_config, charger_json_github, envoyer_donnees_github, scanner_depot_complet
+from utils import get_github_config, charger_json_github, envoyer_donnees_github, scanner_depot_complet, sauvegarder_json_github
 
 def afficher():
     st.header("🛠️ Réparation et optimisation")
@@ -16,8 +12,9 @@ def afficher():
 
     # Nettoyage du session state au démarrage
     if "bouton_analyse_clique" not in st.session_state:
-        for key in ["a_reparer", "index_a_sauvegarder"]:
-            if key in st.session_state: del st.session_state[key]
+        for key in ["a_reparer", "index_a_sauvegarder", "fichiers_a_sauvegarder", "images_a_compresser"]:
+            if key in st.session_state: 
+                del st.session_state[key]
 
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
@@ -65,9 +62,9 @@ def afficher():
                             "chemin": chemin
                         })
                 
-                index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
-                if envoyer_donnees_github("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
-                    st.success("✅ Index réparé !")
+                    index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
+                    if sauvegarder_json_github("data/index_recettes.json", index_final, "🛠️ Réparation"):
+                        st.success("✅ Index réparé !")
                     del st.session_state.a_reparer
                     st.rerun()
 
@@ -112,8 +109,8 @@ def afficher():
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
             for f in st.session_state.fichiers_a_sauvegarder: 
-                envoyer_donnees_github(f['chemin'], json.dumps(f['contenu'], indent=4, ensure_ascii=False), "🧹 Nettoyage")
-            envoyer_donnees_github("data/index_recettes.json", json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), "🧹 Nettoyage Index")
+                sauvegarder_json_github(f['chemin'], f['contenu'], "🧹 Nettoyage")
+            sauvegarder_json_github("data/index_recettes.json", st.session_state.index_a_sauvegarder, "🧹 Nettoyage Index")
             del st.session_state.index_a_sauvegarder
             st.rerun()
 
@@ -185,8 +182,8 @@ def afficher():
                         new_cat.append(f_nom)
                         new_cat.sort()
                     
-                    envoyer_donnees_github("data/index_produits_zones.json", json.dumps(st.session_state.index_zones, indent=2, ensure_ascii=False), "🛠️ Maj Catalogue")
-                    envoyer_donnees_github("courses/index_courses.json", json.dumps(st.session_state.data_a5, indent=2, ensure_ascii=False), "🛠️ Maj Data")
+                    sauvegarder_json_github("data/index_produits_zones.json", st.session_state.index_zones, "🛠️ Maj Catalogue")
+                    sauvegarder_json_github("courses/index_courses.json", st.session_state.data_a5, "🛠️ Maj Data")
                     st.success("Mise à jour réussie ! 🚀")
                     time.sleep(1)
                     st.rerun()
@@ -196,6 +193,6 @@ def afficher():
                     for k in range(12):
                         if sel in st.session_state.data_a5[str(k)]["catalogue"]: 
                             st.session_state.data_a5[str(k)]["catalogue"].remove(sel)
-                    envoyer_donnees_github("data/index_produits_zones.json", json.dumps(st.session_state.index_zones, indent=2, ensure_ascii=False), "🗑️ Suppression")
-                    envoyer_donnees_github("courses/index_courses.json", json.dumps(st.session_state.data_a5, indent=2, ensure_ascii=False), "🗑️ Suppression")
+                    sauvegarder_json_github("data/index_produits_zones.json", st.session_state.index_zones, "🗑️ Suppression")
+                    sauvegarder_json_github("courses/index_courses.json", st.session_state.data_a5, "🗑️ Suppression")
                     st.rerun()
