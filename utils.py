@@ -28,7 +28,7 @@ def charger_json_github(chemin_fichier):
         res = requests.get(url)
         return res.json() if res.status_code == 200 else []
     except:
-        return []
+        return [] if "plats_rapides" in chemin_fichier or "index" in chemin_fichier else {}
 
 def sauvegarder_json_github(chemin_fichier, donnees, message_commit="Mise à jour"):
     """Gère la sauvegarde vers GitHub avec gestion du SHA."""
