@@ -51,4 +51,33 @@ def sauvegarder_json_github(chemin_fichier, donnees, message_commit="Mise à jou
         return True
     
     return False
+
+# --- FONCTION POUR LA MAINTENANCE ET LES IMAGES ---
+
+def envoyer_donnees_github(chemin, contenu, message, est_image=False):
+    """Fonction universelle pour envoyer texte ou images."""
+    conf = get_github_config()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
     
+    # Récupération du SHA
+    res_get = requests.get(url, headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    
+    # Encodage spécifique selon le type
+    contenu_b64 = base64.b64encode(contenu if est_image else contenu.encode('utf-8')).decode('utf-8')
+    
+    payload = {"message": message, "content": contenu_b64, "branch": "main"}
+    if sha: payload["sha"] = sha
+    
+    res_put = requests.put(url, headers=conf['headers'], json=payload)
+    if res_put.status_code in [200, 201]:
+        st.cache_data.clear() # On vide le cache car le dépôt a changé
+        return True
+    return False
+
+def scanner_depot_complet():
+    """Scan récursif de tout le dépôt GitHub."""
+    conf = get_github_config()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
+    res = requests.get(url, headers=conf['headers'])
+    return res.json().get('tree', []) if res.status_code == 200 else []
