@@ -130,11 +130,11 @@ def afficher():
                             
                             st.rerun()
                           
-                  for p_idx, p in enumerate(case["panier"]):
-                      if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
-                          case["panier"].pop(p_idx)
-                          envoyer_donnees_github("data/index_courses.json", json.dumps(st.session_state.index_courses, indent=4, ensure_ascii=False), "🗑️ Suppr article")
-                          st.rerun()
+                for p_idx, p in enumerate(case["panier"]):
+                    if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
+                        case["panier"].pop(p_idx)
+                        envoyer_donnees_github("data/index_courses.json", json.dumps(st.session_state.index_courses, indent=4, ensure_ascii=False), "🗑️ Suppr article")
+                        st.rerun()
 
     if st.button("🗑️ Vider tout le panier", use_container_width=True):
         for k in range(12): 
