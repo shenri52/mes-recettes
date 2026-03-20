@@ -79,6 +79,9 @@ def afficher():
         if choix_i != "---":
             st.button("➕", key=f"btn_add_{f_id}", on_click=ajouter_ing_img_nettoyer)
 
+    for i in st.session_state.ingredients_img:
+            st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
+
     # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader("📷 Photos de la recette", type=["jpg", "png", "jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
 
