@@ -510,6 +510,20 @@
         "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
     },
     {
+        "nom": "Sans nom",
+        "categorie": "Non classé",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/data_stockage.json"
+    },
+    {
+        "nom": "Sans nom",
+        "categorie": "Non classé",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/index_courses.json"
+    },
+    {
         "nom": "Soupe au chou Zéro point",
         "categorie": "Soupe",
         "appareil": "Aucun",
