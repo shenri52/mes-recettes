@@ -149,26 +149,42 @@ def deconnexion():
     st.session_state["mode_public"] = False
     # On garde 'authentifie' tel quel ou on peut le passer à False si on veut une déconnexion totale
 
-def mettre_a_jour_resume_stats():
-    """Calcule le résumé des recettes et le sauvegarde sur GitHub."""
+def actualiser_toutes_les_stats():
+    """Lance la mise à jour des recettes ET du stockage en une seule fois."""
     from collections import Counter
     from datetime import datetime
     
+    success_recettes = False
+    success_stockage = False
+    now = datetime.now().strftime("%d/%m/%Y à %H:%M")
+
+    # --- PARTIE 1 : RECETTES ---
     index = charger_json_github("data/index_recettes.json")
-    if not index:
-        return None
+    if index:
+        resume_r = {
+            "derniere_maj": now,
+            "total_recettes": len(index),
+            "categories": dict(sorted(Counter(r.get('categorie', 'Non classé') for r in index).items())),
+            "appareils": dict(sorted(Counter(r.get('appareil', 'Aucun') for r in index).items()))
+        }
+        success_recettes = sauvegarder_json_github("data/stats_recettes.json", resume_r, "📊 MAJ Stats Recettes")
 
-    # Calculs
-    stats_cat = Counter(r.get('categorie', 'Non classé') for r in index)
-    stats_app = Counter(r.get('appareil', 'Aucun') for r in index)
+    # --- PARTIE 2 : STOCKAGE ---
+    tree = scanner_depot_complet()
+    if tree:
+        stats_c = {"Recettes (JSON)": {"nb": 0, "poids": 0}, "Photos (Images)": {"nb": 0, "poids": 0}, "Fichiers Système & Apps": {"nb": 0, "poids": 0}}
+        for item in [i for i in tree if i.get('type') == 'blob']:
+            path, size = item['path'].lower(), item.get('size', 0)
+            key = "Recettes (JSON)" if "recettes/" in path else "Photos (Images)" if "images/" in path else "Fichiers Système & Apps"
+            stats_c[key]["nb"] += 1
+            stats_c[key]["poids"] += size
+        
+        poids_total = sum(d["poids"] for d in stats_c.values())
+        resume_s = {
+            "derniere_maj": now,
+            "poids_total_mo": round(poids_total / (1024 * 1024), 2),
+            "details": [{"Type": k, "Nombre": v["nb"], "Mo": round(v["poids"] / (1024 * 1024), 2)} for k, v in stats_c.items()]
+        }
+        success_stockage = sauvegarder_json_github("data/data_stockage.json", resume_s, "📊 MAJ Stats Stockage")
 
-    resume = {
-        "derniere_maj": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-        "total_recettes": len(index),
-        "categories": dict(sorted(stats_cat.items())),
-        "appareils": dict(sorted(stats_app.items()))
-    }
-
-    if sauvegarder_json_github("data/stats_recettes.json", resume, "📊 MAJ Résumé Stats"):
-        return resume
-    return None
+    return success_recettes and success_stockage
