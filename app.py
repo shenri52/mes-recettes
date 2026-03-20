@@ -10,7 +10,7 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
-        st.markdown("<h3 style='text-align: center;'>🍳 Mes recettes - 🔒 Accès réservé</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>🍳 Mes recettes - 🔑 Accès réservé</h3>", unsafe_allow_html=True)
         
         def valider():
             if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
