@@ -106,3 +106,25 @@ def mettre_a_jour_index(nouvelle_recette_index):
     idx_data = charger_json_github("data/index_recettes.json") or []
     idx_data.append(nouvelle_recette_index)
     return envoyer_donnees_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "📈 MAJ Index")
+
+def supprimer_fichier_github(chemin_fichier, message_commit="Suppression"):
+    """Supprime un fichier sur GitHub (nécessaire pour les photos et recettes)."""
+    conf = get_github_config()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin_fichier.strip('/')}"
+    res_get = requests.get(url, headers=conf['headers'])
+    if res_get.status_code == 200:
+        sha = res_get.json()['sha']
+        payload = {"message": message_commit, "sha": sha, "branch": "main"}
+        res_del = requests.delete(url, headers=conf['headers'], json=payload)
+        if res_del.status_code in [200, 204]:
+            st.cache_data.clear()
+            return True
+    return False
+
+def charger_recette_specifique(url_raw):
+    """Charge le contenu JSON d'une recette précise via son URL raw."""
+    try:
+        res = requests.get(url_raw)
+        return res.json() if res.status_code == 200 else {}
+    except:
+        return {}
