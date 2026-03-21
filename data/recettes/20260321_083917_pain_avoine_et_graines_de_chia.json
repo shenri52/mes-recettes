@@ -1,0 +1,29 @@
+{
+    "nom": "Pain Avoine et graines de chia",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "40mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "240g"
+        },
+        {
+            "Ingrédient": "Graines de chia",
+            "Quantité": "2cas"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Lait végétal",
+            "Quantité": "240ml"
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_083917_pain_avoine_et_graines_de_chia_0.jpg"
+    ]
+}
