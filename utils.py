@@ -145,10 +145,25 @@ def naviguer_vers(nom_page):
     st.rerun()
 
 def deconnexion():
-    """Réinitialise l'accès et retourne à l'accueil."""
+    """Réinitialise l'accès et nettoie uniquement si on quitte la saisie."""
+    # On récupère la page d'où l'on vient
+    page_actuelle = st.session_state.get('page')
+
+    # NETTOYAGE CIBLÉ
+    if page_actuelle in ['importer', 'ajouter']:
+        # 1. On vide les listes
+        st.session_state["ingredients_img"] = []      # Page Importer
+        st.session_state["ingredients_recette"] = []  # Page Saisir
+        st.session_state["cat_fixee"] = ""
+        
+        # Incrémenter les compteurs pour vider les champs texte (Nom, Temps, etc.)
+        if 'form_count_img' in st.session_state:
+            st.session_state.form_count_img += 1
+        if 'form_count' in st.session_state:
+            st.session_state.form_count += 1
+            
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
-    # On garde 'authentifie' tel quel ou on peut le passer à False si on veut une déconnexion totale
 
 def actualiser_toutes_les_stats():
     """Lance la mise à jour des recettes ET du stockage en une seule fois."""
