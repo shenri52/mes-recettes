@@ -1,0 +1,31 @@
+{
+    "nom": "Sauce légère crudités et salades",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "5 mn",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_083338_sauce_légère_crudités_et_salades_0.jpg",
+        "data/images/20260321_083338_sauce_légère_crudités_et_salades_1.jpg",
+        "data/images/20260321_083338_sauce_légère_crudités_et_salades_2.jpg"
+    ]
+}
