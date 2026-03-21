@@ -2,7 +2,13 @@ import streamlit as st
 import json, time
 from datetime import datetime
 
-from utils import envoyer_donnees_github, charger_json_github, get_index_options, traiter_et_compresser_image, mettre_a_jour_index
+from utils import (envoyer_donnees_github,
+                   charger_json_github,
+                   get_index_options,
+                   traiter_et_compresser_image,
+                   mettre_a_jour_index,
+                   verifier_doublon_recette
+                  )
 
 def afficher():
     st.header("✍️ Ajouter une recette")
@@ -17,6 +23,8 @@ def afficher():
     f_id = st.session_state.form_count
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{f_id}")
+        if verifier_doublon_recette(nom_plat):
+            st.warning("⚠️ Ce nom existe déjà. À l'enregistrement, la date du jour sera ajoutée pour éviter d'écraser l'ancienne.")
         
         c_app, c_prep, c_cuis = st.columns(3)
         type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
@@ -32,6 +40,8 @@ def afficher():
                 if nom_nouveau not in st.session_state.liste_categories:
                     st.session_state.liste_categories.append(nom_nouveau)
                 
+                st.session_state.cat_fixee = nom_nouveau
+                
                 # 3. LE RESET : On force le menu à revenir sur "---"
                 st.session_state[f"scat_{f_id}"] = "---"
                 
@@ -40,27 +50,24 @@ def afficher():
 
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
-            # On trie et on prépare les options (Ajouter à la fin pour la stabilité)
             cats_existantes = sorted([c for c in st.session_state.liste_categories if c and c != "---"])
             opts_cat = ["---"] + cats_existantes + ["➕ Ajouter une nouvelle..."]
             
-            # Le selectbox lié à sa clé
+            # Un seul selectbox avec la clé dynamique
             choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
             
-            # On affiche le champ texte SEULEMENT si "Ajouter" est sélectionné
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.text_input("Nom de la catégorie", key=f"ncat_{f_id}")
+            elif choix_cat == "---":
+                st.session_state.cat_fixee = "" # Sécurité : bloque l'enregistrement
             else:
-                # On mémorise le choix pour le bouton "Enregistrer" final
-                st.session_state.cat_fixee = choix_cat
+                st.session_state.cat_fixee = choix_cat # Mémorise le choix existant
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
-            # Le bouton "+" n'apparaît QUE si on est sur "Ajouter"
-            # Une fois cliqué, il déclenche la fonction et disparaît au rafraîchissement
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_valider_{f_id}", on_click=ajouter_cat_et_nettoyer)
-
+                
         # ---  INGRÉDIENTS  ---
         def ajouter_ing_et_nettoyer():
             # 1. Récupération des saisies
@@ -129,10 +136,17 @@ def afficher():
         elif not f_cat or f_cat == "---":
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
-            # 3. SI TOUT EST OK -> ON ENREGISTRE
-            with st.spinner("Enregistrement en cours..."):
-                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
+            with st.spinner("Enregistrement..."):
+                maintenant = datetime.now()
+                ts = maintenant.strftime("%Y%m%d_%H%M%S")
+                
+                # --- ÉTAPE A : LE RENOMMAGE (Si besoin) ---
+                if verifier_doublon_recette(nom_plat):
+                    nom_plat = f"{nom_plat} ({maintenant.strftime('%d-%m-%Y')})"
+                
+                # --- ÉTAPE B : SÉCURITÉ (On crée la liste vide ici) ---
+                nom_fic = nom_plat.replace(" ", "_").lower().replace("'", "_")
+                liste_medias = []
                 
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
@@ -164,6 +178,7 @@ def afficher():
                         
                     # RESET mémoire
                     st.session_state.ingredients_recette = []
+                    st.session_state.cat_fixee = ""
                     st.session_state.form_count += 1
                     time.sleep(1)
                     st.rerun()
