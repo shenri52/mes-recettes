@@ -66,7 +66,7 @@ if verifier_mot_de_passe():
         if st.session_state["authentifie"]:
             # On définit les boutons par ligne (Listes de tuples : "Label", "Page")
             L1 = [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")]
-            L2 = [("📥 Importer des recettes ODT", "import_odt"), ("✍️ Importer des recettes PDF", import_pdf)]
+            L2 = [("📥 Importer des recettes ODT", "import_odt"), ("✍️ Importer des recettes PDF", "import_pdf")]
             L3 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
             L4 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
 
