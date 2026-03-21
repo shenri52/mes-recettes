@@ -11,7 +11,7 @@ from utils import (
 def extraire_donnees_odt(file_bytes):
     from odf import opendocument, text, teletype
     doc = opendocument.load(io.BytesIO(file_bytes))
-    lignes = [teletype.get_string(p) for p in doc.getElementsByType(text.P) if teletype.get_string(p).strip()]
+    lignes = [teletype.extractText(p) for p in doc.getElementsByType(text.P) if teletype.extractText(p).strip()]
     
     # Extraction et compression des images du document
     biblio_img = {}
