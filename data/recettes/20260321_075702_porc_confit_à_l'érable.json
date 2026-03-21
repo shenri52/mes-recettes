@@ -1,0 +1,56 @@
+{
+    "nom": "Porc confit à l'érable",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "4 heures",
+    "ingredients": [
+        {
+            "Ingrédient": "Rouelle de porc",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile végétale",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sirop d'érable",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Vinaigre de cidre",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Thym",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Romarin",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_075702_porc_confit_à_l'érable_0.jpg",
+        "data/images/20260321_075702_porc_confit_à_l'érable_1.jpg",
+        "data/images/20260321_075702_porc_confit_à_l'érable_2.jpg",
+        "data/images/20260321_075702_porc_confit_à_l'érable_3.jpg"
+    ]
+}
