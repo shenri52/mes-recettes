@@ -27,13 +27,13 @@ def extraire_donnees_odt(file_bytes):
         bloc_recette = lignes[start_idx:end_idx]
         texte_bloc = "\n".join(bloc_recette)
         
-        # Délimitation zone Préparation
+        # limitation zone Préparation
         idx_prep = next((i for i, l in enumerate(bloc_recette) if re.search(r"Préparation|Instructions", l, re.I)), len(bloc_recette))
         
         lignes_ingredients = bloc_recette[1:idx_prep] 
         lignes_preparation = bloc_recette[idx_prep:]
         
-        # --- DÉTECTION DES TEMPS (STRICTE & VIDE PAR DÉFAUT) ---
+        # --- TECTION S TEMPS (STRICTE & VI PAR FAUT) ---
         t_prep, t_cuisson = "", ""
         
         # Cherche uniquement si format "Préparation : 10 min" est présent
@@ -43,7 +43,7 @@ def extraire_donnees_odt(file_bytes):
         found_c = re.search(r"Cuisson\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
         if found_c: t_cuisson = found_c.group(1)
 
-        # --- PARSING DES INGRÉDIENTS (Séparation Chiffre / Nom) ---
+        # --- PARSING S INGRÉDIENTS (Séparation Chiffre / Nom) ---
         ing_list = []
         for l in lignes_ingredients:
             # On vérifie si la ligne commence par un chiffre (ex: "3 pommes" ou "200g sucre")
@@ -67,7 +67,7 @@ def extraire_donnees_odt(file_bytes):
     
     return recettes
 
-def afficher():
+f afficher():
     st.header("🖋️ Importer des recettes ODT")
     
     if 'import_idx' not in st.session_state: st.session_state.import_idx = 0
@@ -120,27 +120,6 @@ def afficher():
                        
             # --- BLOC PRÉPARATION ---
             st.subheader("Instructions de préparation")
-            
-            # Le bouton de correction avec symbole alphabet pour la compatibilité
-            if st.button("Corriger le texte", key=f"clean_btn{idx}"):
-                # Récupération du texte (depuis le widget si modifié)
-                t = st.session_state[f"et{idx}"] if f"et{idx}" in st.session_state else r['prep_propre']
-                
-                # Correction orthographe
-                t = re.sub(r'oeufs', 'œufs', t, flags=re.I)
-                t = re.sub(r'oeuf', 'œuf', t, flags=re.I)
-                
-                # Majuscules et points
-                phrases = [s.strip().capitalize() for s in t.split('.') if s.strip()]
-                t_corrige = ". ".join(phrases)
-                if t_corrige and not t_corrige.endswith('.'):
-                    t_corrige += "."
-                
-                # Mise à jour forcée de la source et du widget
-                st.session_state.liste_odt[idx]['prep_propre'] = t_corrige
-                st.session_state[f"et{idx}"] = t_corrige 
-                
-                st.rerun()
 
             # La zone de texte avec ton titre "Texte de la recette"
             etapes = st.text_area("", value=r['prep_propre'], height=300, key=f"et{idx}")
