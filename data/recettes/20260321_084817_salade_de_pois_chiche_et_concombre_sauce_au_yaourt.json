@@ -1,0 +1,42 @@
+{
+    "nom": "Salade de pois chiche et concombre sauce au yaourt",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": "400g"
+        },
+        {
+            "Ingrédient": "Concombre",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Oignon rouge",
+            "Quantité": "1/4"
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Aneth",
+            "Quantité": "1cas"
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt_0.jpg",
+        "data/images/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt_1.jpg"
+    ]
+}
