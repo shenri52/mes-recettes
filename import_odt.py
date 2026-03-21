@@ -13,53 +13,55 @@ def extraire_donnees_odt(file_bytes):
     lignes = [teletype.extractText(p).strip() for p in doc.getElementsByType(text.P) if teletype.extractText(p).strip()]
     
     recettes = []
+    # On repère les sections par le mot "Ingrédients"
     indices_recettes = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
     
     for start_idx in indices_recettes:
+        # Titre : ligne juste avant "Ingrédients"
         titre = lignes[start_idx - 1] if start_idx > 0 else "Nouvelle Recette"
-        next_ingredients = [i for i in indices_recettes if i > start_idx]
-        end_idx = next_ingredients[0] if next_ingredients else len(lignes)
+        
+        next_indices = [i for i in indices_recettes if i > start_idx]
+        end_idx = next_indices[0] if next_indices else len(lignes)
         
         bloc_recette = lignes[start_idx:end_idx]
-        idx_prep = next((i for i, l in enumerate(bloc_recette) if "Préparation" in l or "Cuisson" in l), len(bloc_recette))
+        texte_bloc = "\n".join(bloc_recette)
+        
+        # Délimitation zone Préparation
+        idx_prep = next((i for i, l in enumerate(bloc_recette) if re.search(r"Préparation|Instructions", l, re.I)), len(bloc_recette))
         
         lignes_ingredients = bloc_recette[1:idx_prep] 
         lignes_preparation = bloc_recette[idx_prep:]
         
-        # --- DÉTECTION DES TEMPS (Regex) ---
-        t_prep, t_cuisson = "15 min", "30 min" # Valeurs par défaut
-        texte_complet = " ".join(bloc_recette)
+        # --- DÉTECTION DES TEMPS (STRICTE & VIDE PAR DÉFAUT) ---
+        t_prep, t_cuisson = "", ""
         
-        m_prep = re.search(r"Préparation\s*[:\-]?\s*(\d+\s*(min|h|minutes))", texte_complet, re.IGNORECASE)
-        if m_prep: t_prep = m_prep.group(1)
-        
-        m_cuis = re.search(r"Cuisson\s*[:\-]?\s*(\d+\s*(min|h|minutes))", texte_complet, re.IGNORECASE)
-        if m_cuis: t_cuisson = m_cuis.group(1)
-
-        # --- TRAITEMENT DES INGRÉDIENTS AVEC SPLIT FORCÉ ---
-        ing_list = []
-        ing_bruts = []
-        for l in lignes_ingredients:
-            parsed = parser_ligne_ingredient(l)
-            # Si le parser échoue à trouver une quantité (ex: "3 pommes" mis tout en ingrédient)
-            if parsed and not parsed.get('Quantité'):
-                # On tente un split manuel sur le premier chiffre
-                match = re.match(r"^(\d+)\s*(.*)", l)
-                if match:
-                    parsed = {"Ingrédient": match.group(2).strip(), "Quantité": match.group(1).strip()}
+        # Cherche uniquement si format "Préparation : 10 min" est présent
+        found_p = re.search(r"Préparation\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
+        if found_p: t_prep = found_p.group(1)
             
-            if parsed and parsed.get('Ingrédient'):
-                ing_list.append(parsed)
-            else:
-                ing_bruts.append(l)
-        
-        prep_finale = "\n".join(lignes_preparation)
-        if ing_bruts:
-            prep_finale = "NOTES INGRÉDIENTS :\n" + "\n".join(ing_bruts) + "\n\n" + prep_finale
+        found_c = re.search(r"Cuisson\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
+        if found_c: t_cuisson = found_c.group(1)
 
+        # --- PARSING DES INGRÉDIENTS (Séparation Chiffre / Nom) ---
+        ing_list = []
+        for l in lignes_ingredients:
+            # On vérifie si la ligne commence par un chiffre (ex: "3 pommes" ou "200g sucre")
+            match_nombre = re.match(r"^(\d+[g\s]*[a-zA-Z]*)\s+(.*)", l)
+            if match_nombre:
+                ing_list.append({"Ingrédient": match_nombre.group(2).strip(), "Quantité": match_nombre.group(1).strip()})
+            else:
+                parsed = parser_ligne_ingredient(l)
+                if parsed:
+                    ing_list.append(parsed)
+                else:
+                    ing_list.append({"Ingrédient": l, "Quantité": ""})
+        
         recettes.append({
-            "nom": titre, "ing_list": ing_list, "prep_propre": prep_finale,
-            "t_prep": t_prep, "t_cuisson": t_cuisson
+            "nom": titre, 
+            "ing_list": ing_list, 
+            "prep_propre": "\n".join(lignes_preparation),
+            "t_prep": t_prep, 
+            "t_cuisson": t_cuisson
         })
     
     return recettes
@@ -73,7 +75,7 @@ def afficher():
     file = st.file_uploader("Charger un document ODT", type="odt")
 
     if file and not st.session_state.liste_odt:
-        with st.spinner("Analyse du texte..."):
+        with st.spinner("Analyse du document..."):
             st.session_state.liste_odt = extraire_donnees_odt(file.getvalue())
             st.rerun()
 
@@ -96,23 +98,23 @@ def afficher():
                 cat = st.text_input("Nom de la catégorie", key=f"nc{idx}") if choix_cat == "➕ Ajouter une catégorie..." else choix_cat
 
             with col_app:
-                appareil = st.selectbox("Appareil utilisé", options=["Aucun", "Cookeo", "Thermomix", "Ninja", "Four"], key=f"a{idx}")
+                appareils = ["Aucun", "Cookeo", "Thermomix", "Ninja", "Four"]
+                appareil = st.selectbox("Appareil utilisé", options=appareils, key=f"a{idx}")
 
-            # --- NOUVEAUX CHAMPS TEMPS ---
+            # Champs temps (Vides si non détectés)
             col_t1, col_t2 = st.columns(2)
-            t_prep = col_t1.text_input("⏳ Temps Préparation", value=r['t_prep'], key=f"tp{idx}")
-            t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc{idx}")
+            t_prep = col_t1.text_input("⏳ Temps Préparation", value=r['t_prep'], key=f"tp{idx}", placeholder="Non détecté")
+            t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc{idx}", placeholder="Non détecté")
 
             st.subheader("Ingrédients détectés")
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic", use_container_width=True, key=f"ed{idx}")
             
             st.subheader("Instructions de préparation")
-            # --- OPTION NETTOYAGE TEXTE ---
-            if st.button("🪄 Nettoyer le texte (Majuscules & Espaces)", key=f"clean{idx}"):
-                texte = r['prep_propre']
-                # On remet une majuscule après chaque point et on réduit les espaces
-                texte = ". ".join([s.strip().capitalize() for s in texte.split('.')])
-                r['prep_propre'] = texte
+            if st.button("🪄 Nettoyer le texte", key=f"clean{idx}"):
+                t = r['prep_propre']
+                t = t.replace("oeufs", "œufs").replace("oeuf", "œuf")
+                t = ". ".join([s.strip().capitalize() for s in t.split('.') if s.strip()])
+                r['prep_propre'] = t
                 st.rerun()
 
             etapes = st.text_area("Texte de la recette", value=r['prep_propre'], height=300, key=f"et{idx}")
@@ -130,15 +132,14 @@ def afficher():
 
             if c_save.button("✅ Enregistrer", type="primary", use_container_width=True):
                 with st.spinner("Sauvegarde..."):
-                    # On ajoute t_prep et t_cuisson à la sauvegarde
                     if sauvegarder_recette_complete(nom, cat, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
                         st.success(f"'{nom}' enregistré !")
-                        time.sleep(1)
+                        time.sleep(0.5)
                         st.session_state.import_idx += 1
                         st.rerun()
         else:
             st.balloons()
-            st.success("Terminé ! ✨")
+            st.success("Toutes les recettes ont été traitées ! ✨")
             if st.button("Charger un nouveau fichier ODT"):
                 st.session_state.liste_odt = []
                 st.session_state.import_idx = 0
