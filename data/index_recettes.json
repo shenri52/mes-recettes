@@ -637,5 +637,17 @@
             "Jus de citron"
         ],
         "chemin": "data/recettes/20260321_080942_salade_méditerranéenne/_moyen-orient.json"
+    },
+    {
+        "nom": "Sauce légère crudités et salades",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Yaourt à la grec",
+            "Moutarde",
+            "Ail",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260321_083338_sauce_légère_crudités_et_salades.json"
     }
 ]
