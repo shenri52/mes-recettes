@@ -4,9 +4,11 @@ import json
 import time
 import base64
 import pytz
+import io
+import re
+
 from datetime import datetime
 from PIL import Image
-import io
 
 def get_github_config():
     """Récupère les identifiants GitHub depuis les secrets Streamlit."""
@@ -207,3 +209,42 @@ def actualiser_toutes_les_stats():
         success_stockage = sauvegarder_json_github("data/data_stockage.json", resume_s, "📊 MAJ Stats Stockage")
 
     return success_recettes and success_stockage
+
+def parser_ligne_ingredient(ligne):
+    """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
+    ligne = ligne.strip()
+    if not ligne or ":" in ligne: return None # Évite de prendre les titres comme 'Ingrédients :'
+    match = re.match(r"(\d+\s*\w*)\s*(?:de|d')?\s*(.*)", ligne, re.I)
+    if match:
+        return {"Ingrédient": match.group(2).strip().capitalize(), "Quantité": match.group(1).strip()}
+    return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
+
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun"):
+    """Centralise la sauvegarde pour les nouveaux modules d'import."""
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nom_fic = nom.lower().replace(" ", "_").replace("'", "_")
+    liste_medias = []
+
+    # 1. Image (image_data doit être un BytesIO déjà compressé)
+    if image_data:
+        ch_m = f"data/images/{ts}_{nom_fic}.jpg"
+        if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
+            liste_medias.append(ch_m)
+
+    # 2. JSON
+    ch_r = f"data/recettes/{ts}_{nom_fic}.json"
+    rec_data = {
+        "nom": nom, "categorie": categorie, "appareil": appareil,
+        "temps_preparation": "", "temps_cuisson": "",
+        "ingredients": ingredients, "etapes": etapes, "images": liste_medias
+    }
+    
+    # 3. GitHub & Index
+    if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
+        mettre_a_jour_index({
+            "nom": nom, "categorie": categorie, "appareil": appareil,
+            "ingredients": [i['Ingrédient'] for i in ingredients if i.get('Ingrédient')],
+            "chemin": ch_r
+        })
+        return True
+    return False
