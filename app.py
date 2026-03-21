@@ -32,7 +32,6 @@ def verifier_mot_de_passe():
             if st.session_state["authentifie"]:
                 st.rerun()
         
-        st.divider()
         st.markdown("<h3 style='text-align: center; color: #000000;'>📖 Accès public</h3>", unsafe_allow_html=True)
         
         # Bouton d'accès direct pour la consultation simple
