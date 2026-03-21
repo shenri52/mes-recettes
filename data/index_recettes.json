@@ -691,17 +691,5 @@
             "Comté"
         ],
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
-    },
-    {
-        "nom": "Poulet sauce boursin à l'ail et fines herbes ",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Filet de poulet",
-            "Boursin Ail et fines herbes",
-            "Crème fraiche",
-            "Oignon"
-        ],
-        "chemin": "data/recettes/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes_.json"
     }
 ]
