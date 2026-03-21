@@ -663,5 +663,20 @@
             "Menthe fraiche"
         ],
         "chemin": "data/recettes/20260321_084244_salade_pois_chiches,_avocat_et_feta.json"
+    },
+    {
+        "nom": "Salade de pois chiche et concombre sauce au yaourt",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pois chiche",
+            "Concombre",
+            "Oignon rouge",
+            "Yaourt à la grec",
+            "Huile olive",
+            "Jus de citron",
+            "Aneth"
+        ],
+        "chemin": "data/recettes/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt.json"
     }
 ]
