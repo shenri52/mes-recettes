@@ -1,0 +1,33 @@
+{
+    "nom": "Gratin de ravioles aux champignons et comté",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "25mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Ravioles",
+            "Quantité": "500g"
+        },
+        {
+            "Ingrédient": "Champignons",
+            "Quantité": "450g"
+        },
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": "20cl"
+        },
+        {
+            "Ingrédient": "Comté",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté_0.jpg"
+    ]
+}
