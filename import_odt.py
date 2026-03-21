@@ -109,14 +109,29 @@ def afficher():
             st.subheader("Ingrédients détectés")
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic", use_container_width=True, key=f"ed{idx}")
             
-            st.subheader("Instructions de préparation")
-            if st.button("🪄 Nettoyer le texte", key=f"clean{idx}"):
+            # --- BLOC BOUTON ET ZONE DE TEXTE ---
+            st.subheader("Préparation")
+            
+            if st.button("Corriger le texte", key=f"clean{idx}"):
+                # 1. Récupération du texte actuel
                 t = r['prep_propre']
-                t = t.replace("oeufs", "œufs").replace("oeuf", "œuf")
-                t = ". ".join([s.strip().capitalize() for s in t.split('.') if s.strip()])
-                r['prep_propre'] = t
+                
+                # 2. Correction orthographe (oeufs -> œufs)
+                t = re.sub(r'oeufs?', lambda m: 'œuf' if m.group().lower() == 'oeuf' else 'œufs', t, flags=re.I)
+                
+                # 3. Majuscule en début de chaque phrase et nettoyage
+                phrases = [s.strip().capitalize() for s in t.split('.') if s.strip()]
+                t_corrige = ". ".join(phrases)
+                if t_corrige and not t_corrige.endswith('.'):
+                    t_corrige += "."
+                
+                # 4. MISE À JOUR CRITIQUE : on modifie la source dans la session_state
+                st.session_state.liste_odt[idx]['prep_propre'] = t_corrige
+                
+                # 5. On force le rechargement pour afficher le texte propre
                 st.rerun()
 
+            # La zone de texte utilise la valeur mise à jour
             etapes = st.text_area("Texte de la recette", value=r['prep_propre'], height=300, key=f"et{idx}")
 
             st.divider()
