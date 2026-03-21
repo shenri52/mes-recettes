@@ -1,7 +1,6 @@
 import streamlit as st
 import io, zipfile, time
 
-from odf import opendocument, text, teletype
 from utils import (
     sauvegarder_recette_complete, 
     traiter_et_compresser_image, 
@@ -10,6 +9,7 @@ from utils import (
 )
 
 def extraire_donnees_odt(file_bytes):
+    from odf import opendocument, text, teletype
     doc = opendocument.load(io.BytesIO(file_bytes))
     lignes = [teletype.get_string(p) for p in doc.getElementsByType(text.P) if teletype.get_string(p).strip()]
     
@@ -63,7 +63,7 @@ def afficher():
 
     if file and not st.session_state.liste_odt:
         with st.spinner("Analyse du document et compression des images..."):
-            st.session_state.liste_odt = extraire_donnees_odt(file.read())
+            st.session_state.liste_odt = extraire_donnees_odt(file.getvalue())
             st.rerun()
 
     if st.session_state.liste_odt:
