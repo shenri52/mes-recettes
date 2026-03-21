@@ -607,18 +607,21 @@
         "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
     },
     {
-        "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
+        "nom": "Riz sauté au poulet et légumes",
         "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [
-            "Poulet haché",
-            "Mozzarella râpée",
-            "Ricotta",
-            "Epinards",
-            "Tomates cerises",
-            "Jaune d'oeufs",
-            "Chapelure"
+            "Filet de poulet",
+            "Riz cuit froid",
+            "Carottes",
+            "Petit pois",
+            "Poivron rouge",
+            "Oeuf",
+            "Ail",
+            "Sauce soja",
+            "Huile sesame",
+            "Oignon"
         ],
-        "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
+        "chemin": "data/recettes/20260321_080612_riz_sauté_au_poulet_et_légumes.json"
     }
 ]
