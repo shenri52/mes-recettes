@@ -639,15 +639,15 @@
         "chemin": "data/recettes/20260321_080942_salade_méditerranéenne/_moyen-orient.json"
     },
     {
-        "nom": "Sauce légère crudités et salades",
+        "nom": "Mayonnaise diététique",
         "categorie": "Divers",
         "appareil": "Aucun",
         "ingredients": [
-            "Yaourt à la grec",
+            "Œufs durs",
+            "Fromage blanc",
             "Moutarde",
-            "Ail",
-            "Huile olive"
+            "Jus de citron"
         ],
-        "chemin": "data/recettes/20260321_083338_sauce_légère_crudités_et_salades.json"
+        "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
     }
 ]
