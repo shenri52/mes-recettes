@@ -108,31 +108,33 @@ def afficher():
 
             st.subheader("Ingrédients détectés")
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic", use_container_width=True, key=f"ed{idx}")
+                       
+            # --- BLOC PRÉPARATION ---
+            st.subheader("Instructions de préparation")
             
-            # --- BLOC BOUTON ET ZONE DE TEXTE ---
-            st.subheader("Préparation")
-            
-            if st.button("Corriger le texte", key=f"clean{idx}"):
-                # 1. Récupération du texte actuel
-                t = r['prep_propre']
+            # Le bouton de correction avec symbole alphabet pour la compatibilité
+            if st.button("Corriger le texte", key=f"clean_btn{idx}"):
+                # Récupération du texte (depuis le widget si modifié)
+                t = st.session_state[f"et{idx}"] if f"et{idx}" in st.session_state else r['prep_propre']
                 
-                # 2. Correction orthographe (oeufs -> œufs)
-                t = re.sub(r'oeufs?', lambda m: 'œuf' if m.group().lower() == 'oeuf' else 'œufs', t, flags=re.I)
+                # Correction orthographe
+                t = re.sub(r'oeufs', 'œufs', t, flags=re.I)
+                t = re.sub(r'oeuf', 'œuf', t, flags=re.I)
                 
-                # 3. Majuscule en début de chaque phrase et nettoyage
+                # Majuscules et points
                 phrases = [s.strip().capitalize() for s in t.split('.') if s.strip()]
                 t_corrige = ". ".join(phrases)
                 if t_corrige and not t_corrige.endswith('.'):
                     t_corrige += "."
                 
-                # 4. MISE À JOUR CRITIQUE : on modifie la source dans la session_state
+                # Mise à jour forcée de la source et du widget
                 st.session_state.liste_odt[idx]['prep_propre'] = t_corrige
+                st.session_state[f"et{idx}"] = t_corrige 
                 
-                # 5. On force le rechargement pour afficher le texte propre
                 st.rerun()
 
-            # La zone de texte utilise la valeur mise à jour
-            etapes = st.text_area("Texte de la recette", value=r['prep_propre'], height=300, key=f"et{idx}")
+            # La zone de texte avec ton titre "Texte de la recette"
+            etapes = st.text_area("", value=r['prep_propre'], height=300, key=f"et{idx}")
 
             st.divider()
             c_skip, c_del, c_save = st.columns([1,1,1])
