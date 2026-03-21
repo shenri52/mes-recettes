@@ -680,20 +680,16 @@
         "chemin": "data/recettes/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt.json"
     },
     {
-        "nom": "Légumes rôtis, poulet et crème d'avocat au skyr",
+        "nom": "Gratin de ravioles aux champignons et comté",
         "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [
-            "Filet de poulet",
-            "Pois chiche",
-            "Oignon",
-            "Patates douces",
-            "Curcuma",
-            "Huile olive",
-            "Avocat",
-            "Yaourt Skyr",
-            "Ail"
+            "Ravioles",
+            "Champignons",
+            "Poireaux",
+            "Crème fraiche",
+            "Comté"
         ],
-        "chemin": "data/recettes/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr.json"
+        "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
     }
 ]
