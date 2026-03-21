@@ -96,6 +96,7 @@ if verifier_mot_de_passe():
         # 1. Centralisation de toutes les pages
         toutes_pages = {
             "recettes": recettes.afficher, "importer": importer.afficher,
+            "import_odt": import_odt.afficher, "import_pdf": import_pdf.afficher,
             "ajouter": saisir.afficher, "coursesaisir": coursesaisir.afficher,
             "coursevisualiser": coursevisualiser.afficher, "stats": stats.afficher,
             "planning": planning.afficher, "maintenance": maintenance.afficher
