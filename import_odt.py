@@ -67,7 +67,7 @@ def extraire_donnees_odt(file_bytes):
     
     return recettes
 
-f afficher():
+def afficher():
     st.header("🖋️ Importer des recettes ODT")
     
     if 'import_idx' not in st.session_state: st.session_state.import_idx = 0
