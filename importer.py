@@ -2,7 +2,13 @@ import streamlit as st
 import json, time
 
 from datetime import datetime
-from utils import envoyer_donnees_github, charger_json_github, get_index_options, traiter_et_compresser_image, mettre_a_jour_index
+from utils import (envoyer_donnees_github,
+                   charger_json_github,
+                   get_index_options,
+                   traiter_et_compresser_image,
+                   mettre_a_jour_index,
+                   verifier_doublon_recette
+                  )
 
 def afficher():
     st.header("📥 Importer une recette")
@@ -18,6 +24,8 @@ def afficher():
         
     f_id = st.session_state.form_count_img
     nom_plat = st.text_input("Nom de la recette", key=f"ni_{f_id}")
+    if verifier_doublon_recette(nom_plat):
+        st.warning("⚠️ Ce nom existe déjà. À l'enregistrement, la date du jour sera ajoutée pour éviter d'écraser l'ancienne.")
     
     c_app, c_prep, c_cuis = st.columns(3)
     type_appareil = c_app.selectbox("Appareil", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"ai_{f_id}")
@@ -54,6 +62,9 @@ def afficher():
         choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
         if choix_cat == "➕ Ajouter une nouvelle...":
             st.text_input("Nom de la catégorie", key=f"ncat_{f_id}")
+            st.session_state.cat_fixee = ""
+        elif choix_cat == "---":
+            st.session_state.cat_fixee = ""
         else:
             st.session_state.cat_fixee = choix_cat
 
@@ -95,8 +106,19 @@ def afficher():
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
             with st.spinner("🚀 Envoi vers GitHub..."):
-                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
+                # ON CENTRALISE ICI : Un seul appel au système
+                maintenant = datetime.now()
+                
+                # 1. On prépare le timestamp technique (ex: 20260321_183015)
+                ts = maintenant.strftime("%Y%m%d_%H%M%S")
+                
+                # 2. On gère le doublon sur le nom d'affichage (ex: 21-03-2026)
+                if verifier_doublon_recette(nom_plat):
+                    nom_plat = f"{nom_plat} ({maintenant.strftime('%d-%m-%Y')})"
+                
+                # 3. On crée le nom de fichier technique
+                nom_fic = nom_plat.replace(" ", "_").lower().replace("'", "_")
+                liste_medias = []
                 
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
