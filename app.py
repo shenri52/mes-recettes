@@ -66,21 +66,27 @@ if verifier_mot_de_passe():
         if st.session_state["authentifie"]:
             # On définit les boutons par ligne (Listes de tuples : "Label", "Page")
             L1 = [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")]
-            L2 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
-            L3 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
+            L2 = [("📥 Importer des recettes ODT", "importer_odt"), ("✍️ Importer des recettes PDF", importer_pdf)]
+            L3 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
+            L4 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
 
             # Ligne 1 : 2 colonnes
             cols1 = st.columns(2)
             for i, (label, page) in enumerate(L1):
                 if cols1[i].button(label, use_container_width=True): changer_page(page)
+                    
+            # Ligne 2 : 2 colonnes
+            cols1 = st.columns(2)
+            for i, (label, page) in enumerate(L2):
+                if cols1[i].button(label, use_container_width=True): changer_page(page)
 
-            # Ligne 2 : Boutons un par un (Plein écran)
-            for label, page in L2:
+            # Ligne 3 : Boutons un par un (Plein écran)
+            for label, page in L3:
                 if st.button(label, use_container_width=True): changer_page(page)
 
-            # Ligne 3 : 2 colonnes
+            # Ligne 4 : 2 colonnes
             cols3 = st.columns(2)
-            for i, (label, page) in enumerate(L3):
+            for i, (label, page) in enumerate(L4):
                 if cols3[i].button(label, use_container_width=True): changer_page(page)
         else:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
