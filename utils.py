@@ -248,3 +248,11 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data
         })
         return True
     return False
+
+def verifier_doublon_recette(nom_saisi):
+    """Vérifie si le nom de la recette existe déjà dans l'index (insensible à la casse)."""
+    if not nom_saisi: 
+        return False
+    idx_data = charger_json_github("data/index_recettes.json") or []
+    noms_existants = [r.get('nom', '').strip().lower() for r in idx_data if r.get('nom')]
+    return nom_saisi.strip().lower() in noms_existants
