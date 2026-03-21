@@ -66,7 +66,7 @@ if verifier_mot_de_passe():
         if st.session_state["authentifie"]:
             # On définit les boutons par ligne (Listes de tuples : "Label", "Page")
             L1 = [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")]
-            L2 = [("🖋️ Importer des recettes ODT", "import_odt"), ("📕 Importer des recettes PDF", "import_pdf")]
+            L2 = [("🖋️ Importer des recettes ODT", "import_odt"), ("📕 Importer des recettes PDF")]
             L3 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
             L4 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
 
@@ -96,7 +96,7 @@ if verifier_mot_de_passe():
         # 1. Centralisation de toutes les pages
         toutes_pages = {
             "recettes": recettes.afficher, "importer": importer.afficher,
-            "import_odt": import_odt.afficher, "import_pdf": import_pdf.afficher,
+            "import_odt": import_odt.afficher, "import_pdf": lambda: st.info("📕 Le module PDF est en cours de développement !"),
             "ajouter": saisir.afficher, "coursesaisir": coursesaisir.afficher,
             "coursevisualiser": coursevisualiser.afficher, "stats": stats.afficher,
             "planning": planning.afficher, "maintenance": maintenance.afficher
