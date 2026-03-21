@@ -1,0 +1,42 @@
+{
+    "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "30 minutes",
+    "ingredients": [
+        {
+            "Ingrédient": "Poulet haché",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Mozzarella râpée",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ricotta",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Epinards",
+            "Quantité": "2 poignées"
+        },
+        {
+            "Ingrédient": "Tomates cerises",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Jaune d'oeufs",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Chapelure",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards_0.jpg",
+        "data/images/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards_1.jpg"
+    ]
+}
