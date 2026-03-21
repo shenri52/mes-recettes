@@ -95,10 +95,16 @@ def afficher():
             col_cat, col_app = st.columns(2)
             with col_cat:
                 _, cats_existantes = get_index_options()
-                options_cat = cats_existantes + ["➕ Ajouter une catégorie..."]
-                def_idx = cats_existantes.index("Desserts") if "Desserts" in cats_existantes else 0
-                choix_cat = st.selectbox("Catégorie", options_cat, index=def_idx, key=f"c{idx}")
-                cat = st.text_input("Nom de la catégorie", key=f"nc{idx}") if choix_cat == "➕ Ajouter une catégorie..." else choix_cat
+                # On force le choix avec "---" en premier
+                options_cat = ["---"] + sorted([c for c in cats_existantes if c]) + ["➕ Ajouter une catégorie..."]
+                
+                choix_cat = st.selectbox("Catégorie", options_cat, index=0, key=f"c{idx}")
+                
+                # Détermination de la catégorie finale
+                if choix_cat == "➕ Ajouter une catégorie...":
+                    cat_finale = st.text_input("Nom de la catégorie", key=f"nc{idx}").strip()
+                else:
+                    cat_finale = choix_cat
 
             with col_app:
                 appareils = ["Aucun", "Cookeo", "Thermomix", "Ninja", "Four"]
@@ -151,21 +157,22 @@ def afficher():
                 st.rerun()
 
             if c_save.button("✅ Enregistrer", type="primary", use_container_width=True):
-                # On vérifie la catégorie avant toute chose
-                if choix_cat == "➕ Ajouter une catégorie..." and not cat.strip():
-                    st.error("⚠️ Veuillez nommer la nouvelle catégorie.")
-                elif not cat or cat == "---":
-                    st.error("⚠️ Veuillez choisir une catégorie.")
+                # Sécurité Catégorie Obligatoire
+                if not cat_finale or cat_finale == "---":
+                    st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # AUTO-RENOMMAGE SI DOUBLON
-                        if verifier_doublon_recette(nom):
-                            nom = f"{nom} ({time.strftime('%d-%m-%Y')})"
-                            
-                        if sauvegarder_recette_complete(nom, cat, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
-                            st.success(f"'{nom}' enregistré !")
+                        # Correction API : Gestion des doublons avant l'envoi
+                        nom_propre = nom.strip()
+                        if verifier_doublon_recette(nom_propre):
+                            # On ajoute la date pour que le nom de fichier soit unique sur GitHub
+                            nom_propre = f"{nom_propre} ({time.strftime('%d-%m-%Y')})"
+                        
+                        # Appel de la sauvegarde avec les bonnes variables
+                        if sauvegarder_recette_complete(nom_propre, cat_finale, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
+                            st.success(f"'{nom_propre}' enregistré !")
                             time.sleep(0.5)
-                            st.session_state.import_idx += 1
+                            st.session_state.liste_odt.pop(idx)
                             st.rerun()
         else:
             st.balloons()
