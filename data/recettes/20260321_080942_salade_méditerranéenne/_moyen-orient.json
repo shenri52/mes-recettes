@@ -1,0 +1,37 @@
+{
+    "nom": "Salade méditerranéenne/ Moyen-Orient",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Concombre",
+            "Quantité": "1/2"
+        },
+        {
+            "Ingrédient": "Tomate",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Oignon rouge",
+            "Quantité": "1/2"
+        },
+        {
+            "Ingrédient": "Menthe séchée",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": "1/2"
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_080942_salade_méditerranéenne/_moyen-orient_0.jpg"
+    ]
+}
