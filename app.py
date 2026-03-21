@@ -41,9 +41,6 @@ def verifier_mot_de_passe():
         return False
     return True
 
-def aller_accueil():
-    utils.deconnexion()
-
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
     if 'page' not in st.session_state:
@@ -104,9 +101,11 @@ if verifier_mot_de_passe():
             toutes_pages[p_actuelle]()
         else:
             st.error("🚫 Accès restreint. Veuillez vous connecter.")
-            if st.button("Retour à l'accueil", use_container_width=True): aller_accueil()
+            if st.button("Retour à l'accueil", use_container_width=True):
+                utils.deconnexion()
+                st.rerun()
 
         # 3. Bouton retour automatique (Sauf sur planning)
         if p_actuelle != "planning":
             st.divider()
-            st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
+            st.button("⬅️ Retour accueil", use_container_width=True, on_click=utils.deconnexion)
