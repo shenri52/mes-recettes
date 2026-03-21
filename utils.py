@@ -250,9 +250,18 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data
     return False
 
 def verifier_doublon_recette(nom_saisi):
-    """Vérifie si le nom de la recette existe déjà dans l'index (insensible à la casse)."""
+    """Vérifie le doublon en utilisant la mémoire locale (session_state) pour éviter les appels API inutiles."""
     if not nom_saisi: 
         return False
-    idx_data = charger_json_github("data/index_recettes.json") or []
-    noms_existants = [r.get('nom', '').strip().lower() for r in idx_data if r.get('nom')]
+    
+    # On récupère la liste des noms déjà chargée dans le menu de recherche
+    # (On suppose que st.session_state.liste_choix contient les titres des recettes)
+    noms_existants = []
+    if 'liste_choix' in st.session_state:
+        noms_existants = [n.strip().lower() for n in st.session_state.liste_choix]
+    else:
+        # Si par malheur ce n'est pas chargé, on fait l'appel GitHub (roue de secours)
+        idx_data = charger_json_github("data/index_recettes.json") or []
+        noms_existants = [r.get('nom', '').strip().lower() for r in idx_data if r.get('nom')]
+    
     return nom_saisi.strip().lower() in noms_existants
