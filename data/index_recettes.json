@@ -605,5 +605,20 @@
             "Romarin"
         ],
         "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
+    },
+    {
+        "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poulet haché",
+            "Mozzarella râpée",
+            "Ricotta",
+            "Epinards",
+            "Tomates cerises",
+            "Jaune d'oeufs",
+            "Chapelure"
+        ],
+        "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
     }
 ]
