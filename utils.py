@@ -250,18 +250,19 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data
     return False
 
 def verifier_doublon_recette(nom_saisi):
-    """Vérifie le doublon en utilisant la mémoire locale (session_state) pour éviter les appels API inutiles."""
+    """
+    Vérifie si le nom de la recette existe déjà dans l'index.
+    L'appel à charger_json_github est protégé par le cache Streamlit, 
+    donc pas de surcharge de l'API !
+    """
     if not nom_saisi: 
         return False
     
-    # On récupère la liste des noms déjà chargée dans le menu de recherche
-    # (On suppose que st.session_state.liste_choix contient les titres des recettes)
-    noms_existants = []
-    if 'liste_choix' in st.session_state:
-        noms_existants = [n.strip().lower() for n in st.session_state.liste_choix]
-    else:
-        # Si par malheur ce n'est pas chargé, on fait l'appel GitHub (roue de secours)
-        idx_data = charger_json_github("data/index_recettes.json") or []
-        noms_existants = [r.get('nom', '').strip().lower() for r in idx_data if r.get('nom')]
+    # On charge l'index (c'est instantané grâce au @st.cache_data)
+    idx_data = charger_json_github("data/index_recettes.json") or []
     
+    # On extrait les noms des recettes
+    noms_existants = [r.get('nom', '').strip().lower() for r in idx_data if r.get('nom')]
+    
+    # On compare
     return nom_saisi.strip().lower() in noms_existants
