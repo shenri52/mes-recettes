@@ -1,0 +1,30 @@
+{
+    "nom": "Mayonnaise diététique",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Œufs durs",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Fromage blanc",
+            "Quantité": "3cas"
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": "1cac"
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_083658_mayonnaise_diététique_0.jpg",
+        "data/images/20260321_083658_mayonnaise_diététique_1.jpg"
+    ]
+}
