@@ -651,15 +651,17 @@
         "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
     },
     {
-        "nom": "Pain Avoine et graines de chia",
-        "categorie": "Divers",
+        "nom": "Salade pois chiches, Avocat et Feta",
+        "categorie": "Salade",
         "appareil": "Aucun",
         "ingredients": [
-            "Flocon d'avoine",
-            "Graines de chia",
-            "Oeuf",
-            "Lait végétal"
+            "Pois chiche",
+            "Avocat",
+            "Feta",
+            "Oignon rouge",
+            "Persil",
+            "Menthe fraiche"
         ],
-        "chemin": "data/recettes/20260321_083917_pain_avoine_et_graines_de_chia.json"
+        "chemin": "data/recettes/20260321_084244_salade_pois_chiches,_avocat_et_feta.json"
     }
 ]
