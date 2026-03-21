@@ -5,7 +5,8 @@ from odf import opendocument, text, teletype
 from utils import (
     sauvegarder_recette_complete, 
     parser_ligne_ingredient, 
-    get_index_options
+    get_index_options,
+    verifier_doublon_recette
 )
 
 def extraire_donnees_odt(file_bytes):
@@ -88,6 +89,8 @@ def afficher():
             st.progress((idx + 1) / len(st.session_state.liste_odt))
             
             nom = st.text_input("Titre de la recette", value=r['nom'], key=f"n{idx}")
+            if verifier_doublon_recette(nom):
+                st.warning("⚠️ Ce nom existe déjà. À l'enregistrement, la date du jour sera ajoutée pour éviter d'écraser l'ancienne.")
             
             col_cat, col_app = st.columns(2)
             with col_cat:
@@ -148,12 +151,22 @@ def afficher():
                 st.rerun()
 
             if c_save.button("✅ Enregistrer", type="primary", use_container_width=True):
-                with st.spinner("Sauvegarde..."):
-                    if sauvegarder_recette_complete(nom, cat, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
-                        st.success(f"'{nom}' enregistré !")
-                        time.sleep(0.5)
-                        st.session_state.import_idx += 1
-                        st.rerun()
+                # On vérifie la catégorie avant toute chose
+                if choix_cat == "➕ Ajouter une catégorie..." and not cat.strip():
+                    st.error("⚠️ Veuillez nommer la nouvelle catégorie.")
+                elif not cat or cat == "---":
+                    st.error("⚠️ Veuillez choisir une catégorie.")
+                else:
+                    with st.spinner("Sauvegarde..."):
+                        # AUTO-RENOMMAGE SI DOUBLON
+                        if verifier_doublon_recette(nom):
+                            nom = f"{nom} ({time.strftime('%d-%m-%Y')})"
+                            
+                        if sauvegarder_recette_complete(nom, cat, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
+                            st.success(f"'{nom}' enregistré !")
+                            time.sleep(0.5)
+                            st.session_state.import_idx += 1
+                            st.rerun()
         else:
             st.balloons()
             st.success("Toutes les recettes ont été traitées ! ✨")
