@@ -1,0 +1,50 @@
+{
+    "nom": "Légumes rôtis, poulet et crème d'avocat au skyr",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": "350g"
+        },
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": "230g"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Patates douces",
+            "Quantité": "400g"
+        },
+        {
+            "Ingrédient": "Curcuma",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Yaourt Skyr",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr_0.jpg",
+        "data/images/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr_1.jpg"
+    ]
+}
