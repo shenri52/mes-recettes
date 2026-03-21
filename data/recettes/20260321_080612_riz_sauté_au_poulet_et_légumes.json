@@ -1,0 +1,53 @@
+{
+    "nom": "Riz sauté au poulet et légumes",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": "300g"
+        },
+        {
+            "Ingrédient": "Riz cuit froid",
+            "Quantité": "350g"
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Petit pois",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Poivron rouge",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": "3 cas"
+        },
+        {
+            "Ingrédient": "Huile sesame",
+            "Quantité": "2 cas"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_080612_riz_sauté_au_poulet_et_légumes_0.jpg"
+    ]
+}
