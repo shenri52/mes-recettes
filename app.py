@@ -10,9 +10,9 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
-        st.markdown("<h2 style='text-align: center; color: #8A2BE2;'>🥘 Mon catalogue de recettes</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #000000;'>🥘 Mon catalogue de recettes</h2>", unsafe_allow_html=True)
         st.divider()
-        st.markdown("<h3 style='text-align: center; color: #8A2BE2;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #000000;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
         
         def valider():
             if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
@@ -33,9 +33,10 @@ def verifier_mot_de_passe():
                 st.rerun()
         
         st.divider()
+        st.markdown("<h3 style='text-align: center; color: #000000;'>📖 Accès public</h3>", unsafe_allow_html=True)
         
         # Bouton d'accès direct pour la consultation simple
-        if st.button("📖 Consulter les recettes (Public)", use_container_width=True):
+        if st.button("Consulter les recettes", use_container_width=True):
             st.session_state["mode_public"] = True
             st.session_state.page = "recettes"
             st.rerun()
