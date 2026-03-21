@@ -587,5 +587,23 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "Porc confit à l'érable",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rouelle de porc",
+            "Huile végétale",
+            "Oignon",
+            "Ail",
+            "Sirop d'érable",
+            "Vinaigre de cidre",
+            "Moutarde",
+            "Sauce soja",
+            "Thym",
+            "Romarin"
+        ],
+        "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
     }
 ]
