@@ -1,0 +1,30 @@
+{
+    "nom": "Poulet sauce boursin à l'ail et fines herbes ",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "10mn",
+    "temps_cuisson": "20mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Boursin Ail et fines herbes",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Crème fraiche",
+            "Quantité": "20 cl"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes__0.jpg",
+        "data/images/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes__1.jpg"
+    ]
+}
