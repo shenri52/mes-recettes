@@ -760,6 +760,20 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
+        "nom": "TEST CREER 1",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_185105_test_creer_1.json"
+    },
+    {
+        "nom": "TEST CREER 2",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_185125_test_creer_2.json"
+    },
+    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -772,12 +786,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "TEST CREER 2",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260322_185125_test_creer_2.json"
     }
 ]
