@@ -155,8 +155,8 @@ def afficher():
                             texte = sug if (sug and sug != "---") else item.get("Ingrédient", "")
                             
                             # Règle : Majuscule 1ère lettre uniquement
-                            txt = texte.strip()
-                            nom_ing = txt[0].upper() + txt[1:] if txt else ""
+                            txt = texte.lstrip("-•* ").strip()
+                            nom_ing = txt.capitalize() if txt else ""
                             
                             # On ne garde que les colonnes attendues par le JSON
                             liste_propre.append({
@@ -174,10 +174,10 @@ def afficher():
                             categorie=cat_finale, 
                             ingredients=liste_propre, 
                             etapes=etapes, 
-                            image_file=None, 
+                            image_data=None, 
                             appareil=appareil, 
                             t_prep=str(t_prep), 
-                            t_cuisson=str(t_cuis)
+                            t_cuis=str(t_cuis)
                         )
                         
                         if succes:
