@@ -11,7 +11,6 @@ from utils import (envoyer_donnees_github,
                   )
 
 def afficher():
-    st.header("✍️ Ajouter une recette")
 
     for k, v in {'form_count': 0, 'ingredients_recette': [], 'liste_choix': [""], 'liste_categories': [""], 'cat_fixee': ""}.items():
         if k not in st.session_state: st.session_state[k] = v
