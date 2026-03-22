@@ -625,7 +625,7 @@
         "chemin": "data/recettes/20260321_080612_riz_sauté_au_poulet_et_légumes.json"
     },
     {
-        "nom": "Salade méditerranéenne/ Moyen-Orient",
+        "nom": "Salade méditerranéenne Moyen-Orient",
         "categorie": "Salade",
         "appareil": "Aucun",
         "ingredients": [
@@ -636,7 +636,7 @@
             "Huile olive",
             "Jus de citron"
         ],
-        "chemin": "data/recettes/20260321_080942_salade_méditerranéenne/_moyen-orient.json"
+        "chemin": "data/recettes/20260321_080942_Salade méditerranéenne Moyen-Orient.json"
     },
     {
         "nom": "Mayonnaise diététique",
