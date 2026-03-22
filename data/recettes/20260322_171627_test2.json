@@ -1,0 +1,12 @@
+{
+    "nom": "test2",
+    "categorie": "Cocktail",
+    "appareil": "Ninja",
+    "temps_preparation": "",
+    "temps_cuisson": "25",
+    "ingredients": [],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260322_171627_test2_0.jpg"
+    ]
+}
