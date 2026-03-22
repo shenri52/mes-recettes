@@ -108,7 +108,7 @@ def afficher():
             st.subheader("Ingrédients détectés")
             
             ing_uniques = {i for i in liste_ing_existants if i and i.strip() and i != "---"}
-            options_suggestions = ["---"] + sorted(liste_ing_existants)
+            options_suggestions = ["---"] + sorted(ing_uniques )
 
             liste_ordonnee = []
             for item in r['ing_list']:
