@@ -98,63 +98,31 @@ def afficher():
     # --- BLOC BOUTON ENREGISTRER ---
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_fixee
-        
-        if not nom_plat:
-            st.error("⚠️ Le nom de la recette est obligatoire.")
-        elif not f_cat or f_cat == "---":
-            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+        if not nom_plat or not f_cat or f_cat == "---":
+            st.error("⚠️ Nom et Catégorie obligatoires.")
         else:
-            with st.spinner("🚀 Envoi vers GitHub..."):
-                # ON CENTRALISE ICI : Un seul appel au système
-                maintenant = datetime.now()
-                
-                # 1. On prépare le timestamp technique (ex: 20260321_183015)
-                ts = maintenant.strftime("%Y%m%d_%H%M%S")
-                
-                # 2. On gère le doublon sur le nom d'affichage (ex: 21-03-2026)
-                if verifier_doublon_recette(nom_plat):
-                    nom_plat = f"{nom_plat} ({maintenant.strftime('%d-%m-%Y')})"
-                
-                # 3. On crée le nom de fichier technique
-                nom_fic = nom_plat.replace(" ", "_").lower().replace("'", "_")
-                liste_medias = []
-                
+            with st.spinner("Enregistrement..."):
+                # 1. On prépare l'image si elle existe
+                img_data = None
                 if photos_fb:
-                    for idx, f in enumerate(photos_fb):
-                        data_img, ext = traiter_et_compresser_image(f) 
-                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_donnees_github(ch_m, data_img, "📸 Media", True): 
-                            liste_medias.append(ch_m)
-            
-                # Création du JSON de la recette
-                ch_r = f"data/recettes/{ts}_{nom_fic}.json"
-                rec_data = {
-                    "nom": nom_plat, 
-                    "categorie": f_cat, 
-                    "appareil": type_appareil, 
-                    "temps_preparation": tps_prep, 
-                    "temps_cuisson": tps_cuis, 
-                    "ingredients": st.session_state.ingredients_img, 
-                    "etapes": "Voir image jointe", 
-                    "images": liste_medias
-                }
+                    img_data, _ = traiter_et_compresser_image(photos_fb[0])
+
+                # 2. ON APPELLE LA FONCTION CENTRALE (Comme dans la page Saisir)
+                succes, nom_final = sauvegarder_recette_complete(
+                    nom=nom_plat, 
+                    categorie=f_cat, 
+                    ingredients=st.session_state.ingredients_img, 
+                    etapes="Voir image jointe", 
+                    image_data=img_data, # On passe l'image ici
+                    appareil=type_appareil, 
+                    t_prep=tps_prep, 
+                    t_cuis=tps_cuis
+                )
                 
-                # Envoi Recette + Mise à jour Index
-                if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "📥 Import"):
-                    mettre_a_jour_index({
-                        "nom": nom_plat, 
-                        "categorie": f_cat, 
-                        "appareil": type_appareil, 
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_img], 
-                        "chemin": ch_r
-                    })
-                    
-                    st.success("✅ Recette importée avec succès !")
-                    
-                    # Nettoyage
+                if succes:
+                    st.success(f"✅ '{nom_final}' enregistrée !")
                     st.session_state.ingredients_img = []
                     st.session_state.cat_fixee = ""
-                    st.session_state.form_count_img += 1 # Le compteur qui reset tout
-                    
+                    st.session_state.form_count_img += 1 
                     time.sleep(1)
                     st.rerun()
