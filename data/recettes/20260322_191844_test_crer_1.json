@@ -1,0 +1,12 @@
+{
+    "nom": "TEST CRER 1",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [],
+    "etapes": "fdfdg",
+    "images": [
+        "data/images/20260322_191844_test_crer_1_0.jpg"
+    ]
+}
