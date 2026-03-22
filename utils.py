@@ -273,13 +273,31 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data
     
     # 3. GitHub & Index
     if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
+    # --- LOGIQUE DE PRIORITÉ ---
+        liste_index = []
+        for i in ingredients:
+            # 1. On regarde si une Suggestion a été choisie (différente de "---")
+            sug = i.get('Suggestion', '---')
+            
+            if sug and sug != '---':
+                nom_final = sug
+            else:
+                # 2. Sinon, on prend le texte brut (soit 'Détecté', soit 'Ingrédient')
+                nom_final = i.get('Détecté') or i.get('Ingrédient')
+
+            if nom_final:
+                liste_index.append(nom_final.strip().capitalize())
+
+        # On met à jour l'index avec la liste nettoyée
         mettre_a_jour_index({
-            "nom": nom, "categorie": categorie, "appareil": appareil,
-            "ingredients": [i['Ingrédient'] for i in ingredients if i.get('Ingrédient')],
+            "nom": nom, 
+            "categorie": categorie, 
+            "appareil": appareil,
+            "ingredients": liste_index, 
             "chemin": ch_r
         })
-        return True
-    return False
+        return True, nom
+    return False, nom
 
 def verifier_doublon_recette(nom_saisi):
     """
