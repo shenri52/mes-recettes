@@ -77,10 +77,11 @@ def ouvrir_fiche(nom_plat):
 
 # --- INTERFACE PLANNING ---
 def afficher():
-   if 'plats_rapides' not in st.session_state:
+    if 'plats_rapides' not in st.session_state:
         st.session_state.plats_rapides = charger_json_github("data/plats_rapides.json") or []
     if 'offset_semaine' not in st.session_state:
         st.session_state.offset_semaine = 0
+       
     # 1. On crée une petite fonction de nettoyage (callback)
     def ajouter_et_nettoyer():
         nouveau = st.session_state["input_nouveau_plat"]
