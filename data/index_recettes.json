@@ -774,10 +774,10 @@
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
     },
     {
-        "nom": "TEST CRER 1",
+        "nom": "TEST CRERR 2",
         "categorie": "Cocktail",
         "appareil": "Aucun",
         "ingredients": [],
-        "chemin": "data/recettes/20260322_191844_test_crer_1.json"
+        "chemin": "data/recettes/20260322_191901_test_crerr_2.json"
     }
 ]
