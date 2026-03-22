@@ -41,6 +41,21 @@
         "chemin": "data/recettes/20260308_105455_brandle.json"
     },
     {
+        "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poulet haché",
+            "Mozzarella râpée",
+            "Ricotta",
+            "Epinards",
+            "Tomates cerises",
+            "Jaune d'oeufs",
+            "Chapelure"
+        ],
+        "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
+    },
+    {
         "nom": "Cookie façon brownie",
         "categorie": "Goûter",
         "appareil": "Aucun",
@@ -150,6 +165,19 @@
         "chemin": "data/recettes/20260307_154056_gratin_de_champignons_au_jambon_et_fromage.json"
     },
     {
+        "nom": "Gratin de ravioles aux champignons et comté",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ravioles",
+            "Champignons",
+            "Poireaux",
+            "Crème fraiche",
+            "Comté"
+        ],
+        "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
+    },
+    {
         "nom": "Gratin de ravioles aux champignons, comté et poireaux",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -223,6 +251,18 @@
             "Oignon"
         ],
         "chemin": "data/recettes/20260307_143839_marmite_toulousaine.json"
+    },
+    {
+        "nom": "Mayonnaise diététique",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Œufs durs",
+            "Fromage blanc",
+            "Moutarde",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
     },
     {
         "nom": "Nouilles Thaï au poulet et cacahuètes",
@@ -352,6 +392,24 @@
         "chemin": "data/recettes/20260307_165858_polenta_crémeuse_et_poelée_de_champignons.json"
     },
     {
+        "nom": "Porc confit à l'érable",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rouelle de porc",
+            "Huile végétale",
+            "Oignon",
+            "Ail",
+            "Sirop d'érable",
+            "Vinaigre de cidre",
+            "Moutarde",
+            "Sauce soja",
+            "Thym",
+            "Romarin"
+        ],
+        "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
+    },
+    {
         "nom": "Poulet cremeux au paprika",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -416,6 +474,24 @@
         "chemin": "data/recettes/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée.json"
     },
     {
+        "nom": "Riz sauté au poulet et légumes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Riz cuit froid",
+            "Carottes",
+            "Petit pois",
+            "Poivron rouge",
+            "Oeuf",
+            "Ail",
+            "Sauce soja",
+            "Huile sesame",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260321_080612_riz_sauté_au_poulet_et_légumes.json"
+    },
+    {
         "nom": "Rose des sables Extra croustillantes",
         "categorie": "Divers",
         "appareil": "Aucun",
@@ -449,6 +525,21 @@
         "chemin": "data/recettes/20260307_164902_salade_d'orechiette_et_sauce_crémeuse.json"
     },
     {
+        "nom": "Salade de pois chiche et concombre sauce au yaourt",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pois chiche",
+            "Concombre",
+            "Oignon rouge",
+            "Yaourt à la grec",
+            "Huile olive",
+            "Jus de citron",
+            "Aneth"
+        ],
+        "chemin": "data/recettes/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt.json"
+    },
+    {
         "nom": "Salade fraicheur jambon concombre",
         "categorie": "Salade",
         "appareil": "Aucun",
@@ -475,6 +566,34 @@
             "Moutarde"
         ],
         "chemin": "data/recettes/20260307_163201_salade_lentilles,_carottes_rapées,_raisins_secs,_noisettes.json"
+    },
+    {
+        "nom": "Salade méditerranéenne Moyen-Orient",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Concombre",
+            "Tomate",
+            "Oignon rouge",
+            "Menthe séchée",
+            "Huile olive",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260321_080942_Salade méditerranéenne Moyen-Orient.json"
+    },
+    {
+        "nom": "Salade pois chiches, Avocat et Feta",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pois chiche",
+            "Avocat",
+            "Feta",
+            "Oignon rouge",
+            "Persil",
+            "Menthe fraiche"
+        ],
+        "chemin": "data/recettes/20260321_084244_salade_pois_chiches,_avocat_et_feta.json"
     },
     {
         "nom": "Salade Quinoa et légumes rôtis",
@@ -587,109 +706,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "Porc confit à l'érable",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Rouelle de porc",
-            "Huile végétale",
-            "Oignon",
-            "Ail",
-            "Sirop d'érable",
-            "Vinaigre de cidre",
-            "Moutarde",
-            "Sauce soja",
-            "Thym",
-            "Romarin"
-        ],
-        "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
-    },
-    {
-        "nom": "Riz sauté au poulet et légumes",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Filet de poulet",
-            "Riz cuit froid",
-            "Carottes",
-            "Petit pois",
-            "Poivron rouge",
-            "Oeuf",
-            "Ail",
-            "Sauce soja",
-            "Huile sesame",
-            "Oignon"
-        ],
-        "chemin": "data/recettes/20260321_080612_riz_sauté_au_poulet_et_légumes.json"
-    },
-    {
-        "nom": "Salade méditerranéenne Moyen-Orient",
-        "categorie": "Salade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Concombre",
-            "Tomate",
-            "Oignon rouge",
-            "Menthe séchée",
-            "Huile olive",
-            "Jus de citron"
-        ],
-        "chemin": "data/recettes/20260321_080942_Salade méditerranéenne Moyen-Orient.json"
-    },
-    {
-        "nom": "Mayonnaise diététique",
-        "categorie": "Divers",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Œufs durs",
-            "Fromage blanc",
-            "Moutarde",
-            "Jus de citron"
-        ],
-        "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
-    },
-    {
-        "nom": "Salade pois chiches, Avocat et Feta",
-        "categorie": "Salade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Pois chiche",
-            "Avocat",
-            "Feta",
-            "Oignon rouge",
-            "Persil",
-            "Menthe fraiche"
-        ],
-        "chemin": "data/recettes/20260321_084244_salade_pois_chiches,_avocat_et_feta.json"
-    },
-    {
-        "nom": "Salade de pois chiche et concombre sauce au yaourt",
-        "categorie": "Salade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Pois chiche",
-            "Concombre",
-            "Oignon rouge",
-            "Yaourt à la grec",
-            "Huile olive",
-            "Jus de citron",
-            "Aneth"
-        ],
-        "chemin": "data/recettes/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt.json"
-    },
-    {
-        "nom": "Gratin de ravioles aux champignons et comté",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ravioles",
-            "Champignons",
-            "Poireaux",
-            "Crème fraiche",
-            "Comté"
-        ],
-        "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
     }
 ]
