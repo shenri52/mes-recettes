@@ -176,8 +176,8 @@ def afficher():
                             etapes=etapes, 
                             image_file=None, 
                             appareil=appareil, 
-                            t_prep=t_prep, 
-                            t_cuisson=t_cuis
+                            t_prep=str(t_prep), 
+                            t_cuisson=str(t_cuis)
                         )
                         
                         if succes:
