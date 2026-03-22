@@ -220,97 +220,71 @@ def actualiser_toutes_les_stats():
 def parser_ligne_ingredient(ligne):
     """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
     ligne = ligne.strip()
-    if not ligne or ":" in ligne: return None # Évite de prendre les titres comme 'Ingrédients :'
-    match = re.match(r"(\d+\s*\w*)\s*(?:de|d')?\s*(.*)", ligne, re.I)
-    if match:
-        return {"Ingrédient": match.group(2).strip().capitalize(), "Quantité": match.group(1).strip()}
-    return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
+    if not ligne or ":" in ligne: return None 
 
-def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_files=None, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
-    """
-    Fonction centrale de sauvegarde. 
-    Gère : Doublons, Nettoyage Ingrédients, Compression Images, JSON et Index.
-    """
-    maintenant = datetime.now()
-    ts = maintenant.strftime("%Y%m%d_%H%M%S")
-    
-    # 1. Gestion du Nom (Doublon)
-    nom_propre = nom.strip()
-    if verifier_doublon_recette(nom_propre):
-        nom_propre = f"{nom_propre} ({maintenant.strftime('%d-%m-%Y')})"
-    
-    nom_fic = nom_propre.replace(" ", "_").lower().replace("'", "_")
-    
-    # 2. Nettoyage des Ingrédients (Puces + Majuscules)
-    liste_nettoyee = []
-    for ing in ingredients:
-        # --- PARTIE INGRÉDIENT ---
-        sug = ing.get("Suggestion")
-        txt_brut = sug if (sug and sug != "---") else ing.get("Ingrédient", "")
-        
-        # Nettoyage ingrédient (puces + "de " ou "d'" au début)
-        temp_ing = str(txt_brut).lstrip("-•* ").strip()
-        if temp_ing.lower().startswith("de "): temp_ing = temp_ing[3:].strip()
-        elif temp_ing.lower().startswith("d'"): temp_ing = temp_ing[2:].strip()
-        
-        # --- PARTIE QUANTITÉ ---
-        temp_qte = str(ing.get("Quantité", "")).strip()
-        
-        # On vérifie si ça finit par " de" (insensible à la casse)
-        if temp_qte.lower().endswith(" de"):
-            # On remplace " de" par rien du tout à la fin
-            temp_qte = temp_qte[:-3].strip() 
-        elif temp_qte.lower().endswith(" d'"):
-            temp_qte = temp_qte[:-3].strip()
-            
-        # --- SÉCURITÉ ULTIME ---
-        # Si le " de" est toujours là pour une raison mystérieuse
-        if " de" in temp_qte.lower()[-4:]: 
-            temp_qte = temp_qte.lower().replace(" de", "").strip()
+    # On cherche l'index du " de " ou du " d'"
+    # On privilégie le " de " car il est plus fréquent
+    if " de " in ligne.lower():
+        parts = re.split(r" de ", ligne, maxsplit=1, flags=re.I)
+        qte = parts[0].strip()
+        ing = parts[1].strip()
+    elif " d'" in ligne.lower() or " d’" in ligne.lower():
+        parts = re.split(r" d['’]", ligne, maxsplit=1, flags=re.I)
+        qte = parts[0].strip()
+        ing = parts[1].strip()
+    # Cas particulier : "200g de" en fin de ligne (espace + de + rien)
+    elif ligne.lower().endswith(" de"):
+        qte = ligne[:-3].strip()
+        ing = ""
+    # Si pas de " de " ou " d'", on cherche le premier espace simple (ex: "3 pommes")
+    else:
+        parts = ligne.split(' ', 1)
+        if len(parts) > 1 and any(char.isdigit() for char in parts[0]):
+            qte = parts[0].strip()
+            ing = parts[1].strip()
+        else:
+            qte = ""
+            ing = ligne
 
-        # --- VALIDATION ---
-        txt_final = temp_ing.capitalize()
-        if txt_final:
-            liste_nettoyee.append({
-                "Ingrédient": txt_final,
-                "Quantité": temp_qte
-            })
+    return {
+        "Ingrédient": ing.strip().capitalize(),
+        "Quantité": qte.strip()
+    }
 
-    # 3. Traitement des Images (Utilise ta fonction existante)
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
+    """Centralise la sauvegarde pour les nouveaux modules d'import."""
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nom_fic = nom.lower().replace(" ", "_").replace("'", "_")
     liste_medias = []
-    if photos_files: # Cas saisir.py / importer.py
-        for idx, f in enumerate(photos_files):
-            data, ext = traiter_et_compresser_image(f) # Ta fonction existante
-            ch = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-            if envoyer_donnees_github(ch, data, f"📸 Photo: {nom_propre}", True):
-                liste_medias.append(ch)
-    elif image_data: # Cas import_odt si besoin
-        ch = f"data/images/{ts}_{nom_fic}.jpg"
-        if envoyer_donnees_github(ch, image_data, f"📸 ODT: {nom_propre}", True):
-            liste_medias.append(ch)
 
-    # 4. Création du JSON (Harmonisation des clés)
+    # 1. Image
+    if image_data:
+        ch_m = f"data/images/{ts}_{nom_fic}.jpg"
+        if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
+            liste_medias.append(ch_m)
+
+    # 2. JSON (Correction ici : on utilise t_prep et t_cuis)
     ch_r = f"data/recettes/{ts}_{nom_fic}.json"
     rec_data = {
-        "nom": nom_propre, 
+        "nom": nom, 
         "categorie": categorie, 
         "appareil": appareil,
-        "temps_preparation": str(t_prep), 
-        "temps_cuisson": str(t_cuis),      
-        "ingredients": liste_nettoyee, 
-        "etapes": etapes if etapes.strip() else "Voir image jointe", 
+        "temps_preparation": t_prep, # <-- MODIFIÉ
+        "temps_cuisson": t_cuis,      # <-- MODIFIÉ
+        "ingredients": ingredients, 
+        "etapes": etapes, 
         "images": liste_medias
     }
     
-    # 5. Envoi GitHub + Index
-    if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 {nom_propre}"):
+    # 3. GitHub & Index
+    if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
         mettre_a_jour_index({
-            "nom": nom_propre, "categorie": categorie, "appareil": appareil,
-            "ingredients": [i['Ingrédient'] for i in liste_nettoyee],
+            "nom": nom, "categorie": categorie, "appareil": appareil,
+            "ingredients": [i['Ingrédient'] for i in ingredients if i.get('Ingrédient')],
             "chemin": ch_r
         })
-        return True, nom_propre
-    return False, nom
+        return True
+    return False
 
 def verifier_doublon_recette(nom_saisi):
     """
