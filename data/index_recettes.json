@@ -691,5 +691,18 @@
             "Comté"
         ],
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
+    },
+    {
+        "nom": "Gâteau tout chocolat Nestlé",
+        "categorie": "Gâteau",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Sucre",
+            "Beurre",
+            "Chocolat noir",
+            "Oeuf",
+            "Farine"
+        ],
+        "chemin": "data/recettes/20260322_171433_gâteau_tout_chocolat_nestlé.json"
     }
 ]
