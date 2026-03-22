@@ -1,8 +1,8 @@
 import streamlit as st
 import json
-import time 
-
-from utils import envoyer_donnees_github, charger_json_github
+import requests
+import base64
+import time
 
 def afficher():
     # --- STYLE CSS (Pour transformer le texte en "vrais" onglets) ---
@@ -45,23 +45,51 @@ def afficher():
         </style>
     """, unsafe_allow_html=True)
 
+    try:
+        GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+        REPO_OWNER = st.secrets["REPO_OWNER"]
+        REPO_NAME = st.secrets["REPO_NAME"]
+        BRANCH = st.secrets.get("BRANCH", "main")
+    except KeyError:
+        st.error("⚠️ Secrets GitHub manquants.")
+        st.stop()
+
     FILE_PATH = "data/index_courses.json"
     INDEX_PRODUITS_PATH = "data/index_produits_zones.json"
 
-    # Chargement du panier (index_courses)
-    if "index_courses" not in st.session_state:
-        data_load = charger_json_github("data/index_courses.json")
-        # On transforme la liste [] de utils en dictionnaire de base 
-        if not data_load or isinstance(data_load, list):
-            st.session_state.index_courses = {str(i): {"panier": [], "catalogue": []} for i in range(12)}
-        else:
-            st.session_state.index_courses = data_load
+    def get_github_data(path):
+        t = int(time.time())
+        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}?t={t}"
+        headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            res = r.json()
+            content = json.loads(base64.b64decode(res['content']).decode('utf-8'))
+            return content, res.get('sha')
+        return None, None
 
-    # Chargement de l'index des zones
+    def save_github_data(path, data, sha, message="🔄 Sync"):
+        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{path}"
+        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+        content_encoded = base64.b64encode(json.dumps(data, indent=2, ensure_ascii=False).encode('utf-8')).decode('utf-8')
+        payload = {"message": message, "content": content_encoded, "branch": BRANCH}
+        if sha: payload["sha"] = sha
+        r = requests.put(url, json=payload, headers=headers)
+        if r.status_code in [200, 201]:
+            if path == FILE_PATH: st.session_state.sha_a5 = r.json()['content']['sha']
+            if path == INDEX_PRODUITS_PATH: st.session_state.sha_index = r.json()['content']['sha']
+            return True
+        return False
+
+    # --- INITIALISATION ---
+    if "index_courses" not in st.session_state:
+        st.session_state.index_courses, st.session_state.sha_a5 = get_github_data(FILE_PATH)
+        if st.session_state.index_courses is None:
+            st.session_state.index_courses = {str(i): {"panier": [], "catalogue": []} for i in range(12)}
+
     if "index_zones" not in st.session_state:
-        zones_load = charger_json_github("data/index_produits_zones.json")
-        # On transforme la liste [] de utils en dictionnaire vide {} 
-        st.session_state.index_zones = zones_load if isinstance(zones_load, dict) else {}
+        st.session_state.index_zones, st.session_state.sha_index = get_github_data(INDEX_PRODUITS_PATH)
+        if st.session_state.index_zones is None: st.session_state.index_zones = {}
 
     if "reset_count" not in st.session_state:
         st.session_state.reset_count = 0
@@ -100,15 +128,12 @@ def afficher():
 
                         if final_nom:
                             st.session_state.reset_count += 1
-                            
-                            # 1. Gestion du catalogue (déplacement si nécessaire)
                             if dest_idx != idx_actuelle and final_nom in case["catalogue"]:
                                 case["catalogue"].remove(final_nom)
 
-                            # 2. Mise à jour de l'index des zones
                             st.session_state.index_zones[final_nom] = dest_idx
+                            save_github_data(INDEX_PRODUITS_PATH, st.session_state.index_zones, st.session_state.sha_index)
                             
-                            # 3. Logique d'ajout au panier (L'OUBLI EST ICI ⬇️)
                             cible = st.session_state.index_courses[dest_idx]
                             trouve = False
                             for p in cible["panier"]:
@@ -119,25 +144,23 @@ def afficher():
                             if not trouve:
                                 cible["panier"].append({"nom": final_nom, "qte": qte_f.strip() or "1", "checked": False})
                             
-                            # 4. Ajout au catalogue de la zone cible
                             if final_nom not in cible["catalogue"]:
                                 cible["catalogue"].append(final_nom)
                                 cible["catalogue"].sort()
-
-                            # 5. SAUVEGARDE DOUBLE (Zones + Panier) 🚀
-                            envoyer_donnees_github("data/index_produits_zones.json", json.dumps(st.session_state.index_zones, indent=4, ensure_ascii=False), "🔄 MAJ Zones")
-                            envoyer_donnees_github("data/index_courses.json", json.dumps(st.session_state.index_courses, indent=4, ensure_ascii=False), "🔄 MAJ Panier")
                             
+                            save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
                             st.rerun()
-                          
+                                    
                 for p_idx, p in enumerate(case["panier"]):
                     if st.button(f"{p['nom']} ({p['qte']})", key=f"btn_{idx_actuelle}_{p_idx}"):
                         case["panier"].pop(p_idx)
-                        envoyer_donnees_github("data/index_courses.json", json.dumps(st.session_state.index_courses, indent=4, ensure_ascii=False), "🗑️ Suppr article")
+                        save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
                         st.rerun()
 
     if st.button("🗑️ Vider tout le panier", use_container_width=True):
         for k in range(12): 
             st.session_state.index_courses[str(k)]["panier"] = []
-        envoyer_donnees_github("data/index_courses.json", json.dumps(st.session_state.index_courses, indent=4, ensure_ascii=False), "🧹 Vidage panier")
+        save_github_data(FILE_PATH, st.session_state.index_courses, st.session_state.sha_a5)
         st.rerun()
+
+    st.write("---")
