@@ -92,8 +92,6 @@ def afficher():
     # Bouton retour simplifié
     st.button("⬅️ Retour à l'accueil", use_container_width=True, on_click=aller_accueil)
 
-    st.header("📅 Mon planning")
-
     st.divider()
     
     if 'index_complet' not in st.session_state:
