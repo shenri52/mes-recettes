@@ -786,5 +786,12 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260322_200519_test_import_1_avec_photo.json"
+    },
+    {
+        "nom": "TES IMPORT SAN PHOTO",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_200550_tes_import_san_photo.json"
     }
 ]
