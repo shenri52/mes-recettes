@@ -205,37 +205,35 @@ def afficher():
                 st.divider()
                 b1, b2 = st.columns(2)
                 
-                # BOUTON SUPPRIMER
-                if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                    with st.spinner("Suppression complète..."):
-                        if supprimer_fichier_github(info['chemin']):
-                            for p in recette.get('images', []): 
-                                supprimer_fichier_github(p)
-                
-                            st.cache_data.clear() 
+            # --- BOUTON SUPPRIMER (Simplifié) ---
+            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+                with st.spinner("Suppression en cours..."):
+                    # 1. Supprimer le fichier de la recette
+                    if supprimer_fichier_github(info['chemin']):
+                        
+                        # 2. Supprimer les images associées
+                        for p in recette.get('images', []): 
+                            supprimer_fichier_github(p)
+            
+                        # 3. CRUCIAL : Vider le cache pour forcer le prochain 'charger_json_github' à lire le vrai fichier
+                        st.cache_data.clear() 
+            
+                        # 4. Recharger l'index (il sera frais grâce au cache-busting dans utils.py)
+                        index_actuel = charger_json_github("data/index_recettes.json")
+                        
+                        # 5. Filtrer pour enlever la recette supprimée
+                        nouvel_index = [r for r in index_actuel if r['chemin'] != info['chemin']]
+            
+                        # 6. Sauvegarder le nouvel index sur GitHub
+                        if envoyer_donnees_github("data/index_recettes.json", 
+                                                 json.dumps(nouvel_index, indent=4, ensure_ascii=False), 
+                                                 f"Suppr: {info['nom']}"):
                             
-                            # --- MODIFICATION ICI : ON LIT L'INDEX VIA L'API POUR ÊTRE INSTANTANÉ ---
-                            conf = get_github_config()
-                            url_api_idx = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
-                            res_idx = requests.get(url_api_idx, headers=conf['headers'])
-                            
-                            if res_idx.status_code == 200:
-                                import base64
-                                content_b64 = res_idx.json().get('content', '')
-                                content_str = base64.b64decode(content_b64).decode('utf-8')
-                                index_frais = json.loads(content_str)
-                            else:
-                                index_frais = []
-
-                            nouvel_index = [r for r in index_frais if r['chemin'] != info['chemin']]
-                
-                            # Sauvegarde du nouvel index propre
-                            if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), f"Suppr: {info['nom']}"):
-                                st.cache_data.clear() 
-                                st.session_state.menu_key += 1 
-                                st.success(f"✅ '{info['nom']}' a été définitivement supprimée.")
-                                time.sleep(1)
-                                st.rerun()
+                            # 7. Reset l'interface
+                            st.session_state.menu_key += 1 
+                            st.success(f"✅ '{info['nom']}' supprimée !")
+                            time.sleep(1)
+                            st.rerun()
     
                 # BOUTON MODIFIER
                 if b2.button("✍️ Modifier la recette", use_container_width=True):
