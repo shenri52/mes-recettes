@@ -17,13 +17,16 @@ def extraire_donnees_odt(file_bytes):
     # On repère les sections par le mot "Ingrédients"
     indices_recettes = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
     
-    for start_idx in indices_recettes:
+    for i, start_idx in enumerate(indices_recettes):
         # Titre : ligne juste avant "Ingrédients"
-        titre = lignes[start_idx - 1] if start_idx > 0 else "Nouvelle Recette"
+        debut_recherche = indices_recettes[i-1] + 1 if i > 0 else 0
+        lignes_titre = lignes[debut_recherche:start_idx]
+        titre = " ".join(lignes_titre).strip() if lignes_titre else "Nouvelle Recette"
         
         next_indices = [i for i in indices_recettes if i > start_idx]
-        end_idx = next_indices[0] if next_indices else len(lignes)
-        
+        # On retire 1 à l'index final pour ne pas englober le titre suivant
+        end_idx = (next_indices[0] - 1) if next_indices else len(lignes)
+     
         bloc_recette = lignes[start_idx:end_idx]
         texte_bloc = "\n".join(bloc_recette)
         
@@ -83,11 +86,12 @@ def afficher():
         idx = st.session_state.import_idx
         if idx < len(st.session_state.liste_odt):
             r = st.session_state.liste_odt[idx]
+            suffixe = f"{idx}_{len(st.session_state.liste_odt)}"
             
             st.write(f"### Vérification : {idx+1} / {len(st.session_state.liste_odt)}")
             st.progress((idx + 1) / len(st.session_state.liste_odt))
             
-            nom = st.text_input("Titre de la recette", value=r['nom'], key=f"n{idx}")
+            nom = st.text_input("Titre de la recette", value=r['nom'], key=f"n_{suffixe}")
             if verifier_doublon_recette(nom):
                 st.warning("⚠️ Ce nom existe déjà. À l'enregistrement, la date du jour sera ajoutée pour éviter d'écraser l'ancienne.")
             
@@ -97,34 +101,40 @@ def afficher():
                 # On force le choix avec "---" en premier
                 options_cat = ["---"] + sorted([c for c in cats_existantes if c]) + ["➕ Ajouter une catégorie..."]
                 
-                choix_cat = st.selectbox("Catégorie", options_cat, index=0, key=f"c{idx}")
+                choix_cat = st.selectbox("Catégorie", options_cat, index=0, key=f"c_{suffixe}")
                 
                 # Détermination de la catégorie finale
                 if choix_cat == "➕ Ajouter une catégorie...":
-                    cat_finale = st.text_input("Nom de la catégorie", key=f"nc{idx}").strip()
+                    cat_finale = st.text_input("Nom de la catégorie", key=f"c_{suffixe}").strip()
                 else:
                     cat_finale = choix_cat
 
             with col_app:
                 appareils = ["Aucun", "Cookeo", "Thermomix", "Ninja", "Four"]
-                appareil = st.selectbox("Appareil utilisé", options=appareils, key=f"a{idx}")
+                appareil = st.selectbox("Appareil utilisé", options=appareils, key=f"a_{suffixe}")
 
             # Champs temps (Vides si non détectés)
             col_t1, col_t2 = st.columns(2)
-            t_prep = col_t1.text_input("⏳ Temps Préparation", value=r['t_prep'], key=f"tp{idx}", placeholder="Non détecté")
-            t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc{idx}", placeholder="Non détecté")
+            t_prep = col_t1.text_input("⏳ Temps Préparation", value=r['t_prep'], key=f"tp_{suffixe}", placeholder="Non détecté")
+            t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc_{suffixe}", placeholder="Non détecté")
 
             st.subheader("Ingrédients détectés")
-            ing_df = st.data_editor(r['ing_list'], num_rows="dynamic", use_container_width=True, key=f"ed{idx}")
+            ing_df = st.data_editor(r['ing_list'], num_rows="dynamic",
+                                    use_container_width=True,
+                                    key=f"i_{suffixe}",
+                                    column_config={
+                                        "Quantité": st.column_config.TextColumn(width="small"),
+                                        "Ingrédient": st.column_config.TextColumn(width="large")
+                                    })
                        
             # --- BLOC PRÉPARATION ---
             st.subheader("Étapes de la recette")
 
             # La zone de texte avec ton titre "Texte de la recette"
-            etapes = st.text_area("", value=r['prep_propre'], height=300, key=f"et{idx}")
+            etapes = st.text_area("", value=r['prep_propre'], height=300, key=f"et_{suffixe}")
 
             st.divider()
-            c_skip, c_del, c_save = st.columns([1,1,1])
+            c_skip, c_save = st.columns(2)
             
             if c_skip.button("⏭️ Passer", use_container_width=True):
                 st.session_state.import_idx += 1
@@ -142,8 +152,19 @@ def afficher():
                             # On ajoute la date pour que le nom de fichier soit unique sur GitHub
                             nom_propre = f"{nom_propre} ({time.strftime('%d-%m-%Y')})"
                         
-                        # Appel de la sauvegarde avec les bonnes variables
-                        if sauvegarder_recette_complete(nom_propre, cat_finale, ing_df, etapes, None, appareil=appareil, t_prep=t_prep, t_cuisson=t_cuis):
+                        # Appel sécurisé avec les noms exacts des arguments de la fonction 🛡️
+                        succes = sauvegarder_recette_complete(
+                            nom=nom_propre, 
+                            categorie=cat_finale, 
+                            ingredients=ing_df, 
+                            etapes=etapes, 
+                            image_file=None, 
+                            appareil=appareil, 
+                            t_prep=t_prep, 
+                            t_cuisson=t_cuis
+                        )
+                        
+                        if succes:
                             st.success(f"'{nom_propre}' enregistré !")
                             time.sleep(0.5)
                             st.session_state.liste_odt.pop(idx)
