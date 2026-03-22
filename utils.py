@@ -152,6 +152,7 @@ def naviguer_vers(nom_page):
 
 def deconnexion():
     """Réinitialise l'accès et nettoie uniquement si on quitte la saisie."""
+    st.session_state.clear()
     # On récupère la page d'où l'on vient
     page_actuelle = st.session_state.get('page')
 
