@@ -269,19 +269,20 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
     nom_propre = nettoyer_nom_github(nom) 
     ch_r = f"data/recettes/{ts}_{nom_propre}.json"
     
-    liste_medias = []
-    # --- GESTION DE LA PHOTO ---
+liste_medias = []
+    # --- GESTION DES PHOTOS (Correction : on gère plusieurs photos si besoin) ---
     if photos_files:
-        # On prend la première photo si c'est une liste
-        fichier = photos_files[0] if isinstance(photos_files, list) else photos_files
-        try:
-            # On compresse l'image ici directement !
-            img_bits, ext = traiter_et_compresser_image(fichier)
-            ch_m = f"data/images/{ts}_{nom_propre}.jpg"
-            if envoyer_donnees_github(ch_m, img_bits, f"📸 Photo: {nom}", True):
-                liste_medias.append(ch_m)
-        except Exception as e:
-            st.error(f"Erreur image: {e}")
+        # On s'assure que c'est une liste pour boucler dessus
+        fichiers = photos_files if isinstance(photos_files, list) else [photos_files]
+        for idx, fichier in enumerate(fichiers):
+            try:
+                img_bits, ext = traiter_et_compresser_image(fichier)
+                # On ajoute l'index (idx) au nom pour ne pas écraser les photos
+                ch_m = f"data/images/{ts}_{nom_propre}_{idx}.jpg"
+                if envoyer_donnees_github(ch_m, img_bits, f"📸 Photo: {nom}", True):
+                    liste_medias.append(ch_m)
+            except Exception as e:
+                st.error(f"Erreur image: {e}")
 
     # --- PRÉPARATION DU JSON ---
     rec_data = {
@@ -292,12 +293,15 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
     
     # --- ENVOI GITHUB ---
     if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
+        
+        # --- ÉTAPE CRUCIALE : ON VIDE LE CACHE AVANT L'INDEX ---
+        st.cache_data.clear() 
+
         # Construction de la liste pour l'index
         liste_index = []
         source_ings = ingredients.to_dict('records') if hasattr(ingredients, 'to_dict') else ingredients
         
         for i in source_ings:
-            # On gère les différents formats d'ingrédients (Saisir vs ODT)
             nom_i = i.get('Ingrédient') or i.get('Détecté') or i.get('nom')
             if nom_i:
                 liste_index.append(nom_i.strip().capitalize())
@@ -308,7 +312,9 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
             "ingredients": list(set(liste_index)),
             "chemin": ch_r
         })
+        
         return True, nom
+
     return False, nom
 
 def verifier_doublon_recette(nom_saisi):
