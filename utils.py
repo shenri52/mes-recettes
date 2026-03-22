@@ -6,6 +6,7 @@ import base64
 import pytz
 import io
 import re
+import unicodedata
 
 from datetime import datetime
 from PIL import Image
@@ -251,23 +252,34 @@ def parser_ligne_ingredient(ligne):
         "Quantité": qte
     }
 
+def nettoyer_nom_github(nom):
+    """Transforme 'Gâteau à la crême' en 'gateau_a_la_creme' pour éviter les bugs GitHub."""
+    # 1. Normalise (sépare la lettre de l'accent) et garde uniquement la lettre
+    nom = "".join(c for c in unicodedata.normalize('NFD', nom) if unicodedata.category(c) != 'Mn')
+    # 2. Remplace tout ce qui n'est pas lettre ou chiffre par un underscore
+    nom = re.sub(r'[^a-zA-Z0-9]', '_', nom)
+    # 3. Nettoie les doubles underscores et met en minuscule
+    return re.sub(r'_+', '_', nom).lower().strip('_')
+    
 def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis="", **kwargs):
     """
-    Fonction TOUT-EN-UN. 
-    Le '**kwargs' à la fin permet d'encaisser des arguments oubliés (comme photos_files) 
-    sans jamais planter l'application.
+    Fonction TOUT-EN-UN sécurisée contre les bugs de noms GitHub.
     """
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nom_fic = re.sub(r'[\\/*?:"<>|]', "", nom).replace(" ", "_").replace("'", "_").lower()
+
+    # 1. ON NETTOIE LE NOM UNE FOIS POUR TOUTES (Adieu les accents et dossiers fantômes)
+    nom_propre = nettoyer_nom_github(nom) 
+    
+    ch_r = f"data/recettes/{ts}_{nom_propre}.json"
     
     liste_medias = []
-    # On gère l'image qu'elle vienne de image_data ou d'un autre nom
+    # 2. On gère l'image avec le même nom propre
     if image_data:
-        ch_m = f"data/images/{ts}_{nom_fic}.jpg"
+        ch_m = f"data/images/{ts}_{nom_propre}.jpg"
         if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
             liste_medias.append(ch_m)
 
-    ch_r = f"data/recettes/{ts}_{nom_fic}.json"
+    # 3. Préparation des données
     rec_data = {
         "nom": nom, 
         "categorie": categorie, 
@@ -279,18 +291,24 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data
         "images": liste_medias
     }
     
+    # 4. Envoi de la recette
     if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
-        # Logique d'indexation (Priorité Suggestion)
+        # Logique d'indexation
         liste_index = []
-        for i in ingredients:
+        # On s'assure que ingredients est une liste (cas import_odt)
+        source_ings = ingredients.to_dict('records') if hasattr(ingredients, 'to_dict') else ingredients
+        
+        for i in source_ings:
             sug = i.get('Suggestion', '---')
             nom_final = sug if (sug and sug != '---') else i.get('Détecté') or i.get('Ingrédient')
             if nom_final:
                 liste_index.append(nom_final.strip().capitalize())
 
         mettre_a_jour_index({
-            "nom": nom, "categorie": categorie, "appareil": appareil,
-            "ingredients": list(set(liste_index)), # set() pour éviter les doublons d'ingrédients
+            "nom": nom, 
+            "categorie": categorie, 
+            "appareil": appareil,
+            "ingredients": list(set(liste_index)),
             "chemin": ch_r
         })
         return True, nom
