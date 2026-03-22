@@ -132,6 +132,8 @@ def afficher():
                 
             if c_del.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.liste_odt.pop(idx)
+                if st.session_state.import_idx >= len(st.session_state.liste_odt) and len(st.session_state.liste_odt) > 0:
+                    st.session_state.import_idx -= 1
                 st.rerun()
 
             if c_save.button("✅ Enregistrer", type="primary", use_container_width=True):
