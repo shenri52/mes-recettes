@@ -807,5 +807,12 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260322_192921_test_lien_pucliv_1.json"
+    },
+    {
+        "nom": "TEST LIEN PUCLIV 2",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_192938_test_lien_pucliv_2.json"
     }
 ]
