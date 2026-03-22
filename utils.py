@@ -221,33 +221,27 @@ def parser_ligne_ingredient(ligne):
     """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
     if not ligne: return None
     
-    # 1. NORMALISATION RADICALE (Crucial pour l'ODT)
-    # On remplace les espaces insécables (\xa0) par des espaces normaux
+    # Nettoyage des espaces insécables potentiels de l'ODT
     ligne = ligne.replace('\xa0', ' ').strip()
     
     if not ligne or ":" in ligne: return None 
 
-    # 2. DÉTECTION CIBLÉE (Espace + de / Espace + d')
-    # On utilise une regex qui gère " de ", " d' " ou " de" en fin de ligne
+    # Ta Regex : cherche un espace suivi de "de" (espace ou fin de ligne) ou "d'"
     match = re.split(r"\s+(?:de(?:\s+|$)|d['’])", ligne, maxsplit=1, flags=re.I)
     
     if len(match) == 2:
+        # On a trouvé la séparation " de" ou " d'"
         qte = match[0].strip()
         ing = match[1].strip()
-    # 3. CAS SANS "DE" (ex: "3 pommes")
-    else:
-        parts = ligne.split(' ', 1)
-        if len(parts) > 1 and any(char.isdigit() for char in parts[0]):
-            qte = parts[0].strip()
-            ing = parts[1].strip()
-        else:
-            qte = ""
-            ing = ligne
+        return {"Ingrédient": ing.capitalize(), "Quantité": qte}
 
-    return {
-        "Ingrédient": ing.strip().capitalize(),
-        "Quantité": qte.strip()
-    }
+    # Si pas de " de", séparation classique au premier espace (ex: "3 pommes")
+    parts = ligne.split(' ', 1)
+    if len(parts) > 1 and any(char.isdigit() for char in parts[0]):
+        return {"Ingrédient": parts[1].strip().capitalize(), "Quantité": parts[0].strip()}
+        
+    # Sinon tout dans ingrédient (ex: "Moutarde")
+    return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
 
 def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
     """Centralise la sauvegarde pour les nouveaux modules d'import."""
