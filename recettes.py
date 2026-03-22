@@ -17,7 +17,6 @@ def afficher():
                 
     index = charger_json_github("data/index_recettes.json")
   
-    st.header("📚 Mes recettes")
     st.write("---")
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
