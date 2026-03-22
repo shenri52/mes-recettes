@@ -104,14 +104,19 @@ def afficher():
             col_cat, col_app = st.columns(2)
             with col_cat:
                 _, cats_existantes = get_index_options()
-                # On force le choix avec "---" en premier
-                options_cat = ["---"] + sorted([c for c in cats_existantes if c]) + ["➕ Ajouter une catégorie..."]
                 
-                choix_cat = st.selectbox("Catégorie", options_cat, index=0, key=f"c_{suffixe}")
+                # Nettoyage : on s'assure que "---" n'est pas déjà dans cats_existantes
+                autres_cats = sorted([c for c in cats_existantes if c and c != "---"])
+                options_cat = ["---"] + autres_cats + ["➕ Ajouter une catégorie..."]
+                
+                # 1. Clé UNIQUE pour le selectbox (prefixe 'sb_')
+                choix_cat = st.selectbox("Catégorie", options_cat, index=0, key=f"sb_{suffixe}")
                 
                 # Détermination de la catégorie finale
                 if choix_cat == "➕ Ajouter une catégorie...":
-                    cat_finale = st.text_input("Nom de la catégorie", key=f"c_{suffixe}").strip()
+                    # 2. Clé UNIQUE pour le texte (prefixe 'new_c_') 
+                    # Cela évite le conflit avec le selectbox
+                    cat_finale = st.text_input("Nom de la nouvelle catégorie", key=f"new_c_{suffixe}").strip()
                 else:
                     cat_finale = choix_cat
 
