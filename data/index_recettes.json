@@ -767,13 +767,6 @@
         "chemin": "data/recettes/20260322_191844_test_crer_1.json"
     },
     {
-        "nom": "TEST CRERR 2",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260322_191901_test_crerr_2.json"
-    },
-    {
         "nom": "TEST LIEN PUCLIV 1",
         "categorie": "Cocktail",
         "appareil": "Aucun",
