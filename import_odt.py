@@ -157,7 +157,7 @@ def afficher():
                             categorie=cat_finale, 
                             ingredients=liste_ingredients_propre, 
                             etapes=etapes, 
-                            photos_files=photos_fb, 
+                            photos_files=[], 
                             appareil=appareil, 
                             t_prep=t_prep, 
                             t_cuis=t_cuis
