@@ -16,6 +16,9 @@ def afficher():
                 del st.session_state[key]
                 
     index = charger_json_github("data/index_recettes.json")
+  
+    st.header("📚 Mes recettes")
+    st.write("---")
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
@@ -41,14 +44,11 @@ def afficher():
 
     noms_filtres = [r['nom'].upper() for r in resultats]
 
-    if "menu_key" not in st.session_state:
-        st.session_state.menu_key = 0
-        
     choix = st.selectbox(
         "📖 Sélectionner une recette", 
         ["---"] + noms_filtres, 
-        key=f"menu_sel_{st.session_state.menu_key}", # Clé qui change pour reset
-        on_change=nettoyer_modif 
+        key="select_recette",
+        on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
     )
     
     if choix != "---":
@@ -199,45 +199,21 @@ def afficher():
                                 st.rerun()
                 else:
                     st.info("📷 Aucune photo pour cette recette.")
-           
-            # --- BOUTONS ADMIN (À l'intérieur du bloc 'if choix != "---"') ---
-            if st.session_state.get("authentifie", False):
-                st.divider()
-                b1, b2 = st.columns(2)
-                
-            # --- BOUTON SUPPRIMER ---
+
+        # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
+        if st.session_state.get("authentifie", False):
+            b1, b2 = st.columns(2)
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                with st.spinner("Suppression en cours..."):
-                    # 1. Supprimer le fichier JSON de la recette sur GitHub
-                    if supprimer_fichier_github(info['chemin']):
-                        
-                        # 2. Supprimer les images liées
-                        for p in recette.get('images', []): 
-                            supprimer_fichier_github(p)
-                        
-                        # 4. On récupère l'index (il sera rechargé proprement via l'API)
-                        index_actuel = charger_json_github("data/index_recettes.json")
-                        
-                        # 5. On retire la recette de la liste locale
-                        nouvel_index = [r for r in index_actuel if r['chemin'] != info['chemin']]
-                        
-                        # 6. On renvoie l'index mis à jour sur GitHub
-                        if envoyer_donnees_github("data/index_recettes.json", 
-                                                 json.dumps(nouvel_index, indent=4, ensure_ascii=False), 
-                                                 f"Suppr: {info['nom']}"):
-                            
-                                                     # 3. LE POINT CLÉ : On vide le cache de Streamlit 🧼
-                            st.cache_data.clear() 
-                                                     
-                            # 7. On change la clé du menu pour forcer le reset visuel du selectbox
-                            st.session_state.menu_key += 1 
-                            
-                            st.success(f"✅ '{info['nom']}' a disparu de la liste !")
-                            time.sleep(1)
-                            st.rerun() # 🔄 L'app redémarre et lira l'index sans la recette
-    
-            # BOUTON MODIFIER
-            if b2.button("✍️ Modifier la recette", use_container_width=True):
+                # Ta logique de suppression complète (Fichier + Images + Index)
+                if supprimer_fichier_github(info['chemin']):
+                    for p in recette.get('images', []): 
+                        supprimer_fichier_github(p)
+                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                    envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette")
+                    st.rerun()
+            
+            if b2.button("✍️ Modifier", use_container_width=True):
+                # Ton mode édition
                 st.session_state[m_edit] = True
                 st.rerun()
 
