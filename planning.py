@@ -189,10 +189,10 @@ def afficher():
         
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
        
-        if st.button("💾 Enregistrer", use_container_width=True):
-            st.session_state.planning_data.update(temp)
-            if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
-                st.success("Planning enregistré ! 💾")
+   if st.button("💾 Enregistrer", use_container_width=True):
+      st.session_state.planning_data.update(temp)
+      if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
+         st.success("Planning enregistré ! 💾")
     
     st.subheader("🍴 Plats rapides")
     plats_rapides = sorted(st.session_state.plats_rapides)
