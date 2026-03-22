@@ -254,12 +254,19 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
         elif temp_ing.lower().startswith("d'"): temp_ing = temp_ing[2:].strip()
         
         # --- PARTIE QUANTITÉ ---
-        qte_brute = str(ing.get("Quantité", ing.get("Quantite", ""))).strip()
-        temp_qte = qte_brute
+        temp_qte = str(ing.get("Quantité", "")).strip()
+        
+        # On vérifie si ça finit par " de" (insensible à la casse)
         if temp_qte.lower().endswith(" de"):
-            temp_qte = temp_qte[:-3].strip()
+            # On remplace " de" par rien du tout à la fin
+            temp_qte = temp_qte[:-3].strip() 
         elif temp_qte.lower().endswith(" d'"):
             temp_qte = temp_qte[:-3].strip()
+            
+        # --- SÉCURITÉ ULTIME ---
+        # Si le " de" est toujours là pour une raison mystérieuse
+        if " de" in temp_qte.lower()[-4:]: 
+            temp_qte = temp_qte.lower().replace(" de", "").strip()
 
         # --- VALIDATION ---
         txt_final = temp_ing.capitalize()
