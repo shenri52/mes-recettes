@@ -145,17 +145,39 @@ def afficher():
                     st.error("⚠️ Veuillez choisir une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # ON ENVOIE LE TABLEAU ing_df DIRECTEMENT
+                        # --- CORRECTION 1 : Conversion explicite ---
+                        # On s'assure d'envoyer une liste propre, pas un objet Streamlit
+                        if hasattr(ing_df, 'to_dict'):
+                            liste_ingredients_propre = ing_df.to_dict('records')
+                        else:
+                            liste_ingredients_propre = ing_df
+
+                        # --- CORRECTION 2 : Appel avec les bonnes clés ---
                         succes, nom_final = sauvegarder_recette_complete(
-                            nom=nom, categorie=cat_finale, 
-                            ingredients=ing_df, # On envoie les données brutes de l'éditeur
-                            etapes=etapes, image_data=None, 
-                            appareil=appareil, t_prep=t_prep, t_cuis=t_cuis
+                            nom=nom, 
+                            categorie=cat_finale, 
+                            ingredients=liste_ingredients_propre, 
+                            etapes=etapes, 
+                            image_data=None, 
+                            appareil=appareil, 
+                            t_prep=t_prep, 
+                            t_cuis=t_cuis
                         )
+                        
                         if succes:
                             st.success(f"✅ '{nom_final}' enregistré !")
                             time.sleep(0.5)
-                            st.session_state.liste_odt.pop(idx) # Enlève de la liste de traitement
-                            if st.session_state.import_idx >= len(st.session_state.liste_odt):
+                            
+                            # --- CORRECTION 3 : Nettoyage de la file ---
+                            st.session_state.liste_odt.pop(idx) 
+                            
+                            # Gestion de l'index de lecture
+                            if not st.session_state.liste_odt:
+                                # Plus rien à importer
                                 st.session_state.import_idx = 0
+                            elif idx >= len(st.session_state.liste_odt):
+                                # Si on était sur le dernier, on revient au nouveau dernier
+                                st.session_state.import_idx = len(st.session_state.liste_odt) - 1
+                            
+                            st.rerun()
                             st.rerun()
