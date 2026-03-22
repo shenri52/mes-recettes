@@ -261,53 +261,50 @@ def nettoyer_nom_github(nom):
     # 3. Nettoie les doubles underscores et met en minuscule
     return re.sub(r'_+', '_', nom).lower().strip('_')
     
-def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis="", **kwargs):
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_files=None, appareil="Aucun", t_prep="", t_cuis="", **kwargs):
     """
-    Fonction TOUT-EN-UN sécurisée contre les bugs de noms GitHub.
+    Fonction TOUT-EN-UN mise à jour pour accepter les fichiers photos bruts.
     """
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # 1. ON NETTOIE LE NOM UNE FOIS POUR TOUTES (Adieu les accents et dossiers fantômes)
     nom_propre = nettoyer_nom_github(nom) 
-    
     ch_r = f"data/recettes/{ts}_{nom_propre}.json"
     
     liste_medias = []
-    # 2. On gère l'image avec le même nom propre
-    if image_data:
-        ch_m = f"data/images/{ts}_{nom_propre}.jpg"
-        if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
-            liste_medias.append(ch_m)
+    # --- GESTION DE LA PHOTO ---
+    if photos_files:
+        # On prend la première photo si c'est une liste
+        fichier = photos_files[0] if isinstance(photos_files, list) else photos_files
+        try:
+            # On compresse l'image ici directement !
+            img_bits, ext = traiter_et_compresser_image(fichier)
+            ch_m = f"data/images/{ts}_{nom_propre}.jpg"
+            if envoyer_donnees_github(ch_m, img_bits, f"📸 Photo: {nom}", True):
+                liste_medias.append(ch_m)
+        except Exception as e:
+            st.error(f"Erreur image: {e}")
 
-    # 3. Préparation des données
+    # --- PRÉPARATION DU JSON ---
     rec_data = {
-        "nom": nom, 
-        "categorie": categorie, 
-        "appareil": appareil,
-        "temps_preparation": t_prep, 
-        "temps_cuisson": t_cuis,
-        "ingredients": ingredients, 
-        "etapes": etapes, 
-        "images": liste_medias
+        "nom": nom, "categorie": categorie, "appareil": appareil,
+        "temps_preparation": t_prep, "temps_cuisson": t_cuis,
+        "ingredients": ingredients, "etapes": etapes, "images": liste_medias
     }
     
-    # 4. Envoi de la recette
+    # --- ENVOI GITHUB ---
     if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
-        # Logique d'indexation
+        # Construction de la liste pour l'index
         liste_index = []
-        # On s'assure que ingredients est une liste (cas import_odt)
         source_ings = ingredients.to_dict('records') if hasattr(ingredients, 'to_dict') else ingredients
         
         for i in source_ings:
-            sug = i.get('Suggestion', '---')
-            nom_final = sug if (sug and sug != '---') else i.get('Détecté') or i.get('Ingrédient')
-            if nom_final:
-                liste_index.append(nom_final.strip().capitalize())
+            # On gère les différents formats d'ingrédients (Saisir vs ODT)
+            nom_i = i.get('Ingrédient') or i.get('Détecté') or i.get('nom')
+            if nom_i:
+                liste_index.append(nom_i.strip().capitalize())
 
+        # Mise à jour de l'index réel
         mettre_a_jour_index({
-            "nom": nom, 
-            "categorie": categorie, 
-            "appareil": appareil,
+            "nom": nom, "categorie": categorie, "appareil": appareil,
             "ingredients": list(set(liste_index)),
             "chemin": ch_r
         })
