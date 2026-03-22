@@ -191,6 +191,19 @@
         "chemin": "data/recettes/20260307_160634_gratin_de_ravioles_aux_champi,_comté_et_poireaux.json"
     },
     {
+        "nom": "Gâteau tout chocolat Nestlé",
+        "categorie": "Gâteau",
+        "appareil": "Aucun",
+        "ingredients": [
+            "De chocolat",
+            "Œufs",
+            "De sucre",
+            "De farine",
+            "De beurre"
+        ],
+        "chemin": "data/recettes/20260322_171433_gâteau_tout_chocolat_nestlé.json"
+    },
+    {
         "nom": "Jambon de porc à l'ananas",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -222,6 +235,23 @@
             "Crème fraiche"
         ],
         "chemin": "data/recettes/20260307_153549_lait_de_poule.json"
+    },
+    {
+        "nom": "Légumes rôtis, poulet et crème d'avocat au skyr",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Pois chiche",
+            "Oignon",
+            "Patates douces",
+            "Curcuma",
+            "Huile olive",
+            "Avocat",
+            "Yaourt Skyr",
+            "Ail"
+        ],
+        "chemin": "data/recettes/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr.json"
     },
     {
         "nom": "Marinade pour poulet au paprika",
@@ -300,6 +330,18 @@
             "Crème fraiche"
         ],
         "chemin": "data/recettes/20260307_100255_orzo_crémeux_aux_épinards_et_champignons.json"
+    },
+    {
+        "nom": "Pain Avoine et graines de chia",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Graines de chia",
+            "Oeuf",
+            "Lait végétal"
+        ],
+        "chemin": "data/recettes/20260321_083917_pain_avoine_et_graines_de_chia.json"
     },
     {
         "nom": "Paradisio",
@@ -436,6 +478,18 @@
             "Crème fraiche"
         ],
         "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
+    },
+    {
+        "nom": "Poulet sauce boursin à l'ail et fines herbes ",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin Ail et fines herbes",
+            "Crème fraiche",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes_.json"
     },
     {
         "nom": "Ragout aux haricots blancs et boeuf",
@@ -629,6 +683,18 @@
         "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
     },
     {
+        "nom": "Sauce légère crudités et salades",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Yaourt à la grec",
+            "Moutarde",
+            "Ail",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260321_083338_sauce_légère_crudités_et_salades.json"
+    },
+    {
         "nom": "Soupe au chou Zéro point",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -692,6 +758,20 @@
             "Cranberries"
         ],
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
+    },
+    {
+        "nom": "test",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_171456_test.json"
+    },
+    {
+        "nom": "test2",
+        "categorie": "Cocktail",
+        "appareil": "Ninja",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_171627_test2.json"
     },
     {
         "nom": "Velouté de courgettes et épinards au lait de coco",
