@@ -219,24 +219,22 @@ def actualiser_toutes_les_stats():
 
 def parser_ligne_ingredient(ligne):
     """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
-    ligne = ligne.strip()
+    if not ligne: return None
+    
+    # 1. NORMALISATION RADICALE (Crucial pour l'ODT)
+    # On remplace les espaces insécables (\xa0) par des espaces normaux
+    ligne = ligne.replace('\xa0', ' ').strip()
+    
     if not ligne or ":" in ligne: return None 
 
-    # On cherche l'index du " de " ou du " d'"
-    # On privilégie le " de " car il est plus fréquent
-    if " de " in ligne.lower():
-        parts = re.split(r" de ", ligne, maxsplit=1, flags=re.I)
-        qte = parts[0].strip()
-        ing = parts[1].strip()
-    elif " d'" in ligne.lower() or " d’" in ligne.lower():
-        parts = re.split(r" d['’]", ligne, maxsplit=1, flags=re.I)
-        qte = parts[0].strip()
-        ing = parts[1].strip()
-    # Cas particulier : "200g de" en fin de ligne (espace + de + rien)
-    elif ligne.lower().endswith(" de"):
-        qte = ligne[:-3].strip()
-        ing = ""
-    # Si pas de " de " ou " d'", on cherche le premier espace simple (ex: "3 pommes")
+    # 2. DÉTECTION CIBLÉE (Espace + de / Espace + d')
+    # On utilise une regex qui gère " de ", " d' " ou " de" en fin de ligne
+    match = re.split(r"\s+(?:de(?:\s+|$)|d['’])", ligne, maxsplit=1, flags=re.I)
+    
+    if len(match) == 2:
+        qte = match[0].strip()
+        ing = match[1].strip()
+    # 3. CAS SANS "DE" (ex: "3 pommes")
     else:
         parts = ligne.split(' ', 1)
         if len(parts) > 1 and any(char.isdigit() for char in parts[0]):
