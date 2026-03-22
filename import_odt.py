@@ -17,40 +17,43 @@ def extraire_donnees_odt(file_bytes):
     # On repère uniquement les lignes qui contiennent strictement "Ingrédients"
     indices_ing = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
     
+def extraire_donnees_odt(file_bytes):
+    doc = opendocument.load(io.BytesIO(file_bytes))
+    lignes = [teletype.extractText(p).strip() for p in doc.getElementsByType(text.P) if teletype.extractText(p).strip()]
+    
+    recettes = []
+    # On trouve l'index de chaque ligne qui contient "Ingrédients"
+    indices_ing = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
+    
     for i, start_idx in enumerate(indices_ing):
-        # --- 1. LE TITRE (Sécurité maximale) ---
-        # On regarde les 3 lignes avant "Ingrédients"
-        # Mais on ne remonte pas plus haut que la fin de la recette précédente
-        limite_haute = indices_ing[i-1] + 1 if i > 0 else 0
-        search_start = max(limite_haute, start_idx - 3) 
-        
-        lignes_titre = lignes[search_start:start_idx]
-        titre = " ".join(lignes_titre).strip() if lignes_titre else "Nouvelle Recette"
+        # 1. LE TITRE : Uniquement la ligne juste avant "Ingrédients"
+        # C'est le plus robuste pour éviter d'aspirer la recette précédente
+        titre = lignes[start_idx - 1] if start_idx > 0 else "Nouvelle Recette"
 
-        # --- 2. LA FIN DE LA RECETTE ---
-        # La recette s'arrête juste avant le début du titre suivant
+        # 2. LA FIN DU BLOC : Jusqu'au prochain "Ingrédients" (moins 1 ligne pour le titre suivant)
         if i + 1 < len(indices_ing):
-            # On s'arrête 3 lignes avant le prochain "Ingrédients" (là où commence son titre)
-            end_idx = max(start_idx + 1, indices_ing[i+1] - 3)
+            end_idx = indices_ing[i+1] - 1
         else:
             end_idx = len(lignes)
 
         bloc_recette = lignes[start_idx:end_idx]
         texte_bloc = "\n".join(bloc_recette)
         
-        # --- 3. DÉCOUPAGE INGRÉDIENTS / PRÉPARATION ---
+        # 3. SÉPARATION INGRÉDIENTS / PRÉPARATION
+        # On cherche "Préparation" ou "Instructions" pour couper le bloc
         idx_prep = next((j for j, l in enumerate(bloc_recette) if re.search(r"Préparation|Instructions", l, re.I)), len(bloc_recette))
         
         lignes_ingredients = bloc_recette[1:idx_prep] 
         lignes_preparation = bloc_recette[idx_prep:]
         
-        # --- 4. TEMPS & PARSING ---
+        # 4. EXTRACTION DES TEMPS
         t_prep, t_cuisson = "", ""
         f_p = re.search(r"Préparation\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
         if f_p: t_prep = f_p.group(1)
         f_c = re.search(r"Cuisson\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
         if f_c: t_cuisson = f_c.group(1)
 
+        # 5. PARSING DES INGRÉDIENTS
         ing_list = []
         for l in lignes_ingredients:
             match_nombre = re.match(r"^(\d+[g\s]*[a-zA-Z]*)\s+(.*)", l)
@@ -58,8 +61,10 @@ def extraire_donnees_odt(file_bytes):
                 ing_list.append({"Ingrédient": match_nombre.group(2).strip(), "Quantité": match_nombre.group(1).strip()})
             else:
                 parsed = parser_ligne_ingredient(l)
-                if parsed: ing_list.append(parsed)
-                else: ing_list.append({"Ingrédient": l, "Quantité": ""})
+                if parsed:
+                    ing_list.append(parsed)
+                else:
+                    ing_list.append({"Ingrédient": l, "Quantité": ""})
         
         recettes.append({
             "nom": titre, 
