@@ -244,7 +244,8 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
     # 2. Nettoyage des Ingrédients (Puces + Majuscules)
     liste_nettoyee = []
     for ing in ingredients:
-        txt_brut = ing.get("Ingrédient", "")
+        sug = ing.get("Suggestion")
+        txt_brut = sug if sug and sug != "---" else ing.get("Ingrédient", "")
         # Nettoyage radical : enlève puces/tirets/espaces + Capitalize
         txt_final = txt_brut.lstrip("-•* ").strip().capitalize()
         if txt_final:
