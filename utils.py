@@ -134,6 +134,10 @@ def charger_recette_specifique(url_raw):
 
 def initialiser_session():
     """Initialise les variables globales de l'application."""
+    if "plats_rapides" not in st.session_state:
+        st.session_state.plats_rapides = charger_json_github("data/plats_rapides.json") or []
+    if "offset_semaine" not in st.session_state:
+        st.session_state.offset_semaine = 0
     if "authentifie" not in st.session_state:
         st.session_state["authentifie"] = False
     if "mode_public" not in st.session_state:
