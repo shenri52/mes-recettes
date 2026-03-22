@@ -226,24 +226,29 @@ def parser_ligne_ingredient(ligne):
         return {"Ingrédient": match.group(2).strip().capitalize(), "Quantité": match.group(1).strip()}
     return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
 
-def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun"):
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
     """Centralise la sauvegarde pour les nouveaux modules d'import."""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     nom_fic = nom.lower().replace(" ", "_").replace("'", "_")
     liste_medias = []
 
-    # 1. Image (image_data doit être un BytesIO déjà compressé)
+    # 1. Image
     if image_data:
         ch_m = f"data/images/{ts}_{nom_fic}.jpg"
         if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
             liste_medias.append(ch_m)
 
-    # 2. JSON
+    # 2. JSON (Correction ici : on utilise t_prep et t_cuis)
     ch_r = f"data/recettes/{ts}_{nom_fic}.json"
     rec_data = {
-        "nom": nom, "categorie": categorie, "appareil": appareil,
-        "temps_preparation": "", "temps_cuisson": "",
-        "ingredients": ingredients, "etapes": etapes, "images": liste_medias
+        "nom": nom, 
+        "categorie": categorie, 
+        "appareil": appareil,
+        "temps_preparation": t_prep, # <-- MODIFIÉ
+        "temps_cuisson": t_cuis,      # <-- MODIFIÉ
+        "ingredients": ingredients, 
+        "etapes": etapes, 
+        "images": liste_medias
     }
     
     # 3. GitHub & Index
