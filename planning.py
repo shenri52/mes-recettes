@@ -228,8 +228,6 @@ def afficher():
                     st.session_state.edit_mode = None 
                     st.rerun()
 
-    st.divider() 
-
     # --- BLOC AJOUT ---
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
     st.button("➕ Ajouter au catalogue", use_container_width=True, on_click=ajouter_et_nettoyer)
