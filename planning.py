@@ -190,7 +190,7 @@ def afficher():
                         if choix != "---":
                             nom_propre = choix.replace(" (rapide)", "").strip()
                             plats.append(nom_propre)
-                            temp[d_str][rep] = platsy
+                            temp[d_str][rep] = plats
                             st.session_state.planning_data.update(temp)
                             st.rerun()
         
