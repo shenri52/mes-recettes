@@ -42,14 +42,10 @@ def extraire_donnees_odt(file_bytes):
         ing_list = []
         for l in lignes_ingredients:
             parsed = parser_ligne_ingredient(l)
-            if match_nombre:
-                ing_list.append({"Ingrédient": match_nombre.group(2).strip(), "Quantité": match_nombre.group(1).strip()})
+            if parsed:
+                ing_list.append(parsed)
             else:
-                parsed = parser_ligne_ingredient(l)
-                if parsed:
-                    ing_list.append(parsed)
-                else:
-                    ing_list.append({"Ingrédient": l, "Quantité": ""})
+                ing_list.append({"Ingrédient": l, "Quantité": ""})
         
         recettes.append({
             "nom": titre, 
