@@ -205,35 +205,37 @@ def afficher():
                 st.divider()
                 b1, b2 = st.columns(2)
                 
-            # --- BOUTON SUPPRIMER (Simplifié) ---
-            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                with st.spinner("Suppression en cours..."):
-                    # 1. Supprimer le fichier de la recette
-                    if supprimer_fichier_github(info['chemin']):
+        # --- BOUTON SUPPRIMER ---
+        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+            with st.spinner("Suppression en cours..."):
+                # 1. Supprimer le fichier JSON de la recette sur GitHub
+                if supprimer_fichier_github(info['chemin']):
+                    
+                    # 2. Supprimer les images liées
+                    for p in recette.get('images', []): 
+                        supprimer_fichier_github(p)
+                    
+                    # 3. LE POINT CLÉ : On vide le cache de Streamlit 🧼
+                    # Cela force l'app à recharger le JSON tout neuf au prochain appel
+                    st.cache_data.clear() 
+                    
+                    # 4. On récupère l'index (il sera rechargé proprement via l'API)
+                    index_actuel = charger_json_github("data/index_recettes.json")
+                    
+                    # 5. On retire la recette de la liste locale
+                    nouvel_index = [r for r in index_actuel if r['chemin'] != info['chemin']]
+                    
+                    # 6. On renvoie l'index mis à jour sur GitHub
+                    if envoyer_donnees_github("data/index_recettes.json", 
+                                             json.dumps(nouvel_index, indent=4, ensure_ascii=False), 
+                                             f"Suppr: {info['nom']}"):
                         
-                        # 2. Supprimer les images associées
-                        for p in recette.get('images', []): 
-                            supprimer_fichier_github(p)
-            
-                        # 3. CRUCIAL : Vider le cache pour forcer le prochain 'charger_json_github' à lire le vrai fichier
-                        st.cache_data.clear() 
-            
-                        # 4. Recharger l'index (il sera frais grâce au cache-busting dans utils.py)
-                        index_actuel = charger_json_github("data/index_recettes.json")
+                        # 7. On change la clé du menu pour forcer le reset visuel du selectbox
+                        st.session_state.menu_key += 1 
                         
-                        # 5. Filtrer pour enlever la recette supprimée
-                        nouvel_index = [r for r in index_actuel if r['chemin'] != info['chemin']]
-            
-                        # 6. Sauvegarder le nouvel index sur GitHub
-                        if envoyer_donnees_github("data/index_recettes.json", 
-                                                 json.dumps(nouvel_index, indent=4, ensure_ascii=False), 
-                                                 f"Suppr: {info['nom']}"):
-                            
-                            # 7. Reset l'interface
-                            st.session_state.menu_key += 1 
-                            st.success(f"✅ '{info['nom']}' supprimée !")
-                            time.sleep(1)
-                            st.rerun()
+                        st.success(f"✅ '{info['nom']}' a disparu de la liste !")
+                        time.sleep(1)
+                        st.rerun() # 🔄 L'app redémarre et lira l'index sans la recette
     
             # BOUTON MODIFIER
             if b2.button("✍️ Modifier la recette", use_container_width=True):
