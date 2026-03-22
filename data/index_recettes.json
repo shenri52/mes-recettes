@@ -772,5 +772,12 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "TEST 1  - creer",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_194113_test_1_creer.json"
     }
 ]
