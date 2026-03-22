@@ -226,40 +226,68 @@ def parser_ligne_ingredient(ligne):
         return {"Ingrédient": match.group(2).strip().capitalize(), "Quantité": match.group(1).strip()}
     return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
 
-def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
-    """Centralise la sauvegarde pour les nouveaux modules d'import."""
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nom_fic = nom.lower().replace(" ", "_").replace("'", "_")
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_files=None, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
+    """
+    Fonction centrale de sauvegarde. 
+    Gère : Doublons, Nettoyage Ingrédients, Compression Images, JSON et Index.
+    """
+    maintenant = datetime.now()
+    ts = maintenant.strftime("%Y%m%d_%H%M%S")
+    
+    # 1. Gestion du Nom (Doublon)
+    nom_propre = nom.strip()
+    if verifier_doublon_recette(nom_propre):
+        nom_propre = f"{nom_propre} ({maintenant.strftime('%d-%m-%Y')})"
+    
+    nom_fic = nom_propre.replace(" ", "_").lower().replace("'", "_")
+    
+    # 2. Nettoyage des Ingrédients (Puces + Majuscules)
+    liste_nettoyee = []
+    for ing in ingredients:
+        txt_brut = ing.get("Ingrédient", "")
+        # Nettoyage radical : enlève puces/tirets/espaces + Capitalize
+        txt_final = txt_brut.lstrip("-•* ").strip().capitalize()
+        if txt_final:
+            liste_nettoyee.append({
+                "Ingrédient": txt_final,
+                "Quantité": str(ing.get("Quantité", "")).strip()
+            })
+
+    # 3. Traitement des Images (Utilise ta fonction existante)
     liste_medias = []
+    if photos_files: # Cas saisir.py / importer.py
+        for idx, f in enumerate(photos_files):
+            data, ext = traiter_et_compresser_image(f) # Ta fonction existante
+            ch = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
+            if envoyer_donnees_github(ch, data, f"📸 Photo: {nom_propre}", True):
+                liste_medias.append(ch)
+    elif image_data: # Cas import_odt si besoin
+        ch = f"data/images/{ts}_{nom_fic}.jpg"
+        if envoyer_donnees_github(ch, image_data, f"📸 ODT: {nom_propre}", True):
+            liste_medias.append(ch)
 
-    # 1. Image
-    if image_data:
-        ch_m = f"data/images/{ts}_{nom_fic}.jpg"
-        if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
-            liste_medias.append(ch_m)
-
-    # 2. JSON (Correction ici : on utilise t_prep et t_cuis)
+    # 4. Création du JSON (Harmonisation des clés)
     ch_r = f"data/recettes/{ts}_{nom_fic}.json"
     rec_data = {
-        "nom": nom, 
+        "nom": nom_propre, 
         "categorie": categorie, 
         "appareil": appareil,
-        "temps_preparation": t_prep, # <-- MODIFIÉ
-        "temps_cuisson": t_cuis,      # <-- MODIFIÉ
-        "ingredients": ingredients, 
-        "etapes": etapes, 
+        "temps_preparation": str(t_prep), 
+        "temps_cuisson": str(t_cuis),      
+        "ingredients": liste_nettoyee, 
+        "etapes": etapes if etapes.strip() else "Voir image jointe", 
         "images": liste_medias
     }
     
-    # 3. GitHub & Index
-    if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
+    # 5. Envoi GitHub + Index
+    if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 {nom_propre}"):
         mettre_a_jour_index({
-            "nom": nom, "categorie": categorie, "appareil": appareil,
-            "ingredients": [i['Ingrédient'] for i in ingredients if i.get('Ingrédient')],
+            "nom": nom_propre, "categorie": categorie, "appareil": appareil,
+            "ingredients": [i['Ingrédient'] for i in liste_nettoyee],
             "chemin": ch_r
         })
-        return True
-    return False
+        return True, nom_propre
+    return False, nom
 
 def verifier_doublon_recette(nom_saisi):
     """
