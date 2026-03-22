@@ -774,13 +774,6 @@
         "chemin": "data/recettes/20260322_191901_test_crerr_2.json"
     },
     {
-        "nom": "TEST IMPORTER 1",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260322_192023_test_importer_1.json"
-    },
-    {
         "nom": "TEST LIEN PUCLIV 1",
         "categorie": "Cocktail",
         "appareil": "Aucun",
