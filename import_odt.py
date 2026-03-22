@@ -6,8 +6,7 @@ from utils import (
     sauvegarder_recette_complete, 
     parser_ligne_ingredient, 
     get_index_options,
-    verifier_doublon_recette,
-    sauvegarder_recette_complete
+    verifier_doublon_recette
 )
 
 def extraire_donnees_odt(file_bytes):
@@ -158,7 +157,7 @@ def afficher():
                             categorie=cat_finale, 
                             ingredients=liste_ingredients_propre, 
                             etapes=etapes, 
-                            image_data=None, 
+                            photos_files=photos_fb, 
                             appareil=appareil, 
                             t_prep=t_prep, 
                             t_cuis=t_cuis
@@ -167,8 +166,6 @@ def afficher():
                         if succes:
                             st.success(f"✅ '{nom_final}' enregistré !")
                             time.sleep(0.5)
-                            
-                            # --- CORRECTION 3 : Nettoyage de la file ---
                             st.session_state.liste_odt.pop(idx) 
                             
                             # Gestion de l'index de lecture
@@ -177,7 +174,5 @@ def afficher():
                                 st.session_state.import_idx = 0
                             elif idx >= len(st.session_state.liste_odt):
                                 # Si on était sur le dernier, on revient au nouveau dernier
-                                st.session_state.import_idx = len(st.session_state.liste_odt) - 1
-                            
-                            st.rerun()
+                                st.session_state.import_idx = max(0,len(st.session_state.liste_odt) - 1)
                             st.rerun()
