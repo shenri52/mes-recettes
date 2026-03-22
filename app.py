@@ -45,6 +45,19 @@ def verifier_mot_de_passe():
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
+    PAGES = {
+            "recettes": "📚 Mes recettes",
+            "importer": "📥 Importer une recette",
+            "ajouter": "✍️ Créer une recette",
+            "import_odt": "🖋️ Charger une recette (ODT)",
+            "import_pdf": "📕 Charger une recette (PDF)",
+            "planning": "📅 Mon planning",
+            "coursesaisir": "📝 Liste des courses",
+            "coursevisualiser": "🛒 Mode magasin",
+            "stats": "📊 Statistiques",
+            "maintenance": "🛠️ Maintenance"
+        }
+    
     if 'page' not in st.session_state:
         st.session_state.page = 'accueil'
 
@@ -60,53 +73,67 @@ if verifier_mot_de_passe():
             
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
-        if st.button("📚 Mes recettes", use_container_width=True):
+        if st.button(PAGES["recettes"], use_container_width=True):
             changer_page("recettes")
-        
-        if st.session_state["authentifie"]:
-            # On définit les boutons par ligne (Listes de tuples : "Label", "Page")
-            L1 = [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")]
-            L2 = [("🖋️ Charger une recettes (ODT)", "import_odt"), ("📕 Charger une recettes (PDF), "import_pdf")]
-            L3 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
-            L4 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
 
+        if st.session_state["authentifie"]:
+            L1 = ["importer", "ajouter"]
+            L2 = ["import_odt", "import_pdf"]
+            L3 = ["planning", "coursesaisir", "coursevisualiser"]
+            L4 = ["stats", "maintenance"]
+            
             # Ligne 1 : 2 colonnes
             cols1 = st.columns(2)
-            for i, (label, page) in enumerate(L1):
-                if cols1[i].button(label, use_container_width=True): changer_page(page)
+            for i, cle in enumerate(L1):
+                if cols1[i].button(PAGES[cle], use_container_width=True): 
+                    changer_page(cle)
                     
             # Ligne 2 : 2 colonnes
-            cols1 = st.columns(2)
-            for i, (label, page) in enumerate(L2):
-                if cols1[i].button(label, use_container_width=True): changer_page(page)
+            cols2 = st.columns(2) # On utilise cols2 pour éviter les conflits
+            for i, cle in enumerate(L2):
+                if cols2[i].button(PAGES[cle], use_container_width=True): 
+                    changer_page(cle)
 
             # Ligne 3 : Boutons un par un (Plein écran)
-            for label, page in L3:
-                if st.button(label, use_container_width=True): changer_page(page)
+            for cle in L3:
+                if st.button(PAGES[cle], use_container_width=True): 
+                    changer_page(cle)
 
             # Ligne 4 : 2 colonnes
-            cols3 = st.columns(2)
-            for i, (label, page) in enumerate(L4):
-                if cols3[i].button(label, use_container_width=True): changer_page(page)
+            cols4 = st.columns(2)
+            for i, cle in enumerate(L4):
+                if cols4[i].button(PAGES[cle], use_container_width=True): 
+                    changer_page(cle)
         else:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
-        # 1. Centralisation de toutes les pages
-        toutes_pages = {
-            "recettes": recettes.afficher, "importer": importer.afficher,
-            "import_odt": import_odt.afficher, "import_pdf": lambda: st.info("📕 Le module PDF est en cours de développement !"),
-            "ajouter": saisir.afficher, "coursesaisir": coursesaisir.afficher,
-            "coursevisualiser": coursevisualiser.afficher, "stats": stats.afficher,
-            "planning": planning.afficher, "maintenance": maintenance.afficher
-        }
-        
-        # 2. Vérification des droits (Seul 'recettes' est public)
         p_actuelle = st.session_state.page
+        
+        # 1. On définit les fonctions d'abord
+        toutes_pages = {
+            "recettes": recettes.afficher, 
+            "importer": importer.afficher,
+            "import_odt": import_odt.afficher, 
+            "import_pdf": lambda: st.info("📕 Le module PDF est en cours de développement !"),
+            "ajouter": saisir.afficher, 
+            "coursesaisir": coursesaisir.afficher,
+            "coursevisualiser": coursevisualiser.afficher, 
+            "stats": stats.afficher,
+            "planning": planning.afficher, 
+            "maintenance": maintenance.afficher
+        }
+
+        # 2. Vérification des droits
         autorise = st.session_state["authentifie"] or p_actuelle == "recettes"
 
         if autorise and p_actuelle in toutes_pages:
+            # --- AFFICHAGE DU TITRE AUTO ---
+            st.header(PAGES.get(p_actuelle, "Page inconnue"))
+            st.divider()
+            
+            # --- APPEL DE LA PAGE ---
             toutes_pages[p_actuelle]()
         else:
             st.error("🚫 Accès restreint. Veuillez vous connecter.")
@@ -114,7 +141,7 @@ if verifier_mot_de_passe():
                 utils.deconnexion()
                 st.rerun()
 
-        # 3. Bouton retour automatique (Sauf sur planning)
+        # 3. Bouton retour (Sauf sur planning)
         if p_actuelle != "planning":
             st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=utils.deconnexion)
