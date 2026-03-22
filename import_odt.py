@@ -148,32 +148,31 @@ def afficher():
                     st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # --- Gestion de la priorité et de la majuscule ---
+                        # 1. On crée une liste NEUVE (évite le TypeError)
+                        liste_propre = []
                         for item in ing_df:
                             sug = item.get("Suggestion", "---")
-                            # Si on a choisi autre chose que ---, on prend la suggestion
-                            if sug and sug != "---":
-                                texte_final = sug
-                            else:
-                                texte_final = item.get("Ingrédient", "")
-
-                            # Application de TA règle : Majuscule 1ère lettre uniquement
-                            txt = texte_final.strip()
-                            if len(txt) > 0:
-                                item["Ingrédient"] = txt[0].upper() + txt[1:]
+                            texte = sug if (sug and sug != "---") else item.get("Ingrédient", "")
                             
-                            # On nettoie la colonne temporaire avant sauvegarde
-                            if "Suggestion" in item:
-                                del item["Suggestion"]
+                            # Règle : Majuscule 1ère lettre uniquement
+                            txt = texte.strip()
+                            nom_ing = txt[0].upper() + txt[1:] if txt else ""
+                            
+                            # On ne garde que les colonnes attendues par le JSON
+                            liste_propre.append({
+                                "Ingrédient": nom_ing, 
+                                "Quantité": item.get("Quantité", "")
+                            })
                                     
                         nom_propre = nom.strip()
                         if verifier_doublon_recette(nom_propre):
                             nom_propre = f"{nom_propre} ({time.strftime('%d-%m-%Y')})"
                         
+                        # 2. On envoie 'liste_propre' à la fonction
                         succes = sauvegarder_recette_complete(
                             nom=nom_propre, 
                             categorie=cat_finale, 
-                            ingredients=ing_df, 
+                            ingredients=liste_propre, 
                             etapes=etapes, 
                             image_file=None, 
                             appareil=appareil, 
