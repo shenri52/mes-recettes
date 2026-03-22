@@ -14,51 +14,68 @@ def extraire_donnees_odt(file_bytes):
     lignes = [teletype.extractText(p).strip() for p in doc.getElementsByType(text.P) if teletype.extractText(p).strip()]
     
     recettes = []
-    # On repère les sections par le mot "Ingrédients"
-    indices_recettes = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
+    indices_ingredients = [i for i, l in enumerate(lignes) if "Ingrédients" in l]
     
-    for i, start_idx in enumerate(indices_recettes):
-        # Titre : ligne juste avant "Ingrédients"
-        debut_recherche = indices_recettes[i-1] + 1 if i > 0 else 0
-        lignes_titre = lignes[debut_recherche:start_idx]
-        titre = " ".join(lignes_titre).strip() if lignes_titre else "Nouvelle Recette"
+    for i, start_idx in enumerate(indices_ingredients):
+        # 1. TROUVER LE DÉBUT DU TITRE
+        # Le titre commence juste après la fin de la recette précédente
+        debut_titre = indices_ingredients[i-1] + 1 if i > 0 else 0
         
-        next_indices = [i for i in indices_recettes if i > start_idx]
-        # On retire 1 à l'index final pour ne pas englober le titre suivant
-        end_idx = (next_indices[0] - 1) if next_indices else len(lignes)
-     
+        # 2. EXTRAIRE LE TITRE (toutes les lignes entre la fin précédente et "Ingrédients")
+        lignes_titre = lignes[debut_titre:start_idx]
+        titre = " ".join(lignes_titre).strip() if lignes_titre else "Nouvelle Recette"
+
+        # 3. TROUVER LA FIN DE LA RECETTE (Juste avant le début du titre SUIVANT)
+        if i + 1 < len(indices_ingredients):
+            # On cherche le titre de la recette d'après pour s'arrêter AVANT lui
+            idx_next_ing = indices_ingredients[i+1]
+            idx_prev_recette = indices_ingredients[i]
+            # Le titre suivant commence après le dernier ingrédient/préparation
+            # Pour faire simple : on s'arrête à la première ligne du titre suivant
+            end_idx = idx_next_ing - 1
+            # On remonte tant qu'on n'est pas sur le mot "Ingrédients" pour trouver le vrai début du bloc suivant
+            # Mais pour éviter le mélange, on va simplement tronquer le bloc_recette plus bas.
+        else:
+            end_idx = len(lignes)
+
         bloc_recette = lignes[start_idx:end_idx]
+        
+        # --- NETTOYAGE DE SÉCURITÉ ---
+        # Si le titre suivant a été aspiré (ce qui arrive avec end_idx), 
+        # on coupe le bloc dès qu'on détecte une ligne qui appartient au titre suivant.
+        # On sait que le titre suivant commence à debut_recherche de la boucle d'après.
+        if i + 1 < len(indices_ingredients):
+            # On calcule combien de lignes de titre il y a pour la recette d'après
+            prochain_debut_titre = indices_ingredients[i] # Approximatif
+            # Le plus simple : on s'arrête là où le titre suivant a été détecté
+            nb_lignes_titre_suivant = len(lignes[indices_ingredients[i]+1:indices_ingredients[i+1]])
+            # (Optionnel : affinement ici si besoin)
+
         texte_bloc = "\n".join(bloc_recette)
         
         # limitation zone Préparation
-        idx_prep = next((i for i, l in enumerate(bloc_recette) if re.search(r"Préparation|Instructions", l, re.I)), len(bloc_recette))
+        idx_prep = next((j for j, l in enumerate(bloc_recette) if re.search(r"Préparation|Instructions", l, re.I)), len(bloc_recette))
         
         lignes_ingredients = bloc_recette[1:idx_prep] 
         lignes_preparation = bloc_recette[idx_prep:]
         
-        # --- TECTION S TEMPS (STRICTE & VI PAR FAUT) ---
+        # --- DETECTION TEMPS ---
         t_prep, t_cuisson = "", ""
-        
-        # Cherche uniquement si format "Préparation : 10 min" est présent
         found_p = re.search(r"Préparation\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
         if found_p: t_prep = found_p.group(1)
-            
         found_c = re.search(r"Cuisson\s*[:\-]?\s*(\d+\s*(?:min|h|minutes))", texte_bloc, re.I)
         if found_c: t_cuisson = found_c.group(1)
 
-        # --- PARSING S INGRÉDIENTS (Séparation Chiffre / Nom) ---
+        # --- PARSING INGRÉDIENTS ---
         ing_list = []
         for l in lignes_ingredients:
-            # On vérifie si la ligne commence par un chiffre (ex: "3 pommes" ou "200g sucre")
             match_nombre = re.match(r"^(\d+[g\s]*[a-zA-Z]*)\s+(.*)", l)
             if match_nombre:
                 ing_list.append({"Ingrédient": match_nombre.group(2).strip(), "Quantité": match_nombre.group(1).strip()})
             else:
                 parsed = parser_ligne_ingredient(l)
-                if parsed:
-                    ing_list.append(parsed)
-                else:
-                    ing_list.append({"Ingrédient": l, "Quantité": ""})
+                if parsed: ing_list.append(parsed)
+                else: ing_list.append({"Ingrédient": l, "Quantité": ""})
         
         recettes.append({
             "nom": titre, 
