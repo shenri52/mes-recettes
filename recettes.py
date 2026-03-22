@@ -203,6 +203,7 @@ def afficher():
         # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
+            
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
                 with st.spinner("Suppression..."):
                     if supprimer_fichier_github(info['chemin']):
@@ -210,17 +211,21 @@ def afficher():
                         for p in recette.get('images', []): 
                             supprimer_fichier_github(p)
             
-            # Mettre à jour l'index localement
-            nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                        # Mettre à jour l'index localement
+                        nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
             
-            # Sauvegarder l'index mis à jour sur GitHub
-            if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
-                # --- LES 3 LIGNES CRUCIALES POUR RESET L'AFFICHAGE ---
-                st.cache_data.clear() # Vide la mémoire de l'app
-                st.session_state.menu_key += 1
-                st.success("Recette supprimée !")
-                time.sleep(1)
-                st.rerun()
+                        # Sauvegarder l'index mis à jour sur GitHub
+                        if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
+                            # --- LES 3 LIGNES CRUCIALES POUR RESET L'AFFICHAGE ---
+                            st.cache_data.clear() # Vide la mémoire de l'app
+                            st.session_state.menu_key += 1
+                            st.success("Recette supprimée !")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("❌ Erreur lors de la mise à jour de l'index.")
+                    else:
+                        st.error("❌ Impossible de supprimer le fichier de la recette sur GitHub.")
             
             if b2.button("✍️ Modifier", use_container_width=True):
                 # Ton mode édition
