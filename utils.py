@@ -22,25 +22,21 @@ def get_github_config():
         }
     }
 
-@st.cache_data(ttl=60) # 1. Réduis le TTL à 60 (1 minute) pour être plus réactif ⏱️
-def charger_json_github(chemin_fichier, force_maj=False): # 2. Ajoute force_maj ici !
-    """Charge un fichier JSON depuis GitHub avec anti-cache agressif."""
+@st.cache_data(ttl=600)  # Expire après 10 min d'inactivité ou après st.cache_data.clear()
+def charger_json_github(chemin_fichier):
+    """Charge un fichier JSON depuis GitHub avec anti-cache."""
     conf = get_github_config()
-    
-    # 3. Logique du Timestamp
-    # Si force_maj est True, l'URL change à la seconde près -> Cache brisé.
-    # Sinon, on change toutes les minutes pour ne pas saturer GitHub.
-    ts = int(time.time()) if force_maj else (int(time.time()) // 60)
-    
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin_fichier}?t={ts}"
+    # Utilise le timestamp actuel pour forcer GitHub à ne pas servir une vieille version
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin_fichier}?t={int(time.time())}"
     
     try:
-        res = requests.get(url, timeout=5) # Ajoute un timeout pour éviter les blocages
+        res = requests.get(url)
         if res.status_code == 200:
             return res.json()
-        return [] if any(x in chemin_fichier for x in ["index", "plats_rapides"]) else {}
+        # Retourne une liste vide pour l'index ou les plats, un dict vide sinon
+        return [] if "plats_rapides" in chemin_fichier or "index" in chemin_fichier else {}
     except:
-        return [] if any(x in chemin_fichier for x in ["index", "plats_rapides"]) else {}
+        return [] if "plats_rapides" in chemin_fichier or "index" in chemin_fichier else {}
 
 def sauvegarder_json_github(chemin_fichier, donnees, message_commit="Mise à jour"):
     """Gère la sauvegarde vers GitHub avec gestion du SHA."""
