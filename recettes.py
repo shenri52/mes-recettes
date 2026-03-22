@@ -41,11 +41,14 @@ def afficher():
 
     noms_filtres = [r['nom'].upper() for r in resultats]
 
+    if "menu_key" not in st.session_state:
+        st.session_state.menu_key = 0
+        
     choix = st.selectbox(
         "📖 Sélectionner une recette", 
         ["---"] + noms_filtres, 
-        key="select_recette",
-        on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
+        key=f"menu_sel_{st.session_state.menu_key}", # Clé qui change pour reset
+        on_change=nettoyer_modif 
     )
     
     if choix != "---":
@@ -214,8 +217,7 @@ def afficher():
             if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
                 # --- LES 3 LIGNES CRUCIALES POUR RESET L'AFFICHAGE ---
                 st.cache_data.clear() # Vide la mémoire de l'app
-                if "select_recette" in st.session_state:
-                    st.session_state.select_recette = "---" # Remet le menu à zéro
+                st.session_state.menu_key += 1
                 st.success("Recette supprimée !")
                 time.sleep(1)
                 st.rerun()
