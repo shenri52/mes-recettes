@@ -157,7 +157,7 @@ def deconnexion():
     page_actuelle = st.session_state.get('page')
 
     # NETTOYAGE CIBLÉ
-    if page_actuelle in ['importer', 'ajouter']:
+    if page_actuelle in ['importer', 'ajouter', 'import_odt', 'import_pdf']:
         # 1. On vide les listes
         st.session_state["ingredients_img"] = []      # Page Importer
         st.session_state["ingredients_recette"] = []  # Page Saisir
