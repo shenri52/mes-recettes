@@ -149,7 +149,7 @@ def afficher():
                         succes, nom_final = sauvegarder_recette_complete(
                             nom=nom, categorie=cat_finale, 
                             ingredients=ing_df, # On envoie les données brutes de l'éditeur
-                            etapes=etapes, photos_files=None, 
+                            etapes=etapes, image_data=None, 
                             appareil=appareil, t_prep=t_prep, t_cuis=t_cuis
                         )
                         if succes:
