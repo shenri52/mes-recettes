@@ -106,15 +106,24 @@ def afficher():
             t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc_{suffixe}", placeholder="Non détecté")
 
             st.subheader("Ingrédients détectés")
+    
+            # Préparation des lignes pour inclure la colonne de suggestion par défaut
+            for item in r['ing_list']:
+                if "Suggestion" not in item:
+                    item["Suggestion"] = "---"
+
+            options_suggestions = ["---"] + sorted(liste_ing_existants)
+
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic",
                                     use_container_width=True,
                                     key=f"i_{suffixe}",
                                     column_config={
                                         "Quantité": st.column_config.TextColumn(width="small"),
-                                        "Ingrédient": st.column_config.SelectboxColumn(
-                                            "Ingrédient",
-                                            width="large",
-                                            options=sorted(liste_ing_existants)
+                                        "Ingrédient": st.column_config.TextColumn("Détecté", width="medium"),
+                                        "Suggestion": st.column_config.SelectboxColumn(
+                                            "Remplacer par...",
+                                            options=options_suggestions,
+                                            width="medium"
                                         )
                                     })
                        
@@ -133,12 +142,23 @@ def afficher():
                     st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # --- Majuscule 1ère lettre uniquement ---
+                        # --- Gestion de la priorité et de la majuscule ---
                         for item in ing_df:
-                            if "Ingrédient" in item and item["Ingrédient"]:
-                                s = item["Ingrédient"].strip()
-                                if len(s) > 0:
-                                    item["Ingrédient"] = s[0].upper() + s[1:]
+                            sug = item.get("Suggestion", "---")
+                            # Si on a choisi autre chose que ---, on prend la suggestion
+                            if sug and sug != "---":
+                                texte_final = sug
+                            else:
+                                texte_final = item.get("Ingrédient", "")
+
+                            # Application de TA règle : Majuscule 1ère lettre uniquement
+                            txt = texte_final.strip()
+                            if len(txt) > 0:
+                                item["Ingrédient"] = txt[0].upper() + txt[1:]
+                            
+                            # On nettoie la colonne temporaire avant sauvegarde
+                            if "Suggestion" in item:
+                                del item["Suggestion"]
                                     
                         nom_propre = nom.strip()
                         if verifier_doublon_recette(nom_propre):
