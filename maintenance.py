@@ -7,8 +7,6 @@ from PIL import Image
 from utils import get_github_config, charger_json_github, envoyer_donnees_github, scanner_depot_complet, sauvegarder_json_github
 
 def afficher():
-    st.divider()
-
     # Nettoyage du session state au démarrage
     if "bouton_analyse_clique" not in st.session_state:
         for key in ["a_reparer", "index_a_sauvegarder", "fichiers_a_sauvegarder", "images_a_compresser"]:
