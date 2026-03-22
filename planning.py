@@ -84,7 +84,7 @@ def afficher():
        
     # 1. On crée une petite fonction de nettoyage (callback)
     def ajouter_et_nettoyer():
-        nouveau = st.session_state["input_nouveau_plat"]
+        nouveau = st.session_state["input_nouveau_plat"].strip()
         if nouveau and nouveau not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau)
             if envoyer_donnees_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "⚡ Ajout plat rapide"):
