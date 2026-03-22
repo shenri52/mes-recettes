@@ -157,7 +157,13 @@ def afficher():
                     st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # Correction API : Gestion des doublons avant l'envoi
+                        for item in ing_df:
+                            if "Ingrédient" in item and item["Ingrédient"]:
+                                s = item["Ingrédient"].strip()
+                                if len(s) > 0:
+                                    # On prend la 1ère lettre en majuscule + le reste SANS le modifier
+                                    item["Ingrédient"] = s[0].upper() + s[1:]
+                                    
                         nom_propre = nom.strip()
                         if verifier_doublon_recette(nom_propre):
                             # On ajoute la date pour que le nom de fichier soit unique sur GitHub
