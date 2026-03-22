@@ -7,7 +7,6 @@ from PIL import Image
 from utils import get_github_config, charger_json_github, envoyer_donnees_github, scanner_depot_complet, sauvegarder_json_github
 
 def afficher():
-    st.header("🛠️ Réparation et optimisation")
     st.divider()
 
     # Nettoyage du session state au démarrage
