@@ -109,7 +109,17 @@ def afficher():
             
             options_suggestions = ["---"] + sorted(liste_ing_existants)
 
-            ing_df = st.data_editor(r['ing_list'], num_rows="dynamic",
+            liste_ordonnee = []
+            for item in r['ing_list']:
+                # On crée un nouveau dictionnaire avec l'ordre voulu
+                nouvel_item = {
+                    "Ingrédient": item.get("Ingrédient", ""),
+                    "Suggestion": item.get("Suggestion", "---"),
+                    "Quantité": item.get("Quantité", "")
+                }
+                liste_ordonnee.append(nouvel_item)
+                
+            ing_df = st.data_editor(liste_ordonnee, num_rows="dynamic",
                                     use_container_width=True,
                                     key=f"i_{suffixe}",
                                     column_config={
