@@ -6,7 +6,8 @@ from utils import (
     sauvegarder_recette_complete, 
     parser_ligne_ingredient, 
     get_index_options,
-    verifier_doublon_recette
+    verifier_doublon_recette,
+    sauvegarder_recette_complete
 )
 
 def extraire_donnees_odt(file_bytes):
@@ -145,50 +146,18 @@ def afficher():
 
             if c_save.button("✅ Enregistrer", type="primary", use_container_width=True):
                 if not cat_finale or cat_finale == "---":
-                    st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+                    st.error("⚠️ Veuillez choisir une catégorie.")
                 else:
                     with st.spinner("Sauvegarde..."):
-                        # 1. On crée une liste NEUVE (évite le TypeError)
-                        liste_propre = []
-                        for item in ing_df:
-                            sug = item.get("Suggestion", "---")
-                            texte = sug if (sug and sug != "---") else item.get("Ingrédient", "")
-                            
-                            # Règle : Majuscule 1ère lettre uniquement
-                            txt = texte.lstrip("-•* ").strip()
-                            nom_ing = txt.capitalize() if txt else ""
-                            
-                            # On ne garde que les colonnes attendues par le JSON
-                            liste_propre.append({
-                                "Ingrédient": nom_ing, 
-                                "Quantité": item.get("Quantité", "")
-                            })
-                                    
-                        nom_propre = nom.strip()
-                        if verifier_doublon_recette(nom_propre):
-                            nom_propre = f"{nom_propre} ({time.strftime('%d-%m-%Y')})"
-                        
-                        # 2. On envoie 'liste_propre' à la fonction
-                        succes = sauvegarder_recette_complete(
-                            nom=nom_propre, 
-                            categorie=cat_finale, 
-                            ingredients=liste_propre, 
-                            etapes=etapes, 
-                            image_data=None, 
-                            appareil=appareil, 
-                            t_prep=str(t_prep), 
-                            t_cuis=str(t_cuis)
+                        # ON ENVOIE LE TABLEAU ing_df DIRECTEMENT
+                        succes, nom_final = sauvegarder_recette_complete(
+                            nom=nom, categorie=cat_finale, 
+                            ingredients=ing_df, # On envoie les données brutes de l'éditeur
+                            etapes=etapes, photos_files=None, 
+                            appareil=appareil, t_prep=t_prep, t_cuis=t_cuis
                         )
-                        
                         if succes:
-                            st.success(f"'{nom_propre}' enregistré !")
+                            st.success(f"✅ '{nom_final}' enregistré !")
                             time.sleep(0.5)
-                            st.session_state.liste_odt.pop(idx)
+                            st.session_state.liste_odt.pop(idx) # Enlève de la liste de traitement
                             st.rerun()
-        else:
-            st.balloons()
-            st.success("Toutes les recettes ont été traitées ! ✨")
-            if st.button("Charger un nouveau fichier ODT"):
-                st.session_state.liste_odt = []
-                st.session_state.import_idx = 0
-                st.rerun()
