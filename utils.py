@@ -152,7 +152,6 @@ def naviguer_vers(nom_page):
 
 def deconnexion():
     """Réinitialise l'accès et nettoie uniquement si on quitte la saisie."""
-    st.session_state.clear()
     st.cache_data.clear()
     # On récupère la page d'où l'on vient
     page_actuelle = st.session_state.get('page')
@@ -163,6 +162,8 @@ def deconnexion():
         st.session_state["ingredients_img"] = []      # Page Importer
         st.session_state["ingredients_recette"] = []  # Page Saisir
         st.session_state["cat_fixee"] = ""
+        st.session_state.liste_odt = []               # Page ODT
+        st.session_state.import_idx = 0               # Page ODT
         
         # Incrémenter les compteurs pour vider les champs texte (Nom, Temps, etc.)
         if 'form_count_img' in st.session_state:
