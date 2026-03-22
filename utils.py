@@ -23,7 +23,7 @@ def get_github_config():
         }
     }
 
-@st._data(ttl=300)  # Expire après 10 min d'inactivité ou après st._data.clear()
+@st.data(ttl=300)  # Expire après 10 min d'inactivité ou après st._data.clear()
 def charger_json_github(chemin_fichier):
     """Charge un fichier JSON depuis GitHub avec anti-."""
     conf = get_github_config()
