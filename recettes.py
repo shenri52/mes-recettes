@@ -201,13 +201,24 @@ def afficher():
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                # Ta logique de suppression complète (Fichier + Images + Index)
-                if supprimer_fichier_github(info['chemin']):
-                    for p in recette.get('images', []): 
-                        supprimer_fichier_github(p)
-                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette")
-                    st.rerun()
+                with st.spinner("Suppression..."):
+                    if supprimer_fichier_github(info['chemin']):
+                        # Supprimer les images liées
+                        for p in recette.get('images', []): 
+                            supprimer_fichier_github(p)
+            
+            # Mettre à jour l'index localement
+            nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+            
+            # Sauvegarder l'index mis à jour sur GitHub
+            if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
+                # --- LES 3 LIGNES CRUCIALES POUR RESET L'AFFICHAGE ---
+                st.cache_data.clear() # Vide la mémoire de l'app
+                if "select_recette" in st.session_state:
+                    st.session_state.select_recette = "---" # Remet le menu à zéro
+                st.success("Recette supprimée !")
+                time.sleep(1)
+                st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):
                 # Ton mode édition
