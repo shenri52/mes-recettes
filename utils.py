@@ -254,8 +254,7 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
         elif temp_ing.lower().startswith("d'"): temp_ing = temp_ing[2:].strip()
         
         # --- PARTIE QUANTITÉ ---
-        # On récupère la quantité et on enlève le "de" ou "d'" à la FIN
-        qte_brute = str(ing.get("Quantité", "")).strip()
+        qte_brute = str(ing.get("Quantité", ing.get("Quantite", ""))).strip()
         temp_qte = qte_brute
         if temp_qte.lower().endswith(" de"):
             temp_qte = temp_qte[:-3].strip()
