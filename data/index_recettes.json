@@ -779,5 +779,12 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260322_194113_test_1_creer.json"
+    },
+    {
+        "nom": "TEST 2 - creer",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_194132_test_2_creer.json"
     }
 ]
