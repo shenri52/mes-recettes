@@ -17,21 +17,26 @@ def afficher():
             if i['path'].startswith('data/recettes/') and i['path'].endswith('.json')
         ]
         
-        index_actuel = charger_json_github("data/index_recettes.json")
-        
-        if index_actuel is None: index_actuel = []
-            
+        index_actuel = charger_json_github("data/index_recettes.json") or []
         chemins_index = {r['chemin'] for r in index_actuel}
         manquantes = [f for f in physiques if f not in chemins_index]
         
-        st.write(f"📁 **Fichiers détectés dans /data :** {len(physiques)}")
-        st.write(f"🗂️ **Recettes actuellement dans l'index :** {len(index_actuel)}")
-        
-        if manquantes:
-            st.warning(f"⚠️ {len(manquantes)} fichiers hors index.")
-            st.session_state.a_reparer = manquantes
-        else: 
-            st.success("✅ Index à jour.")
+        # On sauvegarde les résultats dans le session_state
+        st.session_state.a_reparer = manquantes
+        st.session_state.total_physiques = len(physiques)
+        st.session_state.total_index = len(index_actuel)
+
+    # VISUALISATION DE LA LISTE
+    if st.session_state.get("a_reparer"):
+        st.info(f"📁 Fichiers : {st.session_state.total_physiques} | 🗂️ Index : {st.session_state.total_index}")  
+        with st.expander(f"📋 Voir les {len(st.session_state.a_reparer)} fichiers à intégrer"):
+            for f in st.session_state.a_reparer:
+                # On affiche juste le nom du fichier sans le dossier data/recettes/
+                nom_fichier = f.split('/')[-1]
+                st.write(f"📄 {nom_fichier}")
+
+        if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True, type="primary"):
+            # ... (ton code de sauvegarde reste le même)
 
     if st.session_state.get("a_reparer"):
         if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
