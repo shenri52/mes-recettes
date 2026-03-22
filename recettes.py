@@ -235,10 +235,10 @@ def afficher():
                             time.sleep(1)
                             st.rerun()
     
-                # BOUTON MODIFIER
-                if b2.button("✍️ Modifier la recette", use_container_width=True):
-                    st.session_state[m_edit] = True
-                    st.rerun()
+            # BOUTON MODIFIER
+            if b2.button("✍️ Modifier la recette", use_container_width=True):
+                st.session_state[m_edit] = True
+                st.rerun()
 
 if __name__ == "__main__":
     afficher()
