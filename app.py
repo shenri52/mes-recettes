@@ -1,14 +1,12 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import utils
 import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
     """Vérifie l'identité via le mot de passe ou autorise l'accès public restreint."""
-    if "authentifie" not in st.session_state:
-        st.session_state["authentifie"] = False
-    if "mode_public" not in st.session_state:
-        st.session_state["mode_public"] = False
+    utils.initialiser_session()
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
@@ -46,10 +44,7 @@ def verifier_mot_de_passe():
     return True
 
 def aller_accueil():
-    # On remet la page sur accueil
-    st.session_state.page = 'accueil'
-    # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
-    st.session_state["mode_public"] = False
+    utils.deconnexion()
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
@@ -57,94 +52,63 @@ if verifier_mot_de_passe():
         st.session_state.page = 'accueil'
 
     def changer_page(nom):
-        """Change la page active dans le session_state et rafraîchit l'affichage."""
-        st.session_state.page = nom
-        st.rerun()
+        utils.naviguer_vers(nom)
 
     # --- BLOC ANTI-VEILLE ---
-    PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
-
-    if st.session_state.page in PAGES_CUISINE:
+    # S'affiche sur toutes les pages sauf l'accueil et la maintenance
+    if st.session_state.page not in ['accueil', 'maintenance']:
         mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
         if mode_cuisine:
-            components.html(
-                """
-                <div style="display:none;">
-                    <video autoplay loop muted playsinline style="width:1px; height:1px;">
-                        <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4">
-                    </video>
-                </div>
-                """,
-                height=0
-            )
-
+            components.html("""<div style="display:none;"><video autoplay loop muted playsinline style="width:1px; height:1px;"><source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4"></video></div>""", height=0)
+            
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
-        # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
         
-        # Affichage des options réservées à l'administrateur
         if st.session_state["authentifie"]:
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("📥 Importer une recette", use_container_width=True):
-                    changer_page("importer")
-            with col2:
-                if st.button("✍️ Créer une recette", use_container_width=True):
-                    changer_page("ajouter")
+            # On définit les boutons par ligne (Listes de tuples : "Label", "Page")
+            L1 = [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")]
+            L2 = [("📅 Mon planning", "planning"), ("📝 Liste des courses", "coursesaisir"), ("🛒 Mode magasin", "coursevisualiser")]
+            L3 = [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
 
-            if st.button("📅 Mon planning", use_container_width=True):
-                changer_page("planning")
-            if st.button("📝 Liste des courses", use_container_width=True):
-                changer_page("coursesaisir")
-            if st.button("🛒 Mode magasin", use_container_width=True):
-                changer_page("coursevisualiser")
+            # Ligne 1 : 2 colonnes
+            cols1 = st.columns(2)
+            for i, (label, page) in enumerate(L1):
+                if cols1[i].button(label, use_container_width=True): changer_page(page)
 
-            col3, col4 = st.columns(2)
-            with col3:
-                if st.button("📊 Statistiques", use_container_width=True):
-                    changer_page("stats")
-            with col4:
-                if st.button("🛠️ Maintenance", use_container_width=True):
-                    changer_page("maintenance")
+            # Ligne 2 : Boutons un par un (Plein écran)
+            for label, page in L2:
+                if st.button(label, use_container_width=True): changer_page(page)
+
+            # Ligne 3 : 2 colonnes
+            cols3 = st.columns(2)
+            for i, (label, page) in enumerate(L3):
+                if cols3[i].button(label, use_container_width=True): changer_page(page)
         else:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
-        # Dictionnaire des pages autorisées en mode public
-        pages_publiques = {
-            "recettes": recettes.afficher
+        # 1. Centralisation de toutes les pages
+        toutes_pages = {
+            "recettes": recettes.afficher, "importer": importer.afficher,
+            "ajouter": saisir.afficher, "coursesaisir": coursesaisir.afficher,
+            "coursevisualiser": coursevisualiser.afficher, "stats": stats.afficher,
+            "planning": planning.afficher, "maintenance": maintenance.afficher
         }
         
-        # Dictionnaire des pages réservées (admin)
-        pages_admin = {
-            "importer": importer.afficher,
-            "ajouter": saisir.afficher,
-            "coursesaisir": coursesaisir.afficher,
-            "coursevisualiser": coursevisualiser.afficher,
-            "stats": stats.afficher,
-            "planning": planning.afficher,
-            "maintenance": maintenance.afficher
-        }
-        
-        # Sélection du dictionnaire selon le statut
-        if st.session_state["authentifie"]:
-            pages_disponibles = {**pages_publiques, **pages_admin}
+        # 2. Vérification des droits (Seul 'recettes' est public)
+        p_actuelle = st.session_state.page
+        autorise = st.session_state["authentifie"] or p_actuelle == "recettes"
+
+        if autorise and p_actuelle in toutes_pages:
+            toutes_pages[p_actuelle]()
         else:
-            pages_disponibles = pages_publiques
+            st.error("🚫 Accès restreint. Veuillez vous connecter.")
+            if st.button("Retour à l'accueil", use_container_width=True): aller_accueil()
 
-        # Appel de la fonction afficher() si autorisée
-        if st.session_state.page in pages_disponibles:
-            pages_disponibles[st.session_state.page]()
-        else:
-            st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
-            if st.button("Retour à l'accueil", use_container_width=True):
-                aller_accueil()
-
-        # Bouton retour (masqué sur le planning)
-        st.divider()
-
-        if st.session_state.page != "planning":
+        # 3. Bouton retour automatique (Sauf sur planning)
+        if p_actuelle != "planning":
+            st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)

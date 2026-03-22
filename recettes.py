@@ -1,77 +1,9 @@
 import streamlit as st
-import requests
 import json
-import base64
 import time
 import uuid
-from PIL import Image
-import io
-
-# --- 1. CONFIGURATION TECHNIQUE ---
-def config_github():
-    return {
-        "token": st.secrets["GITHUB_TOKEN"],
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
-
-def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
-    try:
-        conf = config_github()
-        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-        contenu_b64 = base64.b64encode(contenu if est_binaire else contenu.encode('utf-8')).decode('utf-8')
-        data = {"message": message, "content": contenu_b64, "branch": "main"}
-        if sha: data["sha"] = sha
-        res = requests.put(url, headers=conf['headers'], json=data)
-        return res.status_code in [200, 201]
-    except Exception as e:
-        st.error(f"Erreur technique : {str(e)}")
-        return False
-
-def supprimer_fichier_github(chemin):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
-    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    if get_res.status_code == 200:
-        sha = get_res.json()['sha']
-        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return res_del.status_code in [200, 204]
-    return False
-
-# --- 2. TRAITEMENT IMAGE ---
-def compresser_image(upload_file):
-    img = Image.open(upload_file)
-    if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-    img.thumbnail((1200, 1200))
-    buffer = io.BytesIO()
-    img.save(buffer, format="JPEG", quality=80, optimize=True)
-    return buffer.getvalue()
-
-# --- 3. GESTION DE L'INDEX ---
-def charger_index():
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
-    res = requests.get(url, headers=conf['headers'])
-    if res.status_code == 200:
-        content_b64 = res.json()['content']
-        content_json = base64.b64decode(content_b64).decode('utf-8')
-        st.session_state.index_recettes = json.loads(content_json)
-    elif 'index_recettes' not in st.session_state:
-        st.session_state.index_recettes = []
-    return st.session_state.index_recettes
-
-def sauvegarder_index_global(index_maj):
-    index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
-        st.session_state.index_recettes = index_trie
-        return True
-    return False
+import requests
+from utils import get_github_config, charger_json_github, envoyer_donnees_github, supprimer_fichier_github, traiter_et_compresser_image, charger_recette_specifique
 
 # --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
@@ -83,7 +15,8 @@ def afficher():
             if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
                 del st.session_state[key]
                 
-    index = charger_index()
+    index = charger_json_github("data/index_recettes.json")
+  
     st.header("📚 Mes recettes")
     st.write("---")
 
@@ -120,8 +53,9 @@ def afficher():
     
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
-        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
-        recette = requests.get(url_full).json()
+        conf = get_github_config()
+        url_full = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{info['chemin']}?t={int(time.time())}"
+        recette = charger_recette_specifique(url_full)
 
         m_edit = f"edit_{info['chemin']}"
         if m_edit not in st.session_state: st.session_state[m_edit] = False
@@ -179,7 +113,7 @@ def afficher():
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
                 for p_path in photos_actuelles:
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{p_path.strip('/')}"
+                    img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{p_path.strip('/')}"
                     col_img, col_check = st.columns([1, 4])
                     col_img.image(img_url, width=60)
                     if col_check.checkbox(f"Garder {p_path.split('/')[-1]}", value=True, key=f"kp_{p_path}"):
@@ -195,19 +129,20 @@ def afficher():
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
                         nom_img = f"data/images/{int(time.time())}_{f.name}"
-                        img_data = compresser_image(f)
-                        if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
+                        img_data, _ = traiter_et_compresser_image(f)
+                        if envoyer_donnees_github(nom_img, img_data, f"Photo: {e_nom}", est_image=True):
                             final_photos.append(nom_img)
 
                     ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
                     recette_maj = recette.copy()
                     recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos})
                     
-                    if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
+                    if envoyer_donnees_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
                         for item in index:
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
-                        sauvegarder_index_global(index)
+                        envoyer_donnees_github("data/index_recettes.json", json.dumps(index, indent=4, ensure_ascii=False), "MAJ Index")
+                        
                         if state_key in st.session_state: del st.session_state[state_key]
                         if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
@@ -242,7 +177,8 @@ def afficher():
                         st.session_state.img_idx = 0
                     
                     # 2. Affichage de la photo actuelle
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
+                    conf = get_github_config()
+                    img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
                     
                     # 3. NAVIGATION (Uniquement si plus d'une photo existe)
@@ -273,7 +209,7 @@ def afficher():
                     for p in recette.get('images', []): 
                         supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    sauvegarder_index_global(nouvel_index)
+                    envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette")
                     st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):

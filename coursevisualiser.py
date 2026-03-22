@@ -1,26 +1,7 @@
 import streamlit as st
-import json, requests, base64, time
+import json
 
-def config():
-    return {"headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}"},
-            "url": f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/data/index_courses.json"}
-
-def get_data():
-    conf = config()
-    # On ajoute ?t= + l'heure en secondes pour "casser" le cache
-    t = int(time.time())
-    r = requests.get(f"{conf['url']}?t={t}", headers=conf['headers'])
-    if r.status_code == 200:
-        res = r.json()
-        return json.loads(base64.b64decode(res['content'])), res.get('sha')
-    return {str(i): {"panier": []} for i in range(12)}, None
-
-def save_data(data, sha):
-    conf = config()
-    payload = {"message": "🛒 Update", "content": base64.b64encode(json.dumps(data, indent=2, ensure_ascii=False).encode()).decode(), "sha": sha}
-    r = requests.put(conf['url'], json=payload, headers=conf['headers'])
-    if r.ok: st.session_state.sha_a5 = r.json()['content']['sha']
-    return r.ok
+from utils import envoyer_donnees_github, charger_json_github 
 
 def afficher():
     st.markdown("""<style>
@@ -50,10 +31,13 @@ def afficher():
             .stTabs [aria-selected="true"] { background-color: #87CEEB !important; }
         </style>""", unsafe_allow_html=True)
 
-    if "index_courses" not in st.session_state:
-        st.session_state.index_courses, st.session_state.sha_a5 = get_data()
+    if "courses_data" not in st.session_state:
+        st.session_state.courses_data = charger_json_github("data/index_courses.json")
+        if not st.session_state.courses_data:
+            st.session_state.courses_data = {str(i): {"panier": []} for i in range(12)}
 
-    data = st.session_state.index_courses
+    data = st.session_state.courses_data
+  
     # --- FILTRE : On ne garde que les zones qui ont des produits ---
     zones_actives = [i for i in range(12) if data.get(str(i), {}).get("panier")]
 
@@ -77,9 +61,9 @@ def afficher():
                             lab = f"~~{p['nom']} ({p['qte']})~~" if p.get("checked") else f"{p['nom']} ({p['qte']})"
                             if cols[j].button(lab, key=f"btn_{zone_idx}_{p_idx+j}"):
                                 p["checked"] = not p.get("checked", False)
-                                if save_data(data, st.session_state.sha_a5): st.rerun()
-
-    st.divider()
+                                json_a_envoyer = json.dumps(data, indent=4, ensure_ascii=False)
+                                if envoyer_donnees_github("data/index_courses.json", json_a_envoyer, f"🛒 Check {p['nom']}"):
+                                    st.rerun()
 
 if __name__ == "__main__":
     afficher()
