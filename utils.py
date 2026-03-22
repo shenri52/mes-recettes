@@ -111,9 +111,29 @@ def traiter_et_compresser_image(file):
     return buf.getvalue(), "jpg"
 
 def mettre_a_jour_index(nouvelle_recette_index):
-    """3. Télécharge l'index, ajoute la ligne et renvoie sur GitHub."""
-    idx_data = charger_json_github("data/index_recettes.json") or []
+    """3. Télécharge l'index VIA L'API (Zéro délai), ajoute la ligne et renvoie sur GitHub."""
+    conf = get_github_config()
+    # On tape directement dans l'API ultra-rapide au lieu du lien raw
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
+    
+    res_get = requests.get(url, headers=conf['headers'])
+    idx_data = []
+    
+    if res_get.status_code == 200:
+        try:
+            # L'API GitHub renvoie le fichier crypté en base64, on le décrypte :
+            contenu_b64 = res_get.json().get('content', '')
+            contenu_str = base64.b64decode(contenu_b64).decode('utf-8')
+            idx_data = json.loads(contenu_str)
+        except Exception as e:
+            idx_data = []
+    else:
+        # Sécurité au cas où le fichier est introuvable
+        idx_data = charger_json_github("data/index_recettes.json") or []
+
+    # On ajoute la nouvelle recette à la VRAIE liste à jour
     idx_data.append(nouvelle_recette_index)
+    
     return envoyer_donnees_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "📈 MAJ Index")
 
 def supprimer_fichier_github(chemin_fichier, message_commit="Suppression"):
