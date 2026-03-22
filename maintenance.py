@@ -35,9 +35,6 @@ def afficher():
                 nom_fichier = f.split('/')[-1]
                 st.write(f"📄 {nom_fichier}")
 
-        if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True, type="primary"):
-            # ... (ton code de sauvegarde reste le même)
-
     if st.session_state.get("a_reparer"):
         if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
             with st.spinner("Analyse..."):
