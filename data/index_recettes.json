@@ -691,12 +691,5 @@
             "Comté"
         ],
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
-    },
-    {
-        "nom": "test3",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260322_171653_test3.json"
     }
 ]
