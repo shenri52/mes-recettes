@@ -693,10 +693,10 @@
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
     },
     {
-        "nom": "test",
+        "nom": "test2",
         "categorie": "Cocktail",
-        "appareil": "Aucun",
+        "appareil": "Ninja",
         "ingredients": [],
-        "chemin": "data/recettes/20260322_171456_test.json"
+        "chemin": "data/recettes/20260322_171627_test2.json"
     }
 ]
