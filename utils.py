@@ -244,14 +244,30 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
     # 2. Nettoyage des Ingrédients (Puces + Majuscules)
     liste_nettoyee = []
     for ing in ingredients:
+        # --- PARTIE INGRÉDIENT ---
         sug = ing.get("Suggestion")
-        txt_brut = sug if sug and sug != "---" else ing.get("Ingrédient", "")
-        # Nettoyage radical : enlève puces/tirets/espaces + Capitalize
-        txt_final = txt_brut.lstrip("-•* ").strip().capitalize()
+        txt_brut = sug if (sug and sug != "---") else ing.get("Ingrédient", "")
+        
+        # Nettoyage ingrédient (puces + "de " ou "d'" au début)
+        temp_ing = str(txt_brut).lstrip("-•* ").strip()
+        if temp_ing.lower().startswith("de "): temp_ing = temp_ing[3:].strip()
+        elif temp_ing.lower().startswith("d'"): temp_ing = temp_ing[2:].strip()
+        
+        # --- PARTIE QUANTITÉ ---
+        # On récupère la quantité et on enlève le "de" ou "d'" à la FIN
+        qte_brute = str(ing.get("Quantité", "")).strip()
+        temp_qte = qte_brute
+        if temp_qte.lower().endswith(" de"):
+            temp_qte = temp_qte[:-3].strip()
+        elif temp_qte.lower().endswith(" d'"):
+            temp_qte = temp_qte[:-3].strip()
+
+        # --- VALIDATION ---
+        txt_final = temp_ing.capitalize()
         if txt_final:
             liste_nettoyee.append({
                 "Ingrédient": txt_final,
-                "Quantité": str(ing.get("Quantité", "")).strip()
+                "Quantité": temp_qte
             })
 
     # 3. Traitement des Images (Utilise ta fonction existante)
