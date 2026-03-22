@@ -7,12 +7,6 @@ from PIL import Image
 from utils import get_github_config, charger_json_github, envoyer_donnees_github, scanner_depot_complet, sauvegarder_json_github
 
 def afficher():
-    # Nettoyage du session state au démarrage
-    if "bouton_analyse_clique" not in st.session_state:
-        for key in ["a_reparer", "index_a_sauvegarder", "fichiers_a_sauvegarder", "images_a_compresser"]:
-            if key in st.session_state: 
-                del st.session_state[key]
-
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
