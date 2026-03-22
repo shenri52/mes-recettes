@@ -7,7 +7,8 @@ from utils import (envoyer_donnees_github,
                    get_index_options,
                    traiter_et_compresser_image,
                    mettre_a_jour_index,
-                   verifier_doublon_recette
+                   verifier_doublon_recette,
+                   sauvegarder_recette_complete
                   )
 
 def afficher():
@@ -102,18 +103,13 @@ def afficher():
             st.error("⚠️ Nom et Catégorie obligatoires.")
         else:
             with st.spinner("Enregistrement..."):
-                # 1. On prépare l'image si elle existe
-                img_data = None
-                if photos_fb:
-                    img_data, _ = traiter_et_compresser_image(photos_fb[0])
-
                 # 2. ON APPELLE LA FONCTION CENTRALE (Comme dans la page Saisir)
                 succes, nom_final = sauvegarder_recette_complete(
                     nom=nom_plat, 
                     categorie=f_cat, 
                     ingredients=st.session_state.ingredients_img, 
                     etapes="Voir image jointe", 
-                    photos_files=img_data, # On passe l'image ici
+                    photos_files=photos_fb, # On passe l'image ici
                     appareil=type_appareil, 
                     t_prep=tps_prep, 
                     t_cuis=tps_cuis
