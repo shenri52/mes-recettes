@@ -118,7 +118,7 @@ def afficher():
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic", use_container_width=True, key=f"ed{idx}")
                        
             # --- BLOC PRÉPARATION ---
-            st.subheader("Instructions de préparation")
+            st.subheader("Étapes de la recette")
 
             # La zone de texte avec ton titre "Texte de la recette"
             etapes = st.text_area("", value=r['prep_propre'], height=300, key=f"et{idx}")
