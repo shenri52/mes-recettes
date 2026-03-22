@@ -92,7 +92,6 @@ def afficher():
                 
     # Bouton retour
     def aller_accueil():
-        st.session_state.clear()
         st.session_state.page = 'accueil'
 
     # Bouton retour simplifié
