@@ -28,8 +28,7 @@ def charger_json_github(chemin_fichier):
     """Charge un fichier JSON depuis GitHub avec anti-cache."""
     conf = get_github_config()
     # Utilise le timestamp actuel pour forcer GitHub à ne pas servir une vieille version
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin_fichier}?t={int(time.time())}"
-    
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"    
     try:
         res = requests.get(url)
         if res.status_code == 200:
