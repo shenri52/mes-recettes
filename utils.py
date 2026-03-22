@@ -23,9 +23,9 @@ def get_github_config():
         }
     }
 
-#@st.cache_data(ttl=600)  # Expire après 10 min d'inactivité ou après st.cache_data.clear()
+@st._data(ttl=300)  # Expire après 10 min d'inactivité ou après st._data.clear()
 def charger_json_github(chemin_fichier):
-    """Charge un fichier JSON depuis GitHub avec anti-cache."""
+    """Charge un fichier JSON depuis GitHub avec anti-."""
     conf = get_github_config()
     
     # Correction ici : on utilise 'chemin_fichier' au lieu de 'chemin'
