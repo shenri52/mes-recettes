@@ -215,10 +215,6 @@ def afficher():
                         for p in recette.get('images', []): 
                             supprimer_fichier_github(p)
                         
-                        # 3. LE POINT CLÉ : On vide le cache de Streamlit 🧼
-                        # Cela force l'app à recharger le JSON tout neuf au prochain appel
-                        st.cache_data.clear() 
-                        
                         # 4. On récupère l'index (il sera rechargé proprement via l'API)
                         index_actuel = charger_json_github("data/index_recettes.json")
                         
@@ -230,6 +226,9 @@ def afficher():
                                                  json.dumps(nouvel_index, indent=4, ensure_ascii=False), 
                                                  f"Suppr: {info['nom']}"):
                             
+                                                     # 3. LE POINT CLÉ : On vide le cache de Streamlit 🧼
+                            st.cache_data.clear() 
+                                                     
                             # 7. On change la clé du menu pour forcer le reset visuel du selectbox
                             st.session_state.menu_key += 1 
                             
