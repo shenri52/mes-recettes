@@ -21,7 +21,6 @@ def afficher():
     st.caption(f"🕒 Dernière synchronisation : **{derniere_maj}**")
 
     # --- SECTION RECETTES ---
-    st.header("📊 Statistiques")
     st.divider()
     
     if stats_r:
