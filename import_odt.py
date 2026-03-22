@@ -106,25 +106,20 @@ def afficher():
             t_cuis = col_t2.text_input("🔥 Temps Cuisson", value=r['t_cuisson'], key=f"tc_{suffixe}", placeholder="Non détecté")
 
             st.subheader("Ingrédients détectés")
-    
-            # Préparation des lignes pour inclure la colonne de suggestion par défaut
-            for item in r['ing_list']:
-                if "Suggestion" not in item:
-                    item["Suggestion"] = "---"
-
+            
             options_suggestions = ["---"] + sorted(liste_ing_existants)
 
             ing_df = st.data_editor(r['ing_list'], num_rows="dynamic",
                                     use_container_width=True,
                                     key=f"i_{suffixe}",
                                     column_config={
-                                        "Quantité": st.column_config.TextColumn(width="small"),
                                         "Ingrédient": st.column_config.TextColumn("Détecté", width="medium"),
                                         "Suggestion": st.column_config.SelectboxColumn(
                                             "Remplacer par...",
                                             options=options_suggestions,
                                             width="medium"
-                                        )
+                                        ),
+                                        "Quantité": st.column_config.TextColumn(width="small")
                                     })
                        
             st.subheader("Étapes de la recette")
