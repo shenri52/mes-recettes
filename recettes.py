@@ -16,8 +16,6 @@ def afficher():
                 del st.session_state[key]
                 
     index = charger_json_github("data/index_recettes.json")
-  
-    st.write("---")
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
