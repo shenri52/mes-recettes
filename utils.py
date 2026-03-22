@@ -221,27 +221,39 @@ def parser_ligne_ingredient(ligne):
     """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
     if not ligne: return None
     
-    # Nettoyage des espaces insécables potentiels de l'ODT
+    # Nettoyage initial des espaces invisibles
     ligne = ligne.replace('\xa0', ' ').strip()
     
     if not ligne or ":" in ligne: return None 
 
-    # Ta Regex : cherche un espace suivi de "de" (espace ou fin de ligne) ou "d'"
-    match = re.split(r"\s+(?:de(?:\s+|$)|d['’])", ligne, maxsplit=1, flags=re.I)
+    # 1. Tentative de séparation avec ta Regex
+    # Elle cherche un espace suivi de "de" (espace/fin) ou "d'"
+    parts = re.split(r"\s+(?:de(?:\s+|$)|d['’])", ligne, maxsplit=1, flags=re.I)
     
-    if len(match) == 2:
-        # On a trouvé la séparation " de" ou " d'"
-        qte = match[0].strip()
-        ing = match[1].strip()
-        return {"Ingrédient": ing.capitalize(), "Quantité": qte}
+    if len(parts) == 2:
+        qte = parts[0].strip()
+        ing = parts[1].strip()
+    else:
+        # 2. Séparation par défaut (ex: "3 pommes")
+        sp = ligne.split(' ', 1)
+        if len(sp) > 1 and any(char.isdigit() for char in sp[0]):
+            qte = sp[0].strip()
+            ing = sp[1].strip()
+        else:
+            qte = ""
+            ing = ligne
 
-    # Si pas de " de", séparation classique au premier espace (ex: "3 pommes")
-    parts = ligne.split(' ', 1)
-    if len(parts) > 1 and any(char.isdigit() for char in parts[0]):
-        return {"Ingrédient": parts[1].strip().capitalize(), "Quantité": parts[0].strip()}
-        
-    # Sinon tout dans ingrédient (ex: "Moutarde")
-    return {"Ingrédient": ligne.capitalize(), "Quantité": ""}
+    # --- NETTOYAGE FINAL JUSTE AVANT LE RETURN ---
+    # Si malgré tout un " de" est resté collé à la fin de la quantité
+    if qte.lower().endswith(" de"):
+        qte = qte[:-3].strip()
+    elif qte.lower().endswith(" d'"):
+        qte = qte[:-3].strip()
+
+    return {
+        "Ingrédient": ing.strip().capitalize(),
+        "Quantité": qte.strip()
+    }
 
 def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
     """Centralise la sauvegarde pour les nouveaux modules d'import."""
