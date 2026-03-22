@@ -21,8 +21,6 @@ def afficher():
     st.caption(f"🕒 Dernière synchronisation : **{derniere_maj}**")
 
     # --- SECTION RECETTES ---
-    st.divider()
-    
     if stats_r:
         st.info(f"**Nombre total de recettes :** {stats_r['total_recettes']}")
         
