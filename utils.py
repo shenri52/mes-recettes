@@ -246,54 +246,46 @@ def parser_ligne_ingredient(ligne):
         "Quantité": qte
     }
 
-def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
-    """Centralise la sauvegarde pour les nouveaux modules d'import."""
+def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis="", **kwargs):
+    """
+    Fonction TOUT-EN-UN. 
+    Le '**kwargs' à la fin permet d'encaisser des arguments oubliés (comme photos_files) 
+    sans jamais planter l'application.
+    """
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nom_fic = nom.lower().replace(" ", "_").replace("'", "_")
+    nom_fic = re.sub(r'[\\/*?:"<>|]', "", nom).replace(" ", "_").replace("'", "_").lower()
+    
     liste_medias = []
-
-    # 1. Image
+    # On gère l'image qu'elle vienne de image_data ou d'un autre nom
     if image_data:
         ch_m = f"data/images/{ts}_{nom_fic}.jpg"
         if envoyer_donnees_github(ch_m, image_data, f"📸 Photo: {nom}", True):
             liste_medias.append(ch_m)
 
-    # 2. JSON (Correction ici : on utilise t_prep et t_cuis)
     ch_r = f"data/recettes/{ts}_{nom_fic}.json"
     rec_data = {
         "nom": nom, 
         "categorie": categorie, 
         "appareil": appareil,
-        "temps_preparation": t_prep, # <-- MODIFIÉ
-        "temps_cuisson": t_cuis,      # <-- MODIFIÉ
+        "temps_preparation": t_prep, 
+        "temps_cuisson": t_cuis,
         "ingredients": ingredients, 
         "etapes": etapes, 
         "images": liste_medias
     }
     
-    # 3. GitHub & Index
     if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), f"📝 Import: {nom}"):
-    # --- LOGIQUE DE PRIORITÉ ---
+        # Logique d'indexation (Priorité Suggestion)
         liste_index = []
         for i in ingredients:
-            # 1. On regarde si une Suggestion a été choisie (différente de "---")
             sug = i.get('Suggestion', '---')
-            
-            if sug and sug != '---':
-                nom_final = sug
-            else:
-                # 2. Sinon, on prend le texte brut (soit 'Détecté', soit 'Ingrédient')
-                nom_final = i.get('Détecté') or i.get('Ingrédient')
-
+            nom_final = sug if (sug and sug != '---') else i.get('Détecté') or i.get('Ingrédient')
             if nom_final:
                 liste_index.append(nom_final.strip().capitalize())
 
-        # On met à jour l'index avec la liste nettoyée
         mettre_a_jour_index({
-            "nom": nom, 
-            "categorie": categorie, 
-            "appareil": appareil,
-            "ingredients": liste_index, 
+            "nom": nom, "categorie": categorie, "appareil": appareil,
+            "ingredients": list(set(liste_index)), # set() pour éviter les doublons d'ingrédients
             "chemin": ch_r
         })
         return True, nom
