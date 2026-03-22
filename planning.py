@@ -104,8 +104,14 @@ def afficher():
     if 'planning_data' not in st.session_state:
          st.session_state.planning_data = charger_json_github("data/planning.json") or {}
 
+    # 1. On récupère les noms des recettes
     noms_recettes = [r['nom'] for r in st.session_state.index_complet]
-    options = ["---"] + sorted(noms_recettes + st.session_state.plats_rapides)
+    
+    # 2. On ajoute "(rapide)" aux plats rapides
+    noms_rapides = [f"{p} (rapide)" for p in st.session_state.plats_rapides]
+    
+    # 3. On fusionne et on trie
+    options = ["---"] + sorted(noms_recettes + noms_rapides)
 
     aujourdhui = datetime.date.today()
     debut = (aujourdhui - datetime.timedelta(days=(aujourdhui.weekday() - 4) % 7)) + datetime.timedelta(weeks=st.session_state.offset_semaine)
@@ -182,17 +188,18 @@ def afficher():
                     with st.popover("➕", use_container_width=True):
                         choix = st.selectbox("Choisir", options, index=0, key=f"sel_{d_str}{rep}{len(plats)}")
                         if choix != "---":
-                            plats.append(choix)
-                            temp[d_str][rep] = plats
+                            nom_propre = choix.replace(" (rapide)", "").strip()
+                            plats.append(nom_propre)
+                            temp[d_str][rep] = platsy
                             st.session_state.planning_data.update(temp)
                             st.rerun()
         
         st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
        
-   if st.button("💾 Enregistrer", use_container_width=True):
-      st.session_state.planning_data.update(temp)
-      if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
-         st.success("Planning enregistré ! 💾")
+    if st.button("💾 Enregistrer", use_container_width=True):
+        st.session_state.planning_data.update(temp)
+        if envoyer_donnees_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "📅 MAJ Planning"):
+            st.success("Planning enregistré ! 💾")
     
     st.subheader("🍴 Plats rapides")
     plats_rapides = sorted(st.session_state.plats_rapides)
