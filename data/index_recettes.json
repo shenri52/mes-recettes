@@ -774,10 +774,10 @@
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
     },
     {
-        "nom": "TEST IMPORTER 1",
+        "nom": "TEST IMPORTER 2",
         "categorie": "Cocktail",
         "appareil": "Aucun",
         "ingredients": [],
-        "chemin": "data/recettes/20260322_192023_test_importer_1.json"
+        "chemin": "data/recettes/20260322_192040_test_importer_2.json"
     }
 ]
