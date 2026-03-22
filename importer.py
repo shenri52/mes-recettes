@@ -11,7 +11,6 @@ from utils import (envoyer_donnees_github,
                   )
 
 def afficher():
-    st.header("📥 Importer une recette")
     st.divider()
     
     # Initialisation session_state
