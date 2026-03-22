@@ -156,4 +156,6 @@ def afficher():
                             st.success(f"✅ '{nom_final}' enregistré !")
                             time.sleep(0.5)
                             st.session_state.liste_odt.pop(idx) # Enlève de la liste de traitement
+                            if st.session_state.import_idx >= len(st.session_state.liste_odt):
+                                st.session_state.import_idx = 0
                             st.rerun()
