@@ -113,7 +113,7 @@ def afficher():
                     categorie=f_cat, 
                     ingredients=st.session_state.ingredients_img, 
                     etapes="Voir image jointe", 
-                    image_data=img_data, # On passe l'image ici
+                    photos_files=img_data, # On passe l'image ici
                     appareil=type_appareil, 
                     t_prep=tps_prep, 
                     t_cuis=tps_cuis
