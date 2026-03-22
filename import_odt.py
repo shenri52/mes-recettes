@@ -41,7 +41,7 @@ def extraire_donnees_odt(file_bytes):
 
         ing_list = []
         for l in lignes_ingredients:
-            match_nombre = re.match(r"^(\d+[g\s]*[a-zA-Z]*)\s+(.*)", l)
+            parsed = parser_ligne_ingredient(l)
             if match_nombre:
                 ing_list.append({"Ingrédient": match_nombre.group(2).strip(), "Quantité": match_nombre.group(1).strip()})
             else:
