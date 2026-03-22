@@ -204,28 +204,36 @@ def afficher():
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
             
-            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                with st.spinner("Suppression..."):
-                    if supprimer_fichier_github(info['chemin']):
-                        # Supprimer les images liées
-                        for p in recette.get('images', []): 
-                            supprimer_fichier_github(p)
-            
-                        # Mettre à jour l'index localement
-                        nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-            
-                        # Sauvegarder l'index mis à jour sur GitHub
-                        if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
-                            # --- LES 3 LIGNES CRUCIALES POUR RESET L'AFFICHAGE ---
-                            st.cache_data.clear() # Vide la mémoire de l'app
-                            st.session_state.menu_key += 1
-                            st.success("Recette supprimée !")
-                            time.sleep(1)
-                            st.rerun()
-                        else:
-                            st.error("❌ Erreur lors de la mise à jour de l'index.")
+        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+            with st.spinner("Suppression..."):
+                # 1. On tente de supprimer le fichier principal
+                if supprimer_fichier_github(info['chemin']):
+                    
+                    # 2. Supprimer les images liées
+                    for p in recette.get('images', []): 
+                        supprimer_fichier_github(p)
+        
+                    # --- NEW : ON FORCE LE NETTOYAGE DU CACHE AVANT DE LIRE L'INDEX ---
+                    st.cache_data.clear() 
+                    
+                    # --- NEW : ON RECHARGE L'INDEX RÉEL DEPUIS GITHUB ---
+                    index_frais = charger_json_github("data/index_recettes.json")
+                    
+                    # --- NEW : ON FILTRE SUR L'INDEX TOUT NEUF ---
+                    nouvel_index = [r for r in index_frais if r['chemin'] != info['chemin']]
+        
+                    # 3. Sauvegarder l'index mis à jour sur GitHub
+                    if envoyer_donnees_github("data/index_recettes.json", json.dumps(nouvel_index, indent=4, ensure_ascii=False), "Suppr Recette"):
+                        # --- RESET L'AFFICHAGE ---
+                        st.cache_data.clear() # On revide pour être sûr
+                        st.session_state.menu_key += 1
+                        st.success("✅ Recette et index mis à jour !")
+                        time.sleep(1)
+                        st.rerun()
                     else:
-                        st.error("❌ Impossible de supprimer le fichier de la recette sur GitHub.")
+                        st.error("❌ Le fichier est supprimé mais l'index n'a pas pu être mis à jour.")
+                else:
+                    st.error("❌ Impossible de supprimer le fichier sur GitHub.")
             
             if b2.button("✍️ Modifier", use_container_width=True):
                 # Ton mode édition
