@@ -102,7 +102,7 @@ def afficher():
             opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
             choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
             if choix_i == "➕ Ajouter un nouveau...":
-                st.text_input("Nom de l'ingrédients", key=f"new_ing_{f_id}")
+                st.text_input("Nom de l'ingrédient", key=f"new_ing_{f_id}")
         
         with col_qte:
             st.text_input("Quantité", key=f"qte_{f_id}")
@@ -117,7 +117,10 @@ def afficher():
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
-    # --- SECTION MÉDIAS  ---
+    # --- SECTION ÉTAPES ---
+    etapes_saisies = st.text_area("📝 Étapes de la recette", key=f"etp_{f_id}", height=150, placeholder="1. Préchauffer le four...\n2. Mélanger...")
+    
+  # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader(
         "📸 Photos de la recette", 
         type=["jpg", "png", "jpeg"], 
@@ -163,7 +166,7 @@ def afficher():
                     "temps_preparation": tps_prep, 
                     "temps_cuisson": tps_cuis, 
                     "ingredients": st.session_state.ingredients_recette, 
-                    "etapes": "Voir image jointe", 
+                    "etapes": etapes_saisies if etapes_saisies.strip() != "" else "Voir image jointe", 
                     "images": liste_medias
                 }
                 
