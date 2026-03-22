@@ -27,12 +27,15 @@ def get_github_config():
 def charger_json_github(chemin_fichier):
     """Charge un fichier JSON depuis GitHub avec anti-cache."""
     conf = get_github_config()
-    # Utilise le timestamp actuel pour forcer GitHub à ne pas servir une vieille version
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"    
+    
+    # Correction ici : on utilise 'chemin_fichier' au lieu de 'chemin'
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin_fichier}?t={int(time.time())}"    
+    
     try:
         res = requests.get(url)
         if res.status_code == 200:
             return res.json()
+        
         # Retourne une liste vide pour l'index ou les plats, un dict vide sinon
         return [] if "plats_rapides" in chemin_fichier or "index" in chemin_fichier else {}
     except:
