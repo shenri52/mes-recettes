@@ -21,45 +21,52 @@ def afficher():
         chemins_index = {r['chemin'] for r in index_actuel}
         manquantes = [f for f in physiques if f not in chemins_index]
         
-        # On sauvegarde les résultats dans le session_state
+        # On stocke tout en session pour l'affichage persistant
         st.session_state.a_reparer = manquantes
         st.session_state.total_physiques = len(physiques)
         st.session_state.total_index = len(index_actuel)
 
-    # VISUALISATION DE LA LISTE
-    if st.session_state.get("a_reparer"):
-        st.info(f"📁 Fichiers : {st.session_state.total_physiques} | 🗂️ Index : {st.session_state.total_index}")  
-        with st.expander(f"📋 Voir les {len(st.session_state.a_reparer)} fichiers à intégrer"):
-            for f in st.session_state.a_reparer:
-                # On affiche juste le nom du fichier sans le dossier data/recettes/
-                nom_fichier = f.split('/')[-1]
-                st.write(f"📄 {nom_fichier}")
-
-    if st.session_state.get("a_reparer"):
-        if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
-            with st.spinner("Analyse..."):
-                index_actuel = charger_json_github("data/index_recettes.json")
-                nouvelles = []
-                conf = get_github_config()
-                for chemin in st.session_state.a_reparer:
-                    # Lecture directe sur le Raw pour le contenu
-                    url_raw = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}"
-                    r = requests.get(url_raw)
-                    if r.status_code == 200:
-                        d = r.json()
-                        nouvelles.append({
-                            "nom": d.get("nom", "Sans nom"), 
-                            "categorie": d.get("categorie", "Non classé"), 
-                            "appareil": d.get("appareil", "Aucun"), 
-                            "ingredients": [i.get("Ingrédient") for i in d.get("ingredients", [])], 
-                            "chemin": chemin
-                        })
-                
-                    index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
-                    if sauvegarder_json_github("data/index_recettes.json", index_final, "🛠️ Réparation"):
-                        st.success("✅ Index réparé !")
-                    del st.session_state.a_reparer
-                    st.rerun()
+    # ON N'AFFICHE LA SUITE QUE SI ON A DES RÉSULTATS
+    if st.session_state.get("a_reparer") is not None:
+        st.write(f"📁 **Fichiers détectés dans /data :** {st.session_state.total_physiques}")
+        st.write(f"🗂️ **Recettes actuellement dans l'index :** {st.session_state.total_index}")
+        
+        if st.session_state.a_reparer:
+            st.warning(f"⚠️ {len(st.session_state.a_reparer)} fichiers hors index.")
+            
+            # Visualisation de la liste (Expander)
+            with st.expander(f"📋 Voir les {len(st.session_state.a_reparer)} fichiers à intégrer"):
+                for f in st.session_state.a_reparer:
+                    st.write(f"📄 {f.split('/')[-1]}")
+            
+            # Le bouton "Intégrer" arrive MAINTENANT, en dessous des infos
+            if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True, type="primary"):
+                with st.spinner("Intégration en cours..."):
+                    index_frais = charger_json_github("data/index_recettes.json") or []
+                    nouvelles = []
+                    conf = get_github_config()
+                    for chemin in st.session_state.a_reparer:
+                        url_raw = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}"
+                        r = requests.get(url_raw)
+                        if r.status_code == 200:
+                            d = r.json()
+                            nouvelles.append({
+                                "nom": d.get("nom", "Sans nom"), 
+                                "categorie": d.get("categorie", "Non classé"), 
+                                "appareil": d.get("appareil", "Aucun"), 
+                                "ingredients": [i.get("Ingrédient") if isinstance(i, dict) else i for i in d.get("ingredients", [])], 
+                                "chemin": chemin
+                            })
+                    
+                    if nouvelles:
+                        index_final = sorted(index_frais + nouvelles, key=lambda x: x['nom'].lower())
+                        if sauvegarder_json_github("data/index_recettes.json", index_final, "🛠️ Réparation"):
+                            st.success(f"✅ {len(nouvelles)} recettes ajoutées !")
+                            del st.session_state.a_reparer
+                            time.sleep(1)
+                            st.rerun()
+        else: 
+            st.success("✅ Index à jour.")
 
 # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
