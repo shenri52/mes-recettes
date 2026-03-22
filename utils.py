@@ -269,7 +269,7 @@ def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, photos_fil
     nom_propre = nettoyer_nom_github(nom) 
     ch_r = f"data/recettes/{ts}_{nom_propre}.json"
     
-liste_medias = []
+    liste_medias = []
     # --- GESTION DES PHOTOS (Correction : on gère plusieurs photos si besoin) ---
     if photos_files:
         # On s'assure que c'est une liste pour boucler dessus
