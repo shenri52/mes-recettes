@@ -1,0 +1,36 @@
+{
+    "nom": "Gâteau tout chocolat Nestlé",
+    "categorie": "Gâteau",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "25min",
+    "ingredients": [
+        {
+            "Ingrédient": "De chocolat",
+            "Suggestion": "Chocolat noir",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Œufs",
+            "Suggestion": "Oeuf",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "De sucre",
+            "Suggestion": "Sucre",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "De farine",
+            "Suggestion": "Farine",
+            "Quantité": "80g"
+        },
+        {
+            "Ingrédient": "De beurre",
+            "Suggestion": "Beurre",
+            "Quantité": "200g"
+        }
+    ],
+    "etapes": "Préchauffer le four à 200°\n\nFaites fondre le chocolat. Ajouter le beurre et mélanger bien.\nDans un saladier, mélanger les œufs et le sucre, puis la farine.\nVerser le chocolat puis mélanger jusqu’à obtenir une pâte homogène.\nVerser dans un moule à manquer beurré et fariné.",
+    "images": []
+}
