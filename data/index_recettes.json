@@ -779,5 +779,12 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260322_200402_test_encore.json"
+    },
+    {
+        "nom": "TEST IMPORT 1 avec photo",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260322_200519_test_import_1_avec_photo.json"
     }
 ]
