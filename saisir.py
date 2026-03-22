@@ -7,7 +7,8 @@ from utils import (envoyer_donnees_github,
                    get_index_options,
                    traiter_et_compresser_image,
                    mettre_a_jour_index,
-                   verifier_doublon_recette
+                   verifier_doublon_recette,
+                   sauvegarder_recette_complete
                   )
 
 def afficher():
@@ -119,7 +120,7 @@ def afficher():
     # --- SECTION ÉTAPES ---
     etapes_saisies = st.text_area("📝 Étapes de la recette", key=f"etp_{f_id}", height=150, placeholder="1. Préchauffer le four...\n2. Mélanger...")
     
-  # --- SECTION MÉDIAS  ---
+    # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader(
         "📸 Photos de la recette", 
         type=["jpg", "png", "jpeg"], 
@@ -127,60 +128,24 @@ def afficher():
         accept_multiple_files=True
     )
     
-    # --- BLOC BOUTON ENREGISTRER  ---
+    # BOUTON ENREGISTRER
     if st.button("💾 Enregistrer", use_container_width=True):
-        # 1. On détermine la catégorie finale avant de vérifier
         f_cat = st.session_state.cat_fixee
-        
-        # 2. LES VÉRIFICATIONS (Indispensables pour voir les messages d'erreur)
-        if not nom_plat or nom_plat.strip() == "":
-            st.error("⚠️ Le nom de la recette est obligatoire.")
-        elif not f_cat or f_cat == "---":
-            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+        if not nom_plat or not f_cat or f_cat == "---":
+            st.error("⚠️ Nom et Catégorie obligatoires.")
         else:
             with st.spinner("Enregistrement..."):
-                maintenant = datetime.now()
-                ts = maintenant.strftime("%Y%m%d_%H%M%S")
-                
-                # --- ÉTAPE A : LE RENOMMAGE (Si besoin) ---
-                if verifier_doublon_recette(nom_plat):
-                    nom_plat = f"{nom_plat} ({maintenant.strftime('%d-%m-%Y')})"
-                
-                # --- ÉTAPE B : SÉCURITÉ (On crée la liste vide ici) ---
-                nom_fic = nom_plat.replace(" ", "_").lower().replace("'", "_")
-                liste_medias = []
-                
-                if photos_fb:
-                    for idx, f in enumerate(photos_fb):
-                        data_img, ext = traiter_et_compresser_image(f) 
-                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_donnees_github(ch_m, data_img, "📸 Media", True): 
-                            liste_medias.append(ch_m)
-
-                ch_r = f"data/recettes/{ts}_{nom_fic}.json"
-                rec_data = {
-                    "nom": nom_plat, 
-                    "categorie": f_cat, 
-                    "appareil": type_appareil, 
-                    "temps_preparation": tps_prep, 
-                    "temps_cuisson": tps_cuis, 
-                    "ingredients": st.session_state.ingredients_recette, 
-                    "etapes": etapes_saisies if etapes_saisies.strip() != "" else "Voir image jointe", 
-                    "images": liste_medias
-                }
-                
-                if envoyer_donnees_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "📝 Recette"):
-                    mettre_a_jour_index({
-                        "nom": nom_plat, "categorie": f_cat, "appareil": type_appareil, 
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], 
-                        "chemin": ch_r
-                    })
-                  
-                    st.success("✅ Recette enregistrée avec succès !")
-                        
-                    # RESET mémoire
-                    st.session_state.ingredients_recette = []
+                # ON APPELLE LA FONCTION CENTRALE
+                succes, nom_final = sauvegarder_recette_complete(
+                    nom=nom_plat, categorie=f_cat, 
+                    ingredients=st.session_state.ingredients_recette, # ou ingredients_img
+                    etapes=etapes_saisies, photos_files=photos_fb,
+                    appareil=type_appareil, t_prep=tps_prep, t_cuis=tps_cuis
+                )
+                if succes:
+                    st.success(f"✅ '{nom_final}' enregistrée !")
+                    st.session_state.ingredients_recette = [] # ou ingredients_img
                     st.session_state.cat_fixee = ""
-                    st.session_state.form_count += 1
+                    st.session_state.form_count += 1 # Reset les champs
                     time.sleep(1)
                     st.rerun()
