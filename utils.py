@@ -221,38 +221,29 @@ def parser_ligne_ingredient(ligne):
     """Transforme '180g de farine' en {'Ingrédient': 'Farine', 'Quantité': '180g'}"""
     if not ligne: return None
     
-    # Nettoyage initial des espaces invisibles
+    # 1. Normalisation des espaces (pour l'ODT)
     ligne = ligne.replace('\xa0', ' ').strip()
-    
     if not ligne or ":" in ligne: return None 
 
-    # 1. Tentative de séparation avec ta Regex
-    # Elle cherche un espace suivi de "de" (espace/fin) ou "d'"
-    parts = re.split(r"\s+(?:de(?:\s+|$)|d['’])", ligne, maxsplit=1, flags=re.I)
-    
-    if len(parts) == 2:
-        qte = parts[0].strip()
-        ing = parts[1].strip()
-    else:
-        # 2. Séparation par défaut (ex: "3 pommes")
-        sp = ligne.split(' ', 1)
-        if len(sp) > 1 and any(char.isdigit() for char in sp[0]):
-            qte = sp[0].strip()
-            ing = sp[1].strip()
-        else:
-            qte = ""
-            ing = ligne
+    # 2. Séparation brute par le premier espace
+    parts = ligne.split(' ', 1)
+    qte = parts[0].strip() if len(parts) > 1 else ""
+    ing = parts[1].strip() if len(parts) > 1 else ligne
 
-    # --- NETTOYAGE FINAL JUSTE AVANT LE RETURN ---
-    # Si malgré tout un " de" est resté collé à la fin de la quantité
+    # 3. NETTOYAGE UNIQUE DE LA QUANTITÉ
+    # On cible l'espace + "de" ou juste le "de" si l'espace a déjà été splitté
     if qte.lower().endswith(" de"):
         qte = qte[:-3].strip()
-    elif qte.lower().endswith(" d'"):
-        qte = qte[:-3].strip()
+    elif qte.lower() == "de": # Si le 'de' s'est retrouvé seul dans sa colonne
+        qte = ""
+
+    # 4. RE-VÉRIFICATION SI LE "DE" EST RESTÉ DANS QUANTITÉ
+    if " de" in qte.lower():
+        qte = qte.lower().replace(" de", "").strip()
 
     return {
-        "Ingrédient": ing.strip().capitalize(),
-        "Quantité": qte.strip()
+        "Ingrédient": ing.capitalize(),
+        "Quantité": qte
     }
 
 def sauvegarder_recette_complete(nom, categorie, ingredients, etapes, image_data=None, appareil="Aucun", t_prep="", t_cuis=""):
