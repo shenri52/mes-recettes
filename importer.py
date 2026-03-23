@@ -1,13 +1,9 @@
 import streamlit as st
 import json, base64, requests, time, io
+
 from datetime import datetime
 from PIL import Image
-
-def config_github():
-    return {
-        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"},
-        "owner": st.secrets["REPO_OWNER"], "repo": st.secrets["REPO_NAME"]
-    }
+from utils import config_github
 
 def recuperer_donnees_index():
     conf = config_github()
