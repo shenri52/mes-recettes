@@ -1,17 +1,8 @@
 import streamlit as st
 import requests, json, base64, time, io
-from PIL import Image
 
-# --- LOGIQUE DE COMMUNICATION GITHUB ---
-def config_github():
-    """Centralise les paramètres de connexion au dépôt."""
-    return {
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        },
-        "base_url": f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/"
-    }
+from PIL import Image
+from utils import config_github
 
 def envoyer_donnees(chemin, contenu, message, est_image=False):
     """Fonction universelle pour envoyer texte ou images vers GitHub."""
