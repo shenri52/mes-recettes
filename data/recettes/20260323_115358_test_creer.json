@@ -1,0 +1,12 @@
+{
+    "nom": "TEST CREER",
+    "categorie": "Goûter",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260323_115358_test_creer_0.jpg"
+    ]
+}
