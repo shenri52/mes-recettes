@@ -1,0 +1,12 @@
+{
+    "nom": "TEST IMPORT",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [],
+    "etapes": "Voir image jointe",
+    "images": [
+        "data/images/20260323_102535_test_import_0.jpg"
+    ]
+}
