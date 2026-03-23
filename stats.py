@@ -75,12 +75,12 @@ def afficher():
         st.caption(f"🕒 Dernière actualisation : **{data_s.get('derniere_maj')}**")
         st.divider()
 
+        st.subheader("🍳 Recettes")
         st.info(f"**Nombre total de recettes :** {data_s.get('total_recettes')}")
         c1, c2 = st.columns(2)
         c1.dataframe(data_s.get('details_categories'), hide_index=True, use_container_width=True)
         c2.dataframe(data_s.get('details_appareils'), hide_index=True, use_container_width=True)
         
-        st.divider()
         st.subheader("💾 Stockage")
         st.info(f"**Poids total :** {data_s.get('poids_total_mo')} Mo")
         st.dataframe(data_s.get('details_stockage'), hide_index=True, use_container_width=True)
