@@ -7,7 +7,7 @@ import uuid
 import io
 
 from PIL import Image
-from utils import config_github, envoyer_vers_github
+from utils import config_github, envoyer_vers_github, recuperer_donnees_index
 
 def supprimer_fichier_github(chemin):
     conf = config_github()
@@ -28,19 +28,6 @@ def compresser_image(upload_file):
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
 
-# --- 3. GESTION DE L'INDEX ---
-def charger_index():
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
-    res = requests.get(url, headers=conf['headers'])
-    if res.status_code == 200:
-        content_b64 = res.json()['content']
-        content_json = base64.b64decode(content_b64).decode('utf-8')
-        st.session_state.index_recettes = json.loads(content_json)
-    elif 'index_recettes' not in st.session_state:
-        st.session_state.index_recettes = []
-    return st.session_state.index_recettes
-
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
     if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
@@ -58,7 +45,7 @@ def afficher():
             if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
                 del st.session_state[key]
                 
-    index = charger_index()
+    index, ingredients, categories = recuperer_donnees_index()
     st.divider()
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
