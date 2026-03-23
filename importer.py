@@ -3,22 +3,7 @@ import json, base64, requests, time, io
 
 from datetime import datetime
 from PIL import Image
-from utils import config_github, envoyer_vers_github
-
-def recuperer_donnees_index():
-    conf = config_github()
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
-    try:
-        res = requests.get(url)
-        if res.status_code == 200:
-            idx = res.json()
-            ing = {i for r in idx for i in r.get('ingredients', []) if i}
-            cat = {r.get('categorie') for r in idx if r.get('categorie')}
-            ingredients = ["---"] + sorted(list(ing))
-            categories = ["---"] + sorted(list(cat))
-            return ingredients, categories
-    except: pass
-    return [""], [""]
+from utils import config_github, envoyer_vers_github, recuperer_donnees_index
 
 def afficher():
     st.divider()
