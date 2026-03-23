@@ -37,6 +37,8 @@ def afficher():
             if key in st.session_state: del st.session_state[key]
 
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
+    st.divider()
+    
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         conf = config_github()
@@ -148,10 +150,8 @@ def afficher():
             st.success("Compression terminée ! 🚀")
             st.rerun()
 
-    st.divider()
-
     # --- SECTION 4 : GESTION CATALOGUE ---
-    st.subheader("🛒 Modifier ou ranger les produits")
+    st.subheader("🛒 Gérer les produits")
     idx_z = st.session_state.get("index_zones", {})
     tous_p = sorted(list(idx_z.keys()))
     if not tous_p: st.info("Veuillez charger la page 'Courses' pour initialiser le catalogue.")
