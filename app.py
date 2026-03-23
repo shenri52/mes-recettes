@@ -33,8 +33,7 @@ def verifier_mot_de_passe():
             valider()
             if st.session_state["authentifie"]:
                 st.rerun()
-        
-        st.divider()
+
         st.markdown("<h3 style='text-align: center;'>👀 Accès public</h3>", unsafe_allow_html=True)
       
         # Bouton d'accès direct pour la consultation simple
@@ -133,6 +132,12 @@ if verifier_mot_de_passe():
         else:
             pages_disponibles = pages_publiques
 
+        if st.session_state.page in pages_disponibles:
+            # PROPULSION DU TITRE
+            if "titre_page" in st.session_state and st.session_state.titre_page != "":
+                st.header(st.session_state.titre_page)
+                st.divider()
+
         # Appel de la fonction afficher() si autorisée
         if st.session_state.page in pages_disponibles:
             pages_disponibles[st.session_state.page]()
@@ -140,7 +145,6 @@ if verifier_mot_de_passe():
             st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
             if st.button("Retour à l'accueil", use_container_width=True):
                 aller_accueil()
-
         # Bouton retour (masqué sur le planning)
         st.divider()
 
