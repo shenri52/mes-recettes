@@ -1,197 +1,216 @@
 import streamlit as st
-import json, io, time
+import json, base64, requests, time, io
 from datetime import datetime
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
-def compresser_image(upload_file):
-    """Compression d'une image en JPEG 1200x1200 max."""
-    img = Image.open(upload_file)
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    img.thumbnail((1200, 1200))
-    buffer = io.BytesIO()
-    img.save(buffer, format="JPEG", quality=80, optimize=True)
-    return buffer.getvalue()
+def config_github():
+    return {
+        "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}", "Accept": "application/vnd.github.v3+json"},
+        "owner": st.secrets["REPO_OWNER"], "repo": st.secrets["REPO_NAME"]
+    }
 
-def supprimer_fichier_github(chemin):
-    """Supprime un fichier sur GitHub."""
+def recuperer_donnees_index():
     conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
-    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    if get_res.status_code == 200:
-        sha = get_res.json()['sha']
-        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return res_del.status_code in [200, 204]
-    return False
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
+    try:
+        res = requests.get(url)
+        if res.status_code == 200:
+            idx = res.json()
+            ing = {i for r in idx for i in r.get('ingredients', []) if i}
+            cat = {r.get('categorie') for r in idx if r.get('categorie')}
+            # On ajoute le "---" en début de liste
+            return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
+    except: pass
+    return ["---"], ["---"]
+
+def envoyer_vers_github(chemin, contenu, message, binaire=False):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+    res_get = requests.get(url, headers=conf['headers'])
+    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+    cnt = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
+    payload = {"message": message, "content": cnt, "branch": "main", "sha": sha} if sha else {"message": message, "content": cnt, "branch": "main"}
+    return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
 
 def afficher():
-    st.divider()
+    st.header("✍️ Ajouter une recette")
 
-    # --- Initialisation session_state ---
-    for k, v in {
-        'form_count': 0,
-        'ingredients_recette': [],
-        'liste_choix': [""],
-        'liste_categories': [""],
-        'cat_fixee': ""
-    }.items():
-        if k not in st.session_state:
-            st.session_state[k] = v
+    for k, v in {'form_count': 0, 'ingredients_recette': [], 'liste_choix': [""], 'liste_categories': [""], 'cat_fixee': ""}.items():
+        if k not in st.session_state: st.session_state[k] = v
 
-    # --- Récupération de l'index complet si besoin ---
-    if len(st.session_state.liste_choix) <= 1 or 'index_recettes' not in st.session_state:
-        with st.spinner("📦 Synchronisation avec GitHub..."):
-            index_complet, st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
-            st.session_state.index_recettes = index_complet
+    if len(st.session_state.liste_choix) <= 1:
+        with st.spinner("📦 Synchronisation..."):
+            st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
 
     f_id = st.session_state.form_count
-
     with st.container():
-        # --- Nom de la recette ---
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{f_id}")
-
-        # --- Appareil, préparation, cuisson ---
+        
         c_app, c_prep, c_cuis = st.columns(3)
-        type_appareil = c_app.selectbox(
-            "Appareil utilisé",
-            options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]),
-            key=f"app_{f_id}"
-        )
+        type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
-
-        # --- Catégorie ---
+        
+        # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
+            # 1. On récupère le texte saisi
             nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
-            if nom_nouveau and nom_nouveau not in st.session_state.liste_categories:
-                st.session_state.liste_categories.append(nom_nouveau)
-            st.session_state[f"scat_{f_id}"] = "---"
-            st.session_state[f"ncat_{f_id}"] = ""
+            if nom_nouveau:
+                # 2. On l'ajoute à la liste de choix si besoin
+                if nom_nouveau not in st.session_state.liste_categories:
+                    st.session_state.liste_categories.append(nom_nouveau)
+                
+                # 3. LE RESET : On force le menu à revenir sur "---"
+                st.session_state[f"scat_{f_id}"] = "---"
+                
+                # 4. On vide le champ de saisie
+                st.session_state[f"ncat_{f_id}"] = ""
 
         col_cat, col_btn_cat = st.columns([2, 0.5])
         with col_cat:
+            # On trie et on prépare les options (Ajouter à la fin pour la stabilité)
             cats_existantes = sorted([c for c in st.session_state.liste_categories if c and c != "---"])
             opts_cat = ["---"] + cats_existantes + ["➕ Ajouter une nouvelle..."]
+            
+            # Le selectbox lié à sa clé
             choix_cat = st.selectbox("Catégorie", options=opts_cat, key=f"scat_{f_id}")
+            
+            # On affiche le champ texte SEULEMENT si "Ajouter" est sélectionné
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.text_input("Nom de la catégorie", key=f"ncat_{f_id}")
             else:
+                # On mémorise le choix pour le bouton "Enregistrer" final
                 st.session_state.cat_fixee = choix_cat
 
         with col_btn_cat:
             st.write(" "); st.write(" ")
+            # Le bouton "+" n'apparaît QUE si on est sur "Ajouter"
+            # Une fois cliqué, il déclenche la fonction et disparaît au rafraîchissement
             if choix_cat == "➕ Ajouter une nouvelle...":
                 st.button("➕", key=f"bcat_valider_{f_id}", on_click=ajouter_cat_et_nettoyer)
 
-        # --- Ingrédients ---
+        # ---  INGRÉDIENTS  ---
         def ajouter_ing_et_nettoyer():
+            # 1. Récupération des saisies
             nom_nouveau = st.session_state.get(f"new_ing_{f_id}", "")
             choix_actuel = st.session_state[f"sel_{f_id}"]
+            
+            # Déterminer le nom final de l'ingrédient
             ing_final = nom_nouveau if choix_actuel == "➕ Ajouter un nouveau..." else choix_actuel
             qte_val = st.session_state[f"qte_{f_id}"]
 
             if ing_final and ing_final != "---":
-                st.session_state.ingredients_recette.append({"Ingrédient": ing_final, "Quantité": qte_val})
+                # Ajoute l'ingrédient à la rectte
+                st.session_state.ingredients_recette.append({
+                    "Ingrédient": ing_final, 
+                    "Quantité": qte_val
+                })
+                
+                # Ajoute l'ingrédient à la liste
                 if ing_final not in st.session_state.liste_choix:
                     st.session_state.liste_choix.append(ing_final)
-                st.session_state[f"new_ing_{f_id}"] = ""
+                
+                # NETTOYAGE DES CHAMPS
+                if f"new_ing_{f_id}" in st.session_state: 
+                    st.session_state[f"new_ing_{f_id}"] = ""
                 st.session_state[f"qte_{f_id}"] = ""
+                
+                # ON REVIENT SUR LE TIRET (Index 0)
                 st.session_state[f"sel_{f_id}"] = "---"
 
         col_ing, col_qte, col_btn_add = st.columns([2, 1, 0.6])
         with col_ing:
-            opts_ing = ["---", "➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
+            opts_ing = st.session_state.liste_choix[:1] + ["➕ Ajouter un nouveau..."] + st.session_state.liste_choix[1:]
             choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
             if choix_i == "➕ Ajouter un nouveau...":
-                st.text_input("Nom de l'ingrédient", key=f"new_ing_{f_id}")
-
+                st.text_input("Nom de l'ingrédients", key=f"new_ing_{f_id}")
+        
         with col_qte:
             st.text_input("Quantité", key=f"qte_{f_id}")
-
+        
         with col_btn_add:
             st.write(" "); st.write(" ")
+            # Le bouton n'apparaît QUE si on n'est pas sur le tiret "---"
             if choix_i != "---":
                 st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
-        # Affichage des ingrédients ajoutés
+        # Affichage visuel de ce qui est déjà dans la recette
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
-    # --- Médias ---
+    # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader(
-        "📸 Photos de la recette",
-        type=["jpg", "png", "jpeg"],
-        key=f"fi_{f_id}",
+        "📸 Photos de la recette", 
+        type=["jpg", "png", "jpeg"], 
+        key=f"fi_{f_id}", 
         accept_multiple_files=True
     )
-
-    # --- Enregistrement final ---
+    
+    # --- BLOC BOUTON ENREGISTRER  ---
     if st.button("💾 Enregistrer", use_container_width=True):
+        # 1. On détermine la catégorie finale avant de vérifier
         f_cat = st.session_state.cat_fixee
-        index_complet, _, _ = recuperer_donnees_index()  # Récupération complète
-
-        noms_existants = [r['nom'].strip().upper() for r in index_complet]
-
-        if not nom_plat.strip():
+        
+        # 2. LES VÉRIFICATIONS (Indispensables pour voir les messages d'erreur)
+        if not nom_plat or nom_plat.strip() == "":
             st.error("⚠️ Le nom de la recette est obligatoire.")
-        elif nom_plat.strip().upper() in noms_existants:
-            st.error(f"⚠️ La recette '{nom_plat.upper()}' existe déjà dans votre index.")
         elif not f_cat or f_cat == "---":
             st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
         else:
+            # 3. SI TOUT EST OK -> ON ENREGISTRE
             with st.spinner("Enregistrement en cours..."):
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
-
-                # --- Gestion des médias ---
+                
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
-                        img_data = compresser_image(f)
-                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.jpg"
-                        if envoyer_vers_github(ch_m, img_data, "Media", True):
+                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
+                        if ext in ["jpg", "jpeg", "png"]:
+                            img = Image.open(f).convert("RGB")
+                            img.thumbnail((1200, 1200))
+                            buf = io.BytesIO()
+                            img.save(buf, format="JPEG", quality=80, optimize=True)
+                            data_env, ext = buf.getvalue(), "jpg"
+                        
+                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
+                        if envoyer_vers_github(ch_m, data_env, "Media", True): 
                             liste_medias.append(ch_m)
 
-                # --- Fichier recette ---
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
-                    "nom": nom_plat,
-                    "categorie": f_cat,
-                    "appareil": type_appareil,
-                    "temps_preparation": tps_prep,
-                    "temps_cuisson": tps_cuis,
-                    "ingredients": st.session_state.ingredients_recette,
-                    "etapes": "Voir image jointe",
+                    "nom": nom_plat, 
+                    "categorie": f_cat, 
+                    "appareil": type_appareil, 
+                    "temps_preparation": tps_prep, 
+                    "temps_cuisson": tps_cuis, 
+                    "ingredients": st.session_state.ingredients_recette, 
+                    "etapes": "Voir image jointe", 
                     "images": liste_medias
                 }
-
+                
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    # --- Ajout à l'index complet et upload ---
-                    index_complet.append({
-                        "nom": nom_plat,
-                        "categorie": f_cat,
-                        "appareil": type_appareil,
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette],
+                    res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
+                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
+                    idx_data.append({
+                        "nom": nom_plat, 
+                        "categorie": f_cat, 
+                        "appareil": type_appareil, 
+                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], 
                         "chemin": ch_r
                     })
+                    envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
 
-                    envoyer_vers_github(
-                        "data/index_recettes.json",
-                        json.dumps(index_complet, indent=4, ensure_ascii=False),
-                        "MAJ Index"
-                    )
-                    refresh_index_session
-                    # --- Mise à jour session_state pour la propagation ---
-                    st.session_state.index_recettes = index_complet
-                    st.session_state.liste_choix = [""] + sorted({ing for r in index_complet for ing in r.get('ingredients', [])})
-                    st.session_state.liste_categories = [""] + sorted({r.get('categorie', '') for r in index_complet if r.get('categorie')})
+                    st.success("✅ Recette importée avec succès !")
+                    
+                    # --- RESET ---
                     st.session_state.ingredients_recette = []
                     st.session_state.cat_fixee = ""
+                    st.session_state.cat_selectionnee = ""
+                    if 'index_recettes' in st.session_state: 
+                        del st.session_state.index_recettes
+                    
                     st.session_state.form_count += 1
-
-                    time.sleep(1)
-                    st.success("✅ Recette importée avec succès !")
+                    
+                    # Petit délai pour laisser lire le succès avant le rerun
+                    time.sleep(1.5)
                     st.rerun()
-
-if __name__ == "__main__":
-    afficher()

@@ -3,8 +3,19 @@ import datetime
 import json
 import requests
 import time
+import base64
 
-from utils import config_github
+# --- FONCTIONS TECHNIQUES ---
+def config_github():
+    """Centralise la config et les headers pour GitHub."""
+    return {
+        "owner": st.secrets["REPO_OWNER"],
+        "repo": st.secrets["REPO_NAME"],
+        "headers": {
+            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+    }
 
 def charger_donnees(chemin):
     """Charge les données avec anti-cache et gestion d'erreurs."""
@@ -130,6 +141,9 @@ def afficher():
 
     # Bouton retour simplifié
     st.button("⬅️ Retour à l'accueil", use_container_width=True, on_click=aller_accueil)
+
+    st.header("📅 Mon planning")
+
     st.divider()
     
     for key, default in {

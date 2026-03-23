@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import importer, saisir, recettes, stats, maintenance, planning
+import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
@@ -12,7 +12,9 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
-        st.markdown("<h3 style='text-align: center;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>🍳 Mes recettes</h2>", unsafe_allow_html=True)
+        st.divider()
+        st.markdown("<h3 style='text-align: center;'>🔒 Accès réservé</h3>", unsafe_allow_html=True)
         
         def valider():
             if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
@@ -31,42 +33,32 @@ def verifier_mot_de_passe():
             valider()
             if st.session_state["authentifie"]:
                 st.rerun()
-
-        st.markdown("<h3 style='text-align: center;'>👀 Accès public</h3>", unsafe_allow_html=True)
-      
+        
+        st.divider()
+        
         # Bouton d'accès direct pour la consultation simple
-        if st.button("📖 Consulter les recettes", use_container_width=True):
+        if st.button("📖 Consulter les recettes (Public)", use_container_width=True):
             st.session_state["mode_public"] = True
             st.session_state.page = "recettes"
-            st.session_state.titre_page = "📖 Consulter les recettes"
             st.rerun()
             
         return False
     return True
 
 def aller_accueil():
-    # 1. Liste des clés critiques à NE PAS supprimer (pour rester connecté)
-    cles_a_conserver = ['authentifie', 'mode_public', 'mdp_temp']
-    
-    # 2. On supprime tout le reste
-    for cle in list(st.session_state.keys()):
-        if cle not in cles_a_conserver:
-            del st.session_state[cle]
-    
-    # 3. On redirige vers l'accueil
+    # On remet la page sur accueil
     st.session_state.page = 'accueil'
+    # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
+    st.session_state["mode_public"] = False
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
     if 'page' not in st.session_state:
         st.session_state.page = 'accueil'
-    if 'titre_page' not in st.session_state:
-        st.session_state.titre_page = ""
 
-    def changer_page(nom, titre):
-        """Change la page active dans le session_state, sauvegarde le titre et rafraîchit."""
+    def changer_page(nom):
+        """Change la page active dans le session_state et rafraîchit l'affichage."""
         st.session_state.page = nom
-        st.session_state.titre_page = titre
         st.rerun()
 
     # --- BLOC ANTI-VEILLE ---
@@ -90,23 +82,32 @@ if verifier_mot_de_passe():
     if st.session_state.page == 'accueil':
         # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
-            changer_page("recettes", "📚 Mes recettes")
+            changer_page("recettes")
         
         # Affichage des options réservées à l'administrateur
         if st.session_state["authentifie"]:
-            # Simplification L1, L2... via une liste de lignes de boutons
-            lignes_boutons = [
-                [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")],
-                [("📅 Mon planning", "planning")],
-                [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
-            ]
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("📥 Importer une recette", use_container_width=True):
+                    changer_page("importer")
+            with col2:
+                if st.button("✍️ Créer une recette", use_container_width=True):
+                    changer_page("ajouter")
 
-            for ligne in lignes_boutons:
-                colonnes = st.columns(len(ligne))
-                for index, (titre_bouton, nom_page) in enumerate(ligne):
-                    with colonnes[index]:
-                        if st.button(titre_bouton, use_container_width=True):
-                            changer_page(nom_page, titre_bouton)
+            if st.button("📅 Mon planning", use_container_width=True):
+                changer_page("planning")
+            if st.button("📝 Liste des courses", use_container_width=True):
+                changer_page("coursesaisir")
+            if st.button("🛒 Mode magasin", use_container_width=True):
+                changer_page("coursevisualiser")
+
+            col3, col4 = st.columns(2)
+            with col3:
+                if st.button("📊 Statistiques", use_container_width=True):
+                    changer_page("stats")
+            with col4:
+                if st.button("🛠️ Maintenance", use_container_width=True):
+                    changer_page("maintenance")
         else:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
@@ -121,6 +122,8 @@ if verifier_mot_de_passe():
         pages_admin = {
             "importer": importer.afficher,
             "ajouter": saisir.afficher,
+            "coursesaisir": coursesaisir.afficher,
+            "coursevisualiser": coursevisualiser.afficher,
             "stats": stats.afficher,
             "planning": planning.afficher,
             "maintenance": maintenance.afficher
@@ -132,11 +135,6 @@ if verifier_mot_de_passe():
         else:
             pages_disponibles = pages_publiques
 
-        if st.session_state.page in pages_disponibles:
-            # PROPULSION DU TITRE
-            if "titre_page" in st.session_state and st.session_state.titre_page != "":
-                st.header(st.session_state.titre_page)
-
         # Appel de la fonction afficher() si autorisée
         if st.session_state.page in pages_disponibles:
             pages_disponibles[st.session_state.page]()
@@ -145,6 +143,8 @@ if verifier_mot_de_passe():
             if st.button("Retour à l'accueil", use_container_width=True):
                 aller_accueil()
 
+        # Bouton retour (masqué sur le planning)
+        st.divider()
+
         if st.session_state.page != "planning":
-            st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
