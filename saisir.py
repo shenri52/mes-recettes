@@ -3,7 +3,7 @@ import json, base64, requests, time, io
 
 from datetime import datetime
 from PIL import Image
-from utils import config_github
+from utils import config_github, envoyer_vers_github
 
 def recuperer_donnees_index():
     conf = config_github()
@@ -18,15 +18,6 @@ def recuperer_donnees_index():
             return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
     except: pass
     return ["---"], ["---"]
-
-def envoyer_vers_github(chemin, contenu, message, binaire=False):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-    res_get = requests.get(url, headers=conf['headers'])
-    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    cnt = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
-    payload = {"message": message, "content": cnt, "branch": "main", "sha": sha} if sha else {"message": message, "content": cnt, "branch": "main"}
-    return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
 
 def afficher():
     st.header("✍️ Ajouter une recette")
