@@ -141,10 +141,6 @@ def afficher():
 
     # Bouton retour simplifié
     st.button("⬅️ Retour à l'accueil", use_container_width=True, on_click=aller_accueil)
-
-    st.header("📅 Mon planning")
-
-    st.divider()
     
     for key, default in {
         'index_complet': charger_donnees("data/index_recettes.json"),
