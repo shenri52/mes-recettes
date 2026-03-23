@@ -7,17 +7,7 @@ import uuid
 from PIL import Image
 import io
 
-# --- 1. CONFIGURATION TECHNIQUE ---
-def config_github():
-    return {
-        "token": st.secrets["GITHUB_TOKEN"],
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
+from utils import config_github
 
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     try:
