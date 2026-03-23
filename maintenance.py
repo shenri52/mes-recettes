@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
+from utils import config_github, config_github_maintenance, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
 # --- ENVOI DE DONNÉES VERS GITHUB ---
 def envoyer_donnees(chemin, contenu, message, est_image=False):
