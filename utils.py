@@ -14,6 +14,11 @@ def config_github():
         }
     }
 
+def config_github_maintenance():
+    conf = config_github()  # récupère l'existant
+    conf['base_url'] = f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/"
+    return conf
+    
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
     try:
         conf = config_github()
