@@ -14,7 +14,6 @@ def compresser_image(upload_file):
     return buf.getvalue()
 
 def afficher():
-    st.header("📥 Importer / Ajouter une recette")
     st.divider()
 
     # --- Initialisation session_state ---
