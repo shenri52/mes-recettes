@@ -29,7 +29,6 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
        * Réparer l'index des recettes
        * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
        * Optimiser les images sans perte de qualité
-       * Modifier les ingrédients de la liste des courses et leur emplacement
    * **🚫 Mode "Appli connecté" :
       * Option pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone
    * **📊 Statistiques :
@@ -69,8 +68,6 @@ REPO_NAME = "nom_de_votre_depot"
 ├── stats.py              # Statistiques d'utilisation
 ├── maintenance.py        # Outils de corrections et de contrôles
 ├── requirements.txt      # Liste des bibliothèques nécessaires
-└── courses/
-    
 └── data/
     ├── recettes/                   # Dossier contenant les fichiers .json des recettes
     └── images/                     # Dossier contenant les photos et PDF
