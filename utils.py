@@ -57,3 +57,10 @@ def recuperer_donnees_index():
     # Valeur par défaut en cas d'erreur
     st.session_state.index_recettes = []
     return [], ["---"], ["---"]
+
+def refresh_index_session():
+    """Lit le JSON depuis GitHub et met à jour le session_state."""
+    index_complet, _, _ = recuperer_donnees_index()
+    st.session_state.index_recettes = index_complet
+    st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in index_complet]
+    st.session_state.select_recette = "---"
