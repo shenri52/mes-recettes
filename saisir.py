@@ -105,70 +105,76 @@ def afficher():
         accept_multiple_files=True
     )
 
-    # --- ENREGISTREMENT ---
     if st.button("💾 Enregistrer", use_container_width=True):
-        f_cat = st.session_state.cat_fixee
-        noms_existants = [r['nom'].strip().upper() for r in st.session_state.index_recettes]
+    f_cat = st.session_state.cat_fixee
+    # Récupération complète de l'index depuis GitHub pour éviter d'écraser les anciennes recettes
+    index_complet, liste_choix, liste_categories = recuperer_donnees_index()
+    
+    noms_existants = [r['nom'].strip().upper() for r in index_complet]
 
-        # --- Vérifications ---
-        if not nom_plat.strip():
-            st.error("⚠️ Le nom de la recette est obligatoire.")
-        elif nom_plat.strip().upper() in noms_existants:
-            st.error(f"⚠️ La recette '{nom_plat.upper()}' existe déjà dans votre index.")
-        elif not f_cat or f_cat == "---":
-            st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
-        else:
-            with st.spinner("Enregistrement en cours..."):
-                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-                nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
+    # --- Vérifications ---
+    if not nom_plat.strip():
+        st.error("⚠️ Le nom de la recette est obligatoire.")
+    elif nom_plat.strip().upper() in noms_existants:
+        st.error(f"⚠️ La recette '{nom_plat.upper()}' existe déjà dans votre index.")
+    elif not f_cat or f_cat == "---":
+        st.error("⚠️ Veuillez choisir ou ajouter une catégorie.")
+    else:
+        with st.spinner("Enregistrement en cours..."):
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
 
-                if photos_fb:
-                    for idx, f in enumerate(photos_fb):
-                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
-                        if ext in ["jpg", "jpeg", "png"]:
-                            img = Image.open(f).convert("RGB")
-                            img.thumbnail((1200, 1200))
-                            buf = io.BytesIO()
-                            img.save(buf, format="JPEG", quality=80, optimize=True)
-                            data_env, ext = buf.getvalue(), "jpg"
-                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_vers_github(ch_m, data_env, "Media", True):
-                            liste_medias.append(ch_m)
+            # --- Gestion des médias ---
+            if photos_fb:
+                for idx, f in enumerate(photos_fb):
+                    ext = f.name.split('.')[-1].lower()
+                    img = Image.open(f).convert("RGB")
+                    img.thumbnail((1200, 1200))
+                    buf = io.BytesIO()
+                    img.save(buf, format="JPEG", quality=80, optimize=True)
+                    data_env = buf.getvalue()
+                    ch_m = f"data/images/{ts}_{nom_fic}_{idx}.jpg"
+                    if envoyer_vers_github(ch_m, data_env, "Media", True):
+                        liste_medias.append(ch_m)
 
-                ch_r = f"data/recettes/{ts}_{nom_fic}.json"
-                rec_data = {
+            # --- Création du fichier recette ---
+            ch_r = f"data/recettes/{ts}_{nom_fic}.json"
+            rec_data = {
+                "nom": nom_plat,
+                "categorie": f_cat,
+                "appareil": type_appareil,
+                "temps_preparation": tps_prep,
+                "temps_cuisson": tps_cuis,
+                "ingredients": st.session_state.ingredients_recette,
+                "etapes": "Voir image jointe",
+                "images": liste_medias
+            }
+
+            if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
+                # --- Ajout de la recette à l'index complet ---
+                index_complet.append({
                     "nom": nom_plat,
                     "categorie": f_cat,
                     "appareil": type_appareil,
-                    "temps_preparation": tps_prep,
-                    "temps_cuisson": tps_cuis,
-                    "ingredients": st.session_state.ingredients_recette,
-                    "etapes": "Voir image jointe",
-                    "images": liste_medias
-                }
+                    "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette],
+                    "chemin": ch_r
+                })
 
-                if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    # --- Utilisation du session_state pour ne jamais écraser ---
-                    idx_data = st.session_state.index_recettes.copy()
-                    idx_data.append({
-                        "nom": nom_plat,
-                        "categorie": f_cat,
-                        "appareil": type_appareil,
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette],
-                        "chemin": ch_r
-                    })
-                    envoyer_vers_github(
-                        "data/index_recettes.json",
-                        json.dumps(idx_data, indent=4, ensure_ascii=False),
-                        "MAJ Index"
-                    )
+                # --- Envoi du nouvel index complet vers GitHub ---
+                envoyer_vers_github(
+                    "data/index_recettes.json",
+                    json.dumps(index_complet, indent=4, ensure_ascii=False),
+                    "MAJ Index"
+                )
 
-                    # --- Mise à jour session_state ---
-                    st.session_state.index_recettes = idx_data
-                    st.session_state.ingredients_recette = []
-                    st.session_state.cat_fixee = ""
-                    st.session_state.form_count += 1
+                # --- Mise à jour des session_state pour propagation dans selectbox et listes ---
+                st.session_state.index_recettes = index_complet
+                st.session_state.liste_choix = [""] + sorted({ing for r in index_complet for ing in r.get('ingredients', [])})
+                st.session_state.liste_categories = [""] + sorted({r.get('categorie', '') for r in index_complet if r.get('categorie')})
+                st.session_state.ingredients_recette = []
+                st.session_state.cat_fixee = ""
+                st.session_state.form_count += 1
 
-                    time.sleep(1)
-                    st.success("✅ Recette importée avec succès !")
-                    st.rerun()
+                time.sleep(1)
+                st.success("✅ Recette importée avec succès !")
+                st.rerun()
