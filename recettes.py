@@ -142,33 +142,37 @@ def afficher():
 
         b1, b2 = st.columns(2)
 
-        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+# ------------------ BOUTON SUPPRIMER ------------------
+if choix != "---" and st.session_state.get("authentifie", False):
+    b1, b2 = st.columns(2)
 
-            if supprimer_fichier_github(info['chemin']):
+    if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+        # 1️⃣ Supprimer le fichier recette sur GitHub
+        if supprimer_fichier_github(info['chemin']):
+            # Supprimer les images associées
+            for p in recette.get('images', []):
+                supprimer_fichier_github(p)
 
-                for p in recette.get('images', []):
-                    supprimer_fichier_github(p)
+            # 2️⃣ Mettre à jour l'index
+            nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+            sauvegarder_index_global(nouvel_index)
 
-                # MAJ index
-                nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                sauvegarder_index_global(nouvel_index)
-                
-                # Réinitialiser la liste filtrée et la sélection en toute sécurité
-                st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
-                
-                # Supprimer la clé de sélection existante pour éviter le conflit avec la selectbox
-                if "select_recette" in st.session_state:
-                    del st.session_state["select_recette"]
-                
-                # Supprimer variables temporaires
-                if "img_idx" in st.session_state:
-                    del st.session_state["img_idx"]
-                for key in list(st.session_state.keys()):
-                    if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
-                        del st.session_state[key]
-                
-                # Forcer rerun
-                st.rerun()
+            # 3️⃣ Réinitialiser la liste et la sélection de manière sûre
+            st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
+
+            # Supprimer la clé select_recette avant le rerun pour éviter l'erreur
+            if "select_recette" in st.session_state:
+                del st.session_state["select_recette"]
+
+            # 4️⃣ Supprimer les variables temporaires
+            if "img_idx" in st.session_state:
+                del st.session_state["img_idx"]
+            for key in list(st.session_state.keys()):
+                if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
+                    del st.session_state[key]
+
+            # 5️⃣ Forcer la page à se rerun pour afficher "---"
+            st.experimental_rerun()
 
         if b2.button("✍️ Modifier", use_container_width=True):
             st.session_state[f"edit_{info['chemin']}"] = True
