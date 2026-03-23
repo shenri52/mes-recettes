@@ -1,12 +1,12 @@
 import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index
+from utils import config_github_maintenance, envoyer_vers_github, recuperer_donnees_index
 
 # --- ENVOI DE DONNÉES VERS GITHUB ---
 def envoyer_donnees(chemin, contenu, message, est_image=False):
     """Fonction universelle pour envoyer texte ou images vers GitHub."""
-    conf = config_github()
+    conf = config_github_maintenance()
     url = f"{conf['base_url']}{chemin}"
     res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
     sha = res_get.json().get('sha') if res_get.status_code == 200 else None
