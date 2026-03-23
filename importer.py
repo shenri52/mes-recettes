@@ -1,6 +1,5 @@
 import streamlit as st
-import json, base64, requests, time, io
-
+import json, base64, time, io
 from datetime import datetime
 from PIL import Image
 from utils import config_github, envoyer_vers_github, recuperer_donnees_index
@@ -9,9 +8,12 @@ def afficher():
     st.divider()
     
     # Initialisation session_state
-    for k, v in {'form_count_img': 0, 'ingredients_img': [], 'liste_choix_img': ["---"], 'liste_categories_img': ["---"], 'cat_fixee': ""}.items():
-        if k not in st.session_state: st.session_state[k] = v
+    for k, v in {'form_count_img': 0, 'ingredients_img': [], 'liste_choix_img': ["---"], 
+                 'liste_categories_img': ["---"], 'cat_fixee': ""}.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
 
+    # Récupération de l'index complet et des listes
     if len(st.session_state.liste_choix_img) <= 1:
         index_complet, st.session_state.liste_choix_img, st.session_state.liste_categories_img = recuperer_donnees_index()
 
@@ -84,15 +86,10 @@ def afficher():
     # --- BLOC BOUTON ENREGISTRER ---
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_fixee
-        
+    
         # --- RECHERCHE DES DOUBLONS ---
-        conf = config_github()
-        url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
-        res_idx = requests.get(url_idx)
-        idx_data_check = index_complet if 'index_complet' in locals() else []
-        # On crée une liste des noms existants en MAJUSCULES pour comparer sans erreur
-        noms_existants = [r['nom'].strip().upper() for r in idx_data_check]
-
+        noms_existants = [r['nom'].strip().upper() for r in index_complet]
+    
         if not nom_plat:
             st.error("⚠️ Le nom de la recette est obligatoire.")
         elif nom_plat.strip().upper() in noms_existants:
@@ -108,7 +105,6 @@ def afficher():
                 
                 if photos_fb:
                     for idx, f in enumerate(photos_fb):
-                        # Traitement de l'image (optimisation)
                         ext = f.name.lower().split('.')[-1]
                         data_env = f.getvalue()
                         if ext in ["jpg", "jpeg", "png"]:
@@ -121,7 +117,7 @@ def afficher():
                         ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
                         if envoyer_vers_github(ch_m, data_env, "Media", True): 
                             liste_medias.append(ch_m)
-
+    
                 # Création du JSON de la recette
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
@@ -137,11 +133,7 @@ def afficher():
                 
                 # Envoi Recette + Mise à jour Index
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    conf = config_github()
-                    url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json"
-                    res_idx = requests.get(url_idx)
-                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
-                    
+                    idx_data = index_complet.copy()
                     idx_data.append({
                         "nom": nom_plat, 
                         "categorie": f_cat, 
@@ -151,13 +143,12 @@ def afficher():
                     })
                     
                     envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
-
+    
                     st.success("✅ Recette importée avec succès !")
                     
                     # --- RESET COMPLET ---
                     st.session_state.ingredients_img = []
                     st.session_state.cat_fixee = ""
-                    # On force le changement d'ID de formulaire pour vider les widgets natifs
                     st.session_state.form_count_img += 1
                     
                     if 'index_recettes' in st.session_state: 
