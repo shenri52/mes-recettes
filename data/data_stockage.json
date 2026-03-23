@@ -1,7 +1,60 @@
 {
-    "derniere_maj": "23/03/2026 à 06:32",
+    "derniere_maj": "23/03/2026 à 06:37",
     "poids_total_mo": 26.46,
-    "details": [
+    "total_recettes": 54,
+    "details_categories": [
+        {
+            "Catégorie": "Cocktail",
+            "Nombre": 6
+        },
+        {
+            "Catégorie": "Divers",
+            "Nombre": 7
+        },
+        {
+            "Catégorie": "Entrée",
+            "Nombre": 1
+        },
+        {
+            "Catégorie": "Goûter",
+            "Nombre": 1
+        },
+        {
+            "Catégorie": "Gâteau",
+            "Nombre": 1
+        },
+        {
+            "Catégorie": "Marinade",
+            "Nombre": 1
+        },
+        {
+            "Catégorie": "Plat",
+            "Nombre": 24
+        },
+        {
+            "Catégorie": "Salade",
+            "Nombre": 8
+        },
+        {
+            "Catégorie": "Soupe",
+            "Nombre": 4
+        },
+        {
+            "Catégorie": "Tartines de pain",
+            "Nombre": 1
+        }
+    ],
+    "details_appareils": [
+        {
+            "Appareil": "Aucun",
+            "Nombre": 53
+        },
+        {
+            "Appareil": "Ninja",
+            "Nombre": 1
+        }
+    ],
+    "details_stockage": [
         {
             "Type": "Recettes (JSON)",
             "Nombre": 61,
