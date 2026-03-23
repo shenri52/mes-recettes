@@ -84,8 +84,7 @@ def afficher():
                 del st.session_state[key]
                 
     index = charger_index()
-    st.header("📚 Mes recettes")
-    st.write("---")
+    st.write(divider)
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
