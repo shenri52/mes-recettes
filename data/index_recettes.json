@@ -191,19 +191,6 @@
         "chemin": "data/recettes/20260307_160634_gratin_de_ravioles_aux_champi,_comté_et_poireaux.json"
     },
     {
-        "nom": "Gâteau tout chocolat Nestlé",
-        "categorie": "Gâteau",
-        "appareil": "Aucun",
-        "ingredients": [
-            "De chocolat",
-            "Œufs",
-            "De sucre",
-            "De farine",
-            "De beurre"
-        ],
-        "chemin": "data/recettes/20260322_171433_gâteau_tout_chocolat_nestlé.json"
-    },
-    {
         "nom": "Jambon de porc à l'ananas",
         "categorie": "Plat",
         "appareil": "Aucun",
