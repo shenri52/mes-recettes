@@ -22,11 +22,11 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
         sha = res_get.json().get('sha') if res_get.status_code == 200 else None
         contenu_b64 = base64.b64encode(contenu if binaire else contenu.encode('utf-8')).decode('utf-8')
         data = {"message": message, "content": contenu_b64, "branch": "main"}
-        if sha: data["sha"] = sha
+        if sha:
+            data["sha"] = sha
         res = requests.put(url, headers=conf['headers'], json=data)
         return res.status_code in [200, 201]
     except Exception as e:
-        import streamlit as st
         st.error(f"Erreur technique : {str(e)}")
         return False
         
@@ -49,10 +49,6 @@ def recuperer_donnees_index():
     except Exception as e:
         st.warning(f"Impossible de récupérer l'index : {e}")
     
+    # Valeur par défaut en cas d'erreur
     st.session_state.index_recettes = []
     return [], ["---"], ["---"]
-    except Exception as e:
-        st.warning(f"Impossible de récupérer l'index : {e}")
-    
-    # Valeur par défaut en cas d'erreur
-    return ["---"], ["---"]
