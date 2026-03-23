@@ -1,20 +1,20 @@
 {
-    "derniere_maj": "20/03/2026 à 14:01",
-    "poids_total_mo": 24.08,
+    "derniere_maj": "23/03/2026 à 06:32",
+    "poids_total_mo": 26.46,
     "details": [
         {
             "Type": "Recettes (JSON)",
-            "Nombre": 42,
-            "Mo": 0.04
+            "Nombre": 61,
+            "Mo": 0.08
         },
         {
             "Type": "Photos (Images)",
-            "Nombre": 88,
-            "Mo": 23.94
+            "Nombre": 109,
+            "Mo": 26.29
         },
         {
             "Type": "Fichiers Système & Apps",
-            "Nombre": 21,
+            "Nombre": 15,
             "Mo": 0.1
         }
     ]
