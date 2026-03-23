@@ -6,7 +6,7 @@ import uuid
 import io
 
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index
+from utils import config_github, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
 # ------------------ SUPPRESSION ------------------
 def supprimer_fichier_github(chemin):
@@ -37,20 +37,18 @@ def compresser_image(upload_file):
 # ------------------ INDEX ------------------
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-
     envoyer_vers_github(
         "data/index_recettes.json",
         json.dumps(index_trie, indent=4, ensure_ascii=False),
         "MAJ Index"
     )
-
     st.session_state.index_recettes = index_trie
-
 
 # ------------------ APP ------------------
 def afficher():
 
     def nettoyer_modif():
+        """Supprime les données temporaires d'édition quand on change de recette."""
         if "img_idx" in st.session_state:
             del st.session_state["img_idx"]
         for key in list(st.session_state.keys()):
@@ -63,10 +61,8 @@ def afficher():
     # ------------------ FILTRES ------------------
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
-
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
-
     tous_ings_bruts = []
     for r in index:
         if r.get('ingredients'):
@@ -87,7 +83,6 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
-
     st.session_state['liste_recettes_filtrees'] = ["---"] + noms_filtres
 
     choix = st.selectbox(
@@ -100,21 +95,19 @@ def afficher():
     # ------------------ AFFICHAGE ------------------
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
-
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
         res = requests.get(url_full)
 
-        # 🔥 CORRECTION JSON ERROR
         if res.status_code != 200:
             st.warning("⚠️ Recette supprimée ou introuvable")
-            st.session_state.pop("select_recette", None)
+            st.session_state['select_recette'] = "---"
+            refresh_index_session()
             st.rerun()
             return
 
         recette = res.json()
 
         st.subheader(recette['nom'].upper())
-
         col_t, col_i = st.columns([1, 1])
 
         with col_t:
@@ -130,54 +123,43 @@ def afficher():
             if images:
                 if "img_idx" not in st.session_state:
                     st.session_state.img_idx = 0
-
                 if st.session_state.img_idx >= len(images):
                     st.session_state.img_idx = 0
-
                 img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx]}?t={int(time.time())}"
                 st.image(img_url, use_container_width=True)
 
     # ------------------ ADMIN ------------------
     if choix != "---" and st.session_state.get("authentifie", False):
-
         b1, b2 = st.columns(2)
 
-# ------------------ BOUTON SUPPRIMER ------------------
-if choix != "---" and st.session_state.get("authentifie", False):
-    b1, b2 = st.columns(2)
+        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+            # Supprimer le fichier recette
+            if supprimer_fichier_github(info['chemin']):
+                # Supprimer les images associées
+                for p in recette.get('images', []):
+                    supprimer_fichier_github(p)
 
-    if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-        # 1️⃣ Supprimer le fichier recette sur GitHub
-        if supprimer_fichier_github(info['chemin']):
-            # Supprimer les images associées
-            for p in recette.get('images', []):
-                supprimer_fichier_github(p)
+                # Mettre à jour l'index
+                nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                sauvegarder_index_global(nouvel_index)
 
-            # 2️⃣ Mettre à jour l'index
-            nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-            sauvegarder_index_global(nouvel_index)
+                # Réinitialiser la liste et le selectbox
+                st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
+                st.session_state['select_recette'] = "---"
 
-            # 3️⃣ Réinitialiser la liste et la sélection de manière sûre
-            st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
+                # Supprimer variables temporaires
+                if "img_idx" in st.session_state:
+                    del st.session_state["img_idx"]
+                for key in list(st.session_state.keys()):
+                    if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
+                        del st.session_state[key]
 
-            # Supprimer la clé select_recette avant le rerun pour éviter l'erreur
-            if "select_recette" in st.session_state:
-                del st.session_state["select_recette"]
-
-            # 4️⃣ Supprimer les variables temporaires
-            if "img_idx" in st.session_state:
-                del st.session_state["img_idx"]
-            for key in list(st.session_state.keys()):
-                if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
-                    del st.session_state[key]
-
-            # 5️⃣ Forcer la page à se rerun pour afficher "---"
-            st.experimental_rerun()
+                # Forcer rerun
+                st.rerun()
 
         if b2.button("✍️ Modifier", use_container_width=True):
             st.session_state[f"edit_{info['chemin']}"] = True
             st.rerun()
-
 
 # ------------------ MAIN ------------------
 if __name__ == "__main__":
