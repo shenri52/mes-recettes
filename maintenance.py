@@ -61,8 +61,8 @@ def afficher():
             
             # AFFICHAGE
             col1, col2 = st.columns(2)
-            col1.metric("📁 Fichiers réels", len(physiques))
-            col2.metric("🗂️ Entrées Index", len(index_actuel))
+            col1.metric("📁 Fichiers de recettes", len(physiques))
+            col2.metric("🗂️ Entrées dans l'index", len(index_actuel))
             
             # Cas A : Fichiers non indexés
             if manquantes:
