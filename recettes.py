@@ -84,7 +84,7 @@ def afficher():
                 del st.session_state[key]
                 
     index = charger_index()
-    st.write(divider)
+    st.divider()
 
     c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
     recherche = c1.text_input("🔍 Rechercher", "").lower()
