@@ -26,7 +26,6 @@ def supprimer_fichier_github(chemin):
     return False
 
 def afficher():
-    st.header("📥 Importer / Ajouter une recette")
     st.divider()
 
     # --- Initialisation session_state ---
