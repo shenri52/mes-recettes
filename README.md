@@ -25,9 +25,6 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
        * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
        * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
        * Visualisation des informations de la recette (catégorie, étapes, images...)
-   * **📚 Gestion des courses** : 
-       * Sasir la liste des courses (orgainsation actuelle selon mon parcours du magasin)
-       * Module de visualisation optimisé pour faire ses courses sur mobile
    * **🛠️ Maintenance** : 
        * Réparer l'index des recettes
        * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
@@ -69,8 +66,6 @@ REPO_NAME = "nom_de_votre_depot"
 ├── importer.py           # Module d'import par photo
 ├── recettes.py           # Module de consultation et modification
 ├── planning.py           # Gestion du planning hebdomadaire
-├── coursesaisir.py       # Préparation de la liste de courses
-├── coursevisualiser.py   # Mode "Magasin" pour les courses
 ├── stats.py              # Statistiques d'utilisation
 ├── maintenance.py        # Outils de corrections et de contrôles
 ├── requirements.txt      # Liste des bibliothèques nécessaires
@@ -80,8 +75,6 @@ REPO_NAME = "nom_de_votre_depot"
     ├── recettes/                   # Dossier contenant les fichiers .json des recettes
     └── images/                     # Dossier contenant les photos et PDF
     ├── data_stockage.json          # Statistiques du dépôt
-    ├── index_courses.json          # Index des produits utilisés pour les courses
-    ├── index_produits_zones.json   # Index du classement des produits utilisés pour les courses
     ├── index_recettes.json         # Index pour recherche rapide
     ├── planning.json               # Données du planning
     ├── plats_rapides.json          # Liste des plats sans recette
