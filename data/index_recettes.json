@@ -754,11 +754,11 @@
         "chemin": "data/recettes/20260323_101222_test_creer_2.json"
     },
     {
-        "nom": "TEST IMPORT",
+        "nom": "TEST CRER",
         "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [],
-        "chemin": "data/recettes/20260323_102535_test_import.json"
+        "chemin": "data/recettes/20260323_094420_test_crer.json"
     },
     {
         "nom": "TEST IMPORTER",
