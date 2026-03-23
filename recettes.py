@@ -234,13 +234,27 @@ def afficher():
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                # Ta logique de suppression complète (Fichier + Images + Index)
+                # Supprimer le fichier principal et les images
                 if supprimer_fichier_github(info['chemin']):
                     for p in recette.get('images', []): 
                         supprimer_fichier_github(p)
+                    
+                    # Mettre à jour l'index
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                     sauvegarder_index_global(nouvel_index)
+                    
+                    # 🔹 Rafraîchir l'index dans le session_state
                     refresh_index_session()
+                    
+                    # 🔹 Réinitialiser la sélection et toutes les variables liées
+                    st.session_state.select_recette = "---"
+                    if "img_idx" in st.session_state:
+                        del st.session_state["img_idx"]
+                    for key in list(st.session_state.keys()):
+                        if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
+                            del st.session_state[key]
+                    
+                    # 🔹 Forcer le rerun pour actualiser l'affichage
                     st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):
