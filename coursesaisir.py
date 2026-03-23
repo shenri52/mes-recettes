@@ -94,8 +94,6 @@ def afficher():
     if "reset_count" not in st.session_state:
         st.session_state.reset_count = 0
 
-    st.divider()
-
     # --- LES 12 ONGLETS (Retour à Z1, Z2... avec style bouton) ---
     onglets = st.tabs([f"{i+1}" for i in range(12)])
 
