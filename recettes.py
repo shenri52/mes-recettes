@@ -153,6 +153,9 @@ def afficher():
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
 
+                st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
+                st.session_state["select_recette"] = "---"  # reset sélection
+
                 # 🔥 CORRECTION STREAMLIT
                 st.session_state.pop("select_recette", None)
 
