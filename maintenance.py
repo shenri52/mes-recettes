@@ -62,7 +62,23 @@ def afficher():
                     for m in manquantes:
                         st.write(f"📄 {m}")
                 st.session_state.a_reparer = manquantes
-
+        
+            if st.session_state.get("a_reparer"):
+                if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
+                    with st.spinner("Analyse..."):
+                        index_actuel = charger_index_local()
+                        nouvelles = []
+                        for chemin in st.session_state.a_reparer:
+                            r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{chemin}")
+                            if r.status_code == 200:
+                                d = r.json()
+                                nouvelles.append({"nom": d.get("nom", "Sans nom"), "categorie": d.get("categorie", "Non classé"), "appareil": d.get("appareil", "Aucun"), "ingredients": [i.get("Ingrédient") for i in d.get("ingredients", [])], "chemin": chemin})
+                        index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
+                        if envoyer_donnees("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
+                            st.success("✅ Index réparé !")
+                            del st.session_state.a_reparer
+                            st.rerun()
+            
             # Cas B : Recettes fantômes (Ton cas 53/54)
             if orphelines:
                 st.error(f"🚨 {len(orphelines)} recette(s) dans l'index n'ont plus de fichier !")
