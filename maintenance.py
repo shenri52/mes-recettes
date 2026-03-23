@@ -67,14 +67,18 @@ def afficher():
             # Cas A : Fichiers non indexés
             if manquantes:
                 st.warning(f"⚠️ {len(manquantes)} fichier(s) ne sont pas dans l'index.")
-                st.selectbox("Fichiers à ajouter :", manquantes)
+                with st.expander("Voir les fichiers à intégrer"):
+                    for m in manquantes:
+                        st.write(f"📄 {m}")
                 st.session_state.a_reparer = manquantes
 
             # Cas B : Recettes fantômes (Ton cas 53/54)
             if orphelines:
                 st.error(f"🚨 {len(orphelines)} recette(s) dans l'index n'ont plus de fichier !")
                 noms_orphelins = [r['nom'] for r in orphelines]
-                st.selectbox("Recettes fantômes détectées :", noms_orphelins)
+                with st.expander("Voir les recettes fantômes"):
+                    for o in orphelines:
+                        st.write(f"👻 **{o.get('nom')}** (`{o.get('chemin')}`)")
                 st.session_state.orphelines = orphelines
             
             if not manquantes and not orphelines:
