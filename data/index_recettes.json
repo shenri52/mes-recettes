@@ -1,9 +1,777 @@
 [
     {
+        "nom": "Blanquette de poireaux au poiré",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Champignons",
+            "Beurre de baratte",
+            "Poiré (cidre de poire)",
+            "Crème fraiche",
+            "Jaune d'oeufs"
+        ],
+        "chemin": "data/recettes/20260308_110523_blanquette_de_poireaux_au_poiré.json"
+    },
+    {
+        "nom": "Boeuf Stroganoff",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Boeuf",
+            "Oignon",
+            "Champignons",
+            "Ail",
+            "Crème fraiche",
+            "Moutarde",
+            "Bouillon de boeuf"
+        ],
+        "chemin": "data/recettes/20260307_155721_boeuf_stroganoff.json"
+    },
+    {
+        "nom": "Brandle",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Gin",
+            "Crème de mûre",
+            "Jus de citron",
+            "Sirop de sucre de canne"
+        ],
+        "chemin": "data/recettes/20260308_105455_brandle.json"
+    },
+    {
+        "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poulet haché",
+            "Mozzarella râpée",
+            "Ricotta",
+            "Epinards",
+            "Tomates cerises",
+            "Jaune d'oeufs",
+            "Chapelure"
+        ],
+        "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
+    },
+    {
+        "nom": "Cookie façon brownie",
+        "categorie": "Goûter",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Chocolat noir",
+            "Beurre",
+            "Oeuf",
+            "Farine"
+        ],
+        "chemin": "data/recettes/20260307_095845_cookie_façon_brownie.json"
+    },
+    {
+        "nom": "Diamant bleu",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rhum blanc",
+            "Curacao bleu",
+            "Jus d'ananas",
+            "Jus de citron vert"
+        ],
+        "chemin": "data/recettes/20260307_151219_diamant_bleu.json"
+    },
+    {
+        "nom": "Eau de cannelle ",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Eau",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260313_142212_eau_de_cannelle_.json"
+    },
+    {
+        "nom": "Eau de Chia",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Graines de chia",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260307_171548_eau_de_chia.json"
+    },
+    {
+        "nom": "Filet mignon au cidre et chataignes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet mignon",
+            "Cidre",
+            "Chataignes",
+            "Champignons"
+        ],
+        "chemin": "data/recettes/20260307_152453_filet_mignon_au_cidre_et_chataignes.json"
+    },
+    {
+        "nom": "Filet mignon de porc au chorizo",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet mignon",
+            "Chorizo",
+            "Moutarde",
+            "Maïzena",
+            "Paprika"
+        ],
+        "chemin": "data/recettes/20260307_150438_filet_mignon_de_porc_au_chorizo.json"
+    },
+    {
+        "nom": "Fondue d'endives aux saucisses fumées",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Endives",
+            "Saucisses fumées",
+            "Echalottes",
+            "Crème fraiche",
+            "Moutarde"
+        ],
+        "chemin": "data/recettes/20260307_153038_fondue_d'endives_aux_saucisses_fumées.json"
+    },
+    {
+        "nom": "Granola Maison",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Amandes",
+            "Graines",
+            "Huile végétale",
+            "Sirop d'agave",
+            "Fruits secs"
+        ],
+        "chemin": "data/recettes/20260307_101844_granola_maison.json"
+    },
+    {
+        "nom": "Gratin de champignons au jambon et fromage",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Champignons",
+            "Jambon en dés",
+            "Fromage râpé",
+            "Crème fraiche",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260307_154056_gratin_de_champignons_au_jambon_et_fromage.json"
+    },
+    {
+        "nom": "Gratin de ravioles aux champignons et comté",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ravioles",
+            "Champignons",
+            "Poireaux",
+            "Crème fraiche",
+            "Comté"
+        ],
+        "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
+    },
+    {
+        "nom": "Gratin de ravioles aux champignons, comté et poireaux",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ravioles",
+            "Poireaux",
+            "Champignons",
+            "Crème fraiche",
+            "Comté"
+        ],
+        "chemin": "data/recettes/20260307_160634_gratin_de_ravioles_aux_champi,_comté_et_poireaux.json"
+    },
+    {
+        "nom": "Jambon de porc à l'ananas",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Jambon à l'os",
+            "Ananas en boite",
+            "Oignon",
+            "Ail",
+            "Poivron rouge",
+            "Bouillon de volaille",
+            "Sauce soja",
+            "Vinaigre de cidre",
+            "Miel",
+            "Gingembre"
+        ],
+        "chemin": "data/recettes/20260307_151925_jambon_de_porc_à_l'ananas.json"
+    },
+    {
+        "nom": "Lait de poule",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rhum blanc",
+            "Lait",
+            "Jaune d'oeufs",
+            "Sucre",
+            "Noix de muscade",
+            "Cannelle",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260307_153549_lait_de_poule.json"
+    },
+    {
+        "nom": "Légumes rôtis, poulet et crème d'avocat au skyr",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Pois chiche",
+            "Oignon",
+            "Patates douces",
+            "Curcuma",
+            "Huile olive",
+            "Avocat",
+            "Yaourt Skyr",
+            "Ail"
+        ],
+        "chemin": "data/recettes/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr.json"
+    },
+    {
+        "nom": "Marinade pour poulet au paprika",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ail poudre",
+            "Herbes de provence",
+            "Paprika",
+            "Cumin",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260307_160234_marinade_pour_poulet_au_paprika.json"
+    },
+    {
+        "nom": "Marmite toulousaine",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Saucisse de toulouse",
+            "Petit pois",
+            "Eau",
+            "Fond de veau",
+            "Epices à paëlla",
+            "Riz",
+            "Lardons",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260307_143839_marmite_toulousaine.json"
+    },
+    {
+        "nom": "Mayonnaise diététique",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Œufs durs",
+            "Fromage blanc",
+            "Moutarde",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
+    },
+    {
+        "nom": "Nouilles Thaï au poulet et cacahuètes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Nouilles de riz",
+            "Filet de poulet",
+            "Poivron rouge",
+            "Oignon",
+            "Ail",
+            "Huile sesame",
+            "Cacahuètes",
+            "Sauce soja",
+            "Beurre de cacahuètes",
+            "Miel",
+            "Jus citron vert",
+            "Gingembre"
+        ],
+        "chemin": "data/recettes/20260307_145024_nouilles_thia_au_pooulet_et_cacahuètes.json"
+    },
+    {
+        "nom": "Orzo crémeux aux épinards et champignons",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Orzo",
+            "Huile olive",
+            "Oignon",
+            "Ail",
+            "Epinards",
+            "Parmesan",
+            "Paprika",
+            "Bouillon de légumes",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260307_100255_orzo_crémeux_aux_épinards_et_champignons.json"
+    },
+    {
+        "nom": "Pain Avoine et graines de chia",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Graines de chia",
+            "Oeuf",
+            "Lait végétal"
+        ],
+        "chemin": "data/recettes/20260321_083917_pain_avoine_et_graines_de_chia.json"
+    },
+    {
+        "nom": "Paradisio",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Limoncello",
+            "Sirop de pamplemousse",
+            "Procesco"
+        ],
+        "chemin": "data/recettes/20260316_084731_paradisio.json"
+    },
+    {
+        "nom": "Patates douces, pois chiches, épinards et tomates",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Patates douces",
+            "Pois chiche",
+            "Tomates pelées",
+            "Curcuma",
+            "Curry",
+            "Ail",
+            "Epinards",
+            "Feta"
+        ],
+        "chemin": "data/recettes/20260313_122717_patates_douces,_pois_chiches,_épinards_et_tomates.json"
+    },
+    {
+        "nom": "Pink Coconut Mojito",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rhum blanc",
+            "Crème de coco",
+            "Jus de lime frais",
+            "Sirop de grenadine",
+            "Feuilles de menthe",
+            "Eau pétillante"
+        ],
+        "chemin": "data/recettes/20260307_150947_pink_coconut_mojito.json"
+    },
+    {
+        "nom": "Poireaux fondants, Pois chiches et lait de coco",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Pois chiche",
+            "Oignon",
+            "Pâte de curry jaune",
+            "Curcuma",
+            "Lait de coco"
+        ],
+        "chemin": "data/recettes/20260307_172401_poireaux_fondants,_pois_chiches_et_lait_de_coco.json"
+    },
+    {
+        "nom": "Poireaux vinaigrette façon bistrot",
+        "categorie": "Entrée",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poireaux",
+            "Oeuf",
+            "Moutarde en grain"
+        ],
+        "chemin": "data/recettes/20260308_110842_poireaux_vinaigrette_façon_bistrot.json"
+    },
+    {
+        "nom": "Pois chiches apéro",
+        "categorie": "Divers",
+        "appareil": "Ninja",
+        "ingredients": [
+            "Pois chiche",
+            "Huile olive",
+            "Ail poudre",
+            "Assaisonnement ranch"
+        ],
+        "chemin": "data/recettes/20260307_144219_pois_chiches_apéro.json"
+    },
+    {
+        "nom": "Polenta crémeuse et poelée de champignons",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Polenta",
+            "Bouillon de légumes",
+            "Parmesan",
+            "Champignons"
+        ],
+        "chemin": "data/recettes/20260307_165858_polenta_crémeuse_et_poelée_de_champignons.json"
+    },
+    {
+        "nom": "Porc confit à l'érable",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Rouelle de porc",
+            "Huile végétale",
+            "Oignon",
+            "Ail",
+            "Sirop d'érable",
+            "Vinaigre de cidre",
+            "Moutarde",
+            "Sauce soja",
+            "Thym",
+            "Romarin"
+        ],
+        "chemin": "data/recettes/20260321_075702_porc_confit_à_l'érable.json"
+    },
+    {
+        "nom": "Poulet cremeux au paprika",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Riz",
+            "Oignon",
+            "Ail",
+            "Crème fraiche",
+            "Bouillon de volaille",
+            "Paprika",
+            "Moutarde",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260307_100916_poulet_cremeux_au_paprika.json"
+    },
+    {
+        "nom": "Poulet sauce Boursin ai et fines herbes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
+    },
+    {
+        "nom": "Poulet sauce boursin à l'ail et fines herbes ",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin Ail et fines herbes",
+            "Crème fraiche",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes_.json"
+    },
+    {
+        "nom": "Ragout aux haricots blancs et boeuf",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Boeuf",
+            "Haricots blancs",
+            "Oignon",
+            "Ail",
+            "Tomates concassées",
+            "Concentré de tomates",
+            "Huile olive",
+            "Paprika",
+            "Piment",
+            "Cumin",
+            "Bouillon de boeuf"
+        ],
+        "chemin": "data/recettes/20260307_150008_ragout_aux_haricots_blancs_et_boeuf.json"
+    },
+    {
+        "nom": "Ragout de pommes de terre aux boulettes de viande hachée",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Boeuf",
+            "Pommes de terre",
+            "Oignon",
+            "Ail",
+            "Tomates concassées",
+            "Concentré de tomates",
+            "Carottes",
+            "Céleri branche",
+            "Bouillon de boeuf"
+        ],
+        "chemin": "data/recettes/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée.json"
+    },
+    {
+        "nom": "Riz sauté au poulet et légumes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Riz cuit froid",
+            "Carottes",
+            "Petit pois",
+            "Poivron rouge",
+            "Oeuf",
+            "Ail",
+            "Sauce soja",
+            "Huile sesame",
+            "Oignon"
+        ],
+        "chemin": "data/recettes/20260321_080612_riz_sauté_au_poulet_et_légumes.json"
+    },
+    {
+        "nom": "Rose des sables Extra croustillantes",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Chocolat noir",
+            "Beurre",
+            "Corn flakes",
+            "Amandes effillées",
+            "Sucre glace",
+            "Sel"
+        ],
+        "chemin": "data/recettes/20260307_101306_rose_des_sables_extra_croustillantes.json"
+    },
+    {
+        "nom": "Salade d'orechiette et sauce crémeuse",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pâtes",
+            "Tomates séchées",
+            "Avocat",
+            "Halloumi",
+            "Poireaux",
+            "Echalottes",
+            "Basilic",
+            "Yaourt à la grec",
+            "Moutarde en grain",
+            "Tahini (purée de sesame)",
+            "Miel"
+        ],
+        "chemin": "data/recettes/20260307_164902_salade_d'orechiette_et_sauce_crémeuse.json"
+    },
+    {
+        "nom": "Salade de pois chiche et concombre sauce au yaourt",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pois chiche",
+            "Concombre",
+            "Oignon rouge",
+            "Yaourt à la grec",
+            "Huile olive",
+            "Jus de citron",
+            "Aneth"
+        ],
+        "chemin": "data/recettes/20260321_084817_salade_de_pois_chiche_et_concombre_sauce_au_yaourt.json"
+    },
+    {
+        "nom": "Salade fraicheur jambon concombre",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Jambon en dés",
+            "Concombre",
+            "Maïs en boite",
+            "Crème fraiche épaisse",
+            "Mayonnaise",
+            "Moutarde"
+        ],
+        "chemin": "data/recettes/20260307_160909_salade_fraicheur_jambon_concombre.json"
+    },
+    {
+        "nom": "Salade Lentilles, carottes rapées, raisins secs, noisettes",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Lentilles vertes",
+            "Carottes",
+            "Raisins secs",
+            "Noisettes",
+            "Vinaigre de cidre",
+            "Moutarde"
+        ],
+        "chemin": "data/recettes/20260307_163201_salade_lentilles,_carottes_rapées,_raisins_secs,_noisettes.json"
+    },
+    {
+        "nom": "Salade méditerranéenne Moyen-Orient",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Concombre",
+            "Tomate",
+            "Oignon rouge",
+            "Menthe séchée",
+            "Huile olive",
+            "Jus de citron"
+        ],
+        "chemin": "data/recettes/20260321_080942_Salade méditerranéenne Moyen-Orient.json"
+    },
+    {
+        "nom": "Salade pois chiches, Avocat et Feta",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Pois chiche",
+            "Avocat",
+            "Feta",
+            "Oignon rouge",
+            "Persil",
+            "Menthe fraiche"
+        ],
+        "chemin": "data/recettes/20260321_084244_salade_pois_chiches,_avocat_et_feta.json"
+    },
+    {
+        "nom": "Salade Quinoa et légumes rôtis",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Quinoa",
+            "Courgette",
+            "Poivron rouge",
+            "Carottes",
+            "Oignon rouge",
+            "Huile olive",
+            "Jus de citron",
+            "Sirop d'érable",
+            "Roquette"
+        ],
+        "chemin": "data/recettes/20260307_172033_salade_quinoa_et_légumes_rôtis.json"
+    },
+    {
+        "nom": "Salade Thaï au Quinoa et sauce cacahuète",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Quinoa",
+            "Chou rouge",
+            "Carottes",
+            "Poivron rouge",
+            "Cacahuètes non salées",
+            "Beurre de cacahuètes",
+            "Jus citron vert",
+            "Gingembre"
+        ],
+        "chemin": "data/recettes/20260308_105921_salade_thaï_au_quinoa_et_sauce_cacahuète.json"
+    },
+    {
+        "nom": "Sauce légère crudités et salades",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Yaourt à la grec",
+            "Moutarde",
+            "Ail",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260321_083338_sauce_légère_crudités_et_salades.json"
+    },
+    {
+        "nom": "Soupe au chou Zéro point",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Chou blanc",
+            "Boeuf haché",
+            "Carottes",
+            "Céleri branche",
+            "Oignon",
+            "Ail",
+            "Poivron vert",
+            "Tomates concassées",
+            "Bouillon de légumes"
+        ],
+        "chemin": "data/recettes/20260307_164216_soupe_au_chou_zéro_point.json"
+    },
+    {
+        "nom": "Soupe détox aux légumes verts",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Courgette",
+            "Céleri branche",
+            "Poireaux",
+            "Ail",
+            "Bouillon de légumes",
+            "Jus de citron vert"
+        ],
+        "chemin": "data/recettes/20260307_163705_soupe_détox_aux_légumes_verts.json"
+    },
+    {
+        "nom": "Soupe Thai",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Bouillon de légumes",
+            "Lait de coco",
+            "Carottes",
+            "Poivron rouge",
+            "Champignons",
+            "Pousses de bambou",
+            "Gingembre",
+            "Ail",
+            "Pâte de curry rouge",
+            "Sauce soja",
+            "Jus citron vert"
+        ],
+        "chemin": "data/recettes/20260307_173318_soupe_thai.json"
+    },
+    {
+        "nom": "Tartines à l'avocat, Feta, Tomates cerises, Cranberries et Noix",
+        "categorie": "Tartines de pain",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Avocat",
+            "Avocat",
+            "Tartines de pain",
+            "Tomates cerises",
+            "Feta",
+            "Noix",
+            "Cranberries"
+        ],
+        "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
+    },
+    {
         "nom": "TEST CRER",
         "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260323_094420_test_crer.json"
+    },
+    {
+        "nom": "TEST IMPORTER",
+        "categorie": "Entrée",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260323_093510_test_importer.json"
+    },
+    {
+        "nom": "Velouté de courgettes et épinards au lait de coco",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Courgette",
+            "Epinards frais",
+            "Oignon",
+            "Bouillon de légumes",
+            "Lait de coco",
+            "Curcuma"
+        ],
+        "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
     }
 ]
