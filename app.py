@@ -47,10 +47,16 @@ def verifier_mot_de_passe():
     return True
 
 def aller_accueil():
-    # On remet la page sur accueil
+    # 1. Liste des clés critiques à NE PAS supprimer (pour rester connecté)
+    cles_a_conserver = ['authentifie', 'mode_public', 'mdp_temp']
+    
+    # 2. On supprime tout le reste
+    for cle in list(st.session_state.keys()):
+        if cle not in cles_a_conserver:
+            del st.session_state[cle]
+    
+    # 3. On redirige vers l'accueil
     st.session_state.page = 'accueil'
-    # On désactive le mode public pour revenir à l'écran de verrouillage
-    st.session_state["mode_public"] = False
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
