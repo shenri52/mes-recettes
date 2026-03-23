@@ -87,7 +87,17 @@ def afficher():
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
-        recette = requests.get(url_full).json()
+        res = requests.get(url_full)
+
+        if res.status_code != 200:
+            st.warning("⚠️ Recette introuvable (supprimée ou en cours de mise à jour)")
+            
+            # 🔥 reset propre
+            refresh_index_session()
+            st.session_state.select_recette = "---"
+            st.rerun()
+        else:
+            recette = res.json()
 
         m_edit = f"edit_{info['chemin']}"
         if m_edit not in st.session_state: st.session_state[m_edit] = False
