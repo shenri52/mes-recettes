@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
-from utils import config_github_maintenance, envoyer_vers_github, recuperer_donnees_index
+from utils import config_github_maintenance, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
 # --- ENVOI DE DONNÉES VERS GITHUB ---
 def envoyer_donnees(chemin, contenu, message, est_image=False):
@@ -78,6 +78,7 @@ def afficher():
                         })
                 index_final = sorted(index_complet + nouvelles, key=lambda x: x['nom'].lower())
                 if envoyer_donnees("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
+                    refresh_index_session()
                     st.success("✅ Index réparé !")
                     del st.session_state.a_reparer
                     st.rerun()
@@ -88,6 +89,7 @@ def afficher():
             index_complet, _, _ = recuperer_donnees_index()
             nouveau_index = [r for r in index_complet if r not in st.session_state.orphelines]
             if envoyer_donnees("data/index_recettes.json", json.dumps(nouveau_index, indent=4, ensure_ascii=False), "🛠️ Suppression fantômes"):
+                refresh_index_session()
                 st.success("✅ Index nettoyé !")
                 del st.session_state.orphelines
                 st.rerun()
@@ -130,6 +132,7 @@ def afficher():
             for f in st.session_state.fichiers_a_sauvegarder:
                 envoyer_donnees(f['chemin'], json.dumps(f['contenu'], indent=4, ensure_ascii=False), "🧹 Nettoyage")
             envoyer_donnees("data/index_recettes.json", json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), "🧹 Nettoyage Index")
+            refresh_index_session()
             del st.session_state.index_a_sauvegarder
             st.rerun()
 
