@@ -35,14 +35,19 @@ def afficher():
                 stats_c = {"Recettes (JSON)": {"nb": 0, "poids": 0}, "Photos (Images)": {"nb": 0, "poids": 0}, "Système": {"nb": 0, "poids": 0}}
                 for item in tree:
                     if item.get('type') == 'blob':
-                        p = item['path'].lower()
-                        k = "Recettes (JSON)" if p.endswith('.json') else "Photos (Images)" if p.endswith(('.png','.jpg','.jpeg','.webp')) else "Système"
+                        if p.startswith("data/recettes/") and p.endswith(".json"):
+                            k = "Recettes (JSON)"
+                        elif p.endswith(('.png','.jpg','.jpeg','.webp')):
+                            k = "Photos (Images)"
+                        else:
+                            k = "Système"
                         stats_c[k]["nb"] += 1
                         stats_c[k]["poids"] += item.get('size', 0)
                 
                 poids_mo = round(sum(d["poids"] for d in stats_c.values()) / (1024*1024), 2)
                 data = {
-                    "derniere_maj": datetime.datetime.now().strftime("%d/%m/%Y à %H:%M"),
+                    from zoneinfo import ZoneInfo
+"                   "derniere_maj": datetime.datetime.now(ZoneInfo("Europe/Paris")).strftime("%d/%m/%Y à %H:%M"),
                     "poids_total_mo": poids_mo,
                     "total_recettes": len(index),
                     "details_categories": [{"Catégorie": k, "Nombre": v} for k, v in Counter(r.get('categorie','?') for r in index).items()],
