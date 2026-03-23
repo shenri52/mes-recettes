@@ -240,6 +240,7 @@ def afficher():
                         supprimer_fichier_github(p)
                     nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                     sauvegarder_index_global(nouvel_index)
+                    refresh_index_session()
                     st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):
