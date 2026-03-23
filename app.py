@@ -1,8 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import (importer, saisir,
-        recettes, stats, maintenance,
-        planning, coursesaisir, coursevisualiser)
+import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
