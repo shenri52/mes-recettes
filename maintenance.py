@@ -39,46 +39,60 @@ def afficher():
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
     st.divider()
     
+    # --- SECTION 1 : SYNCHRONISATION INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         conf = config_github()
         res = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1", headers=conf['headers'])
+        
         if res.status_code == 200:
             tree = res.json().get('tree', [])
             
-            # SCAN UNIQUEMENT DU DOSSIER DATA/RECETTES 📂
+            # 1. Scan des fichiers réels sur GitHub
             physiques = [i['path'] for i in tree if i['path'].startswith('data/recettes/') and i['path'].endswith('.json')]
+            
+            # 2. Scan de l'index actuel
             index_actuel = charger_index_local()
             chemins_index = {r['chemin'] for r in index_actuel}
-            manquantes = [f for f in physiques if f not in chemins_index]
             
-            # AFFICHAGE SUR LA MÊME LIGNE 📏
+            # 3. Comparaison
+            manquantes = [f for f in physiques if f not in chemins_index] # Fichier présent, mais pas dans l'index
+            orphelines = [r for r in index_actuel if r['chemin'] not in physiques] # Index présent, mais fichier disparu
+            
+            # AFFICHAGE
             col1, col2 = st.columns(2)
-            col1.write(f"📁 **Fichiers :** {len(physiques)}")
-            col2.write(f"🗂️ **Index :** {len(index_actuel)}")
+            col1.metric("📁 Fichiers réels", len(physiques))
+            col2.metric("🗂️ Entrées Index", len(index_actuel))
             
+            # Cas A : Fichiers non indexés
             if manquantes:
-                # LISTE DÉROULANTE POUR VOIR LES FICHIERS HORS INDEX
-                st.selectbox("Fichiers hors index", manquantes)
+                st.warning(f"⚠️ {len(manquantes)} fichier(s) ne sont pas dans l'index.")
+                st.selectbox("Fichiers à ajouter :", manquantes)
                 st.session_state.a_reparer = manquantes
-            else: 
-                st.success("✅ Index à jour.")
 
-    if st.session_state.get("a_reparer"):
-        if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
-            with st.spinner("Analyse..."):
-                index_actuel = charger_index_local()
-                nouvelles = []
-                for chemin in st.session_state.a_reparer:
-                    r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{chemin}")
-                    if r.status_code == 200:
-                        d = r.json()
-                        nouvelles.append({"nom": d.get("nom", "Sans nom"), "categorie": d.get("categorie", "Non classé"), "appareil": d.get("appareil", "Aucun"), "ingredients": [i.get("Ingrédient") for i in d.get("ingredients", [])], "chemin": chemin})
-                index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
-                if envoyer_donnees("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
-                    st.success("✅ Index réparé !")
-                    del st.session_state.a_reparer
-                    st.rerun()
+            # Cas B : Recettes fantômes (Ton cas 53/54)
+            if orphelines:
+                st.error(f"🚨 {len(orphelines)} recette(s) dans l'index n'ont plus de fichier !")
+                noms_orphelins = [r['nom'] for r in orphelines]
+                st.selectbox("Recettes fantômes détectées :", noms_orphelins)
+                st.session_state.orphelines = orphelines
+            
+            if not manquantes and not orphelines:
+                st.success("✅ L'index et les fichiers sont parfaitement synchronisés !")
+
+    # Bouton pour supprimer les fantômes (le -1 pour arriver à 53)
+    if st.session_state.get("orphelines"):
+        if st.button("🗑️ Supprimer les recettes fantômes de l'index", use_container_width=True):
+            index_actuel = charger_index_local()
+            chemins_valides = [r['chemin'] for r in index_actuel if any(r['chemin'] == r_fantome['chemin'] for r_fantome in st.session_state.orphelines) == False]
+            
+            # On ne garde que ceux qui ne sont pas orphelins
+            nouveau_index = [r for r in index_actuel if r not in st.session_state.orphelines]
+            
+            if envoyer_donnees("data/index_recettes.json", json.dumps(nouveau_index, indent=4, ensure_ascii=False), "🛠️ Suppression fantômes"):
+                st.success("✅ Index nettoyé !")
+                del st.session_state.orphelines
+                st.rerun()
 
     # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
