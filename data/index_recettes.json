@@ -761,13 +761,6 @@
         "chemin": "data/recettes/20260323_102535_test_import.json"
     },
     {
-        "nom": "TEST IMPORTER",
-        "categorie": "Entrée",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260323_093510_test_importer.json"
-    },
-    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
