@@ -13,7 +13,7 @@ def afficher():
         if k not in st.session_state: st.session_state[k] = v
 
     if len(st.session_state.liste_choix_img) <= 1:
-        st.session_state.liste_choix_img, st.session_state.liste_categories_img = recuperer_donnees_index()
+        index_complet, st.session_state.liste_choix_img, st.session_state.liste_categories_img = recuperer_donnees_index()
 
     f_id = st.session_state.form_count_img
     nom_plat = st.text_input("Nom de la recette", key=f"ni_{f_id}")
@@ -89,7 +89,7 @@ def afficher():
         conf = config_github()
         url_idx = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
         res_idx = requests.get(url_idx)
-        idx_data_check = res_idx.json() if res_idx.status_code == 200 else []
+        idx_data_check = index_complet if 'index_complet' in locals() else []
         # On crée une liste des noms existants en MAJUSCULES pour comparer sans erreur
         noms_existants = [r['nom'].strip().upper() for r in idx_data_check]
 
