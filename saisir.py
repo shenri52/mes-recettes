@@ -13,7 +13,7 @@ def afficher():
 
     if len(st.session_state.liste_choix) <= 1:
         with st.spinner("📦 Synchronisation..."):
-            st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
+            index_complet, st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
 
     f_id = st.session_state.form_count
     with st.container():
@@ -162,8 +162,7 @@ def afficher():
                 }
                 
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
-                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
+                    idx_data = index_complet if 'index_complet' in locals() else []
                     idx_data.append({
                         "nom": nom_plat, 
                         "categorie": f_cat, 
