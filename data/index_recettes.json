@@ -780,5 +780,12 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260323_115358_test_creer.json"
+    },
+    {
+        "nom": "TEST CREER 23",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260323_115425_test_creer_23.json"
     }
 ]
