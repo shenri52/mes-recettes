@@ -8,7 +8,7 @@ import io
 from PIL import Image
 from utils import config_github, envoyer_vers_github, recuperer_donnees_index
 
-# ------------------ SUPPRESSION GITHUB ------------------
+# ------------------ SUPPRESSION ------------------
 def supprimer_fichier_github(chemin):
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
@@ -24,18 +24,15 @@ def supprimer_fichier_github(chemin):
         return res_del.status_code in [200, 204]
     return False
 
-
 # ------------------ IMAGE ------------------
 def compresser_image(upload_file):
     img = Image.open(upload_file)
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
-
     img.thumbnail((1200, 1200))
     buffer = io.BytesIO()
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
-
 
 # ------------------ INDEX ------------------
 def sauvegarder_index_global(index_maj):
@@ -53,50 +50,63 @@ def sauvegarder_index_global(index_maj):
 # ------------------ APP ------------------
 def afficher():
 
-    # reset edition
-    def nettoyer():
-        st.session_state.pop("img_idx", None)
+    def nettoyer_modif():
+        if "img_idx" in st.session_state:
+            del st.session_state["img_idx"]
         for key in list(st.session_state.keys()):
-            if key.startswith(("edit_", "init_", "ings_")):
+            if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
                 del st.session_state[key]
 
     index, ingredients, categories = recuperer_donnees_index()
-
-    st.title("📖 Mes recettes")
     st.divider()
 
     # ------------------ FILTRES ------------------
-    recherche = st.text_input("🔍 Rechercher").lower()
+    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
+    recherche = c1.text_input("🔍 Rechercher", "").lower()
 
+    cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+    apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
+
+    tous_ings_bruts = []
+    for r in index:
+        if r.get('ingredients'):
+            tous_ings_bruts.extend(r['ingredients'])
+    liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
+
+    f_cat = c2.selectbox("Catégorie", ["Tous"] + cats_existantes)
+    f_app = c3.selectbox("Appareil", apps)
+    f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
+
+    # ------------------ FILTRAGE ------------------
     resultats = [
-        r for r in index
-        if not recherche or recherche in r['nom'].lower()
+        r for r in index 
+        if (not recherche or recherche in r['nom'].lower())
+        and (f_cat == "Tous" or r['categorie'] == f_cat)
+        and (f_app == "Tous" or r['appareil'] == f_app)
+        and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
 
-    noms = [r['nom'].upper() for r in resultats]
+    noms_filtres = [r['nom'].upper() for r in resultats]
+
+    st.session_state['liste_recettes_filtrees'] = ["---"] + noms_filtres
 
     choix = st.selectbox(
-        "Choisir une recette",
-        ["---"] + noms,
+        "📖 Sélectionner une recette",
+        st.session_state['liste_recettes_filtrees'],
         key="select_recette",
-        on_change=nettoyer
+        on_change=nettoyer_modif
     )
-
-    # ------------------ RESET SI SUPPRIMÉ ------------------
-    if choix != "---" and choix not in noms:
-        st.session_state.pop("select_recette", None)
-        st.rerun()
 
     # ------------------ AFFICHAGE ------------------
     if choix != "---":
-        info = resultats[noms.index(choix)]
+        info = resultats[noms_filtres.index(choix)]
 
-        url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
-        res = requests.get(url)
+        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
+        res = requests.get(url_full)
 
-        # 🔥 évite JSONDecodeError
+        # 🔥 CORRECTION JSON ERROR
         if res.status_code != 200:
-            st.warning("⚠️ Recette supprimée")
+            st.warning("⚠️ Recette supprimée ou introuvable")
             st.session_state.pop("select_recette", None)
             st.rerun()
             return
@@ -105,52 +115,59 @@ def afficher():
 
         st.subheader(recette['nom'].upper())
 
-        # infos
-        st.write(f"**Catégorie :** {recette.get('categorie', '-')}")
-        st.write(f"**Appareil :** {recette.get('appareil', '-')}")
+        col_t, col_i = st.columns([1, 1])
 
-        st.write("### Ingrédients")
-        for i in recette.get('ingredients', []):
-            st.write(f"- {i.get('Quantité','')} {i.get('Ingrédient','')}")
+        with col_t:
+            st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
+            st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
+            st.write("**Ingrédients :**")
+            for i in recette.get('ingredients', []):
+                st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
+            st.write(f"**Instructions :**\n{recette.get('etapes')}")
 
-        st.write("### Instructions")
-        st.write(recette.get('etapes', ""))
+        with col_i:
+            images = recette.get('images', [])
+            if images:
+                if "img_idx" not in st.session_state:
+                    st.session_state.img_idx = 0
 
-        # ------------------ IMAGE ------------------
-        images = recette.get('images', [])
+                if st.session_state.img_idx >= len(images):
+                    st.session_state.img_idx = 0
 
-        if images:
-            if "img_idx" not in st.session_state:
-                st.session_state.img_idx = 0
+                img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx]}?t={int(time.time())}"
+                st.image(img_url, use_container_width=True)
 
-            if st.session_state.img_idx >= len(images):
-                st.session_state.img_idx = 0
+    # ------------------ ADMIN ------------------
+    if choix != "---" and st.session_state.get("authentifie", False):
 
-            img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx]}"
-            st.image(img_url)
+        b1, b2 = st.columns(2)
 
-        # ------------------ SUPPRESSION ------------------
-        if st.session_state.get("authentifie", False):
-            if st.button("🗑️ Supprimer la recette"):
+        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
 
-                if supprimer_fichier_github(info['chemin']):
+            if supprimer_fichier_github(info['chemin']):
 
-                    # supprimer images
-                    for p in recette.get('images', []):
-                        supprimer_fichier_github(p)
+                for p in recette.get('images', []):
+                    supprimer_fichier_github(p)
 
-                    # MAJ index
-                    nouvel_index = [
-                        r for r in index if r['chemin'] != info['chemin']
-                    ]
-                    sauvegarder_index_global(nouvel_index)
+                # MAJ index
+                nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                sauvegarder_index_global(nouvel_index)
 
-                    # reset propre (IMPORTANT)
-                    st.session_state.pop("select_recette", None)
-                    st.session_state.pop("img_idx", None)
+                # 🔥 CORRECTION STREAMLIT
+                st.session_state.pop("select_recette", None)
 
-                    st.success("Recette supprimée")
-                    st.rerun()
+                if "img_idx" in st.session_state:
+                    del st.session_state["img_idx"]
+
+                for key in list(st.session_state.keys()):
+                    if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
+                        del st.session_state[key]
+
+                st.rerun()
+
+        if b2.button("✍️ Modifier", use_container_width=True):
+            st.session_state[f"edit_{info['chemin']}"] = True
+            st.rerun()
 
 
 # ------------------ MAIN ------------------
