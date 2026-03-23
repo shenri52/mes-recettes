@@ -5,7 +5,7 @@ from PIL import Image
 from utils import config_github, envoyer_vers_github, recuperer_donnees_index
 
 def afficher():
-    st.header("✍️ Ajouter une recette")
+    st.divider()
 
     # --- Initialisation session_state ---
     for k, v in {
