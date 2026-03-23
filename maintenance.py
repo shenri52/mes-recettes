@@ -15,6 +15,11 @@ def envoyer_donnees(chemin, contenu, message, est_image=False):
     if sha: payload["sha"] = sha
     return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
 
+def config_github_maintenance():
+    conf = config_github()  # récupère l'existant
+    conf['base_url'] = f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/"
+    return conf
+    
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
     st.header("🛠️ Réparation et optimisation")
