@@ -181,7 +181,7 @@ def afficher():
                         json.dumps(index_complet, indent=4, ensure_ascii=False),
                         "MAJ Index"
                     )
-
+                    refresh_index_session
                     # --- Mise à jour session_state pour la propagation ---
                     st.session_state.index_recettes = index_complet
                     st.session_state.liste_choix = [""] + sorted({ing for r in index_complet for ing in r.get('ingredients', [])})
