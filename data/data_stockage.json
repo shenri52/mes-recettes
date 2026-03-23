@@ -1,5 +1,5 @@
 {
-    "derniere_maj": "23/03/2026 à 08:34",
+    "derniere_maj": "23/03/2026 à 09:49",
     "poids_total_mo": 26.44,
     "total_recettes": 53,
     "details_categories": [
@@ -53,8 +53,8 @@
     "details_stockage": [
         {
             "Type": "Recettes (JSON)",
-            "Nombre": 59,
-            "Mo": 0.08
+            "Nombre": 53,
+            "Mo": 0.05
         },
         {
             "Type": "Photos (Images)",
@@ -63,8 +63,8 @@
         },
         {
             "Type": "Système",
-            "Nombre": 12,
-            "Mo": 0.07
+            "Nombre": 19,
+            "Mo": 0.1
         }
     ]
 }
