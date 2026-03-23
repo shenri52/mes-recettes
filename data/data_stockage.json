@@ -1,35 +1,31 @@
 {
-    "derniere_maj": "23/03/2026 à 06:37",
-    "poids_total_mo": 26.46,
-    "total_recettes": 54,
+    "derniere_maj": "23/03/2026 à 08:34",
+    "poids_total_mo": 26.44,
+    "total_recettes": 53,
     "details_categories": [
+        {
+            "Catégorie": "Plat",
+            "Nombre": 24
+        },
         {
             "Catégorie": "Cocktail",
             "Nombre": 6
-        },
-        {
-            "Catégorie": "Divers",
-            "Nombre": 7
-        },
-        {
-            "Catégorie": "Entrée",
-            "Nombre": 1
         },
         {
             "Catégorie": "Goûter",
             "Nombre": 1
         },
         {
-            "Catégorie": "Gâteau",
-            "Nombre": 1
+            "Catégorie": "Divers",
+            "Nombre": 7
         },
         {
             "Catégorie": "Marinade",
             "Nombre": 1
         },
         {
-            "Catégorie": "Plat",
-            "Nombre": 24
+            "Catégorie": "Entrée",
+            "Nombre": 1
         },
         {
             "Catégorie": "Salade",
@@ -47,7 +43,7 @@
     "details_appareils": [
         {
             "Appareil": "Aucun",
-            "Nombre": 53
+            "Nombre": 52
         },
         {
             "Appareil": "Ninja",
@@ -57,7 +53,7 @@
     "details_stockage": [
         {
             "Type": "Recettes (JSON)",
-            "Nombre": 61,
+            "Nombre": 59,
             "Mo": 0.08
         },
         {
@@ -66,9 +62,9 @@
             "Mo": 26.29
         },
         {
-            "Type": "Fichiers Système & Apps",
-            "Nombre": 15,
-            "Mo": 0.1
+            "Type": "Système",
+            "Nombre": 12,
+            "Mo": 0.07
         }
     ]
 }
