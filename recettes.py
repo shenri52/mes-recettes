@@ -152,20 +152,22 @@ def afficher():
                 # MAJ index
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                 sauvegarder_index_global(nouvel_index)
-
+                
+                # Réinitialiser la liste filtrée et la sélection en toute sécurité
                 st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in nouvel_index]
-                st.session_state["select_recette"] = "---"  # reset sélection
-
-                # 🔥 CORRECTION STREAMLIT
-                st.session_state.pop("select_recette", None)
-
+                
+                # Supprimer la clé de sélection existante pour éviter le conflit avec la selectbox
+                if "select_recette" in st.session_state:
+                    del st.session_state["select_recette"]
+                
+                # Supprimer variables temporaires
                 if "img_idx" in st.session_state:
                     del st.session_state["img_idx"]
-
                 for key in list(st.session_state.keys()):
                     if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
                         del st.session_state[key]
-
+                
+                # Forcer rerun
                 st.rerun()
 
         if b2.button("✍️ Modifier", use_container_width=True):
