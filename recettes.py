@@ -4,9 +4,9 @@ import json
 import base64
 import time
 import uuid
-from PIL import Image
 import io
 
+from PIL import Image
 from utils import config_github
 
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
