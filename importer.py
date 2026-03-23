@@ -34,7 +34,6 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
     return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
 
 def afficher():
-    st.header("📥 Importer une recette")
     st.divider()
     
     # Initialisation session_state
