@@ -2,7 +2,7 @@ import streamlit as st
 import json, io, time
 from datetime import datetime
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index
+from utils import config_github, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
 def compresser_image(upload_file):
     """Compression d'une image en JPEG 1200x1200 max."""
