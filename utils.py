@@ -15,10 +15,10 @@ def config_github():
     }
 
 def config_github_maintenance():
-    conf = config_github()  # récupère l'existant
+    conf = config_github()
     conf['base_url'] = f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/"
     return conf
-    
+
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
     try:
         conf = config_github()
@@ -34,32 +34,25 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
     except Exception as e:
         st.error(f"Erreur technique : {str(e)}")
         return False
-        
+
 def recuperer_donnees_index():
-    """
-    Récupère l'index complet et les listes uniques d'ingrédients et catégories.
-    Retourne :
-        index (list[dict]), ingredients (list[str]), categories (list[str])
-    """
     conf = config_github()
     url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
     try:
         res = requests.get(url)
         if res.status_code == 200:
             idx = res.json()
-            st.session_state.index_recettes = idx  # pour garder le state
+            st.session_state.index_recettes = idx
             ing = {i for r in idx for i in r.get('ingredients', []) if i}
             cat = {r.get('categorie') for r in idx if r.get('categorie')}
             return idx, ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
     except Exception as e:
         st.warning(f"Impossible de récupérer l'index : {e}")
-    
-    # Valeur par défaut en cas d'erreur
+
     st.session_state.index_recettes = []
     return [], ["---"], ["---"]
 
 def refresh_index_session():
-    """Lit le JSON depuis GitHub et met à jour le session_state."""
     index_complet, _, _ = recuperer_donnees_index()
     st.session_state.index_recettes = index_complet
     st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in index_complet]
