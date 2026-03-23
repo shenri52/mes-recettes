@@ -1,4 +1,4 @@
-impoimport streamlit as st
+import streamlit as st
 
 # --- 1. CONFIGURATION ---
 def config_github():
