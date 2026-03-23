@@ -56,4 +56,3 @@ def refresh_index_session():
     index_complet, _, _ = recuperer_donnees_index()
     st.session_state.index_recettes = index_complet
     st.session_state['liste_recettes_filtrees'] = ["---"] + [r['nom'].upper() for r in index_complet]
-    st.session_state.select_recette = "---"
