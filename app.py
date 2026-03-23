@@ -150,8 +150,7 @@ if verifier_mot_de_passe():
             st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
             if st.button("Retour à l'accueil", use_container_width=True):
                 aller_accueil()
-        # Bouton retour (masqué sur le planning)
-        st.divider()
 
         if st.session_state.page != "planning":
+            st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
