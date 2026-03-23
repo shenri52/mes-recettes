@@ -17,7 +17,6 @@ def envoyer_donnees(chemin, contenu, message, est_image=False):
     
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
-    st.header("🛠️ Réparation et optimisation")
     st.divider()
 
     if "bouton_analyse_clique" not in st.session_state:
