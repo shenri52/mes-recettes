@@ -4,18 +4,9 @@ import json
 import time
 import datetime
 import base64
-from collections import Counter
 
-def config_github():
-    return {
-        "token": st.secrets["GITHUB_TOKEN"],
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
+from collections import Counter
+from utils import config_github
 
 def charger_index():
     conf = config_github()
