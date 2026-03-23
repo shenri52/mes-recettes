@@ -29,3 +29,30 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
         import streamlit as st
         st.error(f"Erreur technique : {str(e)}")
         return False
+
+def recuperer_donnees_index():
+    """
+    Récupère l'index des recettes depuis GitHub et en extrait :
+    - La liste des ingrédients uniques (avec "---" en début)
+    - La liste des catégories uniques (avec "---" en début)
+    
+    Retour :
+        ingredients (list[str]), categories (list[str])
+    """
+    conf = config_github()
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
+    
+    try:
+        res = requests.get(url)
+        if res.status_code == 200:
+            idx = res.json()
+            # Extraire ingrédients uniques
+            ing = {i for r in idx for i in r.get('ingredients', []) if i}
+            # Extraire catégories uniques
+            cat = {r.get('categorie') for r in idx if r.get('categorie')}
+            return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
+    except Exception as e:
+        st.warning(f"Impossible de récupérer l'index : {e}")
+    
+    # Valeur par défaut en cas d'erreur
+    return ["---"], ["---"]
