@@ -146,7 +146,8 @@ def afficher():
                     })
 
                     envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
-
+                    refresh_index_session()
+                    
                     # --- Mise à jour session_state ---
                     st.session_state.index_recettes = idx_data
                     st.session_state.ingredients_img = []
