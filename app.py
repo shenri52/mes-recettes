@@ -136,7 +136,6 @@ if verifier_mot_de_passe():
             # PROPULSION DU TITRE
             if "titre_page" in st.session_state and st.session_state.titre_page != "":
                 st.header(st.session_state.titre_page)
-                st.divider()
 
         # Appel de la fonction afficher() si autorisée
         if st.session_state.page in pages_disponibles:
