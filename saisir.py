@@ -5,27 +5,41 @@ from PIL import Image
 from utils import config_github, envoyer_vers_github, recuperer_donnees_index
 
 def afficher():
-    for k, v in {'form_count': 0, 'ingredients_recette': [], 'liste_choix': [""], 
-                 'liste_categories': [""], 'cat_fixee': ""}.items():
+    st.header("✍️ Ajouter une recette")
+
+    # --- Initialisation session_state ---
+    for k, v in {
+        'form_count': 0,
+        'ingredients_recette': [],
+        'liste_choix': [""],
+        'liste_categories': [""],
+        'cat_fixee': ""
+    }.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
-    # --- récupération index ---
-    if len(st.session_state.liste_choix) <= 1:
+    # --- Récupération de l'index complet si besoin ---
+    if len(st.session_state.liste_choix) <= 1 or 'index_recettes' not in st.session_state:
         with st.spinner("📦 Synchronisation..."):
             index_complet, st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
-    else:
-        index_complet = []
+            st.session_state.index_recettes = index_complet
 
     f_id = st.session_state.form_count
+
     with st.container():
+        # --- Nom de la recette ---
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{f_id}")
-        
+
+        # --- Appareil, préparation, cuisson ---
         c_app, c_prep, c_cuis = st.columns(3)
-        type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
+        type_appareil = c_app.selectbox(
+            "Appareil utilisé",
+            options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]),
+            key=f"app_{f_id}"
+        )
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
-        
+
         # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
             nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
@@ -70,26 +84,31 @@ def afficher():
             choix_i = st.selectbox("Ingrédient", options=opts_ing, key=f"sel_{f_id}")
             if choix_i == "➕ Ajouter un nouveau...":
                 st.text_input("Nom de l'ingrédient", key=f"new_ing_{f_id}")
-        
+
         with col_qte:
             st.text_input("Quantité", key=f"qte_{f_id}")
-        
+
         with col_btn_add:
             st.write(" "); st.write(" ")
             if choix_i != "---":
                 st.button("➕", key=f"btn_add_ing_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
+        # Affichage des ingrédients ajoutés
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
     # --- MÉDIAS ---
-    photos_fb = st.file_uploader("📸 Photos de la recette", type=["jpg", "png", "jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
-    photos_fb = photos_fb or []
+    photos_fb = st.file_uploader(
+        "📸 Photos de la recette",
+        type=["jpg", "png", "jpeg"],
+        key=f"fi_{f_id}",
+        accept_multiple_files=True
+    )
 
     # --- ENREGISTREMENT ---
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_fixee
-        noms_existants = [r['nom'].strip().upper() for r in index_complet]
+        noms_existants = [r['nom'].strip().upper() for r in st.session_state.index_recettes]
 
         # --- Vérifications ---
         if not nom_plat.strip():
@@ -103,18 +122,18 @@ def afficher():
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
 
-                for idx, f in enumerate(photos_fb):
-                    ext = f.name.lower().split('.')[-1]
-                    data_env = f.getvalue()
-                    if ext in ["jpg", "jpeg", "png"]:
-                        img = Image.open(f).convert("RGB")
-                        img.thumbnail((1200, 1200))
-                        buf = io.BytesIO()
-                        img.save(buf, format="JPEG", quality=80, optimize=True)
-                        data_env, ext = buf.getvalue(), "jpg"
-                    ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                    if envoyer_vers_github(ch_m, data_env, "Media", True):
-                        liste_medias.append(ch_m)
+                if photos_fb:
+                    for idx, f in enumerate(photos_fb):
+                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
+                        if ext in ["jpg", "jpeg", "png"]:
+                            img = Image.open(f).convert("RGB")
+                            img.thumbnail((1200, 1200))
+                            buf = io.BytesIO()
+                            img.save(buf, format="JPEG", quality=80, optimize=True)
+                            data_env, ext = buf.getvalue(), "jpg"
+                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
+                        if envoyer_vers_github(ch_m, data_env, "Media", True):
+                            liste_medias.append(ch_m)
 
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
@@ -129,7 +148,8 @@ def afficher():
                 }
 
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    idx_data = index_complet.copy()
+                    # --- Utilisation du session_state pour ne jamais écraser ---
+                    idx_data = st.session_state.index_recettes.copy()
                     idx_data.append({
                         "nom": nom_plat,
                         "categorie": f_cat,
@@ -137,13 +157,18 @@ def afficher():
                         "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette],
                         "chemin": ch_r
                     })
-                    envoyer_vers_github("data/index_recettes.json", json.dumps(idx_data, indent=4, ensure_ascii=False), "MAJ Index")
-                    st.success("✅ Recette importée avec succès !")
+                    envoyer_vers_github(
+                        "data/index_recettes.json",
+                        json.dumps(idx_data, indent=4, ensure_ascii=False),
+                        "MAJ Index"
+                    )
 
+                    # --- Mise à jour session_state ---
+                    st.session_state.index_recettes = idx_data
                     st.session_state.ingredients_recette = []
                     st.session_state.cat_fixee = ""
                     st.session_state.form_count += 1
-                    if 'index_recettes' in st.session_state:
-                        del st.session_state.index_recettes
+
                     time.sleep(1)
+                    st.success("✅ Recette importée avec succès !")
                     st.rerun()
