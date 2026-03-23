@@ -28,7 +28,7 @@ def afficher():
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
         index_complet, _, _ = recuperer_donnees_index()  # récupère index + listes ingrédients & catégories
-        conf = config_github()
+        conf = config_github_maintenance()
         res = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1", headers=conf['headers'])
         if res.status_code == 200:
             tree = res.json().get('tree', [])
@@ -136,7 +136,7 @@ def afficher():
 
     # --- OPTIMISATION IMAGES ---
     if st.button("🖼️ Optimiser les images", use_container_width=True):
-        conf = config_github()
+        conf = config_github_maintenance()
         res = requests.get(f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/git/trees/main?recursive=1", headers=conf['headers'])
         if res.status_code == 200:
             lourdes = [i for i in res.json().get('tree', []) if i['path'].lower().endswith(('.jpg', '.jpeg', '.png')) and i.get('size', 0) > 500*1024]
