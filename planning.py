@@ -3,19 +3,8 @@ import datetime
 import json
 import requests
 import time
-import base64
 
-# --- FONCTIONS TECHNIQUES ---
-def config_github():
-    """Centralise la config et les headers pour GitHub."""
-    return {
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
+from utils import config_github
 
 def charger_donnees(chemin):
     """Charge les données avec anti-cache et gestion d'erreurs."""
