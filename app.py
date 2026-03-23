@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import importer, saisir, recettes, stats, maintenance, planning, coursesaisir, coursevisualiser
+import importer, saisir, recettes, stats, maintenance, planning
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
@@ -100,8 +100,6 @@ if verifier_mot_de_passe():
             lignes_boutons = [
                 [("📥 Importer une recette", "importer"), ("✍️ Créer une recette", "ajouter")],
                 [("📅 Mon planning", "planning")],
-                [("📝 Liste des courses", "coursesaisir")],
-                [("🛒 Mode magasin", "coursevisualiser")],
                 [("📊 Statistiques", "stats"), ("🛠️ Maintenance", "maintenance")]
             ]
 
@@ -125,8 +123,6 @@ if verifier_mot_de_passe():
         pages_admin = {
             "importer": importer.afficher,
             "ajouter": saisir.afficher,
-            "coursesaisir": coursesaisir.afficher,
-            "coursevisualiser": coursevisualiser.afficher,
             "stats": stats.afficher,
             "planning": planning.afficher,
             "maintenance": maintenance.afficher
