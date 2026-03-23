@@ -10,9 +10,12 @@ def afficher():
         if k not in st.session_state:
             st.session_state[k] = v
 
+    # --- récupération index ---
     if len(st.session_state.liste_choix) <= 1:
         with st.spinner("📦 Synchronisation..."):
             index_complet, st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
+    else:
+        index_complet = []
 
     f_id = st.session_state.form_count
     with st.container():
@@ -81,7 +84,8 @@ def afficher():
 
     # --- MÉDIAS ---
     photos_fb = st.file_uploader("📸 Photos de la recette", type=["jpg", "png", "jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
-    
+    photos_fb = photos_fb or []
+
     # --- ENREGISTREMENT ---
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_fixee
@@ -99,18 +103,18 @@ def afficher():
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nom_fic, liste_medias = nom_plat.replace(" ", "_").lower(), []
 
-                if photos_fb:
-                    for idx, f in enumerate(photos_fb):
-                        ext, data_env = f.name.lower().split('.')[-1], f.getvalue()
-                        if ext in ["jpg", "jpeg", "png"]:
-                            img = Image.open(f).convert("RGB")
-                            img.thumbnail((1200, 1200))
-                            buf = io.BytesIO()
-                            img.save(buf, format="JPEG", quality=80, optimize=True)
-                            data_env, ext = buf.getvalue(), "jpg"
-                        ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
-                        if envoyer_vers_github(ch_m, data_env, "Media", True):
-                            liste_medias.append(ch_m)
+                for idx, f in enumerate(photos_fb):
+                    ext = f.name.lower().split('.')[-1]
+                    data_env = f.getvalue()
+                    if ext in ["jpg", "jpeg", "png"]:
+                        img = Image.open(f).convert("RGB")
+                        img.thumbnail((1200, 1200))
+                        buf = io.BytesIO()
+                        img.save(buf, format="JPEG", quality=80, optimize=True)
+                        data_env, ext = buf.getvalue(), "jpg"
+                    ch_m = f"data/images/{ts}_{nom_fic}_{idx}.{ext}"
+                    if envoyer_vers_github(ch_m, data_env, "Media", True):
+                        liste_medias.append(ch_m)
 
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
