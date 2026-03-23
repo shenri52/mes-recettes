@@ -5,6 +5,7 @@ import time
 import datetime
 import base64
 
+from zoneinfo import ZoneInfo
 from collections import Counter
 from utils import config_github
 
@@ -35,6 +36,7 @@ def afficher():
                 stats_c = {"Recettes (JSON)": {"nb": 0, "poids": 0}, "Photos (Images)": {"nb": 0, "poids": 0}, "Système": {"nb": 0, "poids": 0}}
                 for item in tree:
                     if item.get('type') == 'blob':
+                        p = item['path'].lower()
                         if p.startswith("data/recettes/") and p.endswith(".json"):
                             k = "Recettes (JSON)"
                         elif p.endswith(('.png','.jpg','.jpeg','.webp')):
@@ -46,8 +48,7 @@ def afficher():
                 
                 poids_mo = round(sum(d["poids"] for d in stats_c.values()) / (1024*1024), 2)
                 data = {
-                    from zoneinfo import ZoneInfo
-"                   "derniere_maj": datetime.datetime.now(ZoneInfo("Europe/Paris")).strftime("%d/%m/%Y à %H:%M"),
+                    "derniere_maj": datetime.datetime.now(ZoneInfo("Europe/Paris")).strftime("%d/%m/%Y à %H:%M"),
                     "poids_total_mo": poids_mo,
                     "total_recettes": len(index),
                     "details_categories": [{"Catégorie": k, "Nombre": v} for k, v in Counter(r.get('categorie','?') for r in index).items()],
