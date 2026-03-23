@@ -7,7 +7,7 @@ import uuid
 import io
 
 from PIL import Image
-from utils import config_github, envoyer_vers_github, recuperer_donnees_index
+from utils import config_github, envoyer_vers_github, recuperer_donnees_index, refresh_index_session
 
 def supprimer_fichier_github(chemin):
     conf = config_github()
