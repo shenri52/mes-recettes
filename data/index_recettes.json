@@ -795,5 +795,12 @@
             "Ananas en boite"
         ],
         "chemin": "data/recettes/20260324_142901_test1528.json"
+    },
+    {
+        "nom": "TEST 1554",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260324_150207_test_1554.json"
     }
 ]
