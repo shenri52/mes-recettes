@@ -1,5 +1,5 @@
 import streamlit as st
-import recettes
+import recettes, ajouter
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
