@@ -35,7 +35,9 @@ def verifier_mot_de_passe():
         st.divider()
         
         # Bouton d'accès direct pour la consultation simple
-        if st.button("📖 Consulter les recettes (Public)", use_container_width=True):
+        st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
+        
+        if st.button("📖 Consulter les recettes", use_container_width=True):
             st.session_state["mode_public"] = True
             st.session_state.page = "recettes"
             st.rerun()
