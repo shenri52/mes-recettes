@@ -1,49 +1,7 @@
 import streamlit as st
-import requests, json, base64, time, io
+import requests, json, time, io
 from PIL import Image
-from utils import config_github
-
-def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
-    """Version améliorée avec anti-cache sur le SHA et gestion d'erreurs."""
-    try:
-        conf = config_github()
-        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-        
-        # 1. Récupération du SHA avec anti-cache pour éviter les conflits
-        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-        
-        # 2. Préparation du contenu
-        if not est_binaire:
-            # Si c'est du texte (ex: JSON), on encode en utf-8
-            if isinstance(contenu, (dict, list)):
-                contenu_final = json.dumps(contenu, indent=4, ensure_ascii=False).encode('utf-8')
-            else:
-                contenu_final = contenu.encode('utf-8')
-        else:
-            contenu_final = contenu
-
-        contenu_b64 = base64.b64encode(contenu_final).decode('utf-8')
-        
-        # 3. Payload pour GitHub
-        data = {
-            "message": message,
-            "content": contenu_b64,
-            "branch": "main"
-        }
-        if sha: 
-            data["sha"] = sha
-            
-        res = requests.put(url, headers=conf['headers'], json=data)
-        return res.status_code in [200, 201]
-    except Exception as e:
-        st.error(f"Erreur technique API : {str(e)}")
-
-def charger_index_local():
-    """Récupère l'index des recettes en contournant le cache."""
-    url = f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json?t={int(time.time())}"
-    res = requests.get(url)
-    return res.json() if res.status_code == 200 else []
+from utils import config_github, envoyer_vers_github, charger_donnees, compresser_image
 
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
@@ -51,8 +9,9 @@ def afficher():
     st.divider()
 
     if "bouton_analyse_clique" not in st.session_state:
-        for key in ["a_reparer", "index_a_sauvegarder"]:
-            if key in st.session_state: del st.session_state[key]
+        for key in ["a_reparer", "index_a_sauvegarder", "images_a_compresser", "fichiers_a_sauvegarder"]:
+            if key in st.session_state:
+                del st.session_state[key]
 
     # --- SECTION 1 : SYNCHRONISATION INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
@@ -63,7 +22,7 @@ def afficher():
             tree = res.json().get('tree', [])
             exclus = ['data/index_recettes.json', 'data/index_produits_zones.json', 'data/planning.json', 'data/plats_rapides.json']
             physiques = [i['path'] for i in tree if i['path'].startswith('data/') and i['path'].endswith('.json') and i['path'] not in exclus]
-            index_actuel = charger_index_local()
+            index_actuel = charger_donnees("data/index_recettes.json")
             chemins_index = {r['chemin'] for r in index_actuel}
             manquantes = [f for f in physiques if f not in chemins_index]
             st.write(f"📁 **Fichiers /data :** {len(physiques)}")
@@ -79,7 +38,7 @@ def afficher():
     if st.session_state.get("a_reparer"):
         if st.button("🚀 Intégrer les fichiers manquants", use_container_width=True):
             with st.spinner("Analyse..."):
-                index_actuel = charger_index_local()
+                index_actuel = charger_donnees("data/index_recettes.json")
                 nouvelles = []
                 for chemin in st.session_state.a_reparer:
                     r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{chemin}")
@@ -87,14 +46,14 @@ def afficher():
                         d = r.json()
                         nouvelles.append({"nom": d.get("nom", "Sans nom"), "categorie": d.get("categorie", "Non classé"), "appareil": d.get("appareil", "Aucun"), "ingredients": [i.get("Ingrédient") for i in d.get("ingredients", [])], "chemin": chemin})
                 index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
-                if envoyer_vers_github("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
+                if envoyer_vers_github("data/index_recettes.json", index_final, "🛠️ Réparation"):
                     st.success("✅ Index réparé !")
                     del st.session_state.a_reparer
                     st.rerun()
 
     # --- SECTION 2 : NETTOYAGE INGRÉDIENTS ---
     if st.button("🧹 Réparer le nom des ingrédients", use_container_width=True):
-        index_actuel = charger_index_local()
+        index_actuel = charger_donnees("data/index_recettes.json")
         erreurs, index_nettoye, fichiers_maj = [], [], []
         for recette in index_actuel:
             r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{recette['chemin']}?t={int(time.time())}")
@@ -126,8 +85,9 @@ def afficher():
 
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
-            for f in st.session_state.fichiers_a_sauvegarder: envoyer_vers_github(f['chemin'], json.dumps(f['contenu'], indent=4, ensure_ascii=False), "🧹 Nettoyage")
-            envoyer_vers_github("data/index_recettes.json", json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), "🧹 Nettoyage Index")
+            for f in st.session_state.fichiers_a_sauvegarder:
+                envoyer_vers_github(f['chemin'], f['contenu'], "🧹 Nettoyage")
+            envoyer_vers_github("data/index_recettes.json", st.session_state.index_a_sauvegarder, "🧹 Nettoyage Index")
             del st.session_state.index_a_sauvegarder
             st.rerun()
 
@@ -153,11 +113,8 @@ def afficher():
             for idx, img in enumerate(st.session_state.images_a_compresser):
                 r = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/{img['path']}")
                 if r.status_code == 200:
-                    img_p = Image.open(io.BytesIO(r.content)).convert("RGB")
-                    img_p.thumbnail((1200, 1200))
-                    buf = io.BytesIO()
-                    img_p.save(buf, format="JPEG", quality=75, optimize=True)
-                    envoyer_vers_github(img['path'], buf.getvalue(), "📸 Opti Image", est_binaire=True)
+                    data_compressee = compresser_image(io.BytesIO(r.content))
+                    envoyer_vers_github(img['path'], data_compressee, "📸 Opti Image", est_binaire=True)
                 barre.progress((idx + 1) / len(st.session_state.images_a_compresser))
             del st.session_state.images_a_compresser
             st.success("Compression terminée ! 🚀")
