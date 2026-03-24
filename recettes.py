@@ -1,11 +1,7 @@
 import streamlit as st
-import requests
-import json
-import base64
-import time
-import uuid
+import requests, json, base64, time, uuid, io
 from PIL import Image
-import io
+from utils import config_github
 
 # --- Fonction de vérification des doublons ---
 def verifier_doublon(nom_test, index, chemin_actuel=None):
@@ -21,18 +17,6 @@ def verifier_doublon(nom_test, index, chemin_actuel=None):
             return True
     return False
     
-# --- 1. CONFIGURATION TECHNIQUE ---
-def config_github():
-    return {
-        "token": st.secrets["GITHUB_TOKEN"],
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
-
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     try:
         conf = config_github()
