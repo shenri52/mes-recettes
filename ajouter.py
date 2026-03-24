@@ -144,7 +144,7 @@ def afficher():
                 }
                 
                 if envoyer_vers_github(ch_r, rec_data, "Import"):
-                    idx_data = charger_donnees("data/index_recettes.json")
+                    conf, url_idx = config_github("data/index_recettes.json")
                     res = requests.get(url_idx, headers=conf['headers'])
                     
                     if res.status_code == 200:
