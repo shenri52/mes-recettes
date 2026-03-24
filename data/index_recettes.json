@@ -747,15 +747,6 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
-        "nom": "TEST NOUVEAU 1",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Amandes effillées"
-        ],
-        "chemin": "data/recettes/20260324_065832_test_nouveau_1.json"
-    },
-    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
