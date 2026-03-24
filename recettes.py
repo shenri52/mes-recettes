@@ -1,28 +1,19 @@
 import streamlit as st
-import requests, json, time, uuid, io
-from PIL import Image
-from utils import config_github, envoyer_vers_github, supprimer_fichier_github, compresser_image, verifier_doublon
+import time, uuid
+from utils import config_github, envoyer_vers_github, charger_donnees, supprimer_fichier_github, compresser_image, verifier_doublon
 
 # --- 3. GESTION DE L'INDEX ---
 def charger_index():
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
     try:
-        res = requests.get(url, headers=conf['headers'])
-        if res.status_code == 200:
-            content_b64 = res.json()['content']
-            content_json = base64.b64decode(content_b64).decode('utf-8')
-            st.session_state.index_recettes = json.loads(content_json)
-        else:
-            st.session_state.index_recettes = []
+        data = charger_donnees("data/index_recettes.json")
+        st.session_state.index_recettes = data if data else []
     except Exception:
-        # En cas d'erreur de décodage ou de fichier vide, on initialise à vide
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
+    if envoyer_vers_github("data/index_recettes.json", index_trie, "MAJ Index"):
         st.session_state.index_recettes = index_trie
         return True
     return False
@@ -74,12 +65,9 @@ def afficher():
         info = resultats[noms_filtres.index(choix)]
         conf = config_github()
         url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{info['chemin']}?t={int(time.time())}"
-        res_rec = requests.get(url_api, headers=conf['headers'])
-        if res_rec.status_code == 200:
-            contenu_b64 = res_rec.json()['content']
-            recette = json.loads(base64.b64decode(contenu_b64).decode('utf-8'))
-        else:
-            st.error("Impossible de charger le détail de la recette.")
+        recette = charger_donnees(info['chemin'])
+        if not recette:
+            st.error("Impossible de charger les détails de la recette. 📋")
             st.stop()
 
         m_edit = f"edit_{info['chemin']}"
@@ -131,8 +119,8 @@ def afficher():
 
             with st.form(f"form_meta_{info['chemin']}"):
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
-                cat_actuelle = recette.get('categorie', 'Non classé')
                 cats_triees = sorted(cats_existantes)
+                cat_actuelle = recette.get('categorie', 'Non classé')
                 try:
                     idx_cat = cats_triees.index(cat_actuelle)
                 except ValueError:
@@ -173,7 +161,7 @@ def afficher():
                     recette_maj = recette.copy()
                     recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos})
                     
-                    if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
+                    if envoyer_vers_github(info['chemin'], recette_maj, f"MAJ: {e_nom}"):
                         for item in index:
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
