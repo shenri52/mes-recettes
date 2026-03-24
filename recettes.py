@@ -196,11 +196,11 @@ def afficher():
             with st.form(f"form_meta_{info['chemin']}"):
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 cat_actuelle = recette.get('categorie', 'Non classé')
-                    cats_triees = sorted(cats_existantes)
-                    try:
-                        idx_cat = cats_triees.index(cat_actuelle)
-                    except ValueError:
-                        idx_cat = 0 # Retour au premier choix si la catégorie n'existe plus
+                cats_triees = sorted(cats_existantes)
+                try:
+                    idx_cat = cats_triees.index(cat_actuelle)
+                except ValueError:
+                    idx_cat = 0 # Retour au premier choix si la catégorie n'existe plus
                     
                 # Utilisation de idx_cat ici ⬇️
                 e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
