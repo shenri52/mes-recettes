@@ -162,9 +162,6 @@ def afficher():
                     })
                     envoyer_vers_github("data/index_recettes.json", idx_data, "MAJ Index")
                     st.success("✅ Recette importée avec succès !")
-                else:
-                        st.error("❌ Impossible de lire l'index pour le mettre à jour.")
-                    
                     # --- RESET DES CHAMPS ---
                     st.session_state.ingredients_recette = []
                     st.session_state.cat_fixee = ""
@@ -174,3 +171,6 @@ def afficher():
                     
                     time.sleep(1.5)
                     st.rerun()
+                else:
+                    st.error("❌ Impossible de lire l'index pour le mettre à jour.")
+                    
