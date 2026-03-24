@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import importer, saisir, recettes, maintenance, planning
+import ajouter, importer, saisir, recettes, maintenance, planning
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
@@ -92,6 +92,9 @@ if verifier_mot_de_passe():
                 if st.button("✍️ Créer une recette", use_container_width=True):
                     changer_page("ajouter")
 
+            if st.button("📥 Ajouter une recette", use_container_width=True):
+                changer_page("ajouter")
+                
             if st.button("📅 Mon planning", use_container_width=True):
                 changer_page("planning")
             
@@ -110,7 +113,8 @@ if verifier_mot_de_passe():
         # Dictionnaire des pages réservées (admin)
         pages_admin = {
             "importer": importer.afficher,
-            "ajouter": saisir.afficher,
+            "ajouter": ajouter.afficher,
+            "saisir": saisir.afficher,
             "planning": planning.afficher,
             "maintenance": maintenance.afficher
         }
