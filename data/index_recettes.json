@@ -775,5 +775,14 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260324_070510_test_2.json"
+    },
+    {
+        "nom": "TEST 3",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Amandes effillées"
+        ],
+        "chemin": "data/recettes/20260324_070708_test_3.json"
     }
 ]
