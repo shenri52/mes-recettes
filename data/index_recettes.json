@@ -769,5 +769,12 @@
             "Ananas en boite"
         ],
         "chemin": "data/recettes/20260324_132409_test_1423.json"
+    },
+    {
+        "nom": "TEST 1513",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260324_141403_test_1513.json"
     }
 ]
