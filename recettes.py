@@ -7,6 +7,20 @@ import uuid
 from PIL import Image
 import io
 
+# --- Fonction de vérification des doublons ---
+def verifier_doublon(nom_test, index, chemin_actuel=None):
+    """
+    Retourne True si le nom existe déjà dans l'index (hors la recette en cours d'édition).
+    """
+    for r in index:
+        # On compare en minuscules et sans espaces inutiles
+        if r['nom'].strip().lower() == nom_test.strip().lower():
+            # Si on est en mode édition, on ignore le doublon si c'est la même recette (même chemin)
+            if chemin_actuel and r['chemin'] == chemin_actuel:
+                continue
+            return True
+    return False
+    
 # --- 1. CONFIGURATION TECHNIQUE ---
 def config_github():
     return {
@@ -57,12 +71,16 @@ def compresser_image(upload_file):
 def charger_index():
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
-    res = requests.get(url, headers=conf['headers'])
-    if res.status_code == 200:
-        content_b64 = res.json()['content']
-        content_json = base64.b64decode(content_b64).decode('utf-8')
-        st.session_state.index_recettes = json.loads(content_json)
-    elif 'index_recettes' not in st.session_state:
+    try:
+        res = requests.get(url, headers=conf['headers'])
+        if res.status_code == 200:
+            content_b64 = res.json()['content']
+            content_json = base64.b64decode(content_b64).decode('utf-8')
+            st.session_state.index_recettes = json.loads(content_json)
+        else:
+            st.session_state.index_recettes = []
+    except Exception:
+        # En cas d'erreur de décodage ou de fichier vide, on initialise à vide
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
@@ -118,8 +136,15 @@ def afficher():
     
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
-        url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}?t={int(time.time())}"
-        recette = requests.get(url_full).json()
+        conf = config_github()
+        url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{info['chemin']}?t={int(time.time())}"
+        res_rec = requests.get(url_api, headers=conf['headers'])
+        if res_rec.status_code == 200:
+            contenu_b64 = res_rec.json()['content']
+            recette = json.loads(base64.b64decode(contenu_b64).decode('utf-8'))
+        else:
+            st.error("Impossible de charger le détail de la recette.")
+            st.stop()
 
         m_edit = f"edit_{info['chemin']}"
         if m_edit not in st.session_state: st.session_state[m_edit] = False
@@ -170,14 +195,22 @@ def afficher():
 
             with st.form(f"form_meta_{info['chemin']}"):
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
-                e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')))
+                cat_actuelle = recette.get('categorie', 'Non classé')
+                    cats_triees = sorted(cats_existantes)
+                    try:
+                        idx_cat = cats_triees.index(cat_actuelle)
+                    except ValueError:
+                        idx_cat = 0 # Retour au premier choix si la catégorie n'existe plus
+                    
+                # Utilisation de idx_cat ici ⬇️
+                e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
                 e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
                 
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
                 for p_path in photos_actuelles:
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{p_path.strip('/')}"
+                    img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{p_path.strip('/')}?t={int(time.time())}"
                     col_img, col_check = st.columns([1, 4])
                     col_img.image(img_url, width=60)
                     if col_check.checkbox(f"Garder {p_path.split('/')[-1]}", value=True, key=f"kp_{p_path}"):
@@ -187,6 +220,9 @@ def afficher():
 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
+                    if verifier_doublon(e_nom, index, info['chemin']):
+                        st.error(f"⚠️ Une recette nommée '{e_nom}' existe déjà. Veuillez choisir un autre nom.")
+                        st.stop()
                     for p_path in photos_actuelles:
                         if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
                     
