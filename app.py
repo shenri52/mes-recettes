@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import ajouter, importer, saisir, recettes, maintenance, planning
+import ajouter, recettes, maintenance, planning
 
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
@@ -12,7 +12,7 @@ def verifier_mot_de_passe():
 
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
         st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
-        st.markdown("<h3 style='text-align: center;'>🔒 Accès réservé</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
         
         def valider():
             if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
@@ -58,63 +58,30 @@ if verifier_mot_de_passe():
         """Change la page active dans le session_state et rafraîchit l'affichage."""
         st.session_state.page = nom
         st.rerun()
-
-    # --- BLOC ANTI-VEILLE ---
-    PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
-
-    if st.session_state.page in PAGES_CUISINE:
-        mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
-        if mode_cuisine:
-            components.html(
-                """
-                <div style="display:none;">
-                    <video autoplay loop muted playsinline style="width:1px; height:1px;">
-                        <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="video/mp4">
-                    </video>
-                </div>
-                """,
-                height=0
-            )
-
+        
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
-        # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
-        
-        # Affichage des options réservées à l'administrateur
-        if st.session_state["authentifie"]:
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("📥 Importer une recette", use_container_width=True):
-                    changer_page("importer")
-            with col2:
-                if st.button("✍️ Créer une recette", use_container_width=True):
-                    changer_page("saisir")
-
-            if st.button("📥 Ajouter une recette", use_container_width=True):
-                changer_page("ajouter")
-                
-            if st.button("📅 Mon planning", use_container_width=True):
-                changer_page("planning")
-            
-            if st.button("🛠️ Maintenance", use_container_width=True):
-                changer_page("maintenance")
+        if st.button("📥 Ajouter une recette", use_container_width=True):
+            changer_page("ajouter")
+        if st.button("📅 Mon planning", use_container_width=True):
+            changer_page("planning")
+        if st.button("🛠️ Maintenance", use_container_width=True):
+            changer_page("maintenance")
         else:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
-        # Dictionnaire des pages autorisées en mode public
+        # Dictionnaire des pages en mode public
         pages_publiques = {
             "recettes": recettes.afficher
         }
         
-        # Dictionnaire des pages réservées (admin)
+        # Dictionnaire des pages réservées
         pages_admin = {
-            "importer": importer.afficher,
             "ajouter": ajouter.afficher,
-            "saisir": saisir.afficher,
             "planning": planning.afficher,
             "maintenance": maintenance.afficher
         }
@@ -131,10 +98,8 @@ if verifier_mot_de_passe():
         else:
             st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
             if st.button("Retour à l'accueil", use_container_width=True):
-                aller_accueil()
-
-        # Bouton retour (masqué sur le planning)
-        st.divider()
+                aller_accueil()     
 
         if st.session_state.page != "planning":
+            st.divider()
             st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
