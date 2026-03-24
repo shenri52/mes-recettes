@@ -235,7 +235,7 @@
             "Curcuma",
             "Huile olive",
             "Avocat",
-            "Yaourt Skyr",
+            "Yaourt skyr",
             "Ail"
         ],
         "chemin": "data/recettes/20260321_085446_légumes_rôtis,_poulet_et_crème_d'avocat_au_skyr.json"
@@ -472,7 +472,7 @@
         "appareil": "Aucun",
         "ingredients": [
             "Filet de poulet",
-            "Boursin Ail et fines herbes",
+            "Boursin ail et fines herbes",
             "Crème fraiche",
             "Oignon"
         ],
