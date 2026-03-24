@@ -1,91 +1,113 @@
 import streamlit as st
 import ajouter, recettes, maintenance, planning
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="Mes Recettes 🍳", page_icon="🍳", layout="centered")
+# --- CONFIGURATION (Doit être la toute première commande) ---
+st.set_page_config(page_title="Mes recettes", page_icon="🍳", layout="centered")
 
+# --- INITIALISATION DU SESSION STATE ---
 def initialiser_session():
-    if "authentifie" not in st.session_state: st.session_state.authentifie = False
-    if "mode_public" not in st.session_state: st.session_state.mode_public = False
-    if "page" not in st.session_state: st.session_state.page = "accueil"
+    """Centralise l'initialisation pour éviter les erreurs de clés manquantes."""
+    defaults = {
+        "authentifie": False,
+        "mode_public": False,
+        "page": "accueil"
+    }
+    for key, val in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = val
 
-def changer_page(nom_page):
-    """Nettoie l'état et change de page."""
+# --- FONCTIONS DE NAVIGATION ---
+def aller_accueil():
+    st.session_state.page = "accueil"
+
+def changer_page(nom):
+    """Change de page et nettoie les données temporaires pour éviter les conflits."""
+    # Nettoyage des clés de modification/ajout des autres modules
     for key in list(st.session_state.keys()):
         if any(key.startswith(p) for p in ["edit_", "init_done_", "ings_list_"]):
             del st.session_state[key]
-    st.session_state.page = nom_page
-    st.rerun()
+    st.session_state.page = nom
 
-# --- ECRAN DE CONNEXION ---
-def ecran_connexion():
-    st.markdown("<h3 style='text-align: center;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
-    mdp = st.text_input("Mot de passe :", type="password")
-    c1, c2 = st.columns(2)
-    if c1.button("Se connecter", use_container_width=True):
-        if mdp == st.secrets["APP_PASSWORD"]:
-            st.session_state.authentifie = True
-            st.rerun()
-        else:
-            st.error("Mot de passe incorrect ❌")
-    if c2.button("Accès Public (Lecture seule)", use_container_width=True):
-        st.session_state.mode_public = True
-        st.rerun()
-
-# --- MAIN ---
-def main():
-    initialiser_session()
-
-    if not st.session_state.authentifie and not st.session_state.mode_public:
-        ecran_connexion()
-        return
-
-    # 1. Définition du Menu horizontal
-    menu = {"📚 Recettes": "recettes"}
-    if st.session_state.authentifie:
-        menu.update({
-            "📅 Planning": "planning",
-            "📥 Ajouter": "ajouter",
-            "🛠️ Maintenance": "maintenance"
-        })
-
-    # 2. Affichage du Menu (Colonnes sur la page principale)
-    st.title("🍳 Ma Cuisine")
-    
-    # Création d'une ligne de boutons pour la navigation
-    cols = st.columns(len(menu))
-    for i, (label, page_id) in enumerate(menu.items()):
-        # Le bouton est coloré (primary) si c'est la page active
-        if cols[i].button(label, use_container_width=True, 
-                          type="primary" if st.session_state.page == page_id else "secondary"):
-            changer_page(page_id)
-    
-    st.divider()
-
-    # 3. Affichage du contenu
-    if st.session_state.page == "accueil":
-        st.info("Bienvenue ! Choisissez une option ci-dessus pour commencer. 👨‍🍳")
-    else:
-        pages = {
-            "recettes": recettes.afficher,
-            "ajouter": ajouter.afficher,
-            "planning": planning.afficher,
-            "maintenance": maintenance.afficher
-        }
+# --- FONCTION DE PROTECTION ---
+def verifier_mot_de_passe():
+    """Vérifie l'identité via le mot de passe ou autorise l'accès public restreint."""
+    if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
+        st.markdown("<h3 style='text-align: center;'>🔑 Accès réservé</h3>", unsafe_allow_html=True)
         
-        if st.session_state.page in pages:
-            pages[st.session_state.page]()
+        def valider():
+            if st.session_state.get("mdp_temp") == st.secrets["APP_PASSWORD"]:
+                st.session_state["authentifie"] = True
+            else:
+                st.error("Mot de passe incorrect ❌")
 
-    # 4. Footer (Optionnel : Déconnexion / Retour)
-    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
-    f1, f2 = st.columns([4, 1])
-    if st.session_state.page != "accueil":
-        if f1.button("🏠 Retour Accueil", size="small"):
-            changer_page("accueil")
+        st.text_input(
+            "Veuillez saisir le mot de passe :", 
+            type="password", 
+            key="mdp_temp", 
+            on_change=valider
+        )
+        
+        col1, col2 = st.columns(2)
+        if col1.button("Se connecter", use_container_width=True):
+            valider()
+            if st.session_state["authentifie"]: st.rerun()
+               
+        if col2.button("Accès Public (Lecture seule)", use_container_width=True):
+            st.session_state["mode_public"] = True
+            st.rerun()
+        return False
+    return True
+
+# --- LOGIQUE PRINCIPALE ---
+initialiser_session()
+
+if verifier_mot_de_passe():
+    # --- BARRE LATÉRALE (Interface d'origine) ---
+    with st.sidebar:
+        st.title("🍳 Menu")
+        
+        if st.button("📚 Mes recettes", use_container_width=True):
+            changer_page("recettes")
             
-    if f2.button("🚪 Quitter", size="small"):
-        st.session_state.clear()
-        st.rerun()
+        if st.session_state["authentifie"]:
+            if st.button("📅 Mon planning", use_container_width=True):
+                changer_page("planning")
+            if st.button("📥 Ajouter une recette", use_container_width=True):
+                changer_page("ajouter")
+            if st.button("🛠️ Maintenance", use_container_width=True):
+                changer_page("maintenance")
+        
+        st.divider()
+        if st.button("🚪 Déconnexion", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
 
-if __name__ == "__main__":
-    main()
+    # --- ROUTAGE (Contenu de la page) ---
+    # Définition statique des pages pour plus de rapidité
+    pages_publiques = {"recettes": recettes.afficher}
+    pages_admin = {
+        "ajouter": ajouter.afficher,
+        "planning": planning.afficher,
+        "maintenance": maintenance.afficher
+    }
+    
+    # Fusion selon les droits
+    pages_disponibles = {**pages_publiques, **pages_admin} if st.session_state["authentifie"] else pages_publiques
+
+    if st.session_state.page == "accueil":
+        st.title("🍴 Bienvenue dans ma cuisine !")
+        st.info("Utilisez le menu à gauche pour naviguer.")
+    elif st.session_state.page in pages_disponibles:
+        pages_disponibles[st.session_state.page]()
+    else:
+        st.error("🚫 Accès restreint ou page inconnue.")
+        if st.button("Retour à l'accueil", use_container_width=True):
+            aller_accueil()
+            st.rerun()
+
+    # Bouton retour universel
+    if st.session_state.page not in ["accueil", "planning"]:
+        st.divider()
+        if st.button("⬅️ Retour accueil", use_container_width=True):
+            aller_accueil()
+            st.rerun()
