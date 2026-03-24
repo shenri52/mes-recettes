@@ -205,7 +205,7 @@ def afficher():
                 # Utilisation de idx_cat ici ⬇️
                 e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
-                e_etapes = st.text_area("Instructions", value=recette.get('etapes', ''), height=150)
+                e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
                 
                 photos_actuelles = recette.get('images', [])
                 photos_a_garder = []
@@ -262,7 +262,7 @@ def afficher():
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
                     st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                st.write(f"**Instructions :**\n{recette.get('etapes')}")
+                st.write(f"**Etapes :**\n{recette.get('etapes')}")
             
             with col_i:
                 images = recette.get('images', [])
