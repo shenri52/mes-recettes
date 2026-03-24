@@ -61,6 +61,8 @@ if verifier_mot_de_passe():
         
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
+        if not st.session_state["authentifie"]:
+            st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
         if st.button("📥 Ajouter une recette", use_container_width=True):
@@ -69,8 +71,6 @@ if verifier_mot_de_passe():
             changer_page("planning")
         if st.button("🛠️ Maintenance", use_container_width=True):
             changer_page("maintenance")
-    else:
-        st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
