@@ -762,11 +762,11 @@
     },
     {
         "nom": "TEST NOUVEAU 1",
-        "categorie": "Goûter",
+        "categorie": "Plat",
         "appareil": "Aucun",
         "ingredients": [
-            "Ananas en boite"
+            "Amandes effillées"
         ],
-        "chemin": "data/recettes/20260324_065814_test_nouveau_1.json"
+        "chemin": "data/recettes/20260324_065832_test_nouveau_1.json"
     }
 ]
