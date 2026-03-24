@@ -119,7 +119,7 @@ def afficher():
             st.session_state.index_a_sauvegarder, st.session_state.fichiers_a_sauvegarder = index_nettoye, fichiers_maj
             st.warning(f"⚠️ {len(erreurs)} recette(s) à corriger :")
             for err in erreurs:
-                st.markdown(f"**📍 {err['nom']}**")
+                st.markdown(f"**{err['nom']}**")
                 for d in err['details']: st.write(d)
                 st.divider()
         else: st.success("✅ Tous les ingrédients sont propres !")
