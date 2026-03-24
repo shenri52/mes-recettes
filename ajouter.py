@@ -13,7 +13,7 @@ def recuperer_donnees_index():
 
 def afficher():
     st.header("📥 Ajouter une recette")
-
+    
     for k, v in {'form_count': 0, 'ingredients_recette': [], 'liste_choix': [""], 'liste_categories': [""], 'cat_fixee': ""}.items():
         if k not in st.session_state: st.session_state[k] = v
 
@@ -144,33 +144,33 @@ def afficher():
                 }
                 
                 if envoyer_vers_github(ch_r, rec_data, "Import"):
-                    # ⚠️ LECTURE EN TEMPS RÉEL VIA L'API POUR NE RIEN ÉCRASER
                     idx_data = charger_donnees("data/index_recettes.json")
-                    
                     res = requests.get(url_idx, headers=conf['headers'])
                     
                     if res.status_code == 200:
                         data_json = res.json()
                         idx_data = json.loads(base64.b64decode(data_json['content']).decode('utf-8'))
                         
-                    idx_data.append({
-                        "nom": nom_plat, 
-                        "categorie": f_cat, 
-                        "appareil": type_appareil, 
-                        "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], 
-                        "chemin": ch_r
-                    })
-                    envoyer_vers_github("data/index_recettes.json", idx_data, "MAJ Index")
-                    st.success("✅ Recette importée avec succès !")
-                    # --- RESET DES CHAMPS ---
-                    st.session_state.ingredients_recette = []
-                    st.session_state.cat_fixee = ""
-                    st.session_state.cat_selectionnee = ""
-                    
-                    st.session_state.form_count += 1
-                    
-                    time.sleep(1.5)
-                    st.rerun()
-                else:
+                        idx_data.append({
+                            "nom": nom_plat, 
+                            "categorie": f_cat, 
+                            "appareil": type_appareil, 
+                            "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette], 
+                            "chemin": ch_r
+                        })
+                        envoyer_vers_github("data/index_recettes.json", idx_data, "MAJ Index")
+                        st.success("✅ Recette importée avec succès !")
+                        # --- RESET DES CHAMPS ---
+                        st.session_state.ingredients_recette = []
+                        st.session_state.cat_fixee = ""
+                        st.session_state.cat_selectionnee = ""
+                        
+                        st.session_state.form_count += 1
+                        
+                        time.sleep(1.5)
+                        st.rerun()
+                    else:
                     st.error("❌ Impossible de lire l'index pour le mettre à jour.")
                     
+if __name__ == "__main__":
+    afficher()
