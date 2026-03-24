@@ -90,7 +90,7 @@ if verifier_mot_de_passe():
                     changer_page("importer")
             with col2:
                 if st.button("✍️ Créer une recette", use_container_width=True):
-                    changer_page("ajouter")
+                    changer_page("saisir")
 
             if st.button("📥 Ajouter une recette", use_container_width=True):
                 changer_page("ajouter")
