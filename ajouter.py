@@ -46,7 +46,7 @@ def envoyer_vers_github(chemin, contenu, message, binaire=False):
     return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
 
 def afficher():
-    st.header("✍️ Ajouter une recette")
+    st.header("📥 Ajouter une recette")
 
     for k, v in {'form_count': 0, 'ingredients_recette': [], 'liste_choix': [""], 'liste_categories': [""], 'cat_fixee': ""}.items():
         if k not in st.session_state: st.session_state[k] = v
