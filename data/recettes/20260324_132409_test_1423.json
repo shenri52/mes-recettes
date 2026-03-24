@@ -1,0 +1,19 @@
+{
+    "nom": "TEST 1423",
+    "categorie": "Marinade",
+    "appareil": "Ninja",
+    "temps_preparation": "25",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Ananas en boite",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Ananas en boite",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "dg<sgh",
+    "images": []
+}
