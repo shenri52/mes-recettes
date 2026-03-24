@@ -1,55 +1,7 @@
 import streamlit as st
-import requests, json, base64, time, uuid, io
+import requests, json, time, uuid, io
 from PIL import Image
-from utils import config_github
-
-# --- Fonction de vérification des doublons ---
-def verifier_doublon(nom_test, index, chemin_actuel=None):
-    """
-    Retourne True si le nom existe déjà dans l'index (hors la recette en cours d'édition).
-    """
-    for r in index:
-        # On compare en minuscules et sans espaces inutiles
-        if r['nom'].strip().lower() == nom_test.strip().lower():
-            # Si on est en mode édition, on ignore le doublon si c'est la même recette (même chemin)
-            if chemin_actuel and r['chemin'] == chemin_actuel:
-                continue
-            return True
-    return False
-    
-def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
-    try:
-        conf = config_github()
-        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-        contenu_b64 = base64.b64encode(contenu if est_binaire else contenu.encode('utf-8')).decode('utf-8')
-        data = {"message": message, "content": contenu_b64, "branch": "main"}
-        if sha: data["sha"] = sha
-        res = requests.put(url, headers=conf['headers'], json=data)
-        return res.status_code in [200, 201]
-    except Exception as e:
-        st.error(f"Erreur technique : {str(e)}")
-        return False
-
-def supprimer_fichier_github(chemin):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
-    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    if get_res.status_code == 200:
-        sha = get_res.json()['sha']
-        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return res_del.status_code in [200, 204]
-    return False
-
-# --- 2. TRAITEMENT IMAGE ---
-def compresser_image(upload_file):
-    img = Image.open(upload_file)
-    if img.mode in ("RGBA", "P"): img = img.convert("RGB")
-    img.thumbnail((1200, 1200))
-    buffer = io.BytesIO()
-    img.save(buffer, format="JPEG", quality=80, optimize=True)
-    return buffer.getvalue()
+from utils import config_github, envoyer_vers_github, supprimer_fichier_github, compresser_image, verifier_doublon
 
 # --- 3. GESTION DE L'INDEX ---
 def charger_index():
