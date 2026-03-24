@@ -754,13 +754,6 @@
         "chemin": "data/recettes/20260324_150207_test_1554.json"
     },
     {
-        "nom": "TEST 1602",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260324_150238_test_1602.json"
-    },
-    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
