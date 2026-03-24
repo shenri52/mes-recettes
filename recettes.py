@@ -87,8 +87,7 @@ def afficher():
     st.header("📚 Mes recettes")
     st.write("---")
 
-    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
-    recherche = c1.text_input("🔍 Rechercher", "").lower()
+    c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
@@ -103,8 +102,7 @@ def afficher():
 
     resultats = [
         r for r in index 
-        if (not recherche or recherche in r['nom'].lower())
-        and (f_cat == "Tous" or r['categorie'] == f_cat)
+        if (f_cat == "Tous" or r['categorie'] == f_cat)
         and (f_app == "Tous" or r['appareil'] == f_app)
         and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
