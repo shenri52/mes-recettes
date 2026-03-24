@@ -11,11 +11,53 @@ def charger_index():
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
-def sauvegarder_index_global(index_maj):
-    index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    if envoyer_vers_github("data/index_recettes.json", index_trie, "MAJ Index"):
-        st.session_state.index_recettes = index_trie
-        return True
+def sauvegarder_index_global(chemin_recette, data_recette_maj):
+    """Récupère l'index réel, met à jour la ligne de la recette et renvoie le tout."""
+    import requests, base64, json
+    conf = config_github()
+    url_idx = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
+    
+    try:
+        # 1. Lecture SANS CACHE
+        res = requests.get(url_idx, headers=conf['headers'])
+        if res.status_code == 200:
+            content = res.json()
+            index_actuel = json.loads(base64.b64decode(content['content']).decode('utf-8'))
+            
+            # 2. Mise à jour de la ligne correspondante dans l'index
+            index_mis_a_jour = []
+            trouve = False
+            for item in index_actuel:
+                if item['chemin'] == chemin_recette:
+                    # On remplace par les nouvelles infos
+                    index_mis_a_jour.append({
+                        "nom": data_recette_maj['nom'],
+                        "categorie": data_recette_maj['categorie'],
+                        "appareil": data_recette_maj['appareil'],
+                        "ingredients": [i['Ingrédient'] for i in data_recette_maj['ingredients']],
+                        "chemin": chemin_recette
+                    })
+                    trouve = True
+                else:
+                    index_mis_a_jour.append(item)
+            
+            # Si c'est une nouvelle recette (cas rare ici mais sécurité)
+            if not trouve:
+                index_mis_a_jour.append({
+                    "nom": data_recette_maj['nom'],
+                    "categorie": data_recette_maj['categorie'],
+                    "appareil": data_recette_maj['appareil'],
+                    "ingredients": [i['Ingrédient'] for i in data_recette_maj['ingredients']],
+                    "chemin": chemin_recette
+                })
+
+            # 3. Envoi vers GitHub
+            index_trie = sorted(index_mis_a_jour, key=lambda x: x['nom'].lower())
+            if envoyer_vers_github("data/index_recettes.json", index_trie, f"MAJ Index (Modif {data_recette_maj['nom']})"):
+                st.session_state.index_recettes = index_trie
+                return True
+    except Exception as e:
+        st.error(f"Erreur synchro index : {e}")
     return False
 
 # --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
