@@ -39,6 +39,18 @@ def verifier_mot_de_passe():
             st.session_state["mode_public"] = True
             st.session_state.page = "recettes"
             st.rerun()
+
+        # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
+        if "index_recettes" not in st.session_state:
+            # On fait un chargement rapide si nécessaire
+            from recettes import charger_index
+            charger_index()
+        
+        nb_recettes = len(st.session_state.get("index_recettes", []))
+        
+        # Affichage discret sous le titre ou dans la barre latérale
+        if nb_recettes > 0:
+            st.info(f"📖 **{nb_recettes}** recettes enregistrées dans votre livre.")
             
         return False
     return True
