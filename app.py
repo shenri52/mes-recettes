@@ -50,16 +50,7 @@ def verifier_mot_de_passe():
         
         # Affichage discret sous le titre ou dans la barre latérale
         if nb_recettes > 0:
-            st.markdown(
-                        f"""
-                        <div style="text-align: center;">
-                            <p style="background-color: #e1f5fe; color: #01579b; padding: 10px; border-radius: 10px; display: inline-block; border: 1px solid #01579b;">
-                                📖 <b>{nb_recettes}</b> recettes enregistrées dans le grimoire
-                            </p>
-                        </div>
-                        """, 
-                        unsafe_allow_html=True
-                    )
+            st.info(f"💡 Vous avez déjà **{nb}** pépites culinaires enregistrées !")
             
         return False
     return True
