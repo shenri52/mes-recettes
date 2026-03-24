@@ -1,28 +1,43 @@
 import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
+from utils import config_github
 
-# --- LOGIQUE DE COMMUNICATION GITHUB ---
-def config_github():
-    """Centralise les paramètres de connexion au dépôt."""
-    return {
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        },
-        "base_url": f"https://api.github.com/repos/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/contents/"
-    }
+def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
+    """Version améliorée avec anti-cache sur le SHA et gestion d'erreurs."""
+    try:
+        conf = config_github()
+        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
+        
+        # 1. Récupération du SHA avec anti-cache pour éviter les conflits
+        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
+        
+        # 2. Préparation du contenu
+        if not est_binaire:
+            # Si c'est du texte (ex: JSON), on encode en utf-8
+            if isinstance(contenu, (dict, list)):
+                contenu_final = json.dumps(contenu, indent=4, ensure_ascii=False).encode('utf-8')
+            else:
+                contenu_final = contenu.encode('utf-8')
+        else:
+            contenu_final = contenu
 
-def envoyer_donnees(chemin, contenu, message, est_image=False):
-    """Fonction universelle pour envoyer texte ou images vers GitHub."""
-    conf = config_github()
-    url = f"{conf['base_url']}{chemin}"
-    res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-    contenu_b64 = base64.b64encode(contenu if est_image else contenu.encode('utf-8')).decode('utf-8')
-    payload = {"message": message, "content": contenu_b64, "branch": "main"}
-    if sha: payload["sha"] = sha
-    return requests.put(url, headers=conf['headers'], json=payload).status_code in [200, 201]
+        contenu_b64 = base64.b64encode(contenu_final).decode('utf-8')
+        
+        # 3. Payload pour GitHub
+        data = {
+            "message": message,
+            "content": contenu_b64,
+            "branch": "main"
+        }
+        if sha: 
+            data["sha"] = sha
+            
+        res = requests.put(url, headers=conf['headers'], json=data)
+        return res.status_code in [200, 201]
+    except Exception as e:
+        st.error(f"Erreur technique API : {str(e)}")
 
 def charger_index_local():
     """Récupère l'index des recettes en contournant le cache."""
@@ -32,7 +47,7 @@ def charger_index_local():
 
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
-    st.header("🛠️ Réparation et optimisation")
+    st.header("🛠️ Maintenance")
     st.divider()
 
     if "bouton_analyse_clique" not in st.session_state:
@@ -55,6 +70,9 @@ def afficher():
             st.write(f"🗂️ **Index des recettes :** {len(index_actuel)}")
             if manquantes:
                 st.warning(f"⚠️ {len(manquantes)} fichiers hors index.")
+                with st.expander("📄 Voir la liste des fichiers manquants"):
+                    for m in manquantes:
+                        st.write(f"- `{m}`")
                 st.session_state.a_reparer = manquantes
             else: st.success("✅ Index à jour.")
 
@@ -69,7 +87,7 @@ def afficher():
                         d = r.json()
                         nouvelles.append({"nom": d.get("nom", "Sans nom"), "categorie": d.get("categorie", "Non classé"), "appareil": d.get("appareil", "Aucun"), "ingredients": [i.get("Ingrédient") for i in d.get("ingredients", [])], "chemin": chemin})
                 index_final = sorted(index_actuel + nouvelles, key=lambda x: x['nom'].lower())
-                if envoyer_donnees("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
+                if envoyer_vers_github("data/index_recettes.json", json.dumps(index_final, indent=4, ensure_ascii=False), "🛠️ Réparation"):
                     st.success("✅ Index réparé !")
                     del st.session_state.a_reparer
                     st.rerun()
@@ -108,8 +126,8 @@ def afficher():
 
     if st.session_state.get("index_a_sauvegarder"):
         if st.button("🚀 Appliquer le nettoyage", use_container_width=True):
-            for f in st.session_state.fichiers_a_sauvegarder: envoyer_donnees(f['chemin'], json.dumps(f['contenu'], indent=4, ensure_ascii=False), "🧹 Nettoyage")
-            envoyer_donnees("data/index_recettes.json", json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), "🧹 Nettoyage Index")
+            for f in st.session_state.fichiers_a_sauvegarder: envoyer_vers_github(f['chemin'], json.dumps(f['contenu'], indent=4, ensure_ascii=False), "🧹 Nettoyage")
+            envoyer_vers_github("data/index_recettes.json", json.dumps(st.session_state.index_a_sauvegarder, indent=4, ensure_ascii=False), "🧹 Nettoyage Index")
             del st.session_state.index_a_sauvegarder
             st.rerun()
 
@@ -122,10 +140,11 @@ def afficher():
             if lourdes:
                 st.session_state.images_a_compresser = lourdes
                 st.warning(f"⚠️ {len(lourdes)} image(s) lourde(s) :")
-                for img in lourdes:
-                    st.code(img['path'])
-                    st.write(f"Taille : {img['size'] / 1024:.0f} Ko")
-                    st.divider()
+                with st.expander("📸 Voir le détail des fichiers à optimiser"):
+                    for img in lourdes:
+                        st.code(img['path'])
+                        st.write(f"Taille : {img['size'] / 1024:.0f} Ko")
+                        st.divider()
             else: st.success("Toutes les images sont légères. ✅")
 
     if st.session_state.get("images_a_compresser"):
@@ -138,7 +157,7 @@ def afficher():
                     img_p.thumbnail((1200, 1200))
                     buf = io.BytesIO()
                     img_p.save(buf, format="JPEG", quality=75, optimize=True)
-                    envoyer_donnees(img['path'], buf.getvalue(), "📸 Opti Image", est_image=True)
+                    envoyer_vers_github(img['path'], buf.getvalue(), "📸 Opti Image", est_binaire=True)
                 barre.progress((idx + 1) / len(st.session_state.images_a_compresser))
             del st.session_state.images_a_compresser
             st.success("Compression terminée ! 🚀")
