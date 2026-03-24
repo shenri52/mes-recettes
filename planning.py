@@ -1,20 +1,6 @@
 import streamlit as st
-import datetime
-import json
-import requests
-import time
-import base64
-
-# --- FONCTIONS TECHNIQUES ---
-def config_github():
-    return {
-        "owner": st.secrets["REPO_OWNER"],
-        "repo": st.secrets["REPO_NAME"],
-        "headers": {
-            "Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-    }
+import datetime, json, requests, time, base64
+from utils import config_github
 
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     """Version améliorée avec anti-cache sur le SHA et gestion d'erreurs"""
