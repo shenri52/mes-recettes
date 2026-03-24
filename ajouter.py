@@ -9,36 +9,31 @@ def config_github():
         "owner": st.secrets["REPO_OWNER"], "repo": st.secrets["REPO_NAME"]
     }
 
-def recuperer_donnees_index():
+def obtenir_index_en_temps_reel():
+    """Fonction qui lit l'index SANS cache via l'API GitHub (très utile pour tes autres projets)."""
     conf = config_github()
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
     try:
-        res = requests.get(url)
+        res = requests.get(url, headers=conf['headers'])
         if res.status_code == 200:
-            idx = res.json()
-            st.session_state.index_recettes_complet = idx # Sauvegardé pour la vérification des doublons
-            ing = {i for r in idx for i in r.get('ingredients', []) if i}
-            cat = {r.get('categorie') for r in idx if r.get('categorie')}
-            return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
-    except: pass
+            contenu_decode = base64.b64decode(res.json()['content']).decode('utf-8')
+            return json.loads(contenu_decode)
+    except:
+        pass
+    return []
+
+def recuperer_donnees_index():
+    idx = obtenir_index_en_temps_reel()
+    if idx:
+        ing = {i for r in idx for i in r.get('ingredients', []) if i}
+        cat = {r.get('categorie') for r in idx if r.get('categorie')}
+        return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
     return ["---"], ["---"]
 
 def verifier_doublon_recette(nom_saisi):
-    """Fonction dédiée à la vérification des doublons (comparaison en majuscules)"""
-    if 'index_recettes_complet' not in st.session_state:
-        conf = config_github()
-        url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/data/index_recettes.json?t={int(time.time())}"
-        try:
-            res = requests.get(url)
-            if res.status_code == 200:
-                st.session_state.index_recettes_complet = res.json()
-            else:
-                return False
-        except:
-            return False
-    
-    # Comparaison stricte en MAJUSCULES
-    noms_existants = [str(r.get('nom', '')).strip().upper() for r in st.session_state.index_recettes_complet]
+    """Vérification stricte des doublons en majuscules, en temps réel via API."""
+    index_actuel = obtenir_index_en_temps_reel()
+    noms_existants = [str(r.get('nom', '')).strip().upper() for r in index_actuel]
     return nom_saisi.strip().upper() in noms_existants
 
 def envoyer_vers_github(chemin, contenu, message, binaire=False):
@@ -68,7 +63,7 @@ def afficher():
         type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
-              
+        
         # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
             nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
@@ -134,8 +129,7 @@ def afficher():
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
-
-    # --- ÉTAPES ---
+    # --- SECTION ETAPE  --
     etapes_plat = st.text_area("Étapes de la recette", key=f"etapes_{f_id}", placeholder="Saisissez les étapes ici...")
         
     # --- SECTION MÉDIAS  ---
@@ -150,7 +144,6 @@ def afficher():
     if st.button("💾 Enregistrer", use_container_width=True):
         f_cat = st.session_state.cat_fixee
         
-        # --- VÉRIFICATIONS OBLIGATOIRES ET DOUBLONS ---
         if not nom_plat or nom_plat.strip() == "":
             st.error("⚠️ Le nom de la recette est obligatoire.")
         elif verifier_doublon_recette(nom_plat):
@@ -189,10 +182,9 @@ def afficher():
                 }
                 
                 if envoyer_vers_github(ch_r, json.dumps(rec_data, indent=4, ensure_ascii=False), "Import"):
-                    res_idx = requests.get(f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json")
-                    idx_data = res_idx.json() if res_idx.status_code == 200 else []
+                    # ⚠️ LECTURE EN TEMPS RÉEL VIA L'API POUR NE RIEN ÉCRASER
+                    idx_data = obtenir_index_en_temps_reel()
                     
-                    # On garde la casse saisie par l'utilisateur pour l'index
                     idx_data.append({
                         "nom": nom_plat, 
                         "categorie": f_cat, 
@@ -204,16 +196,10 @@ def afficher():
 
                     st.success("✅ Recette importée avec succès !")
                     
-                    # --- RESET ---
+                    # --- RESET DES CHAMPS ---
                     st.session_state.ingredients_recette = []
                     st.session_state.cat_fixee = ""
                     st.session_state.cat_selectionnee = ""
-                    
-                    # On nettoie le cache pour forcer un rechargement au prochain affichage
-                    if 'index_recettes' in st.session_state: 
-                        del st.session_state.index_recettes
-                    if 'index_recettes_complet' in st.session_state:
-                        del st.session_state.index_recettes_complet
                     
                     st.session_state.form_count += 1
                     
