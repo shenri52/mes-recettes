@@ -69,8 +69,8 @@ if verifier_mot_de_passe():
             changer_page("planning")
         if st.button("🛠️ Maintenance", use_container_width=True):
             changer_page("maintenance")
-        else:
-            st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
+    else:
+        st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
     # --- ROUTAGE (Contenu de la page) ---
     else:
