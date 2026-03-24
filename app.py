@@ -50,7 +50,7 @@ def verifier_mot_de_passe():
         
         # Affichage discret sous le titre ou dans la barre latérale
         if nb_recettes > 0:
-            st.info(f"💡 Vous avez déjà **{nb_recettes }** pépites culinaires enregistrées !")
+            st.info(f"💡 Il y a **{nb_recettes }** recettes d'enregistrées !")
             
         return False
     return True
