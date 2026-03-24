@@ -747,6 +747,16 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
+        "nom": "TEST 1423",
+        "categorie": "Marinade",
+        "appareil": "Ninja",
+        "ingredients": [
+            "Ananas en boite",
+            "Ananas en boite"
+        ],
+        "chemin": "data/recettes/20260324_132409_test_1423.json"
+    },
+    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -759,25 +769,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "TEST 1423",
-        "categorie": "Marinade",
-        "appareil": "Ninja",
-        "ingredients": [
-            "Ananas en boite",
-            "Ananas en boite"
-        ],
-        "chemin": "data/recettes/20260324_132409_test_1423.json"
-    },
-    {
-        "nom": "TEST 1514",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ail poudre",
-            "Amandes"
-        ],
-        "chemin": "data/recettes/20260324_141426_test_1514.json"
     }
 ]
