@@ -1,54 +1,6 @@
 import streamlit as st
-import datetime, json, requests, time, base64
-from utils import config_github
-
-def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
-    """Version améliorée avec anti-cache sur le SHA et gestion d'erreurs"""
-    try:
-        conf = config_github()
-        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin}"
-        
-        # 1. Récupération du SHA avec anti-cache pour éviter les conflits
-        res_get = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-        sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-        
-        # 2. Préparation du contenu (JSON ou binaire)
-        if not est_binaire:
-            # Si c'est du texte (ex: JSON), on encode en utf-8
-            contenu_final = json.dumps(contenu, indent=4, ensure_ascii=False).encode('utf-8')
-        else:
-            contenu_final = contenu
-
-        contenu_b64 = base64.b64encode(contenu_final).decode('utf-8')
-        
-        # 3. Payload pour GitHub
-        data = {
-            "message": message,
-            "content": contenu_b64,
-            "branch": "main"
-        }
-        if sha: 
-            data["sha"] = sha
-            
-        res = requests.put(url, headers=conf['headers'], json=data)
-        return res.status_code in [200, 201]
-    except Exception as e:
-        st.error(f"Erreur technique API : {str(e)}")
-        return False
-
-def charger_donnees(chemin):
-    """Charge les données avec anti-cache et gestion d'erreurs."""
-    conf = config_github()
-    # Le paramètre ?t= force GitHub à ignorer le cache et donner le fichier réel
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"
-    try:
-        res = requests.get(url)
-        if res.status_code == 200:
-            return res.json()
-    except Exception:
-        pass
-    # Retourne une liste pour les plats, sinon un dictionnaire vide
-    return [] if "plats_rapides" in chemin else {}
+import datetime, json, requests, time
+from utils import config_github, envoyer_vers_github, charger_donnees
 
 # --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
