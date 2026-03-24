@@ -17,9 +17,7 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
    * **📚 Consultation des recettes** : 
        * Toutes les fonctions du mode public.
        * Modification et suppressions des recettes.
-   * **✍️ Saisie manuelle** : Formulaire complet avec gestion des temps de préparation/cuisson et reset auto.
-   * **📥 Import rapide** : Idéal pour scanner une recette papier via photo.
-   
+   * **✍️ Ajouter une recette** : Formulaire pour ajouter une recette.
    * **📚 Planing** : 
        * Organisation de la semaine (Midi & Soir).
        * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
@@ -29,12 +27,6 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
        * Réparer l'index des recettes
        * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
        * Optimiser les images sans perte de qualité
-   * **🚫 Mode "Appli connecté" :
-      * Option pour empêcher l'application de se déconnecter lors de la mise en veille du téléphone
-   * **📊 Statistiques :
-      * Nombre de recette
-      * Stockage
-
 
 ## 🛠️ Technologies utilisées
 
@@ -61,11 +53,9 @@ REPO_NAME = "nom_de_votre_depot"
 ### 3. Arborescence du projet
 ```
 ├── app.py                # Fichier principal
-├── saisir.py             # Module d'ajout manuel
-├── importer.py           # Module d'import par photo
+├── ajouterpy             # Module d'ajout
 ├── recettes.py           # Module de consultation et modification
 ├── planning.py           # Gestion du planning hebdomadaire
-├── stats.py              # Statistiques d'utilisation
 ├── maintenance.py        # Outils de corrections et de contrôles
 ├── requirements.txt      # Liste des bibliothèques nécessaires
 └── data/
