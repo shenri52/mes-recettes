@@ -170,7 +170,7 @@ def afficher():
                         time.sleep(1.5)
                         st.rerun()
                     else:
-                    st.error("❌ Impossible de lire l'index pour le mettre à jour.")
+                        st.error("❌ Impossible de lire l'index pour le mettre à jour.")
                     
 if __name__ == "__main__":
     afficher()
