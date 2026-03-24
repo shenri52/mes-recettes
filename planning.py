@@ -1,5 +1,5 @@
 import streamlit as st
-import datetime, json, requests, time
+import datetime, time
 from utils import config_github, envoyer_vers_github, charger_donnees
 
 # --- APERÇU FICHE RECETTE ---
@@ -9,7 +9,7 @@ def ouvrir_fiche(nom_plat):
     
     if info:
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
-        res = requests.get(url_full)
+        res = charger_donnees(url_full)
         if res.status_code == 200:
             recette = res.json()
             tab1, tab2 = st.tabs(["📝 Détails", "📸 Captures"])
