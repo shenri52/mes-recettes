@@ -2,9 +2,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 import ajouter, importer, saisir, recettes, maintenance, planning
 
-# --- CONFIGURATION DE LA PAGE (DOIT ÊTRE LA PREMIÈRE COMMANDE) ---
-st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
-
 # --- FONCTION DE PROTECTION ---
 def verifier_mot_de_passe():
     """Vérifie l'identité via le mot de passe ou autorise l'accès public restreint."""
@@ -13,14 +10,13 @@ def verifier_mot_de_passe():
     if "mode_public" not in st.session_state:
         st.session_state["mode_public"] = False
 
-    # Si l'utilisateur n'est ni admin ni en mode public, on affiche l'écran de verrouillage
     if not st.session_state["authentifie"] and not st.session_state["mode_public"]:
+        st.set_page_config(page_title="Mesrecettes", page_icon="🍳", layout="centered")
         st.markdown("<h3 style='text-align: center;'>🔒 Accès réservé</h3>", unsafe_allow_html=True)
         
         def valider():
             if st.session_state["mdp_temp"] == st.secrets["APP_PASSWORD"]:
                 st.session_state["authentifie"] = True
-                st.session_state["mode_public"] = False
             else:
                 st.error("Mot de passe incorrect ❌")
 
@@ -31,27 +27,27 @@ def verifier_mot_de_passe():
             on_change=valider
         )
         
-        col_login, col_pub = st.columns(2)
-        with col_login:
-            if st.button("Se connecter", use_container_width=True):
-                valider()
-                if st.session_state["authentifie"]:
-                    st.rerun()
-        
-        with col_pub:
-            if st.button("📖 Consulter (Public)", use_container_width=True):
-                st.session_state["mode_public"] = True
-                st.session_state.page = "recettes"
+        if st.button("Se connecter", use_container_width=True):
+            valider()
+            if st.session_state["authentifie"]:
                 st.rerun()
-                
+        
+        st.divider()
+        
+        # Bouton d'accès direct pour la consultation simple
+        if st.button("📖 Consulter les recettes (Public)", use_container_width=True):
+            st.session_state["mode_public"] = True
+            st.session_state.page = "recettes"
+            st.rerun()
+            
         return False
     return True
 
 def aller_accueil():
-    """Retourne à l'écran d'accueil."""
+    # On remet la page sur accueil
     st.session_state.page = 'accueil'
-    # Optionnel : décommenter pour verrouiller au retour accueil
-    # st.session_state["mode_public"] = False
+    # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
+    st.session_state["mode_public"] = False
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
@@ -59,14 +55,15 @@ if verifier_mot_de_passe():
         st.session_state.page = 'accueil'
 
     def changer_page(nom):
-        """Change la page active et rafraîchit."""
+        """Change la page active dans le session_state et rafraîchit l'affichage."""
         st.session_state.page = nom
         st.rerun()
 
     # --- BLOC ANTI-VEILLE ---
-    PAGES_CUISINE = ["planning", "recettes", "ajouter", "saisir"]
+    PAGES_CUISINE = ["planning", "recettes", "ajouter", "coursesaisir", "coursevisualiser"]
+
     if st.session_state.page in PAGES_CUISINE:
-        mode_cuisine = st.toggle("🚫 Garder l'application connectée", value=False)
+        mode_cuisine = st.checkbox("🚫 Garder l'application connectée", value=False)
         if mode_cuisine:
             components.html(
                 """
@@ -81,14 +78,11 @@ if verifier_mot_de_passe():
 
     # --- MENU D'ACCUEIL ---
     if st.session_state.page == 'accueil':
-        st.title("🍴 Gestion des Recettes")
-        
+        # Navigation via boutons principaux
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
         
-        st.divider()
-
-        # Options réservées à l'administrateur (authentifié)
+        # Affichage des options réservées à l'administrateur
         if st.session_state["authentifie"]:
             col1, col2 = st.columns(2)
             with col1:
@@ -98,7 +92,7 @@ if verifier_mot_de_passe():
                 if st.button("✍️ Créer une recette", use_container_width=True):
                     changer_page("saisir")
 
-            if st.button("➕ Ajouter une recette", use_container_width=True):
+            if st.button("📥 Ajouter une recette", use_container_width=True):
                 changer_page("ajouter")
                 
             if st.button("📅 Mon planning", use_container_width=True):
@@ -106,43 +100,41 @@ if verifier_mot_de_passe():
             
             if st.button("🛠️ Maintenance", use_container_width=True):
                 changer_page("maintenance")
-                
-            if st.button("🚪 Se déconnecter", use_container_width=True):
-                st.session_state["authentifie"] = False
-                st.rerun()
         else:
-            st.info("💡 Mode consultation active. Connectez-vous pour modifier ou planifier.")
-            if st.button("🔒 Connexion Admin", use_container_width=True):
-                st.session_state["mode_public"] = False
-                st.rerun()
+            st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
 
-    # --- ROUTAGE DES CONTENUS ---
+    # --- ROUTAGE (Contenu de la page) ---
     else:
-        # Pages publiques
-        pages_disponibles = {"recettes": recettes.afficher}
+        # Dictionnaire des pages autorisées en mode public
+        pages_publiques = {
+            "recettes": recettes.afficher
+        }
         
-        # Pages admin (fusionnées si authentifié)
+        # Dictionnaire des pages réservées (admin)
+        pages_admin = {
+            "importer": importer.afficher,
+            "ajouter": ajouter.afficher,
+            "saisir": saisir.afficher,
+            "planning": planning.afficher,
+            "maintenance": maintenance.afficher
+        }
+        
+        # Sélection du dictionnaire selon le statut
         if st.session_state["authentifie"]:
-            pages_disponibles.update({
-                "importer": importer.afficher,
-                "ajouter": ajouter.afficher,
-                "saisir": saisir.afficher,
-                "planning": planning.afficher,
-                "maintenance": maintenance.afficher
-            })
+            pages_disponibles = {**pages_publiques, **pages_admin}
+        else:
+            pages_disponibles = pages_publiques
 
-        # Affichage de la page
+        # Appel de la fonction afficher() si autorisée
         if st.session_state.page in pages_disponibles:
             pages_disponibles[st.session_state.page]()
         else:
-            st.error("🚫 Accès restreint ou page non trouvée.")
+            st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
             if st.button("Retour à l'accueil", use_container_width=True):
                 aller_accueil()
-                st.rerun()
 
-        # Bouton retour universel
+        # Bouton retour (masqué sur le planning)
         st.divider()
+
         if st.session_state.page != "planning":
-            if st.button("⬅️ Retour accueil", use_container_width=True):
-                aller_accueil()
-                st.rerun()
+            st.button("⬅️ Retour accueil", use_container_width=True, on_click=aller_accueil)
