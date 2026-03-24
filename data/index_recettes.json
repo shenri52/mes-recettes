@@ -768,5 +768,12 @@
             "Amandes effillées"
         ],
         "chemin": "data/recettes/20260324_065832_test_nouveau_1.json"
+    },
+    {
+        "nom": "TEST 2",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [],
+        "chemin": "data/recettes/20260324_070510_test_2.json"
     }
 ]
