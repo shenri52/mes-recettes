@@ -759,5 +759,14 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
+    },
+    {
+        "nom": "TEST NOUVEAU 1",
+        "categorie": "Goûter",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ananas en boite"
+        ],
+        "chemin": "data/recettes/20260324_065814_test_nouveau_1.json"
     }
 ]
