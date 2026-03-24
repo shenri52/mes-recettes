@@ -1,0 +1,15 @@
+{
+    "nom": "TEST NOUVEAU 1",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Amandes effillées",
+            "Quantité": "100"
+        }
+    ],
+    "etapes": "ddffg",
+    "images": []
+}
