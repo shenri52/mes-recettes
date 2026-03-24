@@ -774,29 +774,6 @@
         "chemin": "data/recettes/20260324_141426_test_1514.json"
     },
     {
-        "nom": "Velouté de courgettes et épinards au lait de coco",
-        "categorie": "Soupe",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Courgette",
-            "Epinards frais",
-            "Oignon",
-            "Bouillon de légumes",
-            "Lait de coco",
-            "Curcuma"
-        ],
-        "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "TEST1528",
-        "categorie": "Marinade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ananas en boite"
-        ],
-        "chemin": "data/recettes/20260324_142901_test1528.json"
-    },
-    {
         "nom": "TEST 1554",
         "categorie": "Marinade",
         "appareil": "Aucun",
@@ -809,5 +786,28 @@
         "appareil": "Aucun",
         "ingredients": [],
         "chemin": "data/recettes/20260324_150238_test_1602.json"
+    },
+    {
+        "nom": "TEST1528",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ananas en boite"
+        ],
+        "chemin": "data/recettes/20260324_142901_test1528.json"
+    },
+    {
+        "nom": "Velouté de courgettes et épinards au lait de coco",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Courgette",
+            "Epinards frais",
+            "Oignon",
+            "Bouillon de légumes",
+            "Lait de coco",
+            "Curcuma"
+        ],
+        "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
     }
 ]
