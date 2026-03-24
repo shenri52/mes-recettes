@@ -65,10 +65,10 @@ if verifier_mot_de_passe():
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
         if st.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
-        if st.button("📥 Ajouter une recette", use_container_width=True):
-            changer_page("ajouter")
         if st.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
+        if st.button("📥 Ajouter une recette", use_container_width=True):
+            changer_page("ajouter")
         if st.button("🛠️ Maintenance", use_container_width=True):
             changer_page("maintenance")
 
