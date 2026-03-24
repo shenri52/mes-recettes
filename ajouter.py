@@ -68,10 +68,7 @@ def afficher():
         type_appareil = c_app.selectbox("Appareil utilisé", options=sorted(["Aucun", "Cookeo", "Thermomix", "Ninja"]), key=f"app_{f_id}")
         tps_prep = c_prep.text_input("Temps préparation", key=f"prep_{f_id}", placeholder="ex: 15 min")
         tps_cuis = c_cuis.text_input("Temps cuisson", key=f"cuis_{f_id}", placeholder="ex: 20 min")
-        
-        # --- ÉTAPES ---
-        etapes_plat = st.text_area("Étapes de la recette", key=f"etapes_{f_id}", placeholder="Saisissez les étapes ici...")
-        
+              
         # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
             nom_nouveau = st.session_state.get(f"ncat_{f_id}", "").strip()
@@ -137,6 +134,10 @@ def afficher():
         for i in st.session_state.ingredients_recette:
             st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
 
+
+    # --- ÉTAPES ---
+    etapes_plat = st.text_area("Étapes de la recette", key=f"etapes_{f_id}", placeholder="Saisissez les étapes ici...")
+        
     # --- SECTION MÉDIAS  ---
     photos_fb = st.file_uploader(
         "📸 Photos de la recette", 
