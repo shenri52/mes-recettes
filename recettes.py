@@ -18,11 +18,9 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj=None, index_comple
     url_idx = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
     
     try:
-        # Cas 1 : On fournit un index déjà calculé (ex: suppression)
         if index_complet is not None:
             index_final = index_complet
         else:
-            # Cas 2 : On récupère l'index actuel pour modifier une ligne
             res = requests.get(url_idx, headers=conf['headers'])
             index_actuel = json.loads(base64.b64decode(res.json()['content']).decode('utf-8')) if res.status_code == 200 else []
             
@@ -41,7 +39,7 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj=None, index_comple
                 else:
                     index_final.append(item)
             
-            if not trouve: # Sécurité ajout
+            if not trouve:
                 index_final.append({
                     "nom": data_recette_maj['nom'],
                     "categorie": data_recette_maj['categorie'],
@@ -50,7 +48,6 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj=None, index_comple
                     "chemin": chemin_recette
                 })
 
-        # Tri alphabétique systématique
         index_trie = sorted(index_final, key=lambda x: x['nom'].lower())
         
         if envoyer_vers_github("data/index_recettes.json", index_trie, "🔄 MAJ Index"):
@@ -63,7 +60,6 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj=None, index_comple
 # --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
     def nettoyer_modif():
-        """Supprime les données temporaires d'édition quand on change de recette."""
         if "img_idx" in st.session_state:
             st.session_state.img_idx = 0
         for key in list(st.session_state.keys()):
@@ -100,13 +96,12 @@ def afficher():
         "📖 Sélectionner une recette", 
         ["---"] + noms_filtres, 
         key="select_recette",
-        on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
+        on_change=nettoyer_modif
     )
     
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
         conf = config_github()
-        url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{info['chemin']}?t={int(time.time())}"
         recette = charger_donnees(info['chemin'])
         if not recette:
             st.error("Impossible de charger les détails de la recette. 📋")
@@ -129,26 +124,24 @@ def afficher():
 
             st.write("**Ingrédients**")
             rows_to_delete = []
-            if state_key in st.session_state:
-                for idx, item in enumerate(st.session_state[state_key]):
-                    col_q, col_n, col_del = st.columns([1, 2, 0.5])
-                    st.session_state[state_key][idx]["Quantité"] = col_q.text_input("Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed")
-                    
-                    base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
-                    opts = base_opts + sorted(list(set(liste_ingredients_unique)))
-                    current_ing = item["Ingrédient"]
-                    default_index = opts.index(current_ing) if current_ing in opts else 0
-                    
-                    choix_sel = col_n.selectbox("Nom", options=opts, index=default_index, key=f"sel_{item['id']}", label_visibility="collapsed")
+            for idx, item in enumerate(st.session_state[state_key]):
+                col_q, col_n, col_del = st.columns([1, 2, 0.5])
+                st.session_state[state_key][idx]["Quantité"] = col_q.text_input("Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed")
+                
+                base_opts = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"]
+                opts = base_opts + sorted(list(set(liste_ingredients_unique)))
+                current_ing = item["Ingrédient"]
+                default_index = opts.index(current_ing) if current_ing in opts else 0
+                choix_sel = col_n.selectbox("Nom", options=opts, index=default_index, key=f"sel_{item['id']}", label_visibility="collapsed")
 
-                    if choix_sel == "➕ NOUVEL INGRÉDIENT":
-                        nouveau_nom = col_n.text_input("Nom", value=current_ing if current_ing not in opts else "", key=f"new_{item['id']}", placeholder="Nom...")
-                        st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
-                    else:
-                        st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
-                    
-                    if col_del.button("🗑️", key=f"del_{item['id']}"):
-                        rows_to_delete.append(idx)
+                if choix_sel == "➕ NOUVEL INGRÉDIENT":
+                    nouveau_nom = col_n.text_input("Nom", value=current_ing if current_ing not in opts else "", key=f"new_{item['id']}", placeholder="Nom...")
+                    st.session_state[state_key][idx]["Ingrédient"] = nouveau_nom
+                else:
+                    st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
+                
+                if col_del.button("🗑️", key=f"del_{item['id']}"):
+                    rows_to_delete.append(idx)
 
             if rows_to_delete:
                 for r_idx in reversed(rows_to_delete):
@@ -163,12 +156,8 @@ def afficher():
                 e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                 cats_triees = sorted(cats_existantes)
                 cat_actuelle = recette.get('categorie', 'Non classé')
-                try:
-                    idx_cat = cats_triees.index(cat_actuelle)
-                except ValueError:
-                    idx_cat = 0 # Retour au premier choix si la catégorie n'existe plus
-                    
-                # Utilisation de idx_cat ici ⬇️
+                idx_cat = cats_triees.index(cat_actuelle) if cat_actuelle in cats_triees else 0
+                
                 e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
                 e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
@@ -186,17 +175,13 @@ def afficher():
 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
-                    # 1. Vérification des doublons (en excluant la recette actuelle)
                     if verifier_doublon(e_nom, index, info['chemin']):
                         st.error(f"⚠️ Une recette nommée '{e_nom}' existe déjà.")
                         st.stop()
 
-                    # 2. Gestion des photos (suppression des anciennes décochées)
                     for p_path in photos_actuelles:
-                        if p_path not in photos_a_garder: 
-                            supprimer_fichier_github(p_path)
+                        if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
                     
-                    # 3. Upload des nouvelles photos
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
                         nom_img = f"data/images/{int(time.time())}_{f.name}"
@@ -204,38 +189,23 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
-                    # 4. Préparation des données
                     ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
-                    recette_maj = {
-                        "nom": e_nom, 
-                        "categorie": e_cat, 
-                        "appareil": e_app, 
-                        "ingredients": ings_clean, 
-                        "etapes": e_etapes, 
-                        "images": final_photos
-                    }
+                    recette_maj = {"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos}
                     
-                    # 5. Sauvegarde GitHub (Fichier + Index)
                     if envoyer_vers_github(info['chemin'], recette_maj, f"MAJ: {e_nom}"):
                         if sauvegarder_index_global(info['chemin'], recette_maj):
-                            st.success("✅ Recette et Index mis à jour !")
-                            
-                            # RESET COMPLET DES CHAMPS (Nettoyage session_state)
-                            keys_to_reset = [state_key, init_flag, m_edit, "img_idx"]
-                            for k in keys_to_reset:
-                                if k in st.session_state: 
-                                    del st.session_state[k]
-                            
+                            st.success("✅ Mis à jour !")
+                            for k in [state_key, init_flag, m_edit, "img_idx"]:
+                                if k in st.session_state: del st.session_state[k]
                             time.sleep(1)
                             st.rerun()
                     
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
-                    if state_key in st.session_state: del st.session_state[state_key]
-                    if init_flag in st.session_state: del st.session_state[init_flag]
+                    for k in [state_key, init_flag]:
+                        if k in st.session_state: del st.session_state[k]
                     st.session_state[m_edit] = False
                     st.rerun()
         else:
-            # --- AFFICHAGE CLASSIQUE AVEC NAVIGATION PHOTO ---
             st.subheader(recette['nom'].upper())
             col_t, col_i = st.columns([1, 1])
             with col_t:
@@ -249,53 +219,36 @@ def afficher():
             with col_i:
                 images = recette.get('images', [])
                 if images:
-                    # 1. Initialisation de l'index
-                    if "img_idx" not in st.session_state:
-                        st.session_state.img_idx = 0
+                    if "img_idx" not in st.session_state: st.session_state.img_idx = 0
+                    if st.session_state.img_idx >= len(images): st.session_state.img_idx = 0
                     
-                    # Sécurité : on s'assure que l'index ne dépasse pas le nombre d'images
-                    if st.session_state.img_idx >= len(images):
-                        st.session_state.img_idx = 0
-                    
-                    # 2. Affichage de la photo actuelle
-                    img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
+                    img_url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{images[st.session_state.img_idx].strip('/')}?t={int(time.time())}"
                     st.image(img_url, use_container_width=True)
                     
-                    # 3. NAVIGATION (Uniquement si plus d'une photo existe)
                     if len(images) > 1:
                         nb1, nb2, nb3 = st.columns([1, 2, 1])
-                        
-                        with nb1:
-                            if st.button("◀️", use_container_width=True, key="prev"):
-                                st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
-                                st.rerun()
-                        
-                        with nb2:
-                            st.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
-                        
-                        with nb3:
-                            if st.button("▶️", use_container_width=True, key="next"):
-                                st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                                st.rerun()
+                        if nb1.button("◀️", key="prev"):
+                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                            st.rerun()
+                        nb2.write(f"<p style='text-align:center'>{st.session_state.img_idx + 1}/{len(images)}</p>", unsafe_allow_html=True)
+                        if nb3.button("▶️", key="next"):
+                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                            st.rerun()
                 else:
-                    st.info("📷 Aucune photo pour cette recette.")
+                    st.info("📷 Aucune photo.")
 
-        # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
         if st.session_state.get("authentifie", False):
+            st.divider()
             b1, b2 = st.columns(2)
-            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                # 1. Préparer le futur index sans la recette
+            if b1.button("✍️ Modifier", use_container_width=True):
+                st.session_state[m_edit] = True
+                st.rerun()
+            if b2.button("🗑️ Supprimer", use_container_width=True):
                 nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                
-                # 2. Supprimer le fichier JSON
                 if supprimer_fichier_github(info['chemin']):
-                    # 3. Supprimer les photos
-                    for p in recette.get('images', []): 
-                        supprimer_fichier_github(p)
-                    
-                    # 4. Mettre à jour l'index sur GitHub
+                    for p in recette.get('images', []): supprimer_fichier_github(p)
                     if sauvegarder_index_global(info['chemin'], index_complet=nouvel_index):
-                        st.success("Recette supprimée avec succès ! ✨")
+                        st.success("Supprimé ! ✨")
                         time.sleep(1)
                         st.rerun()
 
