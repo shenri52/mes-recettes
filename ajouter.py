@@ -1,5 +1,5 @@
 import streamlit as st
-import json, time
+import json, time, requests, base64
 from datetime import datetime
 from utils import config_github, envoyer_vers_github, charger_donnees, compresser_image, verifier_doublon
 
@@ -147,6 +147,12 @@ def afficher():
                     # ⚠️ LECTURE EN TEMPS RÉEL VIA L'API POUR NE RIEN ÉCRASER
                     idx_data = charger_donnees("data/index_recettes.json")
                     
+                    res = requests.get(url_idx, headers=conf['headers'])
+                    
+                    if res.status_code == 200:
+                        data_json = res.json()
+                        idx_data = json.loads(base64.b64decode(data_json['content']).decode('utf-8'))
+                        
                     idx_data.append({
                         "nom": nom_plat, 
                         "categorie": f_cat, 
@@ -155,8 +161,9 @@ def afficher():
                         "chemin": ch_r
                     })
                     envoyer_vers_github("data/index_recettes.json", idx_data, "MAJ Index")
-
                     st.success("✅ Recette importée avec succès !")
+                else:
+                        st.error("❌ Impossible de lire l'index pour le mettre à jour.")
                     
                     # --- RESET DES CHAMPS ---
                     st.session_state.ingredients_recette = []
