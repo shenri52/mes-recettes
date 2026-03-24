@@ -41,12 +41,16 @@ def verifier_mot_de_passe():
             
         return False
     return True
-
+    
+if "refresh_key" not in st.session_state:
+    st.session_state.refresh_key = 0
+    
 def aller_accueil():
     # On remet la page sur accueil
     st.session_state.page = 'accueil'
     # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
     st.session_state["mode_public"] = False
+    st.session_state.refresh_key += 1
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
@@ -62,9 +66,10 @@ if verifier_mot_de_passe():
     if st.session_state.page == 'accueil':
         if not st.session_state["authentifie"]:
             st.info("💡 Mode consultation active. Connectez-vous pour accéder au planning et à la création.")
-        if st.button("📚 Mes recettes", use_container_width=True):
+        col1, col2 = st.columns(2)
+        if col1.button("📚 Mes recettes", use_container_width=True):
             changer_page("recettes")
-        if st.button("📅 Mon planning", use_container_width=True):
+        if col2.button("📅 Mon planning", use_container_width=True):
             changer_page("planning")
         if st.button("📥 Ajouter une recette", use_container_width=True):
             changer_page("ajouter")
