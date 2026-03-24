@@ -747,16 +747,6 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
-        "nom": "TEST 1514",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ail poudre",
-            "Amandes"
-        ],
-        "chemin": "data/recettes/20260324_141426_test_1514.json"
-    },
-    {
         "nom": "TEST 1554",
         "categorie": "Marinade",
         "appareil": "Aucun",
