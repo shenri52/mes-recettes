@@ -747,6 +747,24 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
+        "nom": "TEST 3",
+        "categorie": "Marinade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Amandes effillées"
+        ],
+        "chemin": "data/recettes/20260324_070708_test_3.json"
+    },
+    {
+        "nom": "TEST NOUVEAU 1",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Amandes effillées"
+        ],
+        "chemin": "data/recettes/20260324_065832_test_nouveau_1.json"
+    },
+    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
@@ -759,30 +777,5 @@
             "Curcuma"
         ],
         "chemin": "data/recettes/20260307_171337_velouté_de_courgettes_et_épinards_au_lait_de_coco.json"
-    },
-    {
-        "nom": "TEST NOUVEAU 1",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Amandes effillées"
-        ],
-        "chemin": "data/recettes/20260324_065832_test_nouveau_1.json"
-    },
-    {
-        "nom": "TEST 2",
-        "categorie": "Cocktail",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260324_070510_test_2.json"
-    },
-    {
-        "nom": "TEST 3",
-        "categorie": "Marinade",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Amandes effillées"
-        ],
-        "chemin": "data/recettes/20260324_070708_test_3.json"
     }
 ]
