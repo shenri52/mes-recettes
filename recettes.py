@@ -11,26 +11,26 @@ def charger_index():
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
-def sauvegarder_index_global(chemin_recette, data_recette_maj):
-    """Récupère l'index réel, met à jour la ligne de la recette et renvoie le tout."""
+def sauvegarder_index_global(chemin_recette, data_recette_maj=None, index_complet=None):
+    """Met à jour l'index sur GitHub de manière sécurisée."""
     import requests, base64, json
     conf = config_github()
     url_idx = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
     
     try:
-        # 1. Lecture SANS CACHE
-        res = requests.get(url_idx, headers=conf['headers'])
-        if res.status_code == 200:
-            content = res.json()
-            index_actuel = json.loads(base64.b64decode(content['content']).decode('utf-8'))
+        # Cas 1 : On fournit un index déjà calculé (ex: suppression)
+        if index_complet is not None:
+            index_final = index_complet
+        else:
+            # Cas 2 : On récupère l'index actuel pour modifier une ligne
+            res = requests.get(url_idx, headers=conf['headers'])
+            index_actuel = json.loads(base64.b64decode(res.json()['content']).decode('utf-8')) if res.status_code == 200 else []
             
-            # 2. Mise à jour de la ligne correspondante dans l'index
-            index_mis_a_jour = []
+            index_final = []
             trouve = False
             for item in index_actuel:
                 if item['chemin'] == chemin_recette:
-                    # On remplace par les nouvelles infos
-                    index_mis_a_jour.append({
+                    index_final.append({
                         "nom": data_recette_maj['nom'],
                         "categorie": data_recette_maj['categorie'],
                         "appareil": data_recette_maj['appareil'],
@@ -39,11 +39,10 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj):
                     })
                     trouve = True
                 else:
-                    index_mis_a_jour.append(item)
+                    index_final.append(item)
             
-            # Si c'est une nouvelle recette (cas rare ici mais sécurité)
-            if not trouve:
-                index_mis_a_jour.append({
+            if not trouve: # Sécurité ajout
+                index_final.append({
                     "nom": data_recette_maj['nom'],
                     "categorie": data_recette_maj['categorie'],
                     "appareil": data_recette_maj['appareil'],
@@ -51,11 +50,12 @@ def sauvegarder_index_global(chemin_recette, data_recette_maj):
                     "chemin": chemin_recette
                 })
 
-            # 3. Envoi vers GitHub
-            index_trie = sorted(index_mis_a_jour, key=lambda x: x['nom'].lower())
-            if envoyer_vers_github("data/index_recettes.json", index_trie, f"MAJ Index (Modif {data_recette_maj['nom']})"):
-                st.session_state.index_recettes = index_trie
-                return True
+        # Tri alphabétique systématique
+        index_trie = sorted(index_final, key=lambda x: x['nom'].lower())
+        
+        if envoyer_vers_github("data/index_recettes.json", index_trie, "🔄 MAJ Index"):
+            st.session_state.index_recettes = index_trie
+            return True
     except Exception as e:
         st.error(f"Erreur synchro index : {e}")
     return False
@@ -186,12 +186,17 @@ def afficher():
 
                 c_save, c_cancel = st.columns(2)
                 if c_save.form_submit_button("💾 Enregistrer", use_container_width=True):
+                    # 1. Vérification des doublons (en excluant la recette actuelle)
                     if verifier_doublon(e_nom, index, info['chemin']):
-                        st.error(f"⚠️ Une recette nommée '{e_nom}' existe déjà. Veuillez choisir un autre nom.")
+                        st.error(f"⚠️ Une recette nommée '{e_nom}' existe déjà.")
                         st.stop()
+
+                    # 2. Gestion des photos (suppression des anciennes décochées)
                     for p_path in photos_actuelles:
-                        if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
+                        if p_path not in photos_a_garder: 
+                            supprimer_fichier_github(p_path)
                     
+                    # 3. Upload des nouvelles photos
                     final_photos = photos_a_garder.copy()
                     for f in nouvelles_photos:
                         nom_img = f"data/images/{int(time.time())}_{f.name}"
@@ -199,20 +204,31 @@ def afficher():
                         if envoyer_vers_github(nom_img, img_data, f"Photo: {e_nom}", est_binaire=True):
                             final_photos.append(nom_img)
 
+                    # 4. Préparation des données
                     ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
-                    recette_maj = recette.copy()
-                    recette_maj.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos})
+                    recette_maj = {
+                        "nom": e_nom, 
+                        "categorie": e_cat, 
+                        "appareil": e_app, 
+                        "ingredients": ings_clean, 
+                        "etapes": e_etapes, 
+                        "images": final_photos
+                    }
                     
+                    # 5. Sauvegarde GitHub (Fichier + Index)
                     if envoyer_vers_github(info['chemin'], recette_maj, f"MAJ: {e_nom}"):
-                        for item in index:
-                            if item['chemin'] == info['chemin']:
-                                item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
-                        sauvegarder_index_global(index)
-                        if state_key in st.session_state: del st.session_state[state_key]
-                        if init_flag in st.session_state: del st.session_state[init_flag]
-                        st.session_state[m_edit] = False
-                        st.rerun()
-
+                        if sauvegarder_index_global(info['chemin'], recette_maj):
+                            st.success("✅ Recette et Index mis à jour !")
+                            
+                            # RESET COMPLET DES CHAMPS (Nettoyage session_state)
+                            keys_to_reset = [state_key, init_flag, m_edit, "img_idx"]
+                            for k in keys_to_reset:
+                                if k in st.session_state: 
+                                    del st.session_state[k]
+                            
+                            time.sleep(1)
+                            st.rerun()
+                    
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
                     if state_key in st.session_state: del st.session_state[state_key]
                     if init_flag in st.session_state: del st.session_state[init_flag]
@@ -268,18 +284,20 @@ def afficher():
         if st.session_state.get("authentifie", False):
             b1, b2 = st.columns(2)
             if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-                # Ta logique de suppression complète (Fichier + Images + Index)
+                # 1. Préparer le futur index sans la recette
+                nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                
+                # 2. Supprimer le fichier JSON
                 if supprimer_fichier_github(info['chemin']):
+                    # 3. Supprimer les photos
                     for p in recette.get('images', []): 
                         supprimer_fichier_github(p)
-                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    sauvegarder_index_global(nouvel_index)
-                    st.rerun()
-            
-            if b2.button("✍️ Modifier", use_container_width=True):
-                # Ton mode édition
-                st.session_state[m_edit] = True
-                st.rerun()
+                    
+                    # 4. Mettre à jour l'index sur GitHub
+                    if sauvegarder_index_global(info['chemin'], index_complet=nouvel_index):
+                        st.success("Recette supprimée avec succès ! ✨")
+                        time.sleep(1)
+                        st.rerun()
 
 if __name__ == "__main__":
     afficher()
