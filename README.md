@@ -61,7 +61,6 @@ REPO_NAME = "nom_de_votre_depot"
 └── data/
     ├── recettes/                   # Dossier contenant les fichiers .json des recettes
     └── images/                     # Dossier contenant les photos et PDF
-    ├── data_stockage.json          # Statistiques du dépôt
     ├── index_recettes.json         # Index pour recherche rapide
     ├── planning.json               # Données du planning
     ├── plats_rapides.json          # Liste des plats sans recette
