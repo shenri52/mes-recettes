@@ -28,10 +28,16 @@ def afficher():
             chemins_index = {r['chemin'] for r in index_actuel}
             
             manquantes = [f for f in fichiers_physiques if f not in chemins_index]
+
+            st.write(f"📁 **Fichiers de recettes :** {len(physiques)}")
+            st.write(f"🗂️ **Recettes dans l'index :** {len(index_actuel)}")
             
             if manquantes:
                 st.warning(f"⚠️ {len(manquantes)} fichiers hors index.")
-                st.session_state.a_reparer = manquantes  # On stocke pour afficher le bouton suivant
+                with st.expander("📄 Voir la liste des fichiers manquants"):
+                    for m in manquantes:
+                        st.write(f"- `{m}`")
+                st.session_state.a_reparer = manquantes
             else:
                 st.success("✅ Index à jour.")
         else:
