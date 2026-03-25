@@ -55,6 +55,7 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
+    options = ["---"] + noms_filtres
     # Initialise un flag de reset si nécessaire
     if "force_reset" not in st.session_state:
         st.session_state.force_reset = False
