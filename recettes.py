@@ -55,23 +55,15 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
+
     options = ["---"] + noms_filtres
-    # Initialise un flag de reset si nécessaire
-    if "force_reset" not in st.session_state:
-        st.session_state.force_reset = False
-    
-    # Reset propre du selectbox
-    if st.session_state.force_reset:
-        st.session_state["select_recette"] = "---"
-        st.session_state.force_reset = False
-    
-    # Initialisation si première fois
-    if "select_recette" not in st.session_state:
+
+    if st.session_state.get("select_recette") not in options:
         st.session_state["select_recette"] = "---"
     
     choix = st.selectbox(
-        "📖 Sélectionner une recette", 
-        ["---"] + noms_filtres,
+        "Sélectionner une recette", 
+        options,
         key="select_recette",
         on_change=nettoyer_modif
     )
@@ -253,8 +245,7 @@ def afficher():
                         if supprimer_fichier_github(info['chemin']):
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
-                                st.success("Recette supprimée !")
-                                st.session_state.force_reset = True                                     
+                                st.success("Recette supprimée !")                               
                                 time.sleep(1)
                                 st.rerun()
                 
