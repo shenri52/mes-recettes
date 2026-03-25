@@ -25,7 +25,6 @@ def recuperer_donnees_index():
     return ["---"], ["---"]
 
 def afficher():
-    st.header("📥 Ajouter une recette")
 
     # Initialisation session_state
     if 'form_count' not in st.session_state: st.session_state.form_count = 0
