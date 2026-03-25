@@ -1,22 +1,8 @@
 import streamlit as st
 import requests, json, base64, time, uuid, io
 from PIL import Image
-from utils import config_github, charger_index, sauvegarder_index
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon
 
-# --- Fonction de vérification des doublons ---
-def verifier_doublon(nom_test, index, chemin_actuel=None):
-    """
-    Retourne True si le nom existe déjà dans l'index (hors la recette en cours d'édition).
-    """
-    for r in index:
-        # On compare en minuscules et sans espaces inutiles
-        if r['nom'].strip().lower() == nom_test.strip().lower():
-            # Si on est en mode édition, on ignore le doublon si c'est la même recette (même chemin)
-            if chemin_actuel and r['chemin'] == chemin_actuel:
-                continue
-            return True
-    return False
-    
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     try:
         conf = config_github()
