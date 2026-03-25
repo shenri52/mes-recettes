@@ -29,7 +29,7 @@ def afficher():
             
             manquantes = [f for f in fichiers_physiques if f not in chemins_index]
 
-            st.write(f"📁 **Fichiers de recettes :** {len(physiques)}")
+            st.write(f"📁 **Fichiers de recettes :** {len(fichiers_physiques)}")
             st.write(f"🗂️ **Recettes dans l'index :** {len(index_actuel)}")
             
             if manquantes:
