@@ -86,8 +86,6 @@ def afficher():
                 del st.session_state[key]
                 
     index = charger_index()
-    st.header("📚 Mes recettes")
-    st.write("---")
 
     c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
