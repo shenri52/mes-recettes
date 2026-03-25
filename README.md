@@ -25,8 +25,6 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
        * Visualisation des informations de la recette (catégorie, étapes, images...)
    * **🛠️ Maintenance** : 
        * Réparer l'index des recettes
-       * Réparer le nom des ingrédients (ex : suppression des espaces superflus à la fin)
-       * Optimiser les images sans perte de qualité
 
 ## 🛠️ Technologies utilisées
 
