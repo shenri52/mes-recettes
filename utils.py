@@ -27,3 +27,9 @@ def charger_index():
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
+def sauvegarder_index(index_maj):
+    index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
+    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
+        st.session_state.index_recettes = index_trie
+        return True
+    return False
