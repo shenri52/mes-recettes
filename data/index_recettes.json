@@ -178,19 +178,6 @@
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
     },
     {
-        "nom": "Gratin de ravioles aux champignons, comté et poireaux",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Ravioles",
-            "Poireaux",
-            "Champignons",
-            "Crème fraiche",
-            "Comté"
-        ],
-        "chemin": "data/recettes/20260307_160634_gratin_de_ravioles_aux_champi,_comté_et_poireaux.json"
-    },
-    {
         "nom": "Jambon de porc à l'ananas",
         "categorie": "Plat",
         "appareil": "Aucun",
