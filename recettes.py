@@ -55,14 +55,11 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
-
-    if "reset_count" not in st.session_state:
-        st.session_state.reset_count = 0
-    
+   
     choix = st.selectbox(
         "📖 Sélectionner une recette", 
         ["---"] + noms_filtres, 
-        key=f"select_recette_{st.session_state.reset_count}",
+        key="select_recette",
         on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
     )
     
@@ -244,8 +241,10 @@ def afficher():
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
+                                if "select_recette" in st.session_state:
+                                    del st.session_state["select_recette"]
                                 time.sleep(1)
-                                st.session_state.reset_count += 1
+                                st.rerun()
                 
                 if b2.button("✍️ Modifier", use_container_width=True):
                     st.session_state[m_edit] = True
