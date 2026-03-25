@@ -723,13 +723,6 @@
         "chemin": "data/recettes/20260308_115207_tartines_à_l'avocat,_feta,_tomates_cerises,_cranberries_et_noix.json"
     },
     {
-        "nom": "TEST 0925",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [],
-        "chemin": "data/recettes/20260325_082556_test_0925.json"
-    },
-    {
         "nom": "Velouté de courgettes et épinards au lait de coco",
         "categorie": "Soupe",
         "appareil": "Aucun",
