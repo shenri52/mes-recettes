@@ -443,17 +443,6 @@
         "chemin": "data/recettes/20260307_100916_poulet_cremeux_au_paprika.json"
     },
     {
-        "nom": "Poulet sauce Boursin ai et fines herbes",
-        "categorie": "Plat",
-        "appareil": "Aucun",
-        "ingredients": [
-            "Filet de poulet",
-            "Boursin",
-            "Crème fraiche"
-        ],
-        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
-    },
-    {
         "nom": "Poulet sauce boursin à l'ail et fines herbes ",
         "categorie": "Plat",
         "appareil": "Aucun",
