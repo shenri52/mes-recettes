@@ -51,23 +51,6 @@ def compresser_image(upload_file):
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
 
-# --- 3. GESTION DE L'INDEX ---
-def charger_index():
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
-    try:
-        res = requests.get(url, headers=conf['headers'])
-        if res.status_code == 200:
-            content_b64 = res.json()['content']
-            content_json = base64.b64decode(content_b64).decode('utf-8')
-            st.session_state.index_recettes = json.loads(content_json)
-        else:
-            st.session_state.index_recettes = []
-    except Exception:
-        # En cas d'erreur de décodage ou de fichier vide, on initialise à vide
-        st.session_state.index_recettes = []
-    return st.session_state.index_recettes
-
 def sauvegarder_index_global(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
     if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
