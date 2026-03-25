@@ -32,9 +32,8 @@ def verifier_mot_de_passe():
             if st.session_state["authentifie"]:
                 st.rerun()
                
-        # Bouton d'accès direct pour la consultation simple
+        # --- BOUTON D'ACCES PUBLIC
         st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
-        
         if st.button("📖 Consulter les recettes", use_container_width=True):
             st.session_state["mode_public"] = True
             st.session_state.page = "recettes"
@@ -42,13 +41,10 @@ def verifier_mot_de_passe():
 
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
-            # On fait un chargement rapide si nécessaire
             from recettes import charger_index
             charger_index()
-        
+            
         nb_recettes = len(st.session_state.get("index_recettes", []))
-        
-        # Affichage discret sous le titre ou dans la barre latérale
         if nb_recettes > 0:
             st.info(f"💡 Il y a **{nb_recettes }** recettes d'enregistrées !")
             
@@ -58,7 +54,7 @@ def verifier_mot_de_passe():
 def aller_accueil():
     # On remet la page sur accueil
     st.session_state.page = 'accueil'
-    # On désactive le mode public pour revenir à l'écran de verrouillage 🔒
+    # On désactive le mode public pour revenir à l'écran de verrouillage
     st.session_state["mode_public"] = False
 
 # --- EXÉCUTION DE L'APPLICATION ---
