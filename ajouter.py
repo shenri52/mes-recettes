@@ -2,7 +2,7 @@ import streamlit as st
 import json, base64, requests, time, io
 from datetime import datetime
 from PIL import Image
-from utils import config_github, charger_index, sauvegarder_index
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon
 
 def recuperer_donnees_index():
     idx = charger_index()
@@ -81,7 +81,10 @@ def afficher():
     photos = st.file_uploader("📸 Photos", type=["jpg","png","jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer la recette", use_container_width=True):
-        if not nom_plat or st.session_state.cat_fixee == "---":
+        index_actuel = charger_index()
+        if verifier_doublon(nom_plat, index_actuel):
+                st.error(f"⚠️ Une recette nommée '{nom_plat}' existe déjà. Veuillez choisir un autre nom.")
+        elif not nom_plat or st.session_state.cat_fixee == "---":
             st.error("⚠️ Nom et catégorie obligatoires")
         else:
             with st.spinner("Enregistrement..."):
