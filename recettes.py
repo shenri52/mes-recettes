@@ -243,6 +243,7 @@ def afficher():
                                 st.success("Recette supprimée !")
                                 time.sleep(1)
                                 if "select_recette" in st.session_state:
+                                    st.session_state["select_recette"] = "---"
                                     del st.session_state["select_recette"]
                                 st.rerun()
                 
