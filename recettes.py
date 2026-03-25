@@ -241,11 +241,13 @@ def afficher():
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
+                                cles_a_garder = ["authentifie", "utilisateur", "mdp_temp"] 
                                 for key in list(st.session_state.keys()):
-                                    if "select_recette" in key or "edit_" in key:
-                                        del st.session_state[key]
+                                    # On ne supprime que si ce n'est pas dans la liste à garder
+                                    if key not in cles_a_garder:
+                                        if "select_recette" in key or "edit_" in key or "ings_list_" in key:
+                                            del st.session_state[key]
                                 
-                                # 2. ON FORCE LE NETTOYAGE DU CACHE INTERNE (si utilisé)
                                 if hasattr(st, "cache_data"):
                                     st.cache_data.clear()
                                     
