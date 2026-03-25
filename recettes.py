@@ -174,7 +174,6 @@ def afficher():
                         if state_key in st.session_state: del st.session_state[state_key]
                         if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
-                        st.rerun()
 
                 if c_cancel.form_submit_button("❌ Annuler", use_container_width=True):
                     if state_key in st.session_state: del st.session_state[state_key]
