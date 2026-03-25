@@ -1,5 +1,6 @@
 import streamlit as st
 import ajouter, recettes, maintenance, planning
+from utils import charger_index
 
 # --- CONFIGURATION DES MENUS ---
 # Clé = Nom exact du bouton (qui devient aussi le nom de la page)
@@ -42,7 +43,6 @@ def verifier_mot_de_passe():
 
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
-            from recettes import charger_index
             charger_index()
             
         nb_recettes = len(st.session_state.get("index_recettes", []))
