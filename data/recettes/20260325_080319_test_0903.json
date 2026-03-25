@@ -1,0 +1,15 @@
+{
+    "nom": "TEST 0903",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Amandes effillées",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "test",
+    "images": []
+}
