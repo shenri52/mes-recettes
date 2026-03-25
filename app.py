@@ -85,6 +85,8 @@ if verifier_mot_de_passe():
             if not st.session_state["authentifie"] and not config_page["public"]:
                 st.error("🚫 Accès restreint. Veuillez vous connecter pour voir cette page.")
             else:
+                # 👉 AFFICHE AUTOMATIQUEMENT LE NOM DU BOUTON COMME TITRE DE PAGE
+                st.title(page_actuelle)
                 # Exécute la fonction afficher() du bon module
                 config_page["module"].afficher()
         else:
