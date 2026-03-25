@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, uuid, io
 from PIL import Image
-from utils import config_github, charger_index
+from utils import config_github, charger_index, sauvegarder_index
 
 # --- Fonction de vérification des doublons ---
 def verifier_doublon(nom_test, index, chemin_actuel=None):
@@ -51,14 +51,7 @@ def compresser_image(upload_file):
     img.save(buffer, format="JPEG", quality=80, optimize=True)
     return buffer.getvalue()
 
-def sauvegarder_index_global(index_maj):
-    index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
-    if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
-        st.session_state.index_recettes = index_trie
-        return True
-    return False
-
-# --- 4. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
+# --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
     def nettoyer_modif():
         """Supprime les données temporaires d'édition quand on change de recette."""
