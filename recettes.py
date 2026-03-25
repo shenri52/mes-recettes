@@ -242,7 +242,7 @@ def afficher():
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
                                 time.sleep(1)
-                                st.session_state.select_recette = "---"
+                                st.session_state["select_recette"] = "---"
                                 st.rerun()
                 
                 if b2.button("✍️ Modifier", use_container_width=True):
