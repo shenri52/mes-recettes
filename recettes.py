@@ -170,7 +170,7 @@ def afficher():
                         for item in index:
                             if item['chemin'] == info['chemin']:
                                 item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
-                        sauvegarder_index_global(index)
+                        sauvegarder_index(index)
                         if state_key in st.session_state: del st.session_state[state_key]
                         if init_flag in st.session_state: del st.session_state[init_flag]
                         st.session_state[m_edit] = False
