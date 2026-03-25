@@ -49,7 +49,6 @@ def afficher():
 
     # --- ACTION DE RÉPARATION ---
     if st.session_state.get("a_reparer"):
-        st.divider()
         if st.button("🚀 Lancer la réparation automatique", use_container_width=True):
             with st.spinner("Intégration des recettes..."):
                 index_actuel = charger_index()
