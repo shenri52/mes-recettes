@@ -45,7 +45,6 @@ def afficher():
 
     # --- SECTION : ACTION (Le bouton qui doit disparaître) ---
     if "a_reparer" in st.session_state:
-        st.divider()
         if st.button("🚀 Lancer la réparation automatique", use_container_width=True):
             # ... (Ta logique de boucle for et sauvegarder_index ici) ...
             # Une fois fini :
