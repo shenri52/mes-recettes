@@ -165,6 +165,19 @@
         "chemin": "data/recettes/20260307_154056_gratin_de_champignons_au_jambon_et_fromage.json"
     },
     {
+        "nom": "Gratin de ravioles aux champignons et comté",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Ravioles",
+            "Champignons",
+            "Poireaux",
+            "Crème fraiche",
+            "Comté"
+        ],
+        "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
+    },
+    {
         "nom": "Gratin de ravioles aux champignons, comté et poireaux",
         "categorie": "Plat",
         "appareil": "Aucun",
@@ -441,6 +454,17 @@
             "Huile olive"
         ],
         "chemin": "data/recettes/20260307_100916_poulet_cremeux_au_paprika.json"
+    },
+    {
+        "nom": "Poulet sauce Boursin ai et fines herbes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Boursin",
+            "Crème fraiche"
+        ],
+        "chemin": "data/recettes/20260308_111448_poulet_sauce_boursin_ai_et_fines_herbes.json"
     },
     {
         "nom": "Poulet sauce boursin à l'ail et fines herbes ",
