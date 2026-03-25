@@ -1,23 +1,11 @@
 import streamlit as st
 import json, base64, requests, time, io
-from datetime import datetime  # <--- CETTE LIGNE MANQUAIT OU ÉTAIT MAL PLACÉE
+from datetime import datetime
 from PIL import Image
-from utils import config_github
-
-def obtenir_index_en_temps_reel():
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
-    try:
-        res = requests.get(url, headers=conf['headers'])
-        if res.status_code == 200:
-            contenu_decode = base64.b64decode(res.json()['content']).decode('utf-8')
-            return json.loads(contenu_decode)
-    except:
-        pass
-    return []
+from utils import config_github, charger_index
 
 def recuperer_donnees_index():
-    idx = obtenir_index_en_temps_reel()
+    idx = charger_index()
     if idx:
         ing = {i for r in idx for i in r.get('ingredients', []) if i}
         cat = {r.get('categorie') for r in idx if r.get('categorie')}
@@ -131,7 +119,7 @@ def afficher():
                 if requests.put(url_r, headers=conf['headers'], json={"message":"Recette","content":b64_r}).status_code in [200, 201]:
                     
                     # MAJ Index
-                    idx_data = obtenir_index_en_temps_reel()
+                    idx_data = charger_index()
                     idx_data.append({
                         "nom": nom_plat, "categorie": st.session_state.cat_fixee,
                         "appareil": type_appareil,
