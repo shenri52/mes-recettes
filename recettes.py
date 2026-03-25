@@ -55,22 +55,24 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
-
     # Initialise un flag de reset si nécessaire
     if "force_reset" not in st.session_state:
         st.session_state.force_reset = False
-
-    # Détermine l'index par défaut (0 = "---")
-    default_idx = 0 if st.session_state.force_reset else 0
     
-    # On remet le flag à False juste après l'avoir utilisé
-    st.session_state.force_reset = False
+    # Reset propre du selectbox
+    if st.session_state.force_reset:
+        st.session_state["select_recette"] = "---"
+        st.session_state.force_reset = False
+    
+    # Initialisation si première fois
+    if "select_recette" not in st.session_state:
+        st.session_state["select_recette"] = "---"
     
     choix = st.selectbox(
         "📖 Sélectionner une recette", 
-        ["---"] + noms_filtres, 
-        key=default_idx,,
-        on_change=nettoyer_modif # <-- C'est cette ligne qui remplace ton ancien bloc IF
+        ["---"] + noms_filtres,
+        key="select_recette",
+        on_change=nettoyer_modif
     )
     
     if choix != "---":
@@ -251,10 +253,7 @@ def afficher():
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
-                                st.session_state.force_reset = True
-                                if "select_recette" in st.session_state:
-                                    del st.session_state["select_recette"]
-                                                                   
+                                st.session_state.force_reset = True                                     
                                 time.sleep(1)
                                 st.rerun()
                 
