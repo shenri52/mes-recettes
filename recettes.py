@@ -227,23 +227,23 @@ def afficher():
                 else:
                     st.info("📷 Aucune photo pour cette recette.")
 
-        # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
-        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
-            with st.spinner("Suppression en cours..."):
-                # 1. Supprimer d'abord les images sur GitHub
-                for p in recette.get('images', []): 
-                supprimer_fichier_github(p)
-                            
-                # 2. Supprimer le fichier JSON sur GitHub
-                if supprimer_fichier_github(info['chemin']):
-                    # 3. Mettre à jour l'index localement
-                    nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
-                    # 4. Sauvegarder l'index mis à jour sur GitHub
-                    if sauvegarder_index(nouvel_index):
-                        st.success("Recette supprimée !")
-                        time.sleep(1)
-                        st.session_state.select_recette = "---"
-                        st.rerun()
+            # On ne montre ces boutons QUE si l'utilisateur est admin (authentifié)
+            if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+                with st.spinner("Suppression en cours..."):
+                    # 1. Supprimer d'abord les images sur GitHub
+                    for p in recette.get('images', []): 
+                    supprimer_fichier_github(p)
+                                
+                    # 2. Supprimer le fichier JSON sur GitHub
+                    if supprimer_fichier_github(info['chemin']):
+                        # 3. Mettre à jour l'index localement
+                        nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
+                        # 4. Sauvegarder l'index mis à jour sur GitHub
+                        if sauvegarder_index(nouvel_index):
+                            st.success("Recette supprimée !")
+                            time.sleep(1)
+                            st.session_state.select_recette = "---"
+                            st.rerun()
             
             if b2.button("✍️ Modifier", use_container_width=True):
                 # Ton mode édition
