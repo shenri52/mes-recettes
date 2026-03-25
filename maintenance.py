@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
-from utils import config_github
+from utils import config_github, charger_index
 
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     """Version améliorée avec anti-cache sur le SHA et gestion d'erreurs."""
@@ -39,16 +39,8 @@ def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     except Exception as e:
         st.error(f"Erreur technique API : {str(e)}")
 
-def charger_index_local():
-    """Récupère l'index des recettes en contournant le cache."""
-    url = f"https://raw.githubusercontent.com/{st.secrets['REPO_OWNER']}/{st.secrets['REPO_NAME']}/main/data/index_recettes.json?t={int(time.time())}"
-    res = requests.get(url)
-    return res.json() if res.status_code == 200 else []
-
 # --- INTERFACE DE MAINTENANCE ---
 def afficher():
-    st.header("🛠️ Maintenance")
-    st.divider()
 
     if "bouton_analyse_clique" not in st.session_state:
         for key in ["a_reparer", "index_a_sauvegarder"]:
