@@ -5,9 +5,10 @@ from utils import config_github, charger_index, sauvegarder_index
 def afficher():
           
     if "bouton_analyse_clique" not in st.session_state:
-        del st.session_state["bouton_analyse_clique"]
         if "a_reparer" in st.session_state: 
             del st.session_state["a_reparer"]
+        else:
+          del st.session_state["bouton_analyse_clique"]
 
     # --- SECTION : RÉPARATION DE L'INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
