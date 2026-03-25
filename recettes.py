@@ -232,7 +232,7 @@ def afficher():
                 with st.spinner("Suppression en cours..."):
                     # 1. Supprimer d'abord les images sur GitHub
                     for p in recette.get('images', []): 
-                    supprimer_fichier_github(p)
+                        supprimer_fichier_github(p)
                                 
                     # 2. Supprimer le fichier JSON sur GitHub
                     if supprimer_fichier_github(info['chemin']):
