@@ -13,7 +13,6 @@ def afficher():
     # --- SECTION : RÉPARATION DE L'INDEX ---
     if st.button("🔍 Réparer l'index des recettes", use_container_width=True):
         st.session_state.bouton_analyse_clique = True
-        st.session_state.bouton_analyse_clique = True
         conf = config_github()
         
         # Récupération de l'arborescence GitHub
