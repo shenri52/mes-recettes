@@ -241,8 +241,14 @@ def afficher():
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
-                                if "select_recette" in st.session_state:
-                                    del st.session_state["select_recette"]
+                                for key in list(st.session_state.keys()):
+                                    if "select_recette" in key or "edit_" in key:
+                                        del st.session_state[key]
+                                
+                                # 2. ON FORCE LE NETTOYAGE DU CACHE INTERNE (si utilisé)
+                                if hasattr(st, "cache_data"):
+                                    st.cache_data.clear()
+                                    
                                 time.sleep(1)
                                 st.rerun()
                 
