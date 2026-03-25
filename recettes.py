@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, uuid, io
 from PIL import Image
-from utils import config_github
+from utils import config_github, charger_index
 
 # --- Fonction de vérification des doublons ---
 def verifier_doublon(nom_test, index, chemin_actuel=None):
