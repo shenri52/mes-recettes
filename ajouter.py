@@ -2,7 +2,7 @@ import streamlit as st
 import json, base64, requests, time, io
 from datetime import datetime
 from PIL import Image
-from utils import config_github, charger_index
+from utils import config_github, charger_index, sauvegarder_index
 
 def recuperer_donnees_index():
     idx = charger_index()
@@ -118,26 +118,19 @@ def afficher():
                 b64_r = base64.b64encode(json.dumps(rec_data, indent=4, ensure_ascii=False).encode('utf-8')).decode()
                 if requests.put(url_r, headers=conf['headers'], json={"message":"Recette","content":b64_r}).status_code in [200, 201]:
                     
-                    # MAJ Index
+                    # --- MAJ Index ---
                     idx_data = charger_index()
                     idx_data.append({
-                        "nom": nom_plat, "categorie": st.session_state.cat_fixee,
+                        "nom": nom_plat, 
+                        "categorie": st.session_state.cat_fixee,
                         "appareil": type_appareil,
                         "ingredients": [i['Ingrédient'] for i in st.session_state.ingredients_recette],
                         "chemin": ch_r
                     })
-                    
-                    url_idx = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json"
-                    res_get = requests.get(url_idx, headers=conf['headers'])
-                    sha = res_get.json().get('sha') if res_get.status_code == 200 else None
-                    
-                    b64_idx = base64.b64encode(json.dumps(idx_data, indent=4, ensure_ascii=False).encode('utf-8')).decode()
-                    payload = {"message":"MAJ Index", "content":b64_idx}
-                    if sha: payload["sha"] = sha
-                    
-                    requests.put(url_idx, headers=conf['headers'], json=payload)
-                    
-                    st.success("✅ Recette ajoutée !")
+
+                    if sauvegarder_index(idx_data):
+                        st.success("✅ Recette ajoutée !")
+                        
                     st.session_state.ingredients_recette = []
                     st.session_state.form_count += 1
                     time.sleep(1)
