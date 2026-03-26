@@ -66,7 +66,7 @@ def afficher():
     choix = st.selectbox(
         "Sélectionner une recette", 
         options,
-        key="select_recette",
+        key="choix_recette_gui",
         on_change=nettoyer_modif
     )
 
