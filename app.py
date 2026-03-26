@@ -42,6 +42,7 @@ def verifier_mot_de_passe():
             st.session_state["page"] = "📚 Mes recettes"
             # On pré-remplit la sélection pour le module recettes
             st.session_state["select_recette"] = st.query_params["recette"].upper()
+            st.rerun()
     
         # --- BOUTON D'ACCÈS PUBLIC ---
         st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
