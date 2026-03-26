@@ -23,11 +23,7 @@ def compresser_image(upload_file):
     return buffer.getvalue()
 
 # --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
-def afficher():
-    if "recette" in st.query_params:
-        if "select_recette" not in st.session_state:
-            st.session_state["select_recette"] = st.query_params["recette"]
-            
+def afficher():        
     def nettoyer_modif():
         """Supprime les données temporaires d'édition quand on change de recette."""
         if "img_idx" in st.session_state:
@@ -59,11 +55,14 @@ def afficher():
     ]
 
     noms_filtres = [r['nom'].upper() for r in resultats]
-
     options = ["---"] + noms_filtres
-
-    if st.session_state.get("select_recette") not in options:
-        st.session_state["select_recette"] = "---"
+    
+    # On récupère la valeur stockée (qui peut venir de l'URL via app.py)
+    valeur_actuelle = st.session_state.get("select_recette", "---")
+    
+    # Sécurité : Si la valeur n'est pas dans la liste actuelle (ex: filtrée), on revient à "---"
+    if valeur_actuelle not in options:
+        valeur_actuelle = "---"
     
     choix = st.selectbox(
         "Sélectionner une recette", 
@@ -71,6 +70,8 @@ def afficher():
         key="select_recette",
         on_change=nettoyer_modif
     )
+
+    st.session_state["select_recette"] = choix
     
     if choix != "---":
         info = resultats[noms_filtres.index(choix)]
