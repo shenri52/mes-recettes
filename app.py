@@ -34,7 +34,7 @@ def verifier_mot_de_passe():
             valider()
             if st.session_state["authentifie"]: st.rerun()
 
-
+        # --- ACCÈS DIRECTE A UNE RECETTE PARTAGEE ---
         if "recette" in st.query_params:
             # On active le mode public immédiatement
             st.session_state["mode_public"] = True
