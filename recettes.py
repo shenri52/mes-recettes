@@ -59,10 +59,10 @@ def afficher():
     
     # On récupère la valeur stockée (qui peut venir de l'URL via app.py)
     valeur_actuelle = st.session_state.get("select_recette", "---")
-    
-    # Sécurité : Si la valeur n'est pas dans la liste actuelle (ex: filtrée), on revient à "---"
-    if valeur_actuelle not in options:
-        valeur_actuelle = "---"
+    try:
+        idx_depart = options.index(valeur_cible)
+    except ValueError:
+        idx_depart = 0
     
     choix = st.selectbox(
         "Sélectionner une recette", 
