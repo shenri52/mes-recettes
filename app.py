@@ -33,7 +33,16 @@ def verifier_mot_de_passe():
         if st.button("Se connecter", use_container_width=True):
             valider()
             if st.session_state["authentifie"]: st.rerun()
-               
+
+
+        if "recette" in st.query_params:
+            # On active le mode public immédiatement
+            st.session_state["mode_public"] = True
+            # On définit la page cible (doit être identique à la clé dans MENUS)
+            st.session_state["page"] = "📚 Mes recettes"
+            # On pré-remplit la sélection pour le module recettes
+            st.session_state["select_recette"] = st.query_params["recette"].upper()
+    
         # --- BOUTON D'ACCÈS PUBLIC ---
         st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
         if st.button("📖 Consulter les recettes", use_container_width=True):
@@ -55,6 +64,7 @@ def verifier_mot_de_passe():
 def aller_accueil():
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
+    st.query_params.clear()
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
