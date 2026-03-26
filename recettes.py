@@ -24,6 +24,10 @@ def compresser_image(upload_file):
 
 # --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
+    f "recette" in st.query_params:
+        if "select_recette" not in st.session_state:
+            st.session_state["select_recette"] = st.query_params["recette"]
+            
     def nettoyer_modif():
         """Supprime les données temporaires d'édition quand on change de recette."""
         if "img_idx" in st.session_state:
@@ -245,12 +249,47 @@ def afficher():
                         if supprimer_fichier_github(info['chemin']):
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
-                                st.success("Recette supprimée !")                               
+                                st.success("Recette supprimée !")
+                                st.session_state["select_recette"]
                                 time.sleep(1)
                                 st.rerun()
                 
                 if b2.button("✍️ Modifier", use_container_width=True):
                     st.session_state[m_edit] = True
                     st.rerun()
+            else:
+                # --- BOUTON DE PARTAGE SMS (MODE PUBLIC UNIQUEMENT) ---
+                import urllib.parse
+                
+                # ⚠️ TRÈS IMPORTANT : Mets ici la VRAIE adresse de ton application !
+                url_base_app = "https://mon-catalogue-de-recettes.streamlit.app" 
+                
+                # On prépare le lien direct
+                nom_encode = urllib.parse.quote(info['nom'].upper())
+                lien_direct = f"{url_base_app}/?recette={nom_encode}"
+                
+                # On prépare le texte du SMS
+                texte_sms = f"Regarde cette recette sur mon carnet : {info['nom'].upper()} 🍽️\n\n🔗 {lien_direct}"
+                message_final = urllib.parse.quote(texte_sms)
+
+                # On affiche le bouton
+                st.markdown(
+                    f"""
+                    <a href="sms:?&body={message_final}" style="text-decoration: none;">
+                        <div style="
+                            background-color: #4CAF50;
+                            color: white;
+                            padding: 10px;
+                            text-align: center;
+                            border-radius: 8px;
+                            font-weight: bold;
+                            border: 1px solid #388E3C;
+                            margin-bottom: 15px;">
+                            📲 Partager par SMS
+                        </div>
+                    </a>
+                    """, 
+                    unsafe_allow_html=True
+                )
 if __name__ == "__main__":
     afficher()
