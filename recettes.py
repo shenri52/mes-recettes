@@ -59,7 +59,11 @@ def afficher():
     
     # On récupère la valeur stockée (qui peut venir de l'URL via app.py)
     valeur_actuelle = st.session_state.get("select_recette", "---")
-    
+    try:
+        idx_depart = options.index(valeur_actuelle)
+    except ValueError:
+        idx_depart = 0
+        
     if valeur_actuelle not in options:
         valeur_actuelle = "---"
     
