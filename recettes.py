@@ -278,9 +278,9 @@ def afficher():
                     f"""
                     <a href="sms:?&body={message_final}" style="text-decoration: none;">
                         <div style="
-                            background-color: #4CAF50;
+                            background-color: #light-blue;
                             color: white;
-                            padding: 10px;
+                            padding: 10px 20px;
                             text-align: center;
                             border-radius: 8px;
                             font-weight: bold;
