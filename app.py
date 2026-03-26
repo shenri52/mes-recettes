@@ -63,9 +63,9 @@ def verifier_mot_de_passe():
     return True
 
 def aller_accueil():
+    st.query_params.clear()
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
-    st.query_params.clear()
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
