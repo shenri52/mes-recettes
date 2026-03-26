@@ -24,7 +24,7 @@ def compresser_image(upload_file):
 
 # --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():
-    f "recette" in st.query_params:
+    if "recette" in st.query_params:
         if "select_recette" not in st.session_state:
             st.session_state["select_recette"] = st.query_params["recette"]
             
@@ -250,7 +250,7 @@ def afficher():
                             nouvel_index = [r for r in index if r['chemin'] != info['chemin']]
                             if sauvegarder_index(nouvel_index):
                                 st.success("Recette supprimée !")
-                                st.session_state["select_recette"]
+                                del st.session_state["select_recette"]
                                 time.sleep(1)
                                 st.rerun()
                 
