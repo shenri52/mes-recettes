@@ -203,6 +203,19 @@
         "chemin": "data/recettes/20260327_124940_fruti_coco_mangue.json"
     },
     {
+        "nom": "Fruti coco poire betterave",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poire",
+            "Betterave cuite",
+            "Eau de coco",
+            "Flocon d'avoine",
+            "Huile de coco"
+        ],
+        "chemin": "data/recettes/20260327_125127_fruti_coco_poire_betterave.json"
+    },
+    {
         "nom": "Granola Maison",
         "categorie": "Divers",
         "appareil": "Aucun",
