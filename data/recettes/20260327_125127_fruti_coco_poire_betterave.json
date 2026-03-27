@@ -1,0 +1,33 @@
+{
+    "nom": "Fruti coco poire betterave",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Poire",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Betterave cuite",
+            "Quantité": "240g"
+        },
+        {
+            "Ingrédient": "Eau de coco",
+            "Quantité": "240g"
+        },
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "120g"
+        },
+        {
+            "Ingrédient": "Huile de coco",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_125127_fruti_coco_poire_betterave_0.jpg"
+    ]
+}
