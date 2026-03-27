@@ -1,0 +1,27 @@
+{
+    "nom": "Gâteaux à la banane et beurre de cacahuètes",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Banane",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Beurre de cacahuètes",
+            "Quantité": "125g"
+        },
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "150g"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_123647_gâteaux_à_la_banane_et_beurre_de_cacahuètes_0.jpg",
+        "data/images/20260327_123647_gâteaux_à_la_banane_et_beurre_de_cacahuètes_1.jpg",
+        "data/images/20260327_123647_gâteaux_à_la_banane_et_beurre_de_cacahuètes_2.jpg"
+    ]
+}
