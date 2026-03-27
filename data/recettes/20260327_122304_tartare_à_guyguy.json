@@ -1,0 +1,49 @@
+{
+    "nom": "Tartare à Guyguy",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Boeuf",
+            "Quantité": "600g"
+        },
+        {
+            "Ingrédient": "Echalottes",
+            "Quantité": "3"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "4 gousses"
+        },
+        {
+            "Ingrédient": "Persil",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Câpres",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Tabasco",
+            "Quantité": "10 à 20 gouttes"
+        },
+        {
+            "Ingrédient": "Jaune d'oeufs",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": "1cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_122304_tartare_à_guyguy_0.jpg"
+    ]
+}
