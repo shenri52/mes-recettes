@@ -1,0 +1,39 @@
+{
+    "nom": "Blanquette de cabillaud au lait de coco",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "30mn",
+    "temps_cuisson": "20mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Cabillaud",
+            "Quantité": "600g"
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": "40cl"
+        },
+        {
+            "Ingrédient": "Citron vert",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Poireaux",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Curry",
+            "Quantité": "1càs"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_120621_blanquette_de_cabillaud_au_lait_de_coco_0.jpg",
+        "data/images/20260327_120621_blanquette_de_cabillaud_au_lait_de_coco_1.jpg",
+        "data/images/20260327_120621_blanquette_de_cabillaud_au_lait_de_coco_2.jpg"
+    ]
+}
