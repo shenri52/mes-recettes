@@ -347,6 +347,18 @@
         "chemin": "data/recettes/20260307_100255_orzo_crémeux_aux_épinards_et_champignons.json"
     },
     {
+        "nom": "Os à mâcher fraicheur persil menthe",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Persil",
+            "Menthe fraiche",
+            "Yaourt à la grec"
+        ],
+        "chemin": "data/recettes/20260327_123353_os_à_mâcher_fraicheur_persil_menthe.json"
+    },
+    {
         "nom": "Pain Avoine et graines de chia",
         "categorie": "Divers",
         "appareil": "Aucun",
