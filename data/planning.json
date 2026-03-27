@@ -69,5 +69,39 @@
             "Pâtes",
             "Jambon"
         ]
+    },
+    "2026-03-27": {
+        "midi": [],
+        "soir": [
+            "Pizzas "
+        ]
+    },
+    "2026-03-28": {
+        "midi": [],
+        "soir": [
+            "Gratin de ravioles aux champignons et comté"
+        ]
+    },
+    "2026-03-29": {
+        "midi": [],
+        "soir": [
+            "Soupe"
+        ]
+    },
+    "2026-03-30": {
+        "midi": [],
+        "soir": []
+    },
+    "2026-03-31": {
+        "midi": [],
+        "soir": []
+    },
+    "2026-04-01": {
+        "midi": [],
+        "soir": []
+    },
+    "2026-04-02": {
+        "midi": [],
+        "soir": []
     }
 }
