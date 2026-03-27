@@ -1,5 +1,19 @@
 [
     {
+        "nom": "Blanquette de cabillaud au lait de coco",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Cabillaud",
+            "Lait de coco",
+            "Citron vert",
+            "Carottes",
+            "Poireaux",
+            "Curry"
+        ],
+        "chemin": "data/recettes/20260327_120621_blanquette_de_cabillaud_au_lait_de_coco.json"
+    },
+    {
         "nom": "Blanquette de poireaux au poiré",
         "categorie": "Plat",
         "appareil": "Aucun",
