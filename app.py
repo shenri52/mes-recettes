@@ -66,6 +66,7 @@ def aller_accueil():
     st.query_params.clear()
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
+    st.session_state["select_recette"] = "---"
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
