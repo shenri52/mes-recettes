@@ -55,6 +55,18 @@
         "chemin": "data/recettes/20260308_105455_brandle.json"
     },
     {
+        "nom": "Bâtonnets à la citrouille et à l'avoine",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Purée de citrouille",
+            "Flocon d'avoine",
+            "Oeuf",
+            "Farine"
+        ],
+        "chemin": "data/recettes/20260327_123124_bâtonnets_à_la_citrouille_et_à_l'avoine.json"
+    },
+    {
         "nom": "Calzone croustillante au poulet, coeur fondant ricotta-épinards",
         "categorie": "Plat",
         "appareil": "Aucun",
