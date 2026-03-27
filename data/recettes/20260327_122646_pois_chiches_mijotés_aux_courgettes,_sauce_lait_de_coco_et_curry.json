@@ -1,0 +1,30 @@
+{
+    "nom": "Pois chiches mijotés aux courgettes, sauce lait de coco et curry",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": "400g"
+        },
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": "40cl"
+        },
+        {
+            "Ingrédient": "Curry",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_122646_pois_chiches_mijotés_aux_courgettes,_sauce_lait_de_coco_et_curry_0.jpg",
+        "data/images/20260327_122646_pois_chiches_mijotés_aux_courgettes,_sauce_lait_de_coco_et_curry_1.jpg"
+    ]
+}
