@@ -230,6 +230,20 @@
         "chemin": "data/recettes/20260327_123647_gâteaux_à_la_banane_et_beurre_de_cacahuètes.json"
     },
     {
+        "nom": "Gâteaux à la noix de coco et flocons d'avoine",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Noix de coco râpée",
+            "Eau",
+            "Huile de coco",
+            "Banane",
+            "Oeuf"
+        ],
+        "chemin": "data/recettes/20260327_124109_gâteaux_à_la_noix_de_coco_et_flocons_d'avoine.json"
+    },
+    {
         "nom": "Jambon de porc à l'ananas",
         "categorie": "Plat",
         "appareil": "Aucun",
