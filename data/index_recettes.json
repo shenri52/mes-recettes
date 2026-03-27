@@ -826,6 +826,26 @@
         "chemin": "data/recettes/20260307_164216_soupe_au_chou_zéro_point.json"
     },
     {
+        "nom": "Soupe aux tortellinis au poulet Alfredo ",
+        "categorie": "Soupe",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Beurre",
+            "Oignon",
+            "Carottes",
+            "Ail",
+            "Filet de poulet",
+            "Bouillon de volaille",
+            "Crème fraiche",
+            "Sel",
+            "Poivre",
+            "Tortellinis au fromage",
+            "Epinards frais",
+            "Parmesan"
+        ],
+        "chemin": "data/recettes/20260327_125726_soupe_aux_tortellinis_au_poulet_alfredo_.json"
+    },
+    {
         "nom": "Soupe détox aux légumes verts",
         "categorie": "Soupe",
         "appareil": "Aucun",
