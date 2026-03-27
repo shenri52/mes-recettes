@@ -1,0 +1,42 @@
+{
+    "nom": "Choux de Bruxelles, lentilles et ail confit",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Choux de Bruxelles",
+            "Quantité": "500g"
+        },
+        {
+            "Ingrédient": "Lentilles vertes",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "6 gousses"
+        },
+        {
+            "Ingrédient": "Thym",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Vinaigre balsamique",
+            "Quantité": "2càs"
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_120127_choux_de_bruxelles,_lentilles_et_ail_confit_0.jpg",
+        "data/images/20260327_120127_choux_de_bruxelles,_lentilles_et_ail_confit_1.jpg"
+    ]
+}
