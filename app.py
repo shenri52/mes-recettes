@@ -67,6 +67,8 @@ def aller_accueil():
     st.session_state.page = 'accueil'
     st.session_state["mode_public"] = False
     st.session_state["select_recette"] = "---"
+    if "choix_recette_gui" in st.session_state:
+        del st.session_state["choix_recette_gui"]
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
