@@ -1,0 +1,29 @@
+{
+    "nom": "Patte zen",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Poire",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": "80g"
+        },
+        {
+            "Ingrédient": "Blanc de poulet",
+            "Quantité": "115g"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_125323_patte_zen_0.jpg"
+    ]
+}
