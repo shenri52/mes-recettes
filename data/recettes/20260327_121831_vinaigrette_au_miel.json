@@ -1,0 +1,31 @@
+{
+    "nom": "Vinaigrette au miel",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Miel",
+            "Quantité": "2càs"
+        },
+        {
+            "Ingrédient": "Vinaigre balsamique",
+            "Quantité": "1cas"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": "4càs"
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": "1càs"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_121831_vinaigrette_au_miel_0.jpg",
+        "data/images/20260327_121831_vinaigrette_au_miel_1.jpg",
+        "data/images/20260327_121831_vinaigrette_au_miel_2.jpg"
+    ]
+}
