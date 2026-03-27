@@ -1,0 +1,30 @@
+{
+    "nom": "Os à mâcher fraicheur persil menthe",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "1 tasse"
+        },
+        {
+            "Ingrédient": "Persil",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Menthe fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "1/2"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_123353_os_à_mâcher_fraicheur_persil_menthe_0.jpg",
+        "data/images/20260327_123353_os_à_mâcher_fraicheur_persil_menthe_1.jpg"
+    ]
+}
