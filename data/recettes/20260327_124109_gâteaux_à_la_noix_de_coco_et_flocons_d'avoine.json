@@ -1,0 +1,38 @@
+{
+    "nom": "Gâteaux à la noix de coco et flocons d'avoine",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "250g"
+        },
+        {
+            "Ingrédient": "Noix de coco râpée",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Eau",
+            "Quantité": "120ml"
+        },
+        {
+            "Ingrédient": "Huile de coco",
+            "Quantité": "60ml"
+        },
+        {
+            "Ingrédient": "Banane",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_124109_gâteaux_à_la_noix_de_coco_et_flocons_d'avoine_0.jpg",
+        "data/images/20260327_124109_gâteaux_à_la_noix_de_coco_et_flocons_d'avoine_1.jpg"
+    ]
+}
