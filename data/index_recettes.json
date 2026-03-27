@@ -56,6 +56,21 @@
         "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
     },
     {
+        "nom": "Choux de Bruxelles, lentilles et ail confit",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Choux de Bruxelles",
+            "Lentilles vertes",
+            "Oignon",
+            "Ail",
+            "Thym",
+            "Vinaigre balsamique",
+            "Bouillon de légumes"
+        ],
+        "chemin": "data/recettes/20260327_120127_choux_de_bruxelles,_lentilles_et_ail_confit.json"
+    },
+    {
         "nom": "Cookie façon brownie",
         "categorie": "Goûter",
         "appareil": "Aucun",
