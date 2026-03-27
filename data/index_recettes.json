@@ -460,6 +460,18 @@
         "chemin": "data/recettes/20260313_122717_patates_douces,_pois_chiches,_épinards_et_tomates.json"
     },
     {
+        "nom": "Patte zen",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Poire",
+            "Carottes",
+            "Courgette",
+            "Blanc de poulet"
+        ],
+        "chemin": "data/recettes/20260327_125323_patte_zen.json"
+    },
+    {
         "nom": "Pink Coconut Mojito",
         "categorie": "Cocktail",
         "appareil": "Aucun",
