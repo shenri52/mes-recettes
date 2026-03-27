@@ -1,0 +1,31 @@
+{
+    "nom": "Salade de lentilles, avocat et chèvre frais",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Lentilles vertes",
+            "Quantité": "250g"
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Chèvre frais",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "Roquette",
+            "Quantité": "1 poignée"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_115646_salade_de_lentilles,_avocat_et_chèvre_frais_0.jpg",
+        "data/images/20260327_115646_salade_de_lentilles,_avocat_et_chèvre_frais_1.jpg",
+        "data/images/20260327_115646_salade_de_lentilles,_avocat_et_chèvre_frais_2.jpg"
+    ]
+}
