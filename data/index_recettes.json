@@ -219,6 +219,17 @@
         "chemin": "data/recettes/20260321_085735_gratin_de_ravioles_aux_champignons_et_comté.json"
     },
     {
+        "nom": "Gâteaux à la banane et beurre de cacahuètes",
+        "categorie": "Tina",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Banane",
+            "Beurre de cacahuètes",
+            "Flocon d'avoine"
+        ],
+        "chemin": "data/recettes/20260327_123647_gâteaux_à_la_banane_et_beurre_de_cacahuètes.json"
+    },
+    {
         "nom": "Jambon de porc à l'ananas",
         "categorie": "Plat",
         "appareil": "Aucun",
