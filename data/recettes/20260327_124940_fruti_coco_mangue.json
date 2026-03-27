@@ -1,0 +1,29 @@
+{
+    "nom": "Fruti coco mangue",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Mangue",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "Yaourt coco",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Amandes",
+            "Quantité": "10"
+        },
+        {
+            "Ingrédient": "Cerises",
+            "Quantité": "1 verre"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_124940_fruti_coco_mangue_0.jpg"
+    ]
+}
