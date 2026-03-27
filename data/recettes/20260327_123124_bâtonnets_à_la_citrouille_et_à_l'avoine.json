@@ -1,0 +1,30 @@
+{
+    "nom": "Bâtonnets à la citrouille et à l'avoine",
+    "categorie": "Tina",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Purée de citrouille",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Farine",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260327_123124_bâtonnets_à_la_citrouille_et_à_l'avoine_0.jpg",
+        "data/images/20260327_123124_bâtonnets_à_la_citrouille_et_à_l'avoine_1.jpg"
+    ]
+}
