@@ -1,5 +1,5 @@
 import streamlit as st
-import requests, json, time
+import requests, time
 from utils import config_github, charger_index, sauvegarder_index, telecharger_projet_complet
 
 def afficher():
