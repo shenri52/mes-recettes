@@ -2,7 +2,7 @@ import streamlit as st
 import json, base64, requests, time, io
 from datetime import datetime
 from PIL import Image
-from utils import config_github, charger_index, sauvegarder_index, verifier_doublon
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, compresser_image
 
 def recuperer_donnees_index():
     idx = charger_index()
@@ -107,16 +107,10 @@ def afficher():
                 liste_medias = []
                 if photos:
                     for idx, f in enumerate(photos):
-                        img = Image.open(f).convert("RGB")
-                        img.thumbnail((1000, 1000))
-                        buf = io.BytesIO()
-                        img.save(buf, format="JPEG", quality=80)
+                        img_data = compresser_image(f)
                         ch_m = f"data/images/{ts}_{nom_fic}_{idx}.jpg"
-                        
-                        # Payload GitHub manuel pour éviter les erreurs d'import
                         url_m = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{ch_m}"
-                        b64_m = base64.b64encode(buf.getvalue()).decode()
-                        requests.put(url_m, headers=conf['headers'], json={"message":"Photo","content":b64_m})
+                        b64_m = base64.b64encode(img_data).decode()
                         liste_medias.append(ch_m)
 
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
