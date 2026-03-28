@@ -1,6 +1,6 @@
 import streamlit as st
 import requests, json, time
-from utils import config_github, charger_index, sauvegarder_index
+from utils import config_github, charger_index, sauvegarder_index, telecharger_projet_complet
 
 def afficher():
     # --- 1. LOGIQUE DE NETTOYAGE (ANTI-FANTÔME) ---
@@ -95,3 +95,18 @@ def afficher():
                     st.rerun()
                 else:
                     st.error("Erreur lors de la sauvegarde de l'index mis à jour.")
+  
+    if st.button("💾 Sauvegarder le projet"):
+        with st.spinner("Compression du projet en cours..."):
+            zip_data = telecharger_projet_complet()
+            
+            if zip_data:
+                # Le bouton de téléchargement réel apparaît une fois le ZIP prêt
+                st.download_button(
+                    label="📥 Télécharger le ZIP maintenant",
+                    data=zip_data,
+                    file_name="SAUVEGARDE_COMPLETE_RECETTES.zip", # Nom toujours identique
+                    mime="application/zip"
+                )
+            else:
+                st.error("Erreur lors de la récupération du projet.")
