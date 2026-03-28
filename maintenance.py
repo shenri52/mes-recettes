@@ -97,7 +97,7 @@ def afficher():
                     st.error("Erreur lors de la sauvegarde de l'index mis à jour.")
 
     if "save_termine" not in st.session_state:
-        st.session_state.save_termine = False
+            st.session_state.save_termine = False
 
     if not st.session_state.save_termine:
         if st.button("💾 Sauvegarder le projet", use_container_width=True):
@@ -105,13 +105,14 @@ def afficher():
                 zip_data = telecharger_projet_complet()
                 
                 if zip_data:
-                    # Le bouton de téléchargement réel apparaît une fois le ZIP prêt
                     st.download_button(
                         label="📥 Télécharger le ZIP maintenant",
                         data=zip_data,
                         file_name="SAUVEGARDE_COMPLETE_RECETTES.zip", 
                         mime="application/zip",
-                        use_container_width=True
+                        use_container_width=True,
+                        # AJOUTE CETTE LIGNE CI-DESSOUS ⬇️
+                        on_click=lambda: st.session_state.update({"save_termine": True})
                     )
                 else:
                     st.error("Erreur lors de la récupération du projet.")
