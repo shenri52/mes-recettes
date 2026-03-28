@@ -1,16 +1,7 @@
 import streamlit as st
-import json, base64, requests, time, io
+import json, base64, requests, time
 from datetime import datetime
-from PIL import Image
-from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, compresser_image
-
-def recuperer_donnees_index():
-    idx = charger_index()
-    if idx:
-        ing = {i for r in idx for i in r.get('ingredients', []) if i}
-        cat = {r.get('categorie') for r in idx if r.get('categorie')}
-        return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
-    return ["---"], ["---"]
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, compresser_image, recuperer_donnees_index
 
 def afficher():
 
