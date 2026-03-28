@@ -50,6 +50,14 @@ def sauvegarder_index(index_maj):
         return True
     return False
 
+def recuperer_donnees_index():
+    idx = charger_index()
+    if idx:
+        ing = {i for r in idx for i in r.get('ingredients', []) if i}
+        cat = {r.get('categorie') for r in idx if r.get('categorie')}
+        return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
+    return ["---"], ["---"]
+    
 # --- Fonction de vérification des doublons ---
 def verifier_doublon(nom_test, index, chemin_actuel=None):
     """
