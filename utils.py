@@ -1,5 +1,6 @@
 import streamlit as st
-import requests, json, base64, time
+import requests, json, base64, time, io
+from PIL import Image
 
 # --- CONFIGURATION GITHUB ---
 def config_github():
@@ -9,7 +10,6 @@ def config_github():
       "owner": st.secrets["REPO_OWNER"],
       "repo": st.secrets["REPO_NAME"]
     }
-
 
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     try:
@@ -64,9 +64,6 @@ def verifier_doublon(nom_test, index, chemin_actuel=None):
             return True
     return False
 
-from PIL import Image
-import io
-
 # --- Fonction de compression des images ---
 def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
     """Compresse l'image pour GitHub (centralisé)."""
@@ -78,7 +75,7 @@ def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
     img.save(buffer, format="JPEG", quality=qualite, optimize=True)
     return buffer.getvalue()
 
-# --- Fonction de sauvegarde ---
+# --- Fonction de sauvegarde du projet---
 def telecharger_projet_complet():
     """Récupère le ZIP du dépôt complet depuis GitHub."""
     conf = config_github()
@@ -90,3 +87,14 @@ def telecharger_projet_complet():
     if response.status_code == 200:
         return response.content
     return None
+
+# --- Fonction de suppression d'une recette ---
+def supprimer_fichier_github(chemin):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
+    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+    if get_res.status_code == 200:
+        sha = get_res.json()['sha']
+        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
+        return res_del.status_code in [200, 204]
+    return False
