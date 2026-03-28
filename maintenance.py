@@ -117,7 +117,4 @@ def afficher():
                 else:
                     st.error("Erreur lors de la récupération du projet.")
     else:
-        st.info("✅ Téléchargement lancé ! Pensez à déplacer le fichier de sauvegarde vers votre dossier sécurisé. 📂")
-        if st.button("🔄 Préparer une nouvelle sauvegarde", use_container_width=True):
-            st.session_state.save_termine = False
-            st.rerun()
+        st.info("✅ Le téléchargement va débuté dans quelques secondes ! Pensez à déplacer le fichier de sauvegarde vers votre dossier sécurisé.")
