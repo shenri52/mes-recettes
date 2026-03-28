@@ -1,18 +1,18 @@
 # 🍳 Mes Recettes - (2026)
 
-Application interactive développée avec **Streamlit** pour gérer vos recettes. Les données (JSON) et les médias (Images/PDF) sont stockés directement sur votre dépôt GitHub.
+Application interactive développée avec **Streamlit** pour gérer vos recettes. Les données (JSON) et les médias (Images/PDF) sont stockés directement sur le dépôt GitHub.
 
 ## 🤖 Conception & IA
-Ce projet a la particularité d'avoir été **entièrement développé à l'aide de l'IA Gemini** grâce à des **instructions précises et détaillées**. L'application a été structurée, codée et optimisée sans écriture manuelle de code.
+Ce projet a la particularité d'avoir été **entièrement développé à l'aide de l'IA ** grâce à des **instructions précises et détaillées**.
 
 ## 🎯 But du projet
-Répondre à un besoin spécifique **non couvert par les applications actuellement disponibles** sur les stores. L'objectif est d'offrir une solution sur mesure, légère et totalement maîtrisée pour la gestion quotidienne des repas.
+Répondre à un besoin spécifique **non couvert par les applications actuellement disponibles** sur les stores.
 
 ## ✨ Fonctionnalités
 
 * **🔒 Mode Consultation (Public)** : 
     * Recherche des recettes par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
-    * Partage de recttes par SMS
+    * Partage de recttes par SMS.
 <br><br>
 * **🔑 Mode administration (Connecté)** :  
    * **📚 Consultation des recettes** : 
@@ -21,19 +21,17 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
    * **✍️ Ajouter une recette** : Formulaire pour ajouter une recette.
    * **📚 Planing** : 
        * Organisation de la semaine (Midi & Soir).
-       * Fusion des recettes enregistrées et des Plats Rapides (sans fiche).
-       * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats improvisés.
-       * Visualisation des informations de la recette (catégorie, étapes, images...)
+       * Distinction visuelle : 📖 pour les recettes, ⚡ pour les plats rapides.
+       * Visualisation des informations de la recette (catégorie, étapes, images...).
    * **🛠️ Maintenance** : 
-       * Réparer l'index des recettes
+       * Réparer l'index des recettes.
+       * Sauvegarder le projet Github.
 
 ## 🛠️ Technologies utilisées
 
 * **Python** : Langage principal du projet.
 * **Streamlit** : Framework utilisé pour créer l'interface utilisateur web.
-* **GitHub API** : Utilisée pour le stockage dynamique des données (fichiers JSON et images) sans nécessité de base de données externe.
-* **PIL (Pillow)** : Bibliothèque dédiée au traitement, à l'optimisation et à la manipulation des images.
-* 
+* **GitHub API** : Utilisée pour le stockage dynamique des données (fichiers JSON et images).
 ---
 
 ### 1. Prérequis
