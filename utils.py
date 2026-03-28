@@ -77,3 +77,16 @@ def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
     buffer = io.BytesIO()
     img.save(buffer, format="JPEG", quality=qualite, optimize=True)
     return buffer.getvalue()
+
+# --- Fonction de sauvegarde ---
+def telecharger_projet_complet():
+    """Récupère le ZIP du dépôt complet depuis GitHub."""
+    conf = config_github()
+    # URL de l'API pour obtenir le ZIP de la branche principale
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/zipball/main"
+    
+    response = requests.get(url, headers=conf['headers'])
+    
+    if response.status_code == 200:
+        return response.content
+    return None
