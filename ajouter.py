@@ -90,8 +90,6 @@ def afficher():
                     st.rerun() # Met à jour l'affichage tout de suite
 
     etapes = st.text_area("Étapes", key=f"et_{f_id}")
-
-    etapes = st.text_area("Étapes", key=f"et_{f_id}")
     photos = st.file_uploader("📸 Photos", type=["jpg","png","jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
 
     if st.button("💾 Enregistrer la recette", use_container_width=True):
