@@ -1,6 +1,5 @@
 import streamlit as st
-import requests, json, base64, time, uuid, io
-from PIL import Image
+import requests, json, base64, time, uuid
 from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, envoyer_vers_github, compresser_image, supprimer_fichier_github
 
 # --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
