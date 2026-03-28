@@ -63,3 +63,17 @@ def verifier_doublon(nom_test, index, chemin_actuel=None):
                 continue
             return True
     return False
+
+from PIL import Image
+import io
+
+# --- Fonction de compression des images ---
+def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
+    """Compresse l'image pour GitHub (centralisé)."""
+    img = Image.open(upload_file)
+    if img.mode in ("RGBA", "P"): 
+        img = img.convert("RGB")
+    img.thumbnail(taille_max)
+    buffer = io.BytesIO()
+    img.save(buffer, format="JPEG", quality=qualite, optimize=True)
+    return buffer.getvalue()
