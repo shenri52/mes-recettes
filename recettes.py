@@ -1,18 +1,7 @@
 import streamlit as st
 import requests, json, base64, time, uuid, io
 from PIL import Image
-from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, envoyer_vers_github, compresser_image
-
-# --- La fonction def compresser_image locale est SUPPRIMÉE ---
-def supprimer_fichier_github(chemin):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
-    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    if get_res.status_code == 200:
-        sha = get_res.json()['sha']
-        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return res_del.status_code in [200, 204]
-    return False
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, envoyer_vers_github, compresser_image, supprimer_fichier_github
 
 # --- 3. LOGIQUE D'AFFICHAGE ET MODIFICATION ---
 def afficher():        
