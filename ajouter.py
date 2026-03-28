@@ -144,6 +144,3 @@ def afficher():
                     st.session_state.form_count += 1
                     time.sleep(1)
                     st.rerun()
-
-if __name__ == "__main__":
-    afficher()
