@@ -2,7 +2,7 @@ import streamlit as st
 import requests, json, base64, time, io
 from PIL import Image
 
-# --- CONFIGURATION GITHUB ---
+# --- 1. CONFIGURATION GITHUB : ACCES---
 def config_github():
     return {
       "headers": {"Authorization": f"token {st.secrets['GITHUB_TOKEN']}",
@@ -11,6 +11,7 @@ def config_github():
       "repo": st.secrets["REPO_NAME"]
     }
 
+# --- 2. CONFIGURATION GITHUB : ENVOYER DES DONNEES ---
 def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     try:
         conf = config_github()
@@ -25,7 +26,8 @@ def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     except Exception as e:
         st.error(f"Erreur technique : {str(e)}")
         return False
-        
+
+# --- 3. CONFIGURATION GITHUB : CHARGER DES DONNEES ---
 def charger_donnees(chemin):
     """Charge les données avec anti-cache et gestion d'erreurs."""
     conf = config_github()
@@ -39,8 +41,19 @@ def charger_donnees(chemin):
         pass
     # Retourne une liste pour les plats, sinon un dictionnaire vide
     return [] if "plats_rapides" in chemin else {}
+
+# --- 4. CONFIGURATION GITHUB : SUPPRIMER DES DONNEES ---
+def supprimer_fichier_github(chemin):
+    conf = config_github()
+    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
+    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
+    if get_res.status_code == 200:
+        sha = get_res.json()['sha']
+        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
+        return res_del.status_code in [200, 204]
+    return False
     
-# --- GESTION DE L'INDEX DES RECETTES---
+# --- 5. INDEX DES RECETTES : charger ---
 def charger_index():
     conf = config_github()
     url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/data/index_recettes.json?t={int(time.time())}"
@@ -57,13 +70,15 @@ def charger_index():
         st.session_state.index_recettes = []
     return st.session_state.index_recettes
 
+# --- 6. INDEX DES RECETTES : sauvegarder ---
 def sauvegarder_index(index_maj):
     index_trie = sorted(index_maj, key=lambda x: x['nom'].lower())
     if envoyer_vers_github("data/index_recettes.json", json.dumps(index_trie, indent=4, ensure_ascii=False), "MAJ Index"):
         st.session_state.index_recettes = index_trie
         return True
     return False
-
+    
+# --- 7. INDEX DES RECETTES : récupérer ---
 def recuperer_donnees_index():
     idx = charger_index()
     if idx:
@@ -72,7 +87,7 @@ def recuperer_donnees_index():
         return ["---"] + sorted(list(ing)), ["---"] + sorted(list(cat))
     return ["---"], ["---"]
     
-# --- Fonction de vérification des doublons ---
+# --- 8. VERIFICATION DES DOUBLONS ---
 def verifier_doublon(nom_test, index, chemin_actuel=None):
     """
     Retourne True si le nom existe déjà dans l'index (hors la recette en cours d'édition).
@@ -86,7 +101,7 @@ def verifier_doublon(nom_test, index, chemin_actuel=None):
             return True
     return False
 
-# --- Fonction de compression des images ---
+# --- 9. COMPRESSION DES IMAGES ---
 def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
     """Compresse l'image pour GitHub (centralisé)."""
     img = Image.open(upload_file)
@@ -97,7 +112,7 @@ def compresser_image(upload_file, qualite=80, taille_max=(1000, 1000)):
     img.save(buffer, format="JPEG", quality=qualite, optimize=True)
     return buffer.getvalue()
 
-# --- Fonction de sauvegarde du projet---
+# --- 10. SAUVEGARDER LE PROJET ---
 def telecharger_projet_complet():
     """Récupère le ZIP du dépôt complet depuis GitHub."""
     conf = config_github()
@@ -109,14 +124,3 @@ def telecharger_projet_complet():
     if response.status_code == 200:
         return response.content
     return None
-
-# --- Fonction de suppression d'une recette ---
-def supprimer_fichier_github(chemin):
-    conf = config_github()
-    url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{chemin.strip('/')}"
-    get_res = requests.get(f"{url}?t={int(time.time())}", headers=conf['headers'])
-    if get_res.status_code == 200:
-        sha = get_res.json()['sha']
-        res_del = requests.delete(url, headers=conf['headers'], json={"message": "Suppression", "sha": sha, "branch": "main"})
-        return res_del.status_code in [200, 204]
-    return False
