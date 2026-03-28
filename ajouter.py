@@ -16,6 +16,12 @@ def afficher():
 
     # Initialisation session_state
     if 'form_count' not in st.session_state: st.session_state.form_count = 0
+
+    f_id = st.session_state.form_count
+
+    if f"nom_{f_id}" not in st.session_state:
+        st.session_state.ingredients_recette = []
+    
     if 'ingredients_recette' not in st.session_state: st.session_state.ingredients_recette = []
     if 'liste_choix' not in st.session_state: st.session_state.liste_choix = ["---"]
     if 'liste_categories' not in st.session_state: st.session_state.liste_categories = ["---"]
@@ -23,8 +29,6 @@ def afficher():
 
     if len(st.session_state.liste_choix) <= 1:
         st.session_state.liste_choix, st.session_state.liste_categories = recuperer_donnees_index()
-
-    f_id = st.session_state.form_count
 
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{f_id}")
@@ -74,8 +78,18 @@ def afficher():
             c3.write(" "); c3.write(" ")
             c3.button("➕", key=f"bi_{f_id}", on_click=ajouter_ing_et_nettoyer)
 
-        for i in st.session_state.ingredients_recette:
-            st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
+        # --- Boucle ingrédients avec bouton de suppression ---
+        for idx, i in enumerate(st.session_state.ingredients_recette):
+            col_txt, col_del = st.columns([0.85, 0.15]) # Répartition de la largeur
+            with col_txt:
+                st.write(f"✅ {i['Quantité']} {i['Ingrédient']}")
+            with col_del:
+                # Bouton avec une clé unique basée sur l'index de l'ingrédient
+                if st.button("❌", key=f"del_ing_{f_id}_{idx}"):
+                    st.session_state.ingredients_recette.pop(idx) # Supprime de la liste
+                    st.rerun() # Met à jour l'affichage tout de suite
+
+    etapes = st.text_area("Étapes", key=f"et_{f_id}")
 
     etapes = st.text_area("Étapes", key=f"et_{f_id}")
     photos = st.file_uploader("📸 Photos", type=["jpg","png","jpeg"], key=f"fi_{f_id}", accept_multiple_files=True)
