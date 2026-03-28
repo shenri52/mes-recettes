@@ -2,6 +2,17 @@ import streamlit as st
 import ajouter, recettes, maintenance, planning
 from utils import charger_index
 
+st.markdown("""
+    <link rel="manifest" href="data:application/json,{
+        \"name\": \"Mes recettes\",
+        \"short_name\": \"Mes recettes\",
+        \"start_url\": \".\",
+        \"display\": \"standalone\",
+        \"background_color\": \"#ffffff\",
+        \"theme_color\": \"#ff6b6b\"
+    }">
+    """, unsafe_allow_html=True)
+
 # --- CONFIGURATION DES MENUS ---
 # Clé = Nom exact du bouton (qui devient aussi le nom de la page)
 # Valeur = {"module": fichier.py à appeler, "public": True/False si accessible sans mot de passe}
