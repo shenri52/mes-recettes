@@ -25,7 +25,21 @@ def envoyer_vers_github(chemin, contenu, message, est_binaire=False):
     except Exception as e:
         st.error(f"Erreur technique : {str(e)}")
         return False
-
+        
+def charger_donnees(chemin):
+    """Charge les données avec anti-cache et gestion d'erreurs."""
+    conf = config_github()
+    # Le paramètre ?t= force GitHub à ignorer le cache et donner le fichier réel
+    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"
+    try:
+        res = requests.get(url)
+        if res.status_code == 200:
+            return res.json()
+    except Exception:
+        pass
+    # Retourne une liste pour les plats, sinon un dictionnaire vide
+    return [] if "plats_rapides" in chemin else {}
+    
 # --- GESTION DE L'INDEX DES RECETTES---
 def charger_index():
     conf = config_github()
