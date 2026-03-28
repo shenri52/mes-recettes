@@ -1,20 +1,6 @@
 import streamlit as st
 import datetime, json, requests, time
-from utils import config_github, envoyer_vers_github
-
-def charger_donnees(chemin):
-    """Charge les données avec anti-cache et gestion d'erreurs."""
-    conf = config_github()
-    # Le paramètre ?t= force GitHub à ignorer le cache et donner le fichier réel
-    url = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{chemin}?t={int(time.time())}"
-    try:
-        res = requests.get(url)
-        if res.status_code == 200:
-            return res.json()
-    except Exception:
-        pass
-    # Retourne une liste pour les plats, sinon un dictionnaire vide
-    return [] if "plats_rapides" in chemin else {}
+from utils import config_github, envoyer_vers_github, charger_donnees
 
 # --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
