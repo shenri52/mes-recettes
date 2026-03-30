@@ -124,3 +124,19 @@ def telecharger_projet_complet():
     if response.status_code == 200:
         return response.content
     return None
+
+# --- 10. Poids du dépôt ---
+@st.cache_data(ttl=3600) # L'info est gardée en mémoire pendant 1h
+def obtenir_taille_depot():
+    try:
+        conf = config_github()
+        # On interroge la racine du dépôt, pas les fichiers
+        url = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}"
+        res = requests.get(url, headers=conf['headers'])
+        if res.status_code == 200:
+            # GitHub renvoie la taille en Kilooctets (Ko)
+            taille_ko = res.json().get('size', 0)
+            return taille_ko
+        return 0
+    except:
+        return 0
