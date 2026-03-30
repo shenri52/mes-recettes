@@ -1,6 +1,6 @@
 import streamlit as st
 import ajouter, recettes, maintenance, planning
-from utils import charger_index
+from utils import charger_index, obtenir_taille_depot
 
 # --- CONFIGURATION DES MENUS ---
 # Clé = Nom exact du bouton (qui devient aussi le nom de la page)
@@ -57,7 +57,10 @@ def verifier_mot_de_passe():
             
         nb_recettes = len(st.session_state.get("index_recettes", []))
         if nb_recettes > 0:
-            st.info(f"💡 Il y a **{nb_recettes}** recettes d'enregistrées !")
+            taille_ko = obtenir_taille_depot()
+            if taille_ko > 0:
+                taille_mo = taille_ko / 1024
+            st.info(f"💡 Il y a **{nb_recettes}** recettes d'enregistrées. \n 📊 **Le livre de recette pèse ** {taille_mo:.2f} Mo")
             
         return False
     return True
