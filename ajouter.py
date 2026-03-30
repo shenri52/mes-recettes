@@ -24,10 +24,15 @@ def afficher():
     with st.container():
         nom_plat = st.text_input("Nom de la recette", key=f"nom_{f_id}")
         
-        c_app, c_prep, c_cuis = st.columns(3)
+        # --- Ligne 1 : Appareil et Nombre de personnes ---
+        c_app, c_pers = st.columns(2)
         type_appareil = c_app.selectbox("Appareil", options=["Aucun", "Cookeo", "Thermomix", "Ninja"], key=f"app_{f_id}")
-        tps_prep = c_prep.text_input("Prép. (ex: 10 min)", key=f"prep_{f_id}")
-        tps_cuis = c_cuis.text_input("Cuis. (ex: 20 min)", key=f"cuis_{f_id}")
+        nb_pers = c_pers.number_input("Nombre de personnes", min_value=1, value=4, step=1, key=f"pers_{f_id}")
+        
+        # --- Ligne 2 : Temps avec valeur par défaut à 0 ---
+        c_prep, c_cuis = st.columns(2)
+        tps_prep = c_prep.text_input("Temps de préparation", value="", key=f"prep_{f_id}")
+        tps_cuis = c_cuis.text_input("Temps de cuisson", value="", key=f"cuis_{f_id}")
         
         # --- CATÉGORIE ---
         def ajouter_cat_et_nettoyer():
