@@ -20,6 +20,7 @@ def ouvrir_fiche(nom_plat):
                 # --- Infos clés (Emojis modifiés pour meilleure compatibilité) ---
                 st.write(f"📂 **Catégorie :** {recette.get('categorie', 'Non classé')}")
                 st.write(f"🔌 **Appareil :** {recette.get('appareil', 'Aucun')}")
+                st.write(f"**Nombre de personnes :** {recette.get('nb_personnes', 0)} 👥")
                 st.write(f"⏱️ **Temps de préparation :** {recette.get('temps_prep', '0')} min")
                 st.write(f"🔥 **Temps de cuisson :** {recette.get('temps_cuisson', '0')} min")
                 
