@@ -60,7 +60,7 @@ def verifier_mot_de_passe():
             taille_ko = obtenir_taille_depot()
             if taille_ko > 0:
                 taille_mo = taille_ko / 1024
-            st.info(f"💡 Il y a **{nb_recettes}** recettes d'enregistrées. \n 📊 **Le livre de recette pèse ** {taille_mo:.2f} Mo")
+            st.info(f"💡 Il y a **{nb_recettes}** recettes d'enregistrées. \n\n 📊 Le livre de recette pèse **{taille_mo:.2f}** Mo")
             
         return False
     return True
