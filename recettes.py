@@ -128,7 +128,7 @@ def afficher():
                 # Utilisation de idx_cat ici ⬇️
                 e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
-                e_pers = st.number_input("Nombre de personnes", min_value=1, value=int(recette.get('nb_personnes', 4)), step=1)
+                e_pers = st.number_input("Nombre de personnes", min_value=1, value=int(recette.get('nb_personnes', 0)), step=1)
                 e_prep = st.text_input("Temps de préparation", value=recette.get('temps_preparation', '0'))
                 e_cuis = st.text_input("Temps de cuisson", value=recette.get('temps_cuisson', '0'))
                 e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
@@ -193,7 +193,7 @@ def afficher():
             with col_t:
                 st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
                 st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
-                st.write(f"**Personnes :** {recette.get('nb_personnes', 4)} 👥")
+                st.write(f"**Personnes :** {recette.get('nb_personnes', 0)} 👥")
                 st.write(f"**Préparation :** {recette.get('temps_preparation', '0')} | **Cuisson :** {recette.get('temps_cuisson', '0')} ⏱️")
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
