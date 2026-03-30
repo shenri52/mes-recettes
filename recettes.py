@@ -193,7 +193,7 @@ def afficher():
             with col_t:
                 st.write(f"**Catégorie :** {recette.get('categorie', 'Non classé')}")
                 st.write(f"**Appareil :** {recette.get('appareil', 'Aucun')}")
-                st.write(f"**Personnes :** {recette.get('nb_personnes', 0)} 👥")
+                st.write(f"👥**Personnes :** {recette.get('nb_personnes', 0)}")
                 st.write(f"**Préparation :** {recette.get('temps_preparation', '0')} | **Cuisson :** {recette.get('temps_cuisson', '0')} ⏱️")
                 st.write("**Ingrédients :**")
                 for i in recette.get('ingredients', []):
