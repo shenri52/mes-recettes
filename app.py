@@ -61,11 +61,8 @@ def verifier_mot_de_passe():
             if taille_ko > 0:
                 taille_mo = taille_ko / 1024
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric(label="📊 Poids du dépôt", value=f"{taille_mo:.2f} Mo")
-            with col2:
-                st.metric(label="🍳 Nombre de recettes", value=nb_recettes)
+            st.info(f"""📊 **Mon livre de recettes**
+            Nombre de recettes : {nb_recettes}""") | Poids total : {taille_mo:.2f} Mo
                 
         return False
     return True
