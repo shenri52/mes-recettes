@@ -122,6 +122,14 @@ if verifier_mot_de_passe():
                     st.session_state.page = nom_bouton
                     st.rerun()
 
+        # 2. Ajout du bouton de déconnexion (uniquement si connecté)
+        if st.session_state["authentifie"]:
+            st.divider() # Petite séparation visuelle
+            if st.button("🚪 Se déconnecter", use_container_width=True, type="primary"):
+                # On vide TOUTE la session pour revenir à l'écran de verrouillage
+                st.session_state.clear()
+                st.rerun()
+
     # --- ROUTAGE DYNAMIQUE (Contenu de la page) ---
     else:
         page_actuelle = st.session_state.page
