@@ -13,11 +13,13 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
 * **🔒 Mode Consultation (Public)** : 
     * Recherche des recettes par nom, appareil (Cookeo, Thermomix, Ninja) ou ingrédient.
     * Partage de recttes par SMS.
+    * Recette aléatoire dans un catégorie chosie.
+    * Affichage du nombre de recette et du poid du dépot.
 <br><br>
 * **🔑 Mode administration (Connecté)** :  
    * **📚 Consultation des recettes** : 
        * Toutes les fonctions du mode public.
-       * Modification et suppressions des recettes.
+       * Modification et suppressions des recettes (sauf recette aléatoire et informations statistiques).
    * **✍️ Ajouter une recette** : Formulaire pour ajouter une recette.
    * **📚 Planing** : 
        * Organisation de la semaine (Midi & Soir).
@@ -26,6 +28,7 @@ Répondre à un besoin spécifique **non couvert par les applications actuelleme
    * **🛠️ Maintenance** : 
        * Réparer l'index des recettes.
        * Sauvegarder le projet Github.
+   * * **🚪 Déconnexion**
 
 ## 🛠️ Technologies utilisées
 
