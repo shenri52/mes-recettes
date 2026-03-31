@@ -51,7 +51,9 @@ def verifier_mot_de_passe():
             st.session_state["mode_public"] = True
             st.session_state.page = "📚 Mes recettes" # Le nom exact de la clé du menu
             st.rerun()
-            
+        
+       st.markdown("<h3 style='text-align: center;'>🎲 Recette aléatoire</h3>", unsafe_allow_html=True)
+        
         index = charger_index()
         
         if index:
@@ -64,7 +66,7 @@ def verifier_mot_de_passe():
             
             with col2:
                 # 2. Le bouton utilise la catégorie sélectionnée au-dessus
-                if st.button("🎲 Aléatoire", use_container_width=True):
+                if st.button("Tirer au sort", use_container_width=True):
                     pool_recettes = [r for r in index if r.get('categorie') == cat_choisie]
                     
                     if pool_recettes:
