@@ -144,7 +144,8 @@ def obtenir_taille_depot():
 # --- APERÇU FICHE RECETTE ---
 @st.dialog("Fiche Recette 📖", width="large")
 def ouvrir_fiche(nom_plat):
-    info = next((r for r in st.session_state.index_complet if r['nom'].upper() == nom_plat.upper()), None)
+    index = charger_index()
+    info = next((r for r in index if r['nom'].upper() == nom_plat.upper()), None)
     
     if info:
         url_full = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{info['chemin']}"
