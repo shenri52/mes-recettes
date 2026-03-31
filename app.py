@@ -52,7 +52,7 @@ def verifier_mot_de_passe():
             st.session_state.page = "📚 Mes recettes" # Le nom exact de la clé du menu
             st.rerun()
         
-       st.markdown("<h3 style='text-align: center;'>🎲 Recette aléatoire</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>🎲 Recette aléatoire</h3>", unsafe_allow_html=True)
         
         index = charger_index()
         
