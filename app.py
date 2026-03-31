@@ -52,16 +52,33 @@ def verifier_mot_de_passe():
             st.session_state.page = "📚 Mes recettes" # Le nom exact de la clé du menu
             st.rerun()
             
-        if st.button("🎲 Je ne sais pas quoi manger !"):
-            index = charger_index()
-            if index:
-                choix = random.choice(index)
-                st.session_state.alerte_recette = choix['nom']
+        index = charger_index()
+        
+        if index:
+            # 1. On affiche d'abord le choix de la catégorie (toujours visible)
+            categories_dispo = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+            
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                cat_choisie = st.selectbox("Dans quelle catégorie ?", categories_dispo, label_visibility="collapsed")
+            
+            with col2:
+                # 2. Le bouton utilise la catégorie sélectionnée au-dessus
+                if st.button("🎲 Aléatoire", use_container_width=True):
+                    pool_recettes = [r for r in index if r.get('categorie') == cat_choisie]
+                    
+                    if pool_recettes:
+                        choix = random.choice(pool_recettes)
+                        st.session_state.alerte_recette = choix['nom']
+                    else:
+                        st.error("Catégorie vide ! 🫙")
 
-        if "alerte_recette" in st.session_state:
-            nom = st.session_state.alerte_recette
-            del st.session_state.alerte_recette
-            ouvrir_fiche(nom)
+# 3. L'affichage de la fiche (hors du bouton pour que le dialogue s'ouvre bien)
+if "alerte_recette" in st.session_state:
+    nom = st.session_state.alerte_recette
+    # On nettoie avant d'ouvrir pour éviter les boucles
+    del st.session_state.alerte_recette
+    ouvrir_fiche(nom)
             
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
