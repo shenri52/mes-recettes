@@ -53,16 +53,16 @@ def verifier_mot_de_passe():
             st.rerun()
             
         if st.button("🎲 Je ne sais pas quoi manger !", use_container_width=True):
-        index = charger_index() #
-        if index:
-            recette_aleatoire = random.choice(index)
-            # On stocke l'ID ou le nom pour la page Recettes
-            st.session_state.selection_auto = recette_aleatoire['nom']
-            # On change la page pour basculer sur l'affichage
-            st.session_state.page = "Recettes" 
-            st.rerun()
-        else:
-            st.error("Aucune recette disponible... 🫙")
+            index = charger_index() #
+            if index:
+                recette_aleatoire = random.choice(index)
+                # On stocke l'ID ou le nom pour la page Recettes
+                st.session_state.selection_auto = recette_aleatoire['nom']
+                # On change la page pour basculer sur l'affichage
+                st.session_state.page = "Recettes" 
+                st.rerun()
+            else:
+                st.error("Aucune recette disponible... 🫙")
             
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
