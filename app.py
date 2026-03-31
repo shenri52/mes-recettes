@@ -54,14 +54,14 @@ def verifier_mot_de_passe():
             
         if st.button("🎲 Je ne sais pas quoi manger !"):
             index = charger_index()
-        if index:
-            choix = random.choice(index)
-            st.session_state.alerte_recette = choix['nom']
+            if index:
+                choix = random.choice(index)
+                st.session_state.alerte_recette = choix['nom']
 
-if "alerte_recette" in st.session_state:
-    nom = st.session_state.alerte_recette
-    del st.session_state.alerte_recette
-    ouvrir_fiche(nom)
+        if "alerte_recette" in st.session_state:
+            nom = st.session_state.alerte_recette
+            del st.session_state.alerte_recette
+            ouvrir_fiche(nom)
             
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
