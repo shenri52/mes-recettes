@@ -73,12 +73,12 @@ def verifier_mot_de_passe():
                     else:
                         st.error("Catégorie vide ! 🫙")
 
-# 3. L'affichage de la fiche (hors du bouton pour que le dialogue s'ouvre bien)
-if "alerte_recette" in st.session_state:
-    nom = st.session_state.alerte_recette
-    # On nettoie avant d'ouvrir pour éviter les boucles
-    del st.session_state.alerte_recette
-    ouvrir_fiche(nom)
+        # 3. L'affichage de la fiche (hors du bouton pour que le dialogue s'ouvre bien)
+        if "alerte_recette" in st.session_state:
+            nom = st.session_state.alerte_recette
+            # On nettoie avant d'ouvrir pour éviter les boucles
+            del st.session_state.alerte_recette
+            ouvrir_fiche(nom)
             
         # --- AFFICHAGE DU COMPTEUR DE RECETTES ---
         if "index_recettes" not in st.session_state:
