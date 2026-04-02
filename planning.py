@@ -95,7 +95,7 @@ def afficher():
                     c_txt, c_eye = st.columns([4, 1])
                     with c_txt:
                         if st.button(f"{icon} {p_nom}", key=f"del_{d_str}{rep}{idx}", use_container_width=True):
-                            temp[d_str][rep].pop(idx) # On agit directement sur la source
+                            temp[d_str][rep].pop(idx) 
                             st.rerun()
                     with c_eye:
                         if est_recette:
@@ -118,7 +118,7 @@ def afficher():
        
     if st.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
-        # On enregistre la totalité des données sans filtre de date
+        # On enregistre avec json.dumps pour éviter l'erreur d'encodage
         if envoyer_vers_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "MAJ Planning"):
             st.success("Planning enregistré ! 💾")
             time.sleep(1)
@@ -135,8 +135,5 @@ def afficher():
                 envoyer_vers_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "Suppression plat rapide")
                 st.rerun()
   
-    # 2. Le champ de saisie reste le même
     st.text_input("Ajouter un plat rapide", placeholder="Nom du plat...", key="input_nouveau_plat")
-    
-    # 3. Le bouton appelle la fonction ci-dessus
     st.button("➕", use_container_width=True, on_click=ajouter_et_nettoyer)
