@@ -68,7 +68,7 @@ def afficher():
         
         st.markdown(f"""
             <div style='background:{bg_jour}; padding:10px; border-radius:10px 10px 0 0; border:{border_jour}; border-bottom:none;'>
-                <span style='color:#555; font-size:0.8em;'>{nom} - </span>
+                <span style='font-size:0.9em;'>{nom} - </span>
                 <b style='font-size:0.9em;'>{d_j.strftime('%d/%m/%y')}</b>
             </div>
         """, unsafe_allow_html=True)
