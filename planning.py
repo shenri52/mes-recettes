@@ -73,12 +73,9 @@ def afficher():
                 border-radius:10px 10px 0 0; 
                 border:{border_jour}; 
                 border-bottom:none;
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center;
             '>
-                <span style='color:#555; font-size:0.9em; font-weight: bold; text-transform: uppercase;'>{nom}</span>
-                <span style='font-size:1.0em; font-weight: bold; color: #333;'>{d_j.strftime('%d/%m/%y')}</span>
+                <b style='color:#555; font-size:0.9em; text-transform: uppercase;'>{nom}</b>
+                <span style='color:#888; font-size:0.9em; margin-left:8px;'>— {d_j.strftime('%d/%m/%y')}</span>
             </div>
         """, unsafe_allow_html=True)
 
