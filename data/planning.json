@@ -124,26 +124,41 @@
         "midi": [
             "Pâtes bolognaise"
         ],
-        "soir": []
+        "soir": [
+            "Endives au jambon"
+        ]
     },
     "2026-04-05": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Soupe"
+        ]
     },
     "2026-04-06": {
-        "midi": [],
-        "soir": []
+        "midi": [
+            "Magret de canard"
+        ],
+        "soir": [
+            "Salade Thaï au Quinoa et sauce cacahuète"
+        ]
     },
     "2026-04-07": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Soupe"
+        ]
     },
     "2026-04-08": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Salade croûtons lardons oeufs"
+        ]
     },
     "2026-04-09": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Blé",
+            "Blanc de dinde"
+        ]
     }
 }
