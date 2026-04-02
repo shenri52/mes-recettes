@@ -75,7 +75,7 @@ def afficher():
                 border-bottom:none;
             '>
                 <b style='color:#555; font-size:0.9em; text-transform: uppercase;'>{nom}</b>
-                <span style='color:#888; font-size:0.9em; margin-left:8px;'>— {d_j.strftime('%d/%m/%y')}</span>
+                <span style='color:#555; font-size:0.9em; margin-left:8px;'>— {d_j.strftime('%d/%m/%y')}</span>
             </div>
         """, unsafe_allow_html=True)
 
