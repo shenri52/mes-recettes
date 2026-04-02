@@ -67,9 +67,18 @@ def afficher():
         border_jour = "2px solid #0288d1" if is_today else "1px solid #eee"
         
         st.markdown(f"""
-            <div style='background:{bg_jour}; padding:10px; border-radius:10px 10px 0 0; border:{border_jour}; border-bottom:none;'>
-                <span style='color:#555; font-size:0.8em;'>{nom}</span><br>
-                <b style='font-size:1.1em;'>{d_j.strftime('%d/%m/%y')}</b>
+            <div style='
+                background:{bg_jour}; 
+                padding:10px; 
+                border-radius:10px 10px 0 0; 
+                border:{border_jour}; 
+                border-bottom:none;
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;
+            '>
+                <span style='color:#555; font-size:0.9em; font-weight: bold; text-transform: uppercase;'>{nom}</span>
+                <span style='font-size:1.0em; font-weight: bold; color: #333;'>{d_j.strftime('%d/%m/%y')}</span>
             </div>
         """, unsafe_allow_html=True)
 
