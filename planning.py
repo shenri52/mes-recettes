@@ -9,7 +9,7 @@ def afficher():
         nouveau = st.session_state["input_nouveau_plat"]
         if nouveau and nouveau not in st.session_state.plats_rapides:
             st.session_state.plats_rapides.append(nouveau)
-            if envoyer_vers_github("data/plats_rapides.json", st.session_state.plats_rapides, "Ajout plat rapide"):
+            if envoyer_vers_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "Ajout plat rapide"):
                 st.session_state["input_nouveau_plat"] = ""
                 st.toast(f"'{nouveau}' ajouté ! ✅")
                 st.rerun()
@@ -119,7 +119,7 @@ def afficher():
     if st.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
         # On enregistre la totalité des données sans filtre de date
-        if envoyer_vers_github("data/planning.json", st.session_state.planning_data, "MAJ Planning"):
+       if envoyer_vers_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "MAJ Planning"):
             st.success("Planning enregistré ! 💾")
             time.sleep(1)
             st.rerun()
@@ -132,7 +132,7 @@ def afficher():
             c_ren, c_del = st.columns(2)
             if c_del.button("🗑️ Supprimer", use_container_width=True):
                 st.session_state.plats_rapides.remove(plat_sel)
-                envoyer_vers_github("data/plats_rapides.json", st.session_state.plats_rapides, "Suppression plat rapide")
+                envoyer_vers_github("data/plats_rapides.json", json.dumps(st.session_state.plats_rapides, indent=4, ensure_ascii=False), "Suppression plat rapide")
                 st.rerun()
   
     # 2. Le champ de saisie reste le même
