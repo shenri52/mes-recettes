@@ -119,7 +119,7 @@ def afficher():
     if st.button("💾 Enregistrer", use_container_width=True):
         st.session_state.planning_data.update(temp)
         # On enregistre la totalité des données sans filtre de date
-       if envoyer_vers_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "MAJ Planning"):
+        if envoyer_vers_github("data/planning.json", json.dumps(st.session_state.planning_data, indent=4, ensure_ascii=False), "MAJ Planning"):
             st.success("Planning enregistré ! 💾")
             time.sleep(1)
             st.rerun()
