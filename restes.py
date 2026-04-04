@@ -41,7 +41,7 @@ def afficher():
     st.divider()
 
     # --- RECHERCHE DE RECETTES ---
-    st.subheader("💡 Idées de recettes")
+    st.subheader("🔍 Idées de recettes")
     
     if not st.session_state.mes_restes:
         st.info("Ajoute des ingrédients pour voir les recettes possibles ! 🥗")
