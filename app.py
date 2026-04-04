@@ -47,7 +47,7 @@ def verifier_mot_de_passe():
             st.rerun()
     
         # --- BOUTON D'ACCÈS PUBLIC ---
-        st.markdown("<h3 style='text-align: left;'>👁️ Accès public</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
         
         col_recettes, col_restes = st.columns(2)
         with col_recettes:
@@ -62,7 +62,7 @@ def verifier_mot_de_passe():
                 st.session_state.page = "💡 Que faire avec mes restes ?" # Redirige vers le nouveau module
                 st.rerun()
         
-        st.markdown("<h4 style='text-align: center;'>🎲 Recette aléatoire</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: left;'>🎲 Recette aléatoire</h4>", unsafe_allow_html=True)
         
         index = charger_index()
         
