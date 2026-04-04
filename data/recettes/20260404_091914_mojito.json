@@ -1,0 +1,35 @@
+{
+    "nom": "Mojito",
+    "categorie": "Cocktail",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Citron vert",
+            "Quantité": "1/2"
+        },
+        {
+            "Ingrédient": "Menthe fraiche",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Sirop de sucre de canne",
+            "Quantité": "2 càc"
+        },
+        {
+            "Ingrédient": "Glaçons",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Eau pétillante",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Rhum blanc",
+            "Quantité": "3 cl"
+        }
+    ],
+    "etapes": "Dans un verre :\n- presser le demi citron\n- ajouter le sucre de canne\n- ajouter la menthe et là piler\n- ajouter les glaçons\n- ajouter le rhum blanc\n- compléter d'eau pétillante\n- décorer avec de la menthe",
+    "images": []
+}
