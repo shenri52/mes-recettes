@@ -372,6 +372,20 @@
         "chemin": "data/recettes/20260321_083658_mayonnaise_diététique.json"
     },
     {
+        "nom": "Mojito",
+        "categorie": "Cocktail",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Citron vert",
+            "Menthe fraiche",
+            "Sirop de sucre de canne",
+            "Glaçons",
+            "Eau pétillante",
+            "Rhum blanc"
+        ],
+        "chemin": "data/recettes/20260404_091914_mojito.json"
+    },
+    {
         "nom": "Nouilles Thaï au poulet et cacahuètes",
         "categorie": "Plat",
         "appareil": "Aucun",
