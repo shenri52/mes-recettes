@@ -47,7 +47,7 @@ def verifier_mot_de_passe():
             st.rerun()
     
         # --- BOUTON D'ACCÈS PUBLIC ---
-        st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: left;'>👁️ Accès public</h3>", unsafe_allow_html=True)
         
         col_recettes, col_restes = st.columns(2)
         with col_recettes:
