@@ -128,7 +128,8 @@ def afficher():
                 # Utilisation de idx_cat ici ⬇️
                 e_cat = st.selectbox("Catégorie", options=cats_triees, index=idx_cat)
                 e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
-                e_pers = st.number_input("Nombre de personnes", min_value=1, value=int(recette.get('nb_personnes', 0)), step=1)
+                nb_p = int(recette.get('nb_personnes', 1))
+                e_pers = st.number_input("Nombre de personnes", min_value=1, value=max(1, nb_p), step=1)
                 e_prep = st.text_input("Temps de préparation", value=recette.get('temps_preparation', '0'))
                 e_cuis = st.text_input("Temps de cuisson", value=recette.get('temps_cuisson', '0'))
                 e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
