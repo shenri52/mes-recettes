@@ -67,55 +67,45 @@ def verifier_mot_de_passe():
         index = charger_index()
         
         if index:
-            # 1. Préparation des listes
-            toutes_categories = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
-            stars = ["Entrées", "Plats", "Desserts"]
-            
-            # AMÉLIORATION 2 : Filtrer la liste "Autres" pour retirer les stars
-            autres_categories = [c for c in toutes_categories if c not in stars]
-
-            # Initialisation d'une variable d'état pour survivre au deuxième clic
+            # 1. Initialisation de la mémoire du choix (indispensable)
             if "choix_cat_aleatoire" not in st.session_state:
                 st.session_state.choix_cat_aleatoire = None
 
-            # 2. Affichage des 4 colonnes
-            # AMÉLIORATION 1 : use_container_width partout pour occuper toute la largeur
-            cols = st.columns(4)
+            # 2. Les 3 boutons en pleine largeur
+            cols = st.columns(3)
             
-            if cols[0].button("🥗 Entrées", use_container_width=True):
-                st.session_state.choix_cat_aleatoire = "Entrées"
-            
-            if cols[1].button("🥘 Plats", use_container_width=True):
-                st.session_state.choix_cat_aleatoire = "Plats"
-            
-            if cols[2].button("🍰 Desserts", use_container_width=True):
-                st.session_state.choix_cat_aleatoire = "Desserts"
+            # On utilise des variables pour capturer le clic immédiatement
+            btn_entree = cols[0].button("🥗 Entrées", use_container_width=True)
+            btn_plat = cols[1].button("🥘 Plats", use_container_width=True)
+            btn_dessert = cols[2].button("🍰 Desserts", use_container_width=True)
 
-            with cols[3]:
-                # Le popover prend aussi toute la largeur de sa colonne
-                with st.popover("➕ Autres", use_container_width=True):
-                    choix_pop = st.selectbox("Catégories", ["---"] + autres_categories, label_visibility="collapsed")
-                    if choix_pop != "---":
-                        st.session_state.choix_cat_aleatoire = choix_pop
-                        st.rerun()
+            # Mise à jour de l'état selon le bouton cliqué
+            if btn_entree: st.session_state.choix_cat_aleatoire = "Entrées"
+            if btn_plat:   st.session_state.choix_cat_aleatoire = "Plats"
+            if btn_dessert: st.session_state.choix_cat_aleatoire = "Desserts"
 
-            # 3. Exécution du tirage au sort (Bug corrigé ici)
-            choix_final = st.session_state.choix_cat_aleatoire
-            if choix_final:
-                st.write("") 
-                # Le bouton d'action principal
-                if st.button(f"✨ Tirer un(e) {choix_final} au sort", type="primary", use_container_width=True):
-                    pool = [r for r in index if r.get('categorie') == choix_final]
+            # 3. Affichage du bouton de tirage SI une catégorie est sélectionnée
+            cat = st.session_state.choix_cat_aleatoire
+            if cat:
+                st.write("") # Espacement
+                # Bouton de tirage bien large et coloré
+                if st.button(f"✨ Tirer un(e) {cat} au sort", type="primary", use_container_width=True):
+                    # Filtrage (vérifie bien que tes catégories dans l'index sont "Entrées", "Plats", "Desserts")
+                    pool = [r for r in index if r.get('categorie') == cat]
+                    
                     if pool:
                         choix = random.choice(pool)
                         st.session_state.alerte_recette = choix['nom']
-                        # On réinitialise le choix pour le prochain coup
+                        # On réinitialise pour le prochain tour
                         st.session_state.choix_cat_aleatoire = None
                         st.rerun()
                     else:
-                        st.error(f"Aucune recette trouvée dans '{choix_final}' 🫙")
+                        st.error(f"Désolé, aucune recette trouvée dans la catégorie '{cat}'.")
+                        # Optionnel : afficher les catégories vraiment présentes pour aider au debug
+                        # cats_reelles = set(r.get('categorie') for r in index)
+                        # st.write(f"Catégories lues : {cats_reelles}")
 
-        # L'affichage de la fiche (toujours hors du bouton pour le dialogue)
+        # Affichage de la fiche
         if "alerte_recette" in st.session_state:
             nom = st.session_state.alerte_recette
             del st.session_state.alerte_recette
