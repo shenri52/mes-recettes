@@ -80,9 +80,9 @@ def verifier_mot_de_passe():
             btn_dessert = cols[2].button("🍰 Desserts", use_container_width=True)
 
             # Mise à jour de l'état selon le bouton cliqué
-            if btn_entree: st.session_state.choix_cat_aleatoire = "Entrées"
-            if btn_plat:   st.session_state.choix_cat_aleatoire = "Plats"
-            if btn_dessert: st.session_state.choix_cat_aleatoire = "Desserts"
+            if btn_entree: st.session_state.choix_cat_aleatoire = "Entrée"
+            if btn_plat:   st.session_state.choix_cat_aleatoire = "Plat"
+            if btn_dessert: st.session_state.choix_cat_aleatoire = "Dessert"
 
             # 3. Affichage du bouton de tirage SI une catégorie est sélectionnée
             cat = st.session_state.choix_cat_aleatoire
