@@ -16,6 +16,7 @@ def afficher():
 
     # --- FILTRAGE DYNAMIQUE ---
     c2, c3, c4 = st.columns([1, 1, 1])
+    
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
     
@@ -24,37 +25,46 @@ def afficher():
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
 
-    # On garde tes intitulés exacts
     f_cat = c2.selectbox("Catégorie", ["--- Choisir ---"] + cats_existantes)
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
 
-    # Logique de filtrage stricte
+    # Logique de filtrage
     if f_cat == "--- Choisir ---":
         resultats = []
-        message_aide = "Sélectionner une catégorie"
+        st.info("🔍 Sélectionnez une catégorie pour afficher les recettes.")
     else:
-        # On filtre par catégorie (obligatoire) + Appareil/Ingrédient (optionnels)
         resultats = [
             r for r in index 
             if r.get('categorie') == f_cat
             and (f_app == "Tous" or r.get('appareil') == f_app)
             and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
         ]
-        message_aide = "Sélectionner une recette"
 
-    # Préparation de la liste déroulante
+        # --- AFFICHAGE DE LA LISTE DE RÉSULTATS (Comme dans Restes) ---
+        if resultats:
+            st.write(f"### 📋 {len(resultats)} recette(s) trouvée(s)")
+            # On crée une liste de boutons pour chaque recette trouvée
+            for r in resultats:
+                if st.button(f"📖 {r['nom'].upper()}", key=f"list_{r['chemin']}", use_container_width=True):
+                    st.session_state["select_recette"] = r['nom'].upper()
+                    st.rerun()
+        else:
+            st.warning("❌ Aucune recette ne correspond à ces critères.")
+
+    st.divider()
+
+    # --- LISTE DÉROULANTE (Pour accès direct si besoin) ---
     noms_filtres = [r['nom'].upper() for r in resultats]
     options = ["---"] + noms_filtres
-    
-    # Gestion de la sélection pour éviter les erreurs d'index
     valeur_actuelle = st.session_state.get("select_recette", "---")
+    
     idx_depart = 0
     if valeur_actuelle in options:
         idx_depart = options.index(valeur_actuelle)
         
     choix = st.selectbox(
-        message_aide, 
+        "Ou choisir directement ici :", 
         options,
         index=idx_depart,
         key="choix_recette_gui",
@@ -63,6 +73,7 @@ def afficher():
 
     st.session_state["select_recette"] = choix
     
+    # --- AFFICHAGE DE LA FICHE ---
     if choix != "---" and choix in noms_filtres:
         info = resultats[noms_filtres.index(choix)]
         conf = config_github()
