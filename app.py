@@ -72,15 +72,17 @@ def verifier_mot_de_passe():
                 st.session_state.choix_cat_aleatoire = None
 
             # 2. Les 3 boutons en pleine largeur
-            cols = st.columns(5)
+            c1, c2, c3 = st.columns(3)
             
             # On utilise des variables pour capturer le clic immédiatement
-            btn_entree = cols[0].button("🥗 Entrée", use_container_width=True)
-            btn_plat = cols[1].button("🥘 Plat", use_container_width=True)
-            btn_dessert = cols[2].button("🍰 Dessert", use_container_width=True)
-            btn_entree = cols[3].button("🍹 Cocktail", use_container_width=True)
-            btn_plat = cols[4].button("🍩 Goûter", use_container_width=True)
-            btn_dessert = cols[5].button("🥣 Soupe", use_container_width=True)
+            btn_entree = c1.button("🥗 Entrée", use_container_width=True)
+            btn_plat = c2.button("🥘 Plat", use_container_width=True)
+            btn_dessert = c3.button("🍰 Dessert", use_container_width=True)
+
+            c4, c5, c6 = st.columns(3)
+            btn_entree = c4.button("🍹 Cocktail", use_container_width=True)
+            btn_plat = c5.button("🍩 Goûter", use_container_width=True)
+            btn_dessert = c6.button("🥣 Soupe", use_container_width=True)
 
             # Mise à jour de l'état selon le bouton cliqué
             if btn_entree: st.session_state.choix_cat_aleatoire = "Entrée"
