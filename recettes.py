@@ -15,7 +15,7 @@ def afficher():
                 
     index = charger_index()
 
-    # --- FILTRAGE ---
+    # --- FILTRAGE DYNAMIQUE ---
     c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
@@ -38,13 +38,13 @@ def afficher():
         and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
 
-    # --- NOUVELLE FONCTIONNALITÉ : BOUTONS ---
+    # --- AFFICHAGE DES BOUTONS (Si filtré) ---
     if filtre_actif:
         if resultats:
             st.write(f"### 📋 {len(resultats)} recette(s) trouvée(s)")
             for r in resultats:
                 nom_btn = r['nom'].upper()
-                if st.button(f"📖 {nom_btn}", key=f"btn_r_{r['chemin']}", use_container_width=True):
+                if st.button(f"📖 {nom_btn}", key=f"btn_filter_{r['chemin']}", use_container_width=True):
                     st.session_state["select_recette"] = nom_btn
                     st.rerun()
         else:
@@ -52,17 +52,21 @@ def afficher():
 
     st.divider()
 
-    # --- LISTE DÉROULANTE (STABILISÉE) ---
-    # On utilise TOUTES les recettes pour les options afin d'éviter que le choix disparaisse au rerun
-    tous_les_noms = sorted([r['nom'].upper() for r in index])
-    options = ["---"] + tous_les_noms
+    # --- LISTE DÉROULANTE (CONSERVÉE ET SÉCURISÉE) ---
+    # IMPORTANT : On garde TOUTES les recettes dans les options pour ne pas casser le mode Edition
+    toutes_options = ["---"] + sorted([r['nom'].upper() for r in index])
     
     valeur_actuelle = st.session_state.get("select_recette", "---")
-    idx_depart = options.index(valeur_actuelle) if valeur_actuelle in options else 0
     
+    # On s'assure que la valeur actuelle existe dans les options
+    if valeur_actuelle not in toutes_options:
+        idx_depart = 0
+    else:
+        idx_depart = toutes_options.index(valeur_actuelle)
+        
     choix = st.selectbox(
-        "Sélectionner une recette", 
-        options,
+        "Sélectionner une recette directement", 
+        toutes_options,
         index=idx_depart,
         key="choix_recette_gui",
         on_change=nettoyer_modif
@@ -70,9 +74,9 @@ def afficher():
 
     st.session_state["select_recette"] = choix
     
-    # --- AFFICHAGE ET MODIFICATION ---
+    # --- AFFICHAGE DE LA FICHE ---
     if choix != "---":
-        # On récupère l'info dans l'index complet (plus fiable que de chercher dans resultats)
+        # On cherche l'info dans l'index GLOBAL (très important pour le mode Modifier)
         info = next((r for r in index if r['nom'].upper() == choix), None)
         
         if info:
@@ -85,10 +89,11 @@ def afficher():
                 recette = json.loads(base64.b64decode(contenu_b64).decode('utf-8'))
                 
                 m_edit = f"edit_{info['chemin']}"
-                if m_edit not in st.session_state: st.session_state[m_edit] = False
+                if m_edit not in st.session_state: 
+                    st.session_state[m_edit] = False
 
+                # --- MODE ÉDITION ---
                 if st.session_state[m_edit]:
-                    # --- MODE ÉDITION (TES LOGIQUES INCHANGÉES) ---
                     st.subheader("✍️ Modification")
                     state_key = f"ings_list_{info['chemin']}"
                     init_flag = f"init_done_{info['chemin']}"
@@ -120,7 +125,8 @@ def afficher():
                             rows_to_delete.append(idx)
 
                     if rows_to_delete:
-                        for r_idx in reversed(rows_to_delete): st.session_state[state_key].pop(r_idx)
+                        for r_idx in reversed(rows_to_delete):
+                            st.session_state[state_key].pop(r_idx)
                         st.rerun()
 
                     if st.button("➕ Ajouter un ingrédient"):
@@ -152,6 +158,7 @@ def afficher():
                             if verifier_doublon(e_nom, index, info['chemin']):
                                 st.error("Nom déjà utilisé.")
                                 st.stop()
+                            
                             for p_path in photos_actuelles:
                                 if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
                             
@@ -169,7 +176,7 @@ def afficher():
                                     if item['chemin'] == info['chemin']:
                                         item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings_clean]})
                                 sauvegarder_index(index)
-                                # RESET DES CHAMPS
+                                # RESET
                                 if state_key in st.session_state: del st.session_state[state_key]
                                 if init_flag in st.session_state: del st.session_state[init_flag]
                                 st.session_state[m_edit] = False
@@ -181,6 +188,7 @@ def afficher():
                             if init_flag in st.session_state: del st.session_state[init_flag]
                             st.session_state[m_edit] = False
                             st.rerun()
+                
                 else:
                     # --- AFFICHAGE CLASSIQUE ---
                     st.subheader(recette['nom'].upper())
@@ -228,7 +236,6 @@ def afficher():
                             st.rerun()
                     else:
                         import urllib.parse
-                        message = urllib.parse.quote(f"Regarde cette recette : {info['nom'].upper()} 🍽️\n🔗 https://mon-catalogue-de-recettes.streamlit.app/?recette={urllib.parse.quote(info['nom'].upper())}")
+                        url_app = "https://mon-catalogue-de-recettes.streamlit.app"
+                        message = urllib.parse.quote(f"Regarde cette recette : {info['nom'].upper()} 🍽️\n🔗 {url_app}/?recette={urllib.parse.quote(info['nom'].upper())}")
                         st.markdown(f'<a href="sms:?&body={message}" style="text-decoration:none;"><div style="background-color:#4CAF50;color:white;padding:10px;text-align:center;border-radius:8px;font-weight:bold;">📲 Partager par SMS</div></a>', unsafe_allow_html=True)
-            else:
-                st.error("Erreur de chargement.")
