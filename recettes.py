@@ -63,7 +63,7 @@ def afficher():
 
     st.session_state["select_recette"] = choix
     
-    if choix != "---": and choix in noms_filtres:
+    if choix != "---" and choix in noms_filtres:
         info = resultats[noms_filtres.index(choix)]
         conf = config_github()
         url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{info['chemin']}?t={int(time.time())}"
