@@ -8,6 +8,7 @@ from utils import charger_index, obtenir_taille_depot, ouvrir_fiche
 # Valeur = {"module": fichier.py à appeler, "public": True/False si accessible sans mot de passe}
 MENUS = {
     "📚 Mes recettes": {"module": recettes, "public": True},
+    "💡 Que faire avec mes restes ?": {"module": restes, "public": True},
     "📅 Mon planning": {"module": planning, "public": False},
     "📥 Ajouter une recette": {"module": ajouter, "public": False},
     "🛠️ Maintenance": {"module": maintenance, "public": False}
