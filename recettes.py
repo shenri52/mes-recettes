@@ -15,7 +15,7 @@ def afficher():
                 
     index = charger_index()
 
-    # --- FILTRAGE DYNAMIQUE ---
+    # --- FILTRAGE ---
     c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
@@ -38,45 +38,38 @@ def afficher():
         and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
 
-    # --- AFFICHAGE DES BOUTONS (Si filtré) ---
+    # --- AFFICHAGE DES BOUTONS RÉSULTATS ---
     if filtre_actif:
         if resultats:
             st.write(f"### 📋 {len(resultats)} recette(s) trouvée(s)")
+            # On affiche les boutons en colonnes pour gagner de la place
             for r in resultats:
-                nom_btn = r['nom'].upper()
-                if st.button(f"📖 {nom_btn}", key=f"btn_filter_{r['chemin']}", use_container_width=True):
-                    st.session_state["select_recette"] = nom_btn
+                if st.button(f"📖 {r['nom'].upper()}", key=f"btn_{r['chemin']}", use_container_width=True):
+                    st.session_state["select_recette"] = r['nom'].upper()
                     st.rerun()
         else:
             st.warning("❌ Aucune recette ne correspond.")
 
     st.divider()
 
-    # --- LISTE DÉROULANTE (CONSERVÉE ET SÉCURISÉE) ---
-    # IMPORTANT : On garde TOUTES les recettes dans les options pour ne pas casser le mode Edition
-    toutes_options = ["---"] + sorted([r['nom'].upper() for r in index])
+    # --- LISTE DÉROULANTE (MASTER) ---
+    # On garde TOUJOURS toutes les recettes ici pour que Streamlit ne "perde" pas la recette pendant l'édition
+    options = ["---"] + sorted([r['nom'].upper() for r in index])
     
     valeur_actuelle = st.session_state.get("select_recette", "---")
+    idx_depart = options.index(valeur_actuelle) if valeur_actuelle in options else 0
     
-    # On s'assure que la valeur actuelle existe dans les options
-    if valeur_actuelle not in toutes_options:
-        idx_depart = 0
-    else:
-        idx_depart = toutes_options.index(valeur_actuelle)
-        
     choix = st.selectbox(
-        "Sélectionner une recette directement", 
-        toutes_options,
+        "Rechercher ou sélectionner une recette", 
+        options,
         index=idx_depart,
         key="choix_recette_gui",
         on_change=nettoyer_modif
     )
-
     st.session_state["select_recette"] = choix
-    
+
     # --- AFFICHAGE DE LA FICHE ---
     if choix != "---":
-        # On cherche l'info dans l'index GLOBAL (très important pour le mode Modifier)
         info = next((r for r in index if r['nom'].upper() == choix), None)
         
         if info:
@@ -89,8 +82,7 @@ def afficher():
                 recette = json.loads(base64.b64decode(contenu_b64).decode('utf-8'))
                 
                 m_edit = f"edit_{info['chemin']}"
-                if m_edit not in st.session_state: 
-                    st.session_state[m_edit] = False
+                if m_edit not in st.session_state: st.session_state[m_edit] = False
 
                 # --- MODE ÉDITION ---
                 if st.session_state[m_edit]:
@@ -105,28 +97,24 @@ def afficher():
                         ]
                         st.session_state[init_flag] = True
 
+                    # (Le reste du code de modification est identique à ton original)
                     st.write("**Ingrédients**")
                     rows_to_delete = []
                     for idx, item in enumerate(st.session_state[state_key]):
                         col_q, col_n, col_del = st.columns([1, 2, 0.5])
                         st.session_state[state_key][idx]["Quantité"] = col_q.text_input("Qté", value=item["Quantité"], key=f"q_{item['id']}", label_visibility="collapsed")
-                        
                         opts_ing = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"] + sorted(list(set(liste_ingredients_unique)))
                         def_idx = opts_ing.index(item["Ingrédient"]) if item["Ingrédient"] in opts_ing else 0
                         choix_sel = col_n.selectbox("Nom", options=opts_ing, index=def_idx, key=f"sel_{item['id']}", label_visibility="collapsed")
-
                         if choix_sel == "➕ NOUVEL INGRÉDIENT":
                             nouveau = col_n.text_input("Nom", value=item["Ingrédient"] if item["Ingrédient"] not in opts_ing else "", key=f"new_{item['id']}")
                             st.session_state[state_key][idx]["Ingrédient"] = nouveau
                         else:
                             st.session_state[state_key][idx]["Ingrédient"] = choix_sel if choix_sel != "--- Choisir ---" else ""
-                        
-                        if col_del.button("🗑️", key=f"del_{item['id']}"):
-                            rows_to_delete.append(idx)
+                        if col_del.button("🗑️", key=f"del_{item['id']}"): rows_to_delete.append(idx)
 
                     if rows_to_delete:
-                        for r_idx in reversed(rows_to_delete):
-                            st.session_state[state_key].pop(r_idx)
+                        for r_idx in reversed(rows_to_delete): st.session_state[state_key].pop(r_idx)
                         st.rerun()
 
                     if st.button("➕ Ajouter un ingrédient"):
@@ -142,6 +130,7 @@ def afficher():
                         e_cuis = st.text_input("Cuisson", value=recette.get('temps_cuisson', '0'))
                         e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
                         
+                        # Photos
                         photos_actuelles = recette.get('images', [])
                         photos_a_garder = []
                         for p_path in photos_actuelles:
@@ -158,19 +147,15 @@ def afficher():
                             if verifier_doublon(e_nom, index, info['chemin']):
                                 st.error("Nom déjà utilisé.")
                                 st.stop()
-                            
                             for p_path in photos_actuelles:
                                 if p_path not in photos_a_garder: supprimer_fichier_github(p_path)
-                            
                             final_photos = photos_a_garder.copy()
                             for f in nouvelles_photos:
                                 nom_img = f"data/images/{int(time.time())}_{f.name}"
                                 if envoyer_vers_github(nom_img, compresser_image(f), f"Photo: {e_nom}", est_binaire=True):
                                     final_photos.append(nom_img)
-
                             ings_clean = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
                             recette_maj = {**recette, "nom": e_nom, "categorie": e_cat, "appareil": e_app, "nb_personnes": e_pers, "temps_preparation": e_prep, "temps_cuisson": e_cuis, "ingredients": ings_clean, "etapes": e_etapes, "images": final_photos}
-                            
                             if envoyer_vers_github(info['chemin'], json.dumps(recette_maj, indent=4, ensure_ascii=False), f"MAJ: {e_nom}"):
                                 for item in index:
                                     if item['chemin'] == info['chemin']:
@@ -188,7 +173,6 @@ def afficher():
                             if init_flag in st.session_state: del st.session_state[init_flag]
                             st.session_state[m_edit] = False
                             st.rerun()
-                
                 else:
                     # --- AFFICHAGE CLASSIQUE ---
                     st.subheader(recette['nom'].upper())
@@ -202,7 +186,6 @@ def afficher():
                         for i in recette.get('ingredients', []):
                             st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
                         st.write(f"**Etapes :**\n{recette.get('etapes')}")
-                    
                     with col_i:
                         images = recette.get('images', [])
                         if images:
@@ -219,12 +202,11 @@ def afficher():
                                 if nb3.button("▶️", key="next"):
                                     st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
                                     st.rerun()
-                        else:
-                            st.info("📷 Aucune photo.")
+                        else: st.info("📷 Aucune photo.")
 
                     if st.session_state.get("authentifie", False):
                         b1, b2 = st.columns(2)
-                        if b1.button("🗑️ Supprimer la recette", use_container_width=True):
+                        if b1.button("🗑️ Supprimer", use_container_width=True):
                             for p in recette.get('images', []): supprimer_fichier_github(p)
                             if supprimer_fichier_github(info['chemin']):
                                 index = [r for r in index if r['chemin'] != info['chemin']]
@@ -236,6 +218,5 @@ def afficher():
                             st.rerun()
                     else:
                         import urllib.parse
-                        url_app = "https://mon-catalogue-de-recettes.streamlit.app"
-                        message = urllib.parse.quote(f"Regarde cette recette : {info['nom'].upper()} 🍽️\n🔗 {url_app}/?recette={urllib.parse.quote(info['nom'].upper())}")
-                        st.markdown(f'<a href="sms:?&body={message}" style="text-decoration:none;"><div style="background-color:#4CAF50;color:white;padding:10px;text-align:center;border-radius:8px;font-weight:bold;">📲 Partager par SMS</div></a>', unsafe_allow_html=True)
+                        msg = urllib.parse.quote(f"Regarde cette recette : {info['nom'].upper()} 🍽️\n🔗 https://mon-catalogue-de-recettes.streamlit.app/?recette={urllib.parse.quote(info['nom'].upper())}")
+                        st.markdown(f'<a href="sms:?&body={msg}" style="text-decoration:none;"><div style="background-color:#4CAF50;color:white;padding:10px;text-align:center;border-radius:8px;font-weight:bold;">📲 Partager par SMS</div></a>', unsafe_allow_html=True)
