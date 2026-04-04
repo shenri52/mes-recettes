@@ -15,7 +15,12 @@ def afficher():
                 
     index = charger_index()
 
-    # --- FILTRAGE ---
+    # Initialisation de la sélection dans le state
+    if "select_recette" not in st.session_state:
+        st.session_state["select_recette"] = "---"
+
+    # --- SECTION FILTRES ---
+    st.write("### 🔍 Filtrer les recettes")
     c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
@@ -38,37 +43,45 @@ def afficher():
         and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
     ]
 
-    # --- BOUTONS DE RÉSULTATS (POUR FORCER LA LISTE) ---
+    # --- AFFICHAGE DES BOUTONS (RÉSULTATS DU FILTRE) ---
     if filtre_actif:
         if resultats:
-            st.write(f"### 📋 {len(resultats)} suggestion(s)")
-            for r in resultats:
+            st.write(f"**{len(resultats)} recette(s) trouvée(s) :**")
+            cols_btn = st.columns(2) # On affiche sur 2 colonnes pour la compacité
+            for i, r in enumerate(resultats):
                 nom_r = r['nom'].upper()
-                if st.button(f"📖 {nom_r}", key=f"btn_{r['chemin']}", use_container_width=True):
+                if cols_btn[i % 2].button(f"📖 {nom_r}", key=f"btn_{r['chemin']}", use_container_width=True):
                     st.session_state["select_recette"] = nom_r
                     st.rerun()
         else:
-            st.warning("❌ Aucun résultat.")
+            st.warning("❌ Aucun résultat pour ces filtres.")
 
     st.divider()
 
-    # --- LA LISTE DÉROULANTE (STABLE ET MASTER) ---
-    # On met TOUTES les recettes pour éviter que la fiche se ferme en cours de modif
-    options = ["---"] + sorted([r['nom'].upper() for r in index])
+    # --- LE SÉLECTEUR MAÎTRE (STABILISÉ) ---
+    # On utilise TOUTES les recettes de l'index pour que la liste soit fixe.
+    # Ainsi, même si on change la catégorie d'une recette en cours de modif, elle ne disparaît pas.
+    tous_les_noms = sorted([r['nom'].upper() for r in index])
+    options_menu = ["---"] + tous_les_noms
     
-    valeur_actuelle = st.session_state.get("select_recette", "---")
-    idx_depart = options.index(valeur_actuelle) if valeur_actuelle in options else 0
-    
+    # On cherche l'index de la recette stockée en session_state
+    try:
+        index_par_defaut = options_menu.index(st.session_state["select_recette"])
+    except ValueError:
+        index_par_defaut = 0
+
     choix = st.selectbox(
-        "Sélectionner la recette", 
-        options,
-        index=idx_depart,
-        key="choix_recette_gui",
+        "Recette sélectionnée :", 
+        options_menu,
+        index=index_par_defaut,
+        key="main_selector",
         on_change=nettoyer_modif
     )
+    
+    # Mise à jour du state pour maintenir la cohérence au prochain rerun
     st.session_state["select_recette"] = choix
 
-    # --- AFFICHAGE / MODIFICATION ---
+    # --- AFFICHAGE ET MODIFICATION ---
     if choix != "---":
         info = next((r for r in index if r['nom'].upper() == choix), None)
         
@@ -85,7 +98,7 @@ def afficher():
 
                 if st.session_state[m_edit]:
                     # --- MODE MODIFICATION ---
-                    st.subheader("✍️ Modification")
+                    st.subheader("✍️ Modification en cours")
                     state_key = f"ings_list_{info['chemin']}"
                     init_flag = f"init_done_{info['chemin']}"
                     
@@ -104,10 +117,12 @@ def afficher():
                         opts_i = ["--- Choisir ---", "➕ NOUVEL INGRÉDIENT"] + sorted(list(set(liste_ingredients_unique)))
                         def_idx = opts_i.index(item["Ingrédient"]) if item["Ingrédient"] in opts_i else 0
                         sel = c_n.selectbox("Nom", options=opts_i, index=def_idx, key=f"sel_{item['id']}", label_visibility="collapsed")
+                        
                         if sel == "➕ NOUVEL INGRÉDIENT":
                             st.session_state[state_key][idx]["Ingrédient"] = c_n.text_input("Nom", value=item["Ingrédient"] if item["Ingrédient"] not in opts_i else "", key=f"new_{item['id']}")
                         else:
                             st.session_state[state_key][idx]["Ingrédient"] = sel if sel != "--- Choisir ---" else ""
+                        
                         if c_d.button("🗑️", key=f"del_{item['id']}"): rows_to_delete.append(idx)
 
                     if rows_to_delete:
@@ -122,10 +137,10 @@ def afficher():
                         e_nom = st.text_input("Nom", value=recette.get('nom', ''))
                         e_cat = st.selectbox("Catégorie", options=sorted(cats_existantes), index=sorted(cats_existantes).index(recette.get('categorie', 'Non classé')) if recette.get('categorie') in cats_existantes else 0)
                         e_app = st.selectbox("Appareil", ["Aucun", "Cookeo", "Thermomix", "Ninja"], index=["Aucun", "Cookeo", "Thermomix", "Ninja"].index(recette.get('appareil', 'Aucun')))
-                        e_pers = st.number_input("Personnes", min_value=1, value=int(recette.get('nb_personnes', 1)))
+                        e_pers = st.number_input("Nombre de personnes", min_value=1, value=int(recette.get('nb_personnes', 1)))
                         e_prep = st.text_input("Préparation", value=recette.get('temps_preparation', '0'))
                         e_cuis = st.text_input("Cuisson", value=recette.get('temps_cuisson', '0'))
-                        e_etapes = st.text_area("Etapes", value=recette.get('etapes', ''), height=150)
+                        e_etapes = st.text_area("Étapes", value=recette.get('etapes', ''), height=150)
                         
                         # Photos
                         photos_actuelles = recette.get('images', [])
@@ -133,12 +148,12 @@ def afficher():
                         nouvelles = st.file_uploader("Ajouter des photos", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
 
                         c_s, c_c = st.columns(2)
-                        if c_s.form_submit_button("💾 Enregistrer", use_container_width=True):
+                        if c_s.form_submit_button("💾 Enregistrer les modifications", use_container_width=True):
                             if verifier_doublon(e_nom, index, info['chemin']):
-                                st.error("Nom déjà pris ! 🛑")
+                                st.error("Désolé, ce nom de recette existe déjà.")
                                 st.stop()
                             
-                            # Nettoyage et Upload
+                            # Nettoyage images
                             for p in photos_actuelles:
                                 if p not in photos_a_garder: supprimer_fichier_github(p)
                             
@@ -148,7 +163,7 @@ def afficher():
                                 if envoyer_vers_github(n_path, compresser_image(f), f"Photo: {e_nom}", est_binaire=True):
                                     final_pics.append(n_path)
 
-                            # Sauvegarde
+                            # Sauvegarde finale
                             ings = [{"Ingrédient": i["Ingrédient"], "Quantité": i["Quantité"]} for i in st.session_state[state_key] if i["Ingrédient"]]
                             recette_maj = {**recette, "nom": e_nom, "categorie": e_cat, "appareil": e_app, "nb_personnes": e_pers, "temps_preparation": e_prep, "temps_cuisson": e_cuis, "ingredients": ings, "etapes": e_etapes, "images": final_pics}
                             
@@ -158,22 +173,22 @@ def afficher():
                                         item.update({"nom": e_nom, "categorie": e_cat, "appareil": e_app, "ingredients": [i['Ingrédient'] for i in ings]})
                                 sauvegarder_index(index)
                                 
-                                # --- RESET DES CHAMPS ---
-                                del st.session_state[state_key]
-                                del st.session_state[init_flag]
+                                # --- RESET DES CHAMPS ET MODE ÉDITION ---
+                                if state_key in st.session_state: del st.session_state[state_key]
+                                if init_flag in st.session_state: del st.session_state[init_flag]
                                 st.session_state[m_edit] = False
                                 st.session_state["select_recette"] = e_nom.upper()
-                                st.success("Recette enregistrée ! ✨")
+                                st.success("Recette mise à jour avec succès ! ✨")
                                 time.sleep(1)
                                 st.rerun()
 
                         if c_c.form_submit_button("❌ Annuler", use_container_width=True):
-                            del st.session_state[state_key]
-                            del st.session_state[init_flag]
+                            if state_key in st.session_state: del st.session_state[state_key]
+                            if init_flag in st.session_state: del st.session_state[init_flag]
                             st.session_state[m_edit] = False
                             st.rerun()
                 else:
-                    # --- AFFICHAGE CLASSIQUE ---
+                    # --- MODE AFFICHAGE CLASSIQUE ---
                     st.subheader(f"🍽️ {recette['nom'].upper()}")
                     col_t, col_i = st.columns([1, 1])
                     with col_t:
@@ -184,7 +199,7 @@ def afficher():
                         st.markdown("**Ingrédients :**")
                         for i in recette.get('ingredients', []):
                             st.write(f"- {i.get('Quantité', '')} {i.get('Ingrédient', '')}")
-                        st.markdown(f"**Etapes :**\n{recette.get('etapes')}")
+                        st.markdown(f"**Étapes :**\n{recette.get('etapes')}")
                     
                     with col_i:
                         imgs = recette.get('images', [])
@@ -197,7 +212,7 @@ def afficher():
                                 if n1.button("◀️"): st.session_state.img_idx = (st.session_state.img_idx - 1) % len(imgs); st.rerun()
                                 n2.write(f"<p style='text-align:center'>{st.session_state.img_idx+1}/{len(imgs)}</p>", unsafe_allow_html=True)
                                 if n3.button("▶️"): st.session_state.img_idx = (st.session_state.img_idx + 1) % len(imgs); st.rerun()
-                        else: st.info("📷 Pas de photo.")
+                        else: st.info("📷 Pas de photo disponible.")
 
                     if st.session_state.get("authentifie", False):
                         b1, b2 = st.columns(2)
@@ -208,6 +223,11 @@ def afficher():
                                 sauvegarder_index(idx_n)
                                 st.session_state["select_recette"] = "---"
                                 st.rerun()
-                        if b2.button("✍️ Modifier", use_container_width=True):
+                        if b2.button("✍️ Modifier la fiche", use_container_width=True):
                             st.session_state[m_edit] = True
                             st.rerun()
+                    else:
+                        # Partage SMS
+                        import urllib.parse
+                        msg = urllib.parse.quote(f"Regarde cette recette : {info['nom'].upper()} 🍽️\n🔗 https://mon-catalogue-de-recettes.streamlit.app/?recette={urllib.parse.quote(info['nom'].upper())}")
+                        st.markdown(f'<a href="sms:?&body={msg}" style="text-decoration:none;"><div style="background-color:#4CAF50;color:white;padding:10px;text-align:center;border-radius:8px;font-weight:bold;">📲 Partager par SMS</div></a>', unsafe_allow_html=True)
