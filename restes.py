@@ -7,18 +7,7 @@ def afficher():
     if 'mes_restes' not in st.session_state:
         st.session_state.mes_restes = []
 
-    # --- BOUTON RETOUR ---
-    def aller_accueil():
-        # On vide la liste des ingrédients avant de repartir
-        st.session_state.mes_restes = []
-        st.session_state.page = 'accueil'
-
-    st.button("⬅️ Retour à l'accueil", use_container_width=True, on_click=aller_accueil)
-    st.divider()
-
-    # --- SÉLECTION DES INGRÉDIENTS ---
-    st.subheader("🛒 Qu'y a-t-il dans ton frigo ?")
-    
+    # --- SÉLECTION DES INGRÉDIENTS ---   
     # On récupère la liste complète de tes ingrédients existants
     liste_ing, _ = recuperer_donnees_index()
     
