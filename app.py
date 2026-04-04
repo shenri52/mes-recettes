@@ -75,9 +75,9 @@ def verifier_mot_de_passe():
             cols = st.columns(3)
             
             # On utilise des variables pour capturer le clic immédiatement
-            btn_entree = cols[0].button("🥗 Entrées", use_container_width=True)
-            btn_plat = cols[1].button("🥘 Plats", use_container_width=True)
-            btn_dessert = cols[2].button("🍰 Desserts", use_container_width=True)
+            btn_entree = cols[0].button("🥗 Entrée", use_container_width=True)
+            btn_plat = cols[1].button("🥘 Plat", use_container_width=True)
+            btn_dessert = cols[2].button("🍰 Dessert", use_container_width=True)
 
             # Mise à jour de l'état selon le bouton cliqué
             if btn_entree: st.session_state.choix_cat_aleatoire = "Entrée"
