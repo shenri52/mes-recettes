@@ -24,32 +24,34 @@ def afficher():
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
 
-    # Modification : "--- Choisir ---" pour bloquer l'affichage par défaut
+    # On garde tes intitulés exacts
     f_cat = c2.selectbox("Catégorie", ["--- Choisir ---"] + cats_existantes)
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
 
-    # Logique : Si rien n'est choisi, la liste de résultats est vide
+    # Logique de filtrage stricte
     if f_cat == "--- Choisir ---":
         resultats = []
         message_aide = "Sélectionner une catégorie"
     else:
+        # On filtre par catégorie (obligatoire) + Appareil/Ingrédient (optionnels)
         resultats = [
             r for r in index 
-            if (r['categorie'] == f_cat)
-            and (f_app == "Tous" or r['appareil'] == f_app)
+            if r.get('categorie') == f_cat
+            and (f_app == "Tous" or r.get('appareil') == f_app)
             and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
         ]
         message_aide = "Sélectionner une recette"
 
+    # Préparation de la liste déroulante
     noms_filtres = [r['nom'].upper() for r in resultats]
     options = ["---"] + noms_filtres
     
+    # Gestion de la sélection pour éviter les erreurs d'index
     valeur_actuelle = st.session_state.get("select_recette", "---")
-    try:
+    idx_depart = 0
+    if valeur_actuelle in options:
         idx_depart = options.index(valeur_actuelle)
-    except ValueError:
-        idx_depart = 0
         
     choix = st.selectbox(
         message_aide, 
@@ -61,7 +63,7 @@ def afficher():
 
     st.session_state["select_recette"] = choix
     
-    if choix != "---":
+    if choix != "---": and choix in noms_filtres:
         info = resultats[noms_filtres.index(choix)]
         conf = config_github()
         url_api = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{info['chemin']}?t={int(time.time())}"
