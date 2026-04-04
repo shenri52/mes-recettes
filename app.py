@@ -1,6 +1,6 @@
 import streamlit as st
 import random
-import ajouter, recettes, maintenance, planning
+import ajouter, recettes, maintenance, planning, restes
 from utils import charger_index, obtenir_taille_depot, ouvrir_fiche
 
 # --- CONFIGURATION DES MENUS ---
@@ -47,10 +47,19 @@ def verifier_mot_de_passe():
     
         # --- BOUTON D'ACCÈS PUBLIC ---
         st.markdown("<h3 style='text-align: center;'>👁️ Accès public</h3>", unsafe_allow_html=True)
-        if st.button("📖 Consulter les recettes", use_container_width=True):
-            st.session_state["mode_public"] = True
-            st.session_state.page = "📚 Mes recettes" # Le nom exact de la clé du menu
-            st.rerun()
+        
+        col_recettes, col_restes = st.columns(2)
+        with col_recettes:
+            if st.button("📖 Consulter les recettes", use_container_width=True):
+                st.session_state["mode_public"] = True
+                st.session_state.page = "📚 Mes recettes" # Le nom exact de la clé du menu
+                st.rerun()
+                
+        with col_restes:
+            if st.button("💡 Que faire avec mes restes ?", use_container_width=True):
+                st.session_state["mode_public"] = True
+                st.session_state.page = "💡 Que faire avec mes restes ?" # Redirige vers le nouveau module
+                st.rerun()
         
         st.markdown("<h3 style='text-align: center;'>🎲 Recette aléatoire</h3>", unsafe_allow_html=True)
         
@@ -104,6 +113,8 @@ def aller_accueil():
     st.session_state["select_recette"] = "---"
     if "choix_recette_gui" in st.session_state:
         del st.session_state["choix_recette_gui"]
+    if "mes_restes" in st.session_state:
+        del st.session_state["mes_restes"]
 
 # --- EXÉCUTION DE L'APPLICATION ---
 if verifier_mot_de_passe():
