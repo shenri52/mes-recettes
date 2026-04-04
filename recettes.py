@@ -14,6 +14,7 @@ def afficher():
                 
     index = charger_index()
 
+    # --- FILTRAGE DYNAMIQUE ---
     c2, c3, c4 = st.columns([1, 1, 1])
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
     apps = ["Tous"] + sorted(list(set(r.get('appareil', 'Aucun') for r in index)))
@@ -23,32 +24,35 @@ def afficher():
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
 
-    f_cat = c2.selectbox("Catégorie", ["Tous"] + cats_existantes)
+    # Modification : "--- Choisir ---" pour bloquer l'affichage par défaut
+    f_cat = c2.selectbox("Catégorie", ["--- Choisir ---"] + cats_existantes)
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
 
-    resultats = [
-        r for r in index 
-        if (f_cat == "Tous" or r['categorie'] == f_cat)
-        and (f_app == "Tous" or r['appareil'] == f_app)
-        and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
-    ]
+    # Logique : Si rien n'est choisi, la liste de résultats est vide
+    if f_cat == "--- Choisir ---":
+        resultats = []
+        message_aide = "Sélectionner une catégorie"
+    else:
+        resultats = [
+            r for r in index 
+            if (r['categorie'] == f_cat)
+            and (f_app == "Tous" or r['appareil'] == f_app)
+            and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
+        ]
+        message_aide = "Sélectionner une recette"
 
     noms_filtres = [r['nom'].upper() for r in resultats]
     options = ["---"] + noms_filtres
     
-    # On récupère la valeur stockée (qui peut venir de l'URL via app.py)
     valeur_actuelle = st.session_state.get("select_recette", "---")
     try:
         idx_depart = options.index(valeur_actuelle)
     except ValueError:
         idx_depart = 0
         
-    if valeur_actuelle not in options:
-        valeur_actuelle = "---"
-    
     choix = st.selectbox(
-        "Sélectionner une recette", 
+        message_aide, 
         options,
         index=idx_depart,
         key="choix_recette_gui",
