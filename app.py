@@ -67,28 +67,49 @@ def verifier_mot_de_passe():
         index = charger_index()
         
         if index:
-            # 1. On affiche d'abord le choix de la catégorie (toujours visible)
-            categories_dispo = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
+            # Nettoyage et récupération des catégories
+            toutes_categories = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
             
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                cat_choisie = st.selectbox("Dans quelle catégorie ?", categories_dispo, label_visibility="collapsed")
-            
-            with col2:
-                # 2. Le bouton utilise la catégorie sélectionnée au-dessus
-                if st.button("Tirer au sort", use_container_width=True):
-                    pool_recettes = [r for r in index if r.get('categorie') == cat_choisie]
-                    
-                    if pool_recettes:
-                        choix = random.choice(pool_recettes)
-                        st.session_state.alerte_recette = choix['nom']
-                    else:
-                        st.error("Catégorie vide ! 🫙")
+            # Définition des 3 catégories stars
+            stars_cibles = {"Entrées": "🥗 Entrées", "Plats": "🥘 Plats", "Desserts": "🍰 Desserts"}
+            stars_presentes = [c for c in toutes_categories if c in stars_cibles.keys()]
+            autres_categories = [c for c in toutes_categories if c not in stars_cibles.keys()]
 
-        # 3. L'affichage de la fiche (hors du bouton pour que le dialogue s'ouvre bien)
+            # Création de la grille : 3 colonnes pour les stars + 1 pour le reste
+            cols = st.columns(4)
+            choix_final = None
+
+            # Boutons pour les catégories Stars
+            # Note : On affiche "Entrées" mais on cherche la clé exacte dans ton index
+            if cols[0].button("🥗 Entrées", use_container_width=True):
+                choix_final = "Entrées"
+            if cols[1].button("🥘 Plats", use_container_width=True):
+                choix_final = "Plats"
+            if cols[2].button("🍰 Desserts", use_container_width=True):
+                choix_final = "Desserts"
+
+            # Le bouton "Autres" sous forme de popover pour ne pas encombrer
+            with cols[3]:
+                with st.popover("➕ Autres"):
+                    choix_popover = st.selectbox("Toutes les catégories", ["---"] + autres_categories, label_visibility="collapsed")
+                    if choix_popover != "---":
+                        choix_final = choix_popover
+
+            # Bouton d'action si une catégorie est sélectionnée
+            if choix_final:
+                st.write("") # Petit espace
+                if st.button(f"✨ Tirer un(e) {choix_final} au sort", type="primary", use_container_width=True):
+                    pool = [r for r in index if r.get('categorie') == choix_final]
+                    if pool:
+                        choix = random.choice(pool)
+                        st.session_state.alerte_recette = choix['nom']
+                        st.rerun()
+                    else:
+                        st.error(f"Aucune recette dans la catégorie {choix_final} ! 🫙")
+
+        # L'affichage de la fiche (toujours hors du bouton pour le dialogue)
         if "alerte_recette" in st.session_state:
             nom = st.session_state.alerte_recette
-            # On nettoie avant d'ouvrir pour éviter les boucles
             del st.session_state.alerte_recette
             ouvrir_fiche(nom)
             
@@ -102,7 +123,7 @@ def verifier_mot_de_passe():
             if taille_ko > 0:
                 taille_mo = taille_ko / 1024
 
-            st.info(f"""📊 **Mon livre de recettes** : \n\nNombre de recettes : {nb_recettes} - Poids total : {taille_mo:.2f} Mo""")
+            st.info(f"""📊 **Mon livre de recettes** : {nb_recettes} recttes - {taille_mo:.2f} Mo""")
                 
         return False
     return True
