@@ -155,6 +155,9 @@ if verifier_mot_de_passe():
         
         # Génération automatique des boutons depuis le dictionnaire MENUS
         for nom_bouton, config in MENUS.items():
+            if nom_bouton == "💡 Que faire avec mes restes ?" and st.session_state["authentifie"]:
+                continue
+                
             # On affiche le bouton seulement s'il est public ou si l'utilisateur est connecté
             if config["public"] or st.session_state["authentifie"]:
                 if st.button(nom_bouton, use_container_width=True):
