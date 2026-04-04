@@ -14,7 +14,7 @@ def afficher():
                 
     index = charger_index()
 
-    # --- FILTRAGE DYNAMIQUE ---
+# --- FILTRAGE DYNAMIQUE ---
     c2, c3, c4 = st.columns([1, 1, 1])
     
     cats_existantes = sorted(list(set(r.get('categorie', 'Non classé') for r in index)))
@@ -25,46 +25,44 @@ def afficher():
         if r.get('ingredients'): tous_ings_bruts.extend(r['ingredients'])
     liste_ingredients_unique = sorted(list(set(tous_ings_bruts)))
 
-    f_cat = c2.selectbox("Catégorie", ["--- Choisir ---"] + cats_existantes)
+    # On remet "Tous" par défaut pour ne pas bloquer l'affichage
+    f_cat = c2.selectbox("Catégorie", ["Tous"] + cats_existantes)
     f_app = c3.selectbox("Appareil", apps)
     f_ing = c4.selectbox("Ingrédient", ["Tous"] + liste_ingredients_unique)
 
-    # Logique de filtrage
-    if f_cat == "--- Choisir ---":
-        resultats = []
-        st.info("🔍 Sélectionnez une catégorie pour afficher les recettes.")
-    else:
-        resultats = [
-            r for r in index 
-            if r.get('categorie') == f_cat
-            and (f_app == "Tous" or r.get('appareil') == f_app)
-            and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
-        ]
+    # Logique de filtrage : on part de TOUT l'index
+    resultats = [
+        r for r in index 
+        if (f_cat == "Tous" or r.get('categorie') == f_cat)
+        and (f_app == "Tous" or r.get('appareil') == f_app)
+        and (f_ing == "Tous" or f_ing in r.get('ingredients', []))
+    ]
 
-        # --- AFFICHAGE DE LA LISTE DE RÉSULTATS (Comme dans Restes) ---
-        if resultats:
-            st.write(f"### 📋 {len(resultats)} recette(s) trouvée(s)")
-            # On crée une liste de boutons pour chaque recette trouvée
-            for r in resultats:
-                if st.button(f"📖 {r['nom'].upper()}", key=f"list_{r['chemin']}", use_container_width=True):
-                    st.session_state["select_recette"] = r['nom'].upper()
-                    st.rerun()
-        else:
-            st.warning("❌ Aucune recette ne correspond à ces critères.")
+    # --- AFFICHAGE DE LA LISTE DE BOUTONS (Comme dans Restes) ---
+    if resultats:
+        st.write(f"### 📋 {len(resultats)} recette(s)")
+        # On affiche les boutons. Si on clique, on définit select_recette
+        for r in resultats:
+            nom_bouton = r['nom'].upper()
+            if st.button(f"📖 {nom_bouton}", key=f"btn_{r['chemin']}", use_container_width=True):
+                st.session_state["select_recette"] = nom_bouton
+                st.rerun()
+    else:
+        st.warning("❌ Aucune recette ne correspond.")
 
     st.divider()
 
-    # --- LISTE DÉROULANTE (Pour accès direct si besoin) ---
+    # --- LISTE DÉROULANTE (Conservée comme demandé) ---
     noms_filtres = [r['nom'].upper() for r in resultats]
     options = ["---"] + noms_filtres
-    valeur_actuelle = st.session_state.get("select_recette", "---")
     
+    valeur_actuelle = st.session_state.get("select_recette", "---")
     idx_depart = 0
     if valeur_actuelle in options:
         idx_depart = options.index(valeur_actuelle)
         
     choix = st.selectbox(
-        "Ou choisir directement ici :", 
+        "Ou choisir ici :", 
         options,
         index=idx_depart,
         key="choix_recette_gui",
