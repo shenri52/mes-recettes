@@ -72,17 +72,23 @@ def verifier_mot_de_passe():
                 st.session_state.choix_cat_aleatoire = None
 
             # 2. Les 3 boutons en pleine largeur
-            cols = st.columns(3)
+            cols = st.columns(5)
             
             # On utilise des variables pour capturer le clic immédiatement
             btn_entree = cols[0].button("🥗 Entrée", use_container_width=True)
             btn_plat = cols[1].button("🥘 Plat", use_container_width=True)
             btn_dessert = cols[2].button("🍰 Dessert", use_container_width=True)
+            btn_entree = cols[3].button("🍹 Cocktail", use_container_width=True)
+            btn_plat = cols[4].button("🍩 Goûter", use_container_width=True)
+            btn_dessert = cols[5].button("🥣 Soupe", use_container_width=True)
 
             # Mise à jour de l'état selon le bouton cliqué
             if btn_entree: st.session_state.choix_cat_aleatoire = "Entrée"
             if btn_plat:   st.session_state.choix_cat_aleatoire = "Plat"
             if btn_dessert: st.session_state.choix_cat_aleatoire = "Dessert"
+            if btn_entree: st.session_state.choix_cat_aleatoire = "Cocktail"
+            if btn_plat:   st.session_state.choix_cat_aleatoire = "Goûter"
+            if btn_dessert: st.session_state.choix_cat_aleatoire = "Soupe"
 
             # 3. Affichage du bouton de tirage SI une catégorie est sélectionnée
             cat = st.session_state.choix_cat_aleatoire
