@@ -169,7 +169,8 @@
     },
     "2026-04-11": {
         "midi": [
-            "Marmite Espagnole "
+            "Marmite Espagnole ",
+            "Gratin de champignons au jambon et fromage"
         ],
         "soir": []
     },
@@ -181,18 +182,26 @@
     },
     "2026-04-13": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Blanquette de cabillaud au lait de coco"
+        ]
     },
     "2026-04-14": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Soupe"
+        ]
     },
     "2026-04-15": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Légumes rôtis, poulet et crème d'avocat au skyr"
+        ]
     },
     "2026-04-16": {
         "midi": [],
-        "soir": []
+        "soir": [
+            "Soupe"
+        ]
     }
 }
