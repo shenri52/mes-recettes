@@ -200,11 +200,9 @@ def ouvrir_fiche(nom_plat):
                         c1, c2, c3 = st.columns([1, 2, 1])
                         if c1.button("⬅️", key="btn_prev_img"):
                             st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
-                            st.rerun()
                         c2.markdown(f"<p style='text-align:center;'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
                         if c3.button("➡️", key="btn_next_img"):
                             st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
-                            st.rerun()
                 else:
                     st.info("Aucune photo disponible.")
         else:
