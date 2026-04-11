@@ -80,17 +80,17 @@ def verifier_mot_de_passe():
             btn_dessert = c3.button("🍰 Dessert", use_container_width=True)
 
             c4, c5, c6 = st.columns(3)
-            btn_entree = c4.button("🍹 Cocktail", use_container_width=True)
-            btn_plat = c5.button("🍩 Goûter", use_container_width=True)
-            btn_dessert = c6.button("🥣 Soupe", use_container_width=True)
+            btn_cocktail = c4.button("🍹 Cocktail", use_container_width=True)
+            btn_gouter = c5.button("🍩 Goûter", use_container_width=True)
+            btn_soupe = c6.button("🥣 Soupe", use_container_width=True)
 
             # Mise à jour de l'état selon le bouton cliqué
             if btn_entree: st.session_state.choix_cat_aleatoire = "Entrée"
             if btn_plat:   st.session_state.choix_cat_aleatoire = "Plat"
             if btn_dessert: st.session_state.choix_cat_aleatoire = "Dessert"
-            if btn_entree: st.session_state.choix_cat_aleatoire = "Cocktail"
-            if btn_plat:   st.session_state.choix_cat_aleatoire = "Goûter"
-            if btn_dessert: st.session_state.choix_cat_aleatoire = "Soupe"
+            if btn_cocktail: st.session_state.choix_cat_aleatoire = "Cocktail"
+            if btn_gouter:   st.session_state.choix_cat_aleatoire = "Goûter"
+            if btn_soupe: st.session_state.choix_cat_aleatoire = "Soupe"
 
             # 3. Affichage du bouton de tirage SI une catégorie est sélectionnée
             cat = st.session_state.choix_cat_aleatoire
