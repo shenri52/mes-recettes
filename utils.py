@@ -193,17 +193,32 @@ def ouvrir_fiche(nom_plat):
             with tab2:
                 images = recette.get('images', [])
                 if images:
-                    if "img_idx" not in st.session_state: st.session_state.img_idx = 0
+                    if "img_idx" not in st.session_state: 
+                        st.session_state.img_idx = 0
+                        
+                    # 1. On crée de petites fonctions qui s'exécuteront AVANT l'affichage
+                    def img_precedente():
+                        st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                        
+                    def img_suivante():
+                        st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+
+                    # 2. On affiche l'image (elle aura toujours le bon index !)
                     img_url = f"https://raw.githubusercontent.com/{config_github()['owner']}/{config_github()['repo']}/main/{images[st.session_state.img_idx].strip('/')}"
                     st.image(img_url, use_container_width=True)
+                    
+                    # 3. On affiche les boutons en utilisant "on_click"
                     if len(images) > 1:
                         c1, c2, c3 = st.columns([1, 2, 1])
-                        if c1.button("⬅️", key="btn_prev_img"):
-                            st.session_state.img_idx = (st.session_state.img_idx - 1) % len(images)
+                        
+                        # On appelle img_precedente dès qu'on clique
+                        c1.button("⬅️", key="btn_prev_img", on_click=img_precedente)
+                        
                         c2.markdown(f"<p style='text-align:center;'>{st.session_state.img_idx + 1} / {len(images)}</p>", unsafe_allow_html=True)
-                        if c3.button("➡️", key="btn_next_img"):
-                            st.session_state.img_idx = (st.session_state.img_idx + 1) % len(images)
+                        
+                        # On appelle img_suivante dès qu'on clique
+                        c3.button("➡️", key="btn_next_img", on_click=img_suivante)
                 else:
-                    st.info("Aucune photo disponible.")
+                    st.info("📷 Pas de photo disponible.")
         else:
             st.error("Erreur de chargement.")
