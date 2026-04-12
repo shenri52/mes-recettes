@@ -1,0 +1,41 @@
+{
+    "nom": "Tartinade protéinée thon",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Thon",
+            "Quantité": "2 boites"
+        },
+        {
+            "Ingrédient": "Oeufs durs",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Yaourt skyr",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Moutarde en grain",
+            "Quantité": "1 cas"
+        },
+        {
+            "Ingrédient": "Echalottes",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Paprrika fumé",
+            "Quantité": "1 cas"
+        },
+        {
+            "Ingrédient": "Basilic",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_143310_tartinade_protéinée_thon_0.jpg"
+    ]
+}
