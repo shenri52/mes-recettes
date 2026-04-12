@@ -1,0 +1,34 @@
+{
+    "nom": "Pain aux lentilles corail",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "35 mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Lentilles corail",
+            "Quantité": "90g"
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "50g"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": "1cas"
+        },
+        {
+            "Ingrédient": "Levure chimique",
+            "Quantité": "2g"
+        },
+        {
+            "Ingrédient": "Graines",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_144204_pain_aux_lentilles_corail_0.jpg",
+        "data/images/20260412_144204_pain_aux_lentilles_corail_1.jpg"
+    ]
+}
