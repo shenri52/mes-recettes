@@ -1,0 +1,25 @@
+{
+    "nom": "Burger aux carottes",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "10min",
+    "temps_cuisson": "25min",
+    "ingredients": [
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "1 (râpée)"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Mozzarella râpée",
+            "Quantité": "40g"
+        }
+    ],
+    "etapes": "1. Mélanger la carotte râpée, l'œuf et la mozzarella.\n2. Etaler en 2 disques\n3. Faire cuire 25 minutes dans le four préchauffé à 180 °C.\n\nSauce : \n60g de fromage blanc\n2 cac de jus de cornichon\n1 cac de moutarde\nSel, poivre, ail, paprika\n\nPour l'assemblage : Steak, cornichons, oignon rouge, salade, etc...",
+    "images": [
+        "data/images/20260412_155218_burger_aux_carottes_0.jpg"
+    ]
+}
