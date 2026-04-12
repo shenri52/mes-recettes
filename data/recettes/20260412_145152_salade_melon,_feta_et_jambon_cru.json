@@ -1,0 +1,26 @@
+{
+    "nom": "Salade melon, feta et jambon cru",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "10min",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Melon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Feta",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Jambon cru",
+            "Quantité": "4 Tr"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_145152_salade_melon,_feta_et_jambon_cru_0.jpg",
+        "data/images/20260412_145152_salade_melon,_feta_et_jambon_cru_1.jpg"
+    ]
+}
