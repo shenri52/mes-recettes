@@ -93,6 +93,17 @@
         "chemin": "data/recettes/20260308_105455_brandle.json"
     },
     {
+        "nom": "Burger aux carottes",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Carottes",
+            "Oeuf",
+            "Mozzarella râpée"
+        ],
+        "chemin": "data/recettes/20260412_155218_burger_aux_carottes.json"
+    },
+    {
         "nom": "Bâtonnets à la citrouille et à l'avoine",
         "categorie": "Tina",
         "appareil": "Aucun",
