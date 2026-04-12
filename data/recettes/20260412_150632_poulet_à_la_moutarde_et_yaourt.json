@@ -1,0 +1,39 @@
+{
+    "nom": "Poulet à la moutarde et yaourt",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "15min",
+    "temps_cuisson": "25min",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Moutarde",
+            "Quantité": "2 cas"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": "1cas"
+        },
+        {
+            "Ingrédient": "Paprika",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_150632_poulet_à_la_moutarde_et_yaourt_0.jpg",
+        "data/images/20260412_150632_poulet_à_la_moutarde_et_yaourt_1.jpg",
+        "data/images/20260412_150632_poulet_à_la_moutarde_et_yaourt_2.jpg"
+    ]
+}
