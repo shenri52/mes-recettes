@@ -924,6 +924,21 @@
         "chemin": "data/recettes/20260327_122304_tartare_à_guyguy.json"
     },
     {
+        "nom": "Tartinade protéinée thon",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Thon",
+            "Oeufs durs",
+            "Yaourt skyr",
+            "Moutarde en grain",
+            "Echalottes",
+            "Paprrika fumé",
+            "Basilic"
+        ],
+        "chemin": "data/recettes/20260412_143310_tartinade_protéinée_thon.json"
+    },
+    {
         "nom": "Tartines à l'avocat, Feta, Tomates cerises, Cranberries et Noix",
         "categorie": "Tartines de pain",
         "appareil": "Aucun",
