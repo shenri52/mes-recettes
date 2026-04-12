@@ -1,0 +1,34 @@
+{
+    "nom": "Pain d'avoine et chia à la poêle",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "1 tasse"
+        },
+        {
+            "Ingrédient": "Graines de chia",
+            "Quantité": "1 cas"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Eau",
+            "Quantité": "1/2 tasse"
+        },
+        {
+            "Ingrédient": "Levure chimique",
+            "Quantité": "1 cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_153917_pain_d'avoine_et_chia_à_la_poêle_0.jpg",
+        "data/images/20260412_153917_pain_d'avoine_et_chia_à_la_poêle_1.jpg"
+    ]
+}
