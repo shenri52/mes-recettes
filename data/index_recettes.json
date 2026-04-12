@@ -435,6 +435,19 @@
         "chemin": "data/recettes/20260327_123353_os_à_mâcher_fraicheur_persil_menthe.json"
     },
     {
+        "nom": "Pain aux lentilles corail",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Lentilles corail",
+            "Yaourt à la grec",
+            "Huile olive",
+            "Levure chimique",
+            "Graines"
+        ],
+        "chemin": "data/recettes/20260412_144204_pain_aux_lentilles_corail.json"
+    },
+    {
         "nom": "Pain Avoine et graines de chia",
         "categorie": "Divers",
         "appareil": "Aucun",
