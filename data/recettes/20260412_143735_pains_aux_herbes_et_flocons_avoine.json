@@ -1,0 +1,34 @@
+{
+    "nom": "Pains aux herbes et flocons avoine",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "40min",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "250g"
+        },
+        {
+            "Ingrédient": "Eau",
+            "Quantité": "125ml"
+        },
+        {
+            "Ingrédient": "Levure chimique",
+            "Quantité": "1 sachet"
+        },
+        {
+            "Ingrédient": "Yaourt à la grec",
+            "Quantité": "250g"
+        },
+        {
+            "Ingrédient": "Fromage râpé",
+            "Quantité": "1 bol"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_143735_pains_aux_herbes_et_flocons_avoine_0.jpg",
+        "data/images/20260412_143735_pains_aux_herbes_et_flocons_avoine_1.jpg"
+    ]
+}
