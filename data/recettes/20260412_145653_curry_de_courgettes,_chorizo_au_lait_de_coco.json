@@ -1,0 +1,38 @@
+{
+    "nom": "Curry de courgettes, chorizo au lait de coco",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Courgette",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Chorizo",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": "20cl"
+        },
+        {
+            "Ingrédient": "Pâte de curry",
+            "Quantité": "1cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_0.jpg",
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_1.jpg",
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_2.jpg",
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_3.jpg",
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_4.jpg",
+        "data/images/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco_5.jpg"
+    ]
+}
