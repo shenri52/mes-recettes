@@ -511,6 +511,19 @@
         "chemin": "data/recettes/20260321_083917_pain_avoine_et_graines_de_chia.json"
     },
     {
+        "nom": "Pain d'avoine et chia à la poêle",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Graines de chia",
+            "Oeuf",
+            "Eau",
+            "Levure chimique"
+        ],
+        "chemin": "data/recettes/20260412_153917_pain_d'avoine_et_chia_à_la_poêle.json"
+    },
+    {
         "nom": "Pains aux herbes et flocons avoine",
         "categorie": "Divers",
         "appareil": "Aucun",
