@@ -776,6 +776,18 @@
         "chemin": "data/recettes/20260307_160909_salade_fraicheur_jambon_concombre.json"
     },
     {
+        "nom": "Salade fraises, avocat, feta et noix",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Fraises",
+            "Avocat",
+            "Feta",
+            "Noix"
+        ],
+        "chemin": "data/recettes/20260412_144858_salade_fraises,_avocat,_feta_et_noix.json"
+    },
+    {
         "nom": "Salade Lentilles, carottes rapées, raisins secs, noisettes",
         "categorie": "Salade",
         "appareil": "Aucun",
