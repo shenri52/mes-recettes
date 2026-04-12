@@ -1,0 +1,30 @@
+{
+    "nom": "Asperges blanches grillées et vinaigrette pistache citron",
+    "categorie": "Entrée",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Asperges blanches",
+            "Quantité": "500g"
+        },
+        {
+            "Ingrédient": "Pistaches",
+            "Quantité": "3cas"
+        },
+        {
+            "Ingrédient": "Citron",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": "3 cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_150950_asperges_blanches_grillées_et_vinaigrette_pistache_citron_0.jpg",
+        "data/images/20260412_150950_asperges_blanches_grillées_et_vinaigrette_pistache_citron_1.jpg"
+    ]
+}
