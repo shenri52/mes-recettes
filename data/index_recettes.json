@@ -447,6 +447,19 @@
         "chemin": "data/recettes/20260321_083917_pain_avoine_et_graines_de_chia.json"
     },
     {
+        "nom": "Pains aux herbes et flocons avoine",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Eau",
+            "Levure chimique",
+            "Yaourt à la grec",
+            "Fromage râpé"
+        ],
+        "chemin": "data/recettes/20260412_143735_pains_aux_herbes_et_flocons_avoine.json"
+    },
+    {
         "nom": "Paradisio",
         "categorie": "Cocktail",
         "appareil": "Aucun",
