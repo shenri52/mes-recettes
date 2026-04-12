@@ -802,6 +802,17 @@
         "chemin": "data/recettes/20260307_163201_salade_lentilles,_carottes_rapées,_raisins_secs,_noisettes.json"
     },
     {
+        "nom": "Salade melon, feta et jambon cru",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Melon",
+            "Feta",
+            "Jambon cru"
+        ],
+        "chemin": "data/recettes/20260412_145152_salade_melon,_feta_et_jambon_cru.json"
+    },
+    {
         "nom": "Salade méditerranéenne Moyen-Orient",
         "categorie": "Salade",
         "appareil": "Aucun",
