@@ -1,0 +1,43 @@
+{
+    "nom": "Ragoût réconfortant du pauvre",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "2 gousses"
+        },
+        {
+            "Ingrédient": "Pommes de terre",
+            "Quantité": "500g"
+        },
+        {
+            "Ingrédient": "Haricots blancs",
+            "Quantité": "200g (en boite)"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_152737_ragoût_réconfortant_du_pauvre_0.jpg",
+        "data/images/20260412_152737_ragoût_réconfortant_du_pauvre_1.jpg",
+        "data/images/20260412_152737_ragoût_réconfortant_du_pauvre_2.jpg"
+    ]
+}
