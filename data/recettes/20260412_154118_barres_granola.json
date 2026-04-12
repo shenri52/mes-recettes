@@ -1,0 +1,33 @@
+{
+    "nom": "Barres granola",
+    "categorie": "Goûter",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": "90g"
+        },
+        {
+            "Ingrédient": "Sirop d'érable",
+            "Quantité": "40g"
+        },
+        {
+            "Ingrédient": "Beurre de cacahuètes",
+            "Quantité": "50g"
+        },
+        {
+            "Ingrédient": "Chocolat au lait",
+            "Quantité": "50g"
+        },
+        {
+            "Ingrédient": "Cacahuètes",
+            "Quantité": "15g"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_154118_barres_granola_0.jpg"
+    ]
+}
