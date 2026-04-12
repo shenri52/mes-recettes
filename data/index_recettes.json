@@ -12,6 +12,19 @@
         "chemin": "data/recettes/20260412_150950_asperges_blanches_grillées_et_vinaigrette_pistache_citron.json"
     },
     {
+        "nom": "Barres granola",
+        "categorie": "Goûter",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Flocon d'avoine",
+            "Sirop d'érable",
+            "Beurre de cacahuètes",
+            "Chocolat au lait",
+            "Cacahuètes"
+        ],
+        "chemin": "data/recettes/20260412_154118_barres_granola.json"
+    },
+    {
         "nom": "Blanquette de cabillaud au lait de coco",
         "categorie": "Plat",
         "appareil": "Aucun",
