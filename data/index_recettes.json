@@ -121,6 +121,19 @@
         "chemin": "data/recettes/20260327_124816_crunchy_boeuf.json"
     },
     {
+        "nom": "Curry de courgettes, chorizo au lait de coco",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Courgette",
+            "Chorizo",
+            "Oignon",
+            "Lait de coco",
+            "Pâte de curry"
+        ],
+        "chemin": "data/recettes/20260412_145653_curry_de_courgettes,_chorizo_au_lait_de_coco.json"
+    },
+    {
         "nom": "Diamant bleu",
         "categorie": "Cocktail",
         "appareil": "Aucun",
