@@ -1,0 +1,38 @@
+{
+    "nom": "Polenta crémeuse au comté, asperges et œufs mollets",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "10mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Asperges vertes",
+            "Quantité": "12"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "3"
+        },
+        {
+            "Ingrédient": "Polenta",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Comté",
+            "Quantité": "60g"
+        },
+        {
+            "Ingrédient": "Bouillon de légumes",
+            "Quantité": "60cl"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_154459_polenta_crémeuse_au_comté,_asperges_et_œufs_mollets_0.jpg",
+        "data/images/20260412_154459_polenta_crémeuse_au_comté,_asperges_et_œufs_mollets_1.jpg"
+    ]
+}
