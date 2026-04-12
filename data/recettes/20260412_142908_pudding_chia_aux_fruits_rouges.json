@@ -1,0 +1,38 @@
+{
+    "nom": "Pudding Chia aux fruits rouges",
+    "categorie": "Divers",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Yaourt skyr",
+            "Quantité": "3 cas"
+        },
+        {
+            "Ingrédient": "Graines de chia",
+            "Quantité": "3 cas"
+        },
+        {
+            "Ingrédient": "Lait végétal",
+            "Quantité": "10 cl"
+        },
+        {
+            "Ingrédient": "Sirop d'agave",
+            "Quantité": "1 cac"
+        },
+        {
+            "Ingrédient": "Jus de citron",
+            "Quantité": "1/2"
+        },
+        {
+            "Ingrédient": "Fruits rouges",
+            "Quantité": "3 cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_142908_pudding_chia_aux_fruits_rouges_0.jpg",
+        "data/images/20260412_142908_pudding_chia_aux_fruits_rouges_1.jpg"
+    ]
+}
