@@ -1,0 +1,30 @@
+{
+    "nom": "Salade fraises, avocat, feta et noix",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "15mn",
+    "temps_cuisson": "",
+    "ingredients": [
+        {
+            "Ingrédient": "Fraises",
+            "Quantité": "250g"
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Feta",
+            "Quantité": "100g"
+        },
+        {
+            "Ingrédient": "Noix",
+            "Quantité": "2 cas"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_144858_salade_fraises,_avocat,_feta_et_noix_0.jpg",
+        "data/images/20260412_144858_salade_fraises,_avocat,_feta_et_noix_1.jpg"
+    ]
+}
