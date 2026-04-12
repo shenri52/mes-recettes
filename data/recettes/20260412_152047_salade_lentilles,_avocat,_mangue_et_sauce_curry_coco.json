@@ -1,0 +1,46 @@
+{
+    "nom": "Salade lentilles, avocat, mangue et sauce curry coco",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "25mn",
+    "temps_cuisson": "20min",
+    "ingredients": [
+        {
+            "Ingrédient": "Lentilles vertes",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Avocat",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Mangue",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Echalottes",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": "10cl"
+        },
+        {
+            "Ingrédient": "Curry",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Miel",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Noix de cajou",
+            "Quantité": "1 poignée"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_152047_salade_lentilles,_avocat,_mangue_et_sauce_curry_coco_0.jpg",
+        "data/images/20260412_152047_salade_lentilles,_avocat,_mangue_et_sauce_curry_coco_1.jpg"
+    ]
+}
