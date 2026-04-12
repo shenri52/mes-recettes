@@ -665,6 +665,20 @@
         "chemin": "data/recettes/20260327_122646_pois_chiches_mijotés_aux_courgettes,_sauce_lait_de_coco_et_curry.json"
     },
     {
+        "nom": "Polenta crémeuse au comté, asperges et œufs mollets",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Asperges vertes",
+            "Huile olive",
+            "Oeuf",
+            "Polenta",
+            "Comté",
+            "Bouillon de légumes"
+        ],
+        "chemin": "data/recettes/20260412_154459_polenta_crémeuse_au_comté,_asperges_et_œufs_mollets.json"
+    },
+    {
         "nom": "Polenta crémeuse et poelée de champignons",
         "categorie": "Plat",
         "appareil": "Aucun",
