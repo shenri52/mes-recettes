@@ -550,6 +550,19 @@
         "chemin": "data/recettes/20260327_125323_patte_zen.json"
     },
     {
+        "nom": "Perles de quinoa, billes craquantes et nuage de feta",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Quinoa",
+            "Petit pois",
+            "Feta",
+            "Graines",
+            "Menthe fraiche"
+        ],
+        "chemin": "data/recettes/20260412_151331_perles_de_quinoa,_billes_craquantes_et_nuage_de_feta.json"
+    },
+    {
         "nom": "Pink Coconut Mojito",
         "categorie": "Cocktail",
         "appareil": "Aucun",
