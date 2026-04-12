@@ -1,0 +1,34 @@
+{
+    "nom": "Goûter aux graines",
+    "categorie": "Goûter",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "25 min",
+    "ingredients": [
+        {
+            "Ingrédient": "Graines",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Flocon d'avoine",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Huile de coco",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Sirop d'érable",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_150226_goûter_aux_graines_0.jpg",
+        "data/images/20260412_150226_goûter_aux_graines_1.jpg"
+    ]
+}
