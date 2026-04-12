@@ -660,6 +660,20 @@
         "chemin": "data/recettes/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes_.json"
     },
     {
+        "nom": "Poulet à la moutarde et yaourt",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Filet de poulet",
+            "Yaourt à la grec",
+            "Moutarde",
+            "Oignon",
+            "Huile olive",
+            "Paprika"
+        ],
+        "chemin": "data/recettes/20260412_150632_poulet_à_la_moutarde_et_yaourt.json"
+    },
+    {
         "nom": "Pudding Chia aux fruits rouges",
         "categorie": "Divers",
         "appareil": "Aucun",
