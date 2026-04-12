@@ -1,0 +1,26 @@
+{
+    "nom": "Wraps de maïs",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "",
+    "temps_cuisson": "25min",
+    "ingredients": [
+        {
+            "Ingrédient": "Maïs en boite",
+            "Quantité": "400g"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Mozzarella râpée",
+            "Quantité": "2 poignées"
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_145920_wraps_de_maïs_0.jpg",
+        "data/images/20260412_145920_wraps_de_maïs_1.jpg"
+    ]
+}
