@@ -1052,5 +1052,16 @@
             "Carottes"
         ],
         "chemin": "data/recettes/20260412_144607_wrap_de_printemps.json"
+    },
+    {
+        "nom": "Wraps de maïs",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Maïs en boite",
+            "Oeuf",
+            "Mozzarella râpée"
+        ],
+        "chemin": "data/recettes/20260412_145920_wraps_de_maïs.json"
     }
 ]
