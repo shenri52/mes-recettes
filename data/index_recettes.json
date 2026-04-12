@@ -1,5 +1,17 @@
 [
     {
+        "nom": "Asperges blanches grillées et vinaigrette pistache citron",
+        "categorie": "Entrée",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Asperges blanches",
+            "Pistaches",
+            "Citron",
+            "Huile olive"
+        ],
+        "chemin": "data/recettes/20260412_150950_asperges_blanches_grillées_et_vinaigrette_pistache_citron.json"
+    },
+    {
         "nom": "Blanquette de cabillaud au lait de coco",
         "categorie": "Plat",
         "appareil": "Aucun",
