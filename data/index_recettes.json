@@ -1004,5 +1004,17 @@
             "Moutarde"
         ],
         "chemin": "data/recettes/20260327_121831_vinaigrette_au_miel.json"
+    },
+    {
+        "nom": "Wrap de printemps",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Tortillas",
+            "Filet de poulet",
+            "Paprika fumé",
+            "Carottes"
+        ],
+        "chemin": "data/recettes/20260412_144607_wrap_de_printemps.json"
     }
 ]
