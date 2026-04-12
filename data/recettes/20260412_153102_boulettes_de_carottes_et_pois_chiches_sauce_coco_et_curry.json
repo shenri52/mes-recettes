@@ -1,0 +1,34 @@
+{
+    "nom": "Boulettes de carottes et pois chiches sauce coco et curry",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "20min",
+    "temps_cuisson": "25min",
+    "ingredients": [
+        {
+            "Ingrédient": "Carottes",
+            "Quantité": "300g"
+        },
+        {
+            "Ingrédient": "Pois chiche",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Lait de coco",
+            "Quantité": "400cl"
+        },
+        {
+            "Ingrédient": "Pâte de curry",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_153102_boulettes_de_carottes_et_pois_chiches_sauce_coco_et_curry_0.jpg",
+        "data/images/20260412_153102_boulettes_de_carottes_et_pois_chiches_sauce_coco_et_curry_1.jpg"
+    ]
+}
