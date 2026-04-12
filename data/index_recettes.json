@@ -229,6 +229,19 @@
         "chemin": "data/recettes/20260327_125127_fruti_coco_poire_betterave.json"
     },
     {
+        "nom": "Goûter aux graines",
+        "categorie": "Goûter",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Graines",
+            "Flocon d'avoine",
+            "Huile de coco",
+            "Oeuf",
+            "Sirop d'érable"
+        ],
+        "chemin": "data/recettes/20260412_150226_goûter_aux_graines.json"
+    },
+    {
         "nom": "Granola Maison",
         "categorie": "Divers",
         "appareil": "Aucun",
