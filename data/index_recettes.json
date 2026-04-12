@@ -55,6 +55,19 @@
         "chemin": "data/recettes/20260307_155721_boeuf_stroganoff.json"
     },
     {
+        "nom": "Boulettes de carottes et pois chiches sauce coco et curry",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Carottes",
+            "Pois chiche",
+            "Oignon",
+            "Lait de coco",
+            "Pâte de curry"
+        ],
+        "chemin": "data/recettes/20260412_153102_boulettes_de_carottes_et_pois_chiches_sauce_coco_et_curry.json"
+    },
+    {
         "nom": "Brandle",
         "categorie": "Cocktail",
         "appareil": "Aucun",
