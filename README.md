@@ -1,4 +1,4 @@
-# 🍳 Mes Recettes - (2026)
+# 🍳 Mes Recettes
 
 Application interactive développée avec **Streamlit** pour répondre à un besoin spécifique **non couvert par les applications actuellement disponibles** sur les stores.
 
