@@ -749,6 +749,21 @@
         "chemin": "data/recettes/20260307_155052_râgout_de_pommes_de_terre_aux_boulettes_de_viande_hachée.json"
     },
     {
+        "nom": "Ragoût réconfortant du pauvre",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Carottes",
+            "Oignon",
+            "Ail",
+            "Pommes de terre",
+            "Haricots blancs",
+            "Huile olive",
+            "Bouillon de légumes"
+        ],
+        "chemin": "data/recettes/20260412_152737_ragoût_réconfortant_du_pauvre.json"
+    },
+    {
         "nom": "Riz sauté au poulet et légumes",
         "categorie": "Plat",
         "appareil": "Aucun",
