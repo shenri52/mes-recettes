@@ -1,0 +1,34 @@
+{
+    "nom": "Poulet miel et soja",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "10mn",
+    "temps_cuisson": "15mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Filet de poulet",
+            "Quantité": "400g"
+        },
+        {
+            "Ingrédient": "Miel",
+            "Quantité": "3cas"
+        },
+        {
+            "Ingrédient": "Sauce soja",
+            "Quantité": "6cas"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "2 gousses"
+        },
+        {
+            "Ingrédient": "Huile sesame",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_153403_poulet_miel_et_soja_0.jpg",
+        "data/images/20260412_153403_poulet_miel_et_soja_1.jpg"
+    ]
+}
