@@ -853,6 +853,22 @@
         "chemin": "data/recettes/20260412_144858_salade_fraises,_avocat,_feta_et_noix.json"
     },
     {
+        "nom": "Salade lentilles, avocat, mangue et sauce curry coco",
+        "categorie": "Salade",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Lentilles vertes",
+            "Avocat",
+            "Mangue",
+            "Echalottes",
+            "Lait de coco",
+            "Curry",
+            "Miel",
+            "Noix de cajou"
+        ],
+        "chemin": "data/recettes/20260412_152047_salade_lentilles,_avocat,_mangue_et_sauce_curry_coco.json"
+    },
+    {
         "nom": "Salade Lentilles, carottes rapées, raisins secs, noisettes",
         "categorie": "Salade",
         "appareil": "Aucun",
