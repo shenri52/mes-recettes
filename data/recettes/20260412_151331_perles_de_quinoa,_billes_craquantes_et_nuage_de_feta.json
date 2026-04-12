@@ -1,0 +1,35 @@
+{
+    "nom": "Perles de quinoa, billes craquantes et nuage de feta",
+    "categorie": "Salade",
+    "appareil": "Aucun",
+    "temps_preparation": "15mn",
+    "temps_cuisson": "15mn",
+    "ingredients": [
+        {
+            "Ingrédient": "Quinoa",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "Petit pois",
+            "Quantité": "200g"
+        },
+        {
+            "Ingrédient": "Feta",
+            "Quantité": "150g"
+        },
+        {
+            "Ingrédient": "Graines",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Menthe fraiche",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Voir photos",
+    "images": [
+        "data/images/20260412_151331_perles_de_quinoa,_billes_craquantes_et_nuage_de_feta_0.jpg",
+        "data/images/20260412_151331_perles_de_quinoa,_billes_craquantes_et_nuage_de_feta_1.jpg",
+        "data/images/20260412_151331_perles_de_quinoa,_billes_craquantes_et_nuage_de_feta_2.jpg"
+    ]
+}
