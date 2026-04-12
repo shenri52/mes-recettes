@@ -608,6 +608,20 @@
         "chemin": "data/recettes/20260321_090106_poulet_sauce_boursin_à_l'ail_et_fines_herbes_.json"
     },
     {
+        "nom": "Pudding Chia aux fruits rouges",
+        "categorie": "Divers",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Yaourt skyr",
+            "Graines de chia",
+            "Lait végétal",
+            "Sirop d'agave",
+            "Jus de citron",
+            "Fruits rouges"
+        ],
+        "chemin": "data/recettes/20260412_142908_pudding_chia_aux_fruits_rouges.json"
+    },
+    {
         "nom": "Ragout aux haricots blancs et boeuf",
         "categorie": "Plat",
         "appareil": "Aucun",
