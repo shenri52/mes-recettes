@@ -129,7 +129,7 @@ def verifier_mot_de_passe():
             if taille_ko > 0:
                 taille_mo = taille_ko / 1024
 
-            st.info(f"""📊 **Mon livre de recettes** : {nb_recettes} recttes - {taille_mo:.2f} Mo""")
+            st.info(f"""📊 **Mon livre de recettes** : {nb_recettes} recettes - {taille_mo:.2f} Mo""")
                 
         return False
     return True
