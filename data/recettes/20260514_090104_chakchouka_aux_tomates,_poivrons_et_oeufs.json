@@ -1,0 +1,49 @@
+{
+    "nom": "Chakchouka aux tomates, poivrons et oeufs",
+    "categorie": "Plat",
+    "appareil": "Aucun",
+    "temps_preparation": "10",
+    "temps_cuisson": "40",
+    "ingredients": [
+        {
+            "Ingrédient": "Tomate",
+            "Quantité": "1,5kg"
+        },
+        {
+            "Ingrédient": "Poivron vert",
+            "Quantité": "2"
+        },
+        {
+            "Ingrédient": "Oignon",
+            "Quantité": "1"
+        },
+        {
+            "Ingrédient": "Ail",
+            "Quantité": "1 gousse"
+        },
+        {
+            "Ingrédient": "Oeuf",
+            "Quantité": "4"
+        },
+        {
+            "Ingrédient": "Huile olive",
+            "Quantité": "2 c à s"
+        },
+        {
+            "Ingrédient": "Persil",
+            "Quantité": "10 tiges"
+        },
+        {
+            "Ingrédient": "Sel",
+            "Quantité": ""
+        },
+        {
+            "Ingrédient": "Poivre",
+            "Quantité": ""
+        }
+    ],
+    "etapes": "Laver tous les légumes.\n\nFaire chauffer l'huile d'olive dans une grande poêle et y faire revenir l'ail et l'oignon émincés finement.\n\nAjouter les poivrons coupés en lamelles (et débarrassés de leurs graines), ainsi que les tomates coupés en gros cubes. Saler, poivrer.\n\nFaire cuire le tout 30 à 40 minutes, le mélange doit prendre une consistance de sauce tomates épaisse.\n\nQuand les tomates et les poivrons sont bien cuits, faire 4 trous à l'aide d'une cuillère en bois et y casser 4 oeufs.\n\nCouvrir la poêle et faire cuire 5 minutes, le jaune des oeufs sera coulant, c'est comme cela qu'il est bon !\n\nCiseler finement le persil, et l'ajouter dans la poêle au moment de servir.\n\nManger avec de belles tranches de pain ou accompagné de semoule de couscous.",
+    "images": [
+        "data/images/20260514_090104_chakchouka_aux_tomates,_poivrons_et_oeufs_0.jpg"
+    ]
+}
