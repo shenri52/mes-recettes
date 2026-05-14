@@ -131,6 +131,23 @@
         "chemin": "data/recettes/20260321_080241_calzone_croustillante_au_poulet,_coeur_fondant_ricotta-épinards.json"
     },
     {
+        "nom": "Chakchouka aux tomates, poivrons et oeufs",
+        "categorie": "Plat",
+        "appareil": "Aucun",
+        "ingredients": [
+            "Tomate",
+            "Poivron vert",
+            "Oignon",
+            "Ail",
+            "Oeuf",
+            "Huile olive",
+            "Persil",
+            "Sel",
+            "Poivre"
+        ],
+        "chemin": "data/recettes/20260514_090104_chakchouka_aux_tomates,_poivrons_et_oeufs.json"
+    },
+    {
         "nom": "Choux de Bruxelles, lentilles et ail confit",
         "categorie": "Plat",
         "appareil": "Aucun",
