@@ -1,8 +1,7 @@
 import streamlit as st
 import json, base64, requests, time
 from datetime import datetime
-from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, compresser_image, recuperer_donnees_index
-
+from utils import config_github, charger_index, sauvegarder_index, verifier_doublon, compresser_image, recuperer_donnees_index, envoyer_vers_github
 def afficher():
 
     # Initialisation session_state
