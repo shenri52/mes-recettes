@@ -118,3 +118,61 @@ def afficher():
                     st.error("Erreur lors de la récupération du projet.")
     else:
         st.info("✅ Le téléchargement va débuté dans quelques secondes ! Pensez à déplacer le fichier de sauvegarde vers votre dossier sécurisé.")
+
+
+def verifier_images_manquantes():
+    st.subheader("🖼️ Analyse des images")
+    
+    if st.button("🔎 Vérifier les images manquantes", use_container_width=True):
+        with st.spinner("Analyse du dépôt GitHub..."):
+            conf = config_github()
+            
+            # 1. Récupération de la liste des fichiers existants sur GitHub
+            url_tree = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/git/trees/main?recursive=1"
+            res = requests.get(url_tree, headers=conf['headers'])
+            
+            if res.status_code != 200:
+                st.error("Impossible d'accéder à l'API GitHub.")
+                return
+            
+            tree = res.json().get('tree', [])
+            images_existantes = {
+                item['path'] for item in tree 
+                if item['path'].startswith('data/images/')
+            }
+            
+            index = charger_index()
+            images_cassees = []  # Lien dans le JSON mais fichier inexistant sur GitHub
+            sans_image = []      # Aucune image déclarée dans le JSON
+            
+            # 2. Vérification de chaque recette
+            for r in index:
+                url_raw = f"https://raw.githubusercontent.com/{conf['owner']}/{conf['repo']}/main/{r['chemin']}"
+                res_rec = requests.get(url_raw)
+                
+                if res_rec.status_code == 200:
+                    data = res_rec.json()
+                    imgs = data.get('images', [])
+                    
+                    if not imgs:
+                        sans_image.append(r['nom'])
+                    else:
+                        for img_path in imgs:
+                            p_clean = img_path.strip('/')
+                            if p_clean not in images_existantes:
+                                images_cassees.append((r['nom'], p_clean))
+
+            # 3. Affichage des résultats
+            st.divider()
+            
+            if images_cassees:
+                st.error(f"❌ **{len(images_cassees)} photo(s) introuvable(s) dans `data/images/` :**")
+                for nom, img in images_cassees:
+                    st.write(f"- **{nom}** ➔ Fichier manquant : `{img}`")
+            else:
+                st.success("✅ Aucun lien d'image cassé !")
+
+            if sans_image:
+                st.warning(f"⚠️ **{len(sans_image)} recette(s) sans photo enregistrée :**")
+                for nom in sans_image:
+                    st.write(f"- {nom}")
