@@ -140,7 +140,6 @@ def afficher():
     verifier_images_manquantes()
 
     # --- 5. SECTION : SAUVEGARDE DU PROJET ---
-    st.divider()
     if "save_termine" not in st.session_state:
         st.session_state.save_termine = False
 
