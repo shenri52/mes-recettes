@@ -126,6 +126,7 @@ def verifier_mot_de_passe():
         nb_recettes = len(st.session_state.get("index_recettes", []))
         if nb_recettes > 0:
             taille_ko = obtenir_taille_depot()
+            taille_mo = 0.0
             if taille_ko > 0:
                 taille_mo = taille_ko / 1024
 
