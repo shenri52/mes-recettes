@@ -2,10 +2,7 @@ import streamlit as st
 import requests, time
 from utils import config_github, charger_index, sauvegarder_index, telecharger_projet_complet
 
-def verifier_images_manquantes():
-    st.divider()
-    st.subheader("🖼️ Analyse des images")
-    
+def verifier_images_manquantes():  
     if st.button("🔎 Vérifier les images manquantes", use_container_width=True):
         with st.spinner("Analyse du dépôt GitHub..."):
             conf = config_github()
