@@ -105,9 +105,11 @@ def afficher():
                     for idx, f in enumerate(photos):
                         img_data = compresser_image(f)
                         ch_m = f"data/images/{ts}_{nom_fic}_{idx}.jpg"
-                        url_m = f"https://api.github.com/repos/{conf['owner']}/{conf['repo']}/contents/{ch_m}"
-                        b64_m = base64.b64encode(img_data).decode()
-                        liste_medias.append(ch_m)
+                        # --- ENVOI EFFECTIF DE L'IMAGE VERS GITHUB ---
+                        if envoyer_vers_github(ch_m, img_data, f"Photo : {nom_plat}", est_binaire=True):
+                            liste_medias.append(ch_m)
+                        else:
+                            st.error(f"⚠️ Échec de l'envoi de la photo {f.name}")
 
                 ch_r = f"data/recettes/{ts}_{nom_fic}.json"
                 rec_data = {
